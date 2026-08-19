@@ -1,0 +1,75 @@
+<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.SurveyOverviewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:models="clr-namespace:SDSM_Surveyor_App.Models"
+             mc:Ignorable="d" d:DesignWidth="1200"
+             d:DataContext="{d:DesignInstance models:SurveyMeta}">
+
+    <!-- 공통 조사개황 : 모든 분류군이 이 컨트롤을 끼워 사용. 규칙 변경은 여기 한 곳에서. -->
+    <StackPanel>
+        <TextBlock Text="조사개황" FontWeight="SemiBold" Margin="0 2 0 6"
+                   Foreground="{StaticResource AppAccentStrongBrush}"/>
+        <WrapPanel>
+            <StackPanel Width="120" Margin="0 0 12 10">
+                <TextBlock Text="대분류" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadComboBox ItemsSource="{Binding Projects}" SelectedItem="{Binding Project, Mode=TwoWay}"
+                                     EmptyText="방류하천/생태현황"/>
+            </StackPanel>
+            <StackPanel Width="90"  Margin="0 0 12 10">
+                <TextBlock Text="연도" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadWatermarkTextBox WatermarkContent="2024" Text="{Binding SurveyYear, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <StackPanel Width="120" Margin="0 0 12 10">
+                <TextBlock Text="연도차수" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadWatermarkTextBox WatermarkContent="2024반기1차" Text="{Binding YearChsu, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <StackPanel Width="150" Margin="0 0 12 10">
+                <TextBlock Text="조사일자" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadDatePicker SelectedValue="{Binding SurveyDate, Mode=TwoWay}"/>
+            </StackPanel>
+            <StackPanel Width="120" Margin="0 0 12 10">
+                <TextBlock Text="대권역명" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadWatermarkTextBox Text="{Binding MajorRegion, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <StackPanel Width="120" Margin="0 0 12 10">
+                <TextBlock Text="중권역명" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadWatermarkTextBox Text="{Binding MiddleRegion, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <StackPanel Width="120" Margin="0 0 12 10">
+                <TextBlock Text="하천명" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadWatermarkTextBox Text="{Binding River, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <StackPanel Width="120" Margin="0 0 12 10">
+                <TextBlock Text="하천유형" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadWatermarkTextBox Text="{Binding RiverType, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <StackPanel Width="120" Margin="0 0 12 10">
+                <TextBlock Text="지점명" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadWatermarkTextBox Text="{Binding Site, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <StackPanel Width="110" Margin="0 0 12 10">
+                <TextBlock Text="위도" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadWatermarkTextBox WatermarkContent="37.xxxxxx" Text="{Binding Lat, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <StackPanel Width="110" Margin="0 0 12 10">
+                <TextBlock Text="경도" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadWatermarkTextBox WatermarkContent="127.xxxxxx" Text="{Binding Lng, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <StackPanel Width="110" Margin="0 0 12 10">
+                <TextBlock Text="날씨" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadComboBox ItemsSource="{Binding Weathers}" SelectedItem="{Binding Weather, Mode=TwoWay}"/>
+            </StackPanel>
+            <StackPanel Width="120" Margin="0 0 12 10">
+                <TextBlock Text="조사기관" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadWatermarkTextBox Text="{Binding SurveyAgency, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+            <StackPanel Width="110" Margin="0 0 12 10">
+                <TextBlock Text="조사자" Style="{StaticResource FormLabelStyle}"/>
+                <telerik:RadWatermarkTextBox Text="{Binding Surveyor, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+        </WrapPanel>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+      design.md §3 컬러 토큰.
+      ※ 삼성 브랜드 자산(로고·브랜드 남색)은 라이선스 대상이므로 사용하지 않는다.
+        아래 강조색은 제품 UI 계열의 기능색이며 브랜드 마크 색이 아니다.
+      ※ XAML에서는 반드시 이 키만 참조(리터럴 금지).
+    -->
+
+    <!--=========== 강조색 (앱 고유) ===========-->
+    <Color x:Key="AppAccentColor">#FF0381FE</Color>
+    <SolidColorBrush x:Key="AppAccentBrush" Color="{StaticResource AppAccentColor}"/>
+
+    <!-- 밝은 배경 위 텍스트/아이콘 대비 확보용 -->
+    <Color x:Key="AppAccentStrongColor">#FF0072DE</Color>
+    <SolidColorBrush x:Key="AppAccentStrongBrush" Color="{StaticResource AppAccentStrongColor}"/>
+
+    <!-- 다크 모드 강조 -->
+    <Color x:Key="AppAccentDarkColor">#FF3E91FF</Color>
+    <SolidColorBrush x:Key="AppAccentDarkBrush" Color="{StaticResource AppAccentDarkColor}"/>
+
+    <!--=========== 셸(상단바/사이드바) — 관리자 계승 ===========-->
+    <Color x:Key="ShellPrimaryColor">#FF1E232E</Color>
+    <SolidColorBrush x:Key="ShellPrimaryBrush" Color="{StaticResource ShellPrimaryColor}"/>
+
+    <Color x:Key="ShellMouseOverColor">#AA293140</Color>
+    <SolidColorBrush x:Key="ShellMouseOverBrush" Color="{StaticResource ShellMouseOverColor}"/>
+
+    <Color x:Key="ShellSelectedColor">#FF353E52</Color>
+    <SolidColorBrush x:Key="ShellSelectedBrush" Color="{StaticResource ShellSelectedColor}"/>
+
+    <!-- 네이비 위 보조 텍스트 -->
+    <Color x:Key="ShellForegroundColor">#FF869DCF</Color>
+    <SolidColorBrush x:Key="ShellForegroundBrush" Color="{StaticResource ShellForegroundColor}"/>
+
+    <!-- 네이비 위 제목 텍스트 -->
+    <Color x:Key="ShellTitleForegroundColor">#FFF2F4F8</Color>
+    <SolidColorBrush x:Key="ShellTitleForegroundBrush" Color="{StaticResource ShellTitleForegroundColor}"/>
+
+    <!--=========== 분류군 식별색 — 관리자와 동일 ===========-->
+    <Color x:Key="FishColor">#FF00B8D4</Color>
+    <SolidColorBrush x:Key="FishBrush" Color="{StaticResource FishColor}"/>
+
+    <Color x:Key="BenthosColor">#FF651FFF</Color>
+    <SolidColorBrush x:Key="BenthosBrush" Color="{StaticResource BenthosColor}"/>
+
+    <Color x:Key="BirdColor">#FF9E9D24</Color>
+    <SolidColorBrush x:Key="BirdBrush" Color="{StaticResource BirdColor}"/>
+
+    <Color x:Key="MammalColor">#FFFE9900</Color>
+    <SolidColorBrush x:Key="MammalBrush" Color="{StaticResource MammalColor}"/>
+
+    <Color x:Key="AmphibianReptileColor">#FFCC33FF</Color>
+    <SolidColorBrush x:Key="AmphibianReptileBrush" Color="{StaticResource AmphibianReptileColor}"/>
+
+    <Color x:Key="HabitatWaterEdgeColor">#FF37474F</Color>
+    <SolidColorBrush x:Key="HabitatWaterEdgeBrush" Color="{StaticResource HabitatWaterEdgeColor}"/>
+
+    <Color x:Key="WaterQualityColor">#FF2979FF</Color>
+    <SolidColorBrush x:Key="WaterQualityBrush" Color="{StaticResource WaterQualityColor}"/>
+
+    <!--=========== 차트·통계 — 관리자 계승 ===========-->
+    <Color x:Key="MaxColor">#FFF25022</Color>
+    <SolidColorBrush x:Key="MaxBrush" Color="{StaticResource MaxColor}"/>
+
+    <Color x:Key="AvgColor">#FF8EC441</Color>
+    <SolidColorBrush x:Key="AvgBrush" Color="{StaticResource AvgColor}"/>
+
+    <Color x:Key="MinColor">#FF5B9BD5</Color>
+    <SolidColorBrush x:Key="MinBrush" Color="{StaticResource MinColor}"/>
+
+</ResourceDictionary>

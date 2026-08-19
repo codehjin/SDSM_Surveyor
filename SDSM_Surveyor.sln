@@ -1,0 +1,31 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.10000.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDSM_Surveyor_App", "SDSM_Surveyor_App\SDSM_Surveyor_App.csproj", "{7A2B9C1D-5E4F-4A3B-8C2D-9F1E0A6B3C55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDSM_Models", "..\SDSM\SDSM_Models\SDSM_Models.csproj", "{16126651-0621-41D0-AB69-8C6D30D83211}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7A2B9C1D-5E4F-4A3B-8C2D-9F1E0A6B3C55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A2B9C1D-5E4F-4A3B-8C2D-9F1E0A6B3C55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A2B9C1D-5E4F-4A3B-8C2D-9F1E0A6B3C55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A2B9C1D-5E4F-4A3B-8C2D-9F1E0A6B3C55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16126651-0621-41D0-AB69-8C6D30D83211}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16126651-0621-41D0-AB69-8C6D30D83211}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16126651-0621-41D0-AB69-8C6D30D83211}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16126651-0621-41D0-AB69-8C6D30D83211}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C9E2F4A1-3B7D-4E8C-A1F2-5D6E7A8B9C0D}
+	EndGlobalSection
+EndGlobal

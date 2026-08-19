@@ -1,0 +1,219 @@
+<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.HabitatWaterEdgeEntryControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1360" d:DesignHeight="740"
+             d:DataContext="{d:DesignInstance vm:HabitatWaterEdgeEntryViewModel}">
+
+    <UserControl.Resources>
+        <Style x:Key="HwCaption" TargetType="TextBlock" BasedOn="{StaticResource FormLabelStyle}"/>
+        <Style x:Key="HwItemLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style x:Key="HwBankTag" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0 0 4 0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 공통 기본정보 -->
+        <Border Grid.Row="0" Margin="2" Padding="14"
+                Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
+                BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
+                BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+            <WrapPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="연도차수" Style="{StaticResource HwCaption}"/>
+                    <telerik:RadWatermarkTextBox Width="110" WatermarkContent="2024반기1차" Text="{Binding YearChsu, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="조사일자" Style="{StaticResource HwCaption}"/>
+                    <telerik:RadDatePicker Width="150" SelectedValue="{Binding SurveyDate, Mode=TwoWay}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="하천명" Style="{StaticResource HwCaption}"/>
+                    <telerik:RadWatermarkTextBox Width="130" Text="{Binding River, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="지점명" Style="{StaticResource HwCaption}"/>
+                    <telerik:RadWatermarkTextBox Width="130" Text="{Binding Site, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="조사자" Style="{StaticResource HwCaption}"/>
+                    <telerik:RadWatermarkTextBox Width="110" Text="{Binding Surveyor, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="날씨" Style="{StaticResource HwCaption}"/>
+                    <telerik:RadComboBox Width="100" ItemsSource="{Binding Weathers}" SelectedItem="{Binding Weather, Mode=TwoWay}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="조사불가시" Style="{StaticResource HwCaption}"/>
+                    <telerik:RadWatermarkTextBox Width="130" WatermarkContent="접근불가 등"
+                                                 Text="{Binding SurveyUnavailableReason, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+            </WrapPanel>
+        </Border>
+
+        <!-- 평가 항목(드롭다운) + 결과 -->
+        <Grid Grid.Row="1" Margin="2 8 2 2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="280"/>
+            </Grid.ColumnDefinitions>
+
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                <Border Padding="14"
+                        Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
+                        BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
+                        BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+                    <StackPanel>
+                        <TextBlock Text="평가 항목 ([별표5] 점수 선택 · 좌/우안 항목은 자동 평균)" FontWeight="SemiBold" Margin="0 0 0 10"
+                                   Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+
+                        <Grid Margin="0 5">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="1. 자연적 종횡사주" Style="{StaticResource HwItemLabel}"/>
+                            <telerik:RadComboBox Grid.Column="1" Width="230" HorizontalAlignment="Left"
+                                ItemsSource="{Binding Opt1}" DisplayMemberPath="Display" SelectedItem="{Binding S1, Mode=TwoWay}"/>
+                        </Grid>
+                        <Grid Margin="0 5">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="2. 하도 자연성 (좌/우안)" Style="{StaticResource HwItemLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
+                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt2}" DisplayMemberPath="Display" SelectedItem="{Binding B2L, Mode=TwoWay}"/>
+                                <TextBlock Text="우" Margin="10 0 4 0" Style="{StaticResource HwBankTag}"/>
+                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt2}" DisplayMemberPath="Display" SelectedItem="{Binding B2R, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0 5">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="3. 유속 다양성" Style="{StaticResource HwItemLabel}"/>
+                            <telerik:RadComboBox Grid.Column="1" Width="230" HorizontalAlignment="Left"
+                                ItemsSource="{Binding Opt3}" DisplayMemberPath="Display" SelectedItem="{Binding S3, Mode=TwoWay}"/>
+                        </Grid>
+                        <Grid Margin="0 5">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="4. 하천변 폭" Style="{StaticResource HwItemLabel}"/>
+                            <telerik:RadComboBox Grid.Column="1" Width="230" HorizontalAlignment="Left"
+                                ItemsSource="{Binding Opt4}" DisplayMemberPath="Display" SelectedItem="{Binding S4, Mode=TwoWay}"/>
+                        </Grid>
+                        <Grid Margin="0 5">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="5. 저수로 하안공 (좌/우안)" Style="{StaticResource HwItemLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
+                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt5}" DisplayMemberPath="Display" SelectedItem="{Binding B5L, Mode=TwoWay}"/>
+                                <TextBlock Text="우" Margin="10 0 4 0" Style="{StaticResource HwBankTag}"/>
+                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt5}" DisplayMemberPath="Display" SelectedItem="{Binding B5R, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0 5">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="6. 제방하안 재료 (좌/우안)" Style="{StaticResource HwItemLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
+                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt6}" DisplayMemberPath="Display" SelectedItem="{Binding B6L, Mode=TwoWay}"/>
+                                <TextBlock Text="우" Margin="10 0 4 0" Style="{StaticResource HwBankTag}"/>
+                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt6}" DisplayMemberPath="Display" SelectedItem="{Binding B6R, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0 5">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="7. 저질 상태" Style="{StaticResource HwItemLabel}"/>
+                            <telerik:RadComboBox Grid.Column="1" Width="230" HorizontalAlignment="Left"
+                                ItemsSource="{Binding Opt7}" DisplayMemberPath="Display" SelectedItem="{Binding S7, Mode=TwoWay}"/>
+                        </Grid>
+                        <Grid Margin="0 5">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="8. 횡구조물" Style="{StaticResource HwItemLabel}"/>
+                            <telerik:RadComboBox Grid.Column="1" Width="230" HorizontalAlignment="Left"
+                                ItemsSource="{Binding Opt8}" DisplayMemberPath="Display" SelectedItem="{Binding S8, Mode=TwoWay}"/>
+                        </Grid>
+                        <Grid Margin="0 5">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="9. 제외지 토지 이용 (좌/우안)" Style="{StaticResource HwItemLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
+                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt9}" DisplayMemberPath="Display" SelectedItem="{Binding B9L, Mode=TwoWay}"/>
+                                <TextBlock Text="우" Margin="10 0 4 0" Style="{StaticResource HwBankTag}"/>
+                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt9}" DisplayMemberPath="Display" SelectedItem="{Binding B9R, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0 5">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="10. 제내지 토지 이용 (좌/우안)" Style="{StaticResource HwItemLabel}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
+                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt10}" DisplayMemberPath="Display" SelectedItem="{Binding B10L, Mode=TwoWay}"/>
+                                <TextBlock Text="우" Margin="10 0 4 0" Style="{StaticResource HwBankTag}"/>
+                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt10}" DisplayMemberPath="Display" SelectedItem="{Binding B10R, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </ScrollViewer>
+
+            <!-- 결과 -->
+            <Border Grid.Column="1" Margin="8 0 0 0" Padding="14"
+                    Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
+                    BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
+                    BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+                <StackPanel>
+                    <TextBlock Text="서식·수변환경 평가 (HRI)" Style="{StaticResource SubHeaderTextStyle}"/>
+                    <TextBlock Text="평가점수 (합÷2)" Margin="0 8 0 0" Style="{StaticResource FormLabelStyle}"/>
+                    <TextBlock Text="{Binding ScoreText}" Style="{StaticResource ValueTextStyle}"/>
+                    <TextBlock Text="평가등급" Margin="0 12 0 0" Style="{StaticResource FormLabelStyle}"/>
+                    <TextBlock Text="{Binding GradeText}" Style="{StaticResource GradeTextStyle}"/>
+                    <TextBlock Text="* [별표5] 기준. A80·B60·C40·D20·E. 접근불가 시 '-'." Margin="0 16 0 0"
+                               TextWrapping="Wrap" FontSize="11"
+                               Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- 상태바 -->
+        <Border Grid.Row="2" Margin="2 8 2 2" Padding="8 6"
+                Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
+                BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
+                BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <icon:PackIconMaterial Kind="ClockOutline" Width="14" Height="14" VerticalAlignment="Center"
+                                           Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
+                    <TextBlock Text="{Binding StatusText}" Margin="6 0 0 0"
+                               Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <telerik:RadButton Command="{Binding SaveTemporaryCommand}" Margin="0 0 8 0" Padding="10 4">
+                        <StackPanel Orientation="Horizontal">
+                            <icon:PackIconMaterial Kind="ContentSaveOutline" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="임시 저장" Margin="6 0 0 0"/>
+                        </StackPanel>
+                    </telerik:RadButton>
+                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="10 4">
+                        <StackPanel Orientation="Horizontal">
+                            <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="엑셀 내보내기" Margin="6 0 0 0"/>
+                        </StackPanel>
+                    </telerik:RadButton>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

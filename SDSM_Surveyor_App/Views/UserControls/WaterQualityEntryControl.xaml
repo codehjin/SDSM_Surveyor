@@ -1,0 +1,166 @@
+<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.WaterQualityEntryControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1360" d:DesignHeight="740"
+             d:DataContext="{d:DesignInstance vm:WaterQualityEntryViewModel}">
+
+    <UserControl.Resources>
+        <!-- 공용 폼 라벨 스타일 상속 (design.md §4) -->
+        <Style x:Key="WqCaption" TargetType="TextBlock" BasedOn="{StaticResource FormLabelStyle}"/>
+    </UserControl.Resources>
+
+    <Grid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 공통 기본정보 -->
+        <Border Grid.Row="0" Margin="2" Padding="14"
+                Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
+                BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
+                BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+            <WrapPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="연도차수" Style="{StaticResource WqCaption}"/>
+                    <telerik:RadWatermarkTextBox Width="110" WatermarkContent="2024반기1차" Text="{Binding YearChsu, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="조사일자" Style="{StaticResource WqCaption}"/>
+                    <telerik:RadDatePicker Width="150" SelectedValue="{Binding SurveyDate, Mode=TwoWay}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="대권역" Style="{StaticResource WqCaption}"/>
+                    <telerik:RadWatermarkTextBox Width="120" Text="{Binding MajorRegion, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="하천명" Style="{StaticResource WqCaption}"/>
+                    <telerik:RadWatermarkTextBox Width="130" Text="{Binding River, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="지점명" Style="{StaticResource WqCaption}"/>
+                    <telerik:RadWatermarkTextBox Width="130" Text="{Binding Site, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="조사자" Style="{StaticResource WqCaption}"/>
+                    <telerik:RadWatermarkTextBox Width="110" Text="{Binding Surveyor, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Margin="0 0 16 0">
+                    <TextBlock Text="날씨" Style="{StaticResource WqCaption}"/>
+                    <telerik:RadComboBox Width="110" ItemsSource="{Binding Weathers}" SelectedItem="{Binding Weather, Mode=TwoWay}"/>
+                </StackPanel>
+            </WrapPanel>
+        </Border>
+
+        <!-- 측정 항목 + 실시간 등급 -->
+        <ScrollViewer Grid.Row="1" Margin="2 8 2 2" VerticalScrollBarVisibility="Auto">
+            <Border Padding="12"
+                    Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
+                    BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
+                    BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+                <StackPanel>
+                    <TextBlock Text="측정 항목 (입력 시 등급 자동 산정)" Style="{StaticResource SubHeaderTextStyle}"/>
+                    <WrapPanel>
+                        <!-- pH -->
+                        <StackPanel Width="150" Margin="0 0 14 12">
+                            <TextBlock Text="pH" Style="{StaticResource WqCaption}"/>
+                            <telerik:RadWatermarkTextBox Text="{Binding PH, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Margin="0 3 0 0" Text="{Binding PhGradeText, StringFormat=등급  {0}}"
+                                       FontWeight="SemiBold" Foreground="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                        </StackPanel>
+                        <!-- BOD -->
+                        <StackPanel Width="150" Margin="0 0 14 12">
+                            <TextBlock Text="BOD (mg/L)" Style="{StaticResource WqCaption}"/>
+                            <telerik:RadWatermarkTextBox Text="{Binding Bod, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Margin="0 3 0 0" Text="{Binding BodGradeText, StringFormat=등급  {0}}"
+                                       FontWeight="SemiBold" Foreground="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                        </StackPanel>
+                        <!-- COD -->
+                        <StackPanel Width="150" Margin="0 0 14 12">
+                            <TextBlock Text="COD (mg/L)" Style="{StaticResource WqCaption}"/>
+                            <telerik:RadWatermarkTextBox Text="{Binding Cod, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Margin="0 3 0 0" Text="{Binding CodGradeText, StringFormat=등급  {0}}"
+                                       FontWeight="SemiBold" Foreground="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                        </StackPanel>
+                        <!-- TOC -->
+                        <StackPanel Width="150" Margin="0 0 14 12">
+                            <TextBlock Text="TOC (mg/L)" Style="{StaticResource WqCaption}"/>
+                            <telerik:RadWatermarkTextBox Text="{Binding Toc, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Margin="0 3 0 0" Text="{Binding TocGradeText, StringFormat=등급  {0}}"
+                                       FontWeight="SemiBold" Foreground="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                        </StackPanel>
+                        <!-- SS -->
+                        <StackPanel Width="150" Margin="0 0 14 12">
+                            <TextBlock Text="SS (mg/L)" Style="{StaticResource WqCaption}"/>
+                            <telerik:RadWatermarkTextBox Text="{Binding Ss, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Margin="0 3 0 0" Text="{Binding SsGradeText, StringFormat=등급  {0}}"
+                                       FontWeight="SemiBold" Foreground="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                        </StackPanel>
+                        <!-- DO -->
+                        <StackPanel Width="150" Margin="0 0 14 12">
+                            <TextBlock Text="DO (mg/L)" Style="{StaticResource WqCaption}"/>
+                            <telerik:RadWatermarkTextBox Text="{Binding Dox, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Margin="0 3 0 0" Text="{Binding DoGradeText, StringFormat=등급  {0}}"
+                                       FontWeight="SemiBold" Foreground="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                        </StackPanel>
+                        <!-- TP -->
+                        <StackPanel Width="150" Margin="0 0 14 12">
+                            <TextBlock Text="T-P (mg/L)" Style="{StaticResource WqCaption}"/>
+                            <telerik:RadWatermarkTextBox Text="{Binding Tp, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Margin="0 3 0 0" Text="{Binding TpGradeText, StringFormat=등급  {0}}"
+                                       FontWeight="SemiBold" Foreground="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                        </StackPanel>
+                        <!-- 대장균군 -->
+                        <StackPanel Width="150" Margin="0 0 14 12">
+                            <TextBlock Text="대장균군 (군수/100mL)" Style="{StaticResource WqCaption}" TextWrapping="Wrap"/>
+                            <telerik:RadWatermarkTextBox Text="{Binding EColi, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Margin="0 3 0 0" Text="{Binding EColiGradeText, StringFormat=등급  {0}}"
+                                       FontWeight="SemiBold" Foreground="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                        </StackPanel>
+                        <!-- 생태독성 (등급 없음, 문자) -->
+                        <StackPanel Width="150" Margin="0 0 14 12">
+                            <TextBlock Text="생태독성 (TU)" Style="{StaticResource WqCaption}"/>
+                            <telerik:RadWatermarkTextBox Text="{Binding Ecotoxicity, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+
+        <!-- 상태바 -->
+        <Border Grid.Row="2" Margin="2 8 2 2" Padding="8 6"
+                Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
+                BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
+                BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <icon:PackIconMaterial Kind="ClockOutline" Width="14" Height="14" VerticalAlignment="Center"
+                                           Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
+                    <TextBlock Text="{Binding StatusText}" Margin="6 0 0 0"
+                               Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <telerik:RadButton Command="{Binding SaveTemporaryCommand}" Margin="0 0 8 0" Padding="10 4">
+                        <StackPanel Orientation="Horizontal">
+                            <icon:PackIconMaterial Kind="ContentSaveOutline" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="임시 저장" Margin="6 0 0 0"/>
+                        </StackPanel>
+                    </telerik:RadButton>
+                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="10 4">
+                        <StackPanel Orientation="Horizontal">
+                            <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="엑셀 내보내기" Margin="6 0 0 0"/>
+                        </StackPanel>
+                    </telerik:RadButton>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,14 @@
+# 빌드 산출물
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+
+# 로컬 설정·데이터
+*.db-shm
+*.db-wal
+
+# 대용량 참고자료
+*.xlsx
+!docs/**/*.xlsx

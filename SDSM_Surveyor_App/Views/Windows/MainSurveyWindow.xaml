@@ -1,0 +1,141 @@
+<Window x:Class="SDSM_Surveyor_App.Views.Windows.MainSurveyWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:ctrl="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}"
+        MinWidth="1280" Width="1440"
+        MinHeight="760" Height="860"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="CanResize"
+        FontFamily="{StaticResource DefaultFontFamily}"
+        FontSize="{StaticResource DefaultFontSize}"
+        Background="{telerik:Windows11Resource ResourceKey=PrimaryBackgroundBrush}"
+        x:Name="_this">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome ResizeBorderThickness="8" CaptionHeight="50" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <Border>
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="Margin" Value="0"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}"
+                                 Value="Maximized">
+                        <Setter Property="Margin" Value="8"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>   <!-- 캡션 -->
+                <RowDefinition Height="*"/>    <!-- 탭 -->
+            </Grid.RowDefinitions>
+
+            <!-- 캡션 바 (딥네이비 셸 · design.md §3.2) -->
+            <Border Grid.Row="0" Background="{StaticResource ShellPrimaryBrush}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal"
+                                VerticalAlignment="Center" Margin="16 0 0 0">
+                        <icon:PackIconMaterial Kind="ClipboardTextOutline" Width="17" Height="17"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource AppAccentBrush}"/>
+                        <TextBlock Text="{Binding Version}" Margin="10 0 0 0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource ShellForegroundBrush}"/>
+                    </StackPanel>
+
+                    <!-- 관리자 프로그램과 동일하게 타이틀 중앙 정렬 -->
+                    <TextBlock Grid.Column="1" Text="{Binding WindowTitle}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontWeight="SemiBold" FontSize="16"
+                               Foreground="{StaticResource ShellTitleForegroundBrush}"/>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
+                        <Button Click="Sync_Click" Style="{StaticResource CaptionTextButtonStyle}"
+                                WindowChrome.IsHitTestVisibleInChrome="True">
+                            <StackPanel Orientation="Horizontal">
+                                <icon:PackIconMaterial Kind="CloudSyncOutline" Width="14" Height="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="동기화" Margin="6 0 0 0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Click="Minimize_Click" Style="{StaticResource CaptionButtonStyle}"
+                                WindowChrome.IsHitTestVisibleInChrome="True">
+                            <icon:PackIconCodicons Kind="ChromeMinimize" Width="12" Height="12"/>
+                        </Button>
+                        <Button Click="Maximize_Click" Style="{StaticResource CaptionButtonStyle}"
+                                WindowChrome.IsHitTestVisibleInChrome="True">
+                            <icon:PackIconCodicons Kind="ChromeMaximize" Width="12" Height="12"/>
+                        </Button>
+                        <Button Click="Close_Click" Style="{StaticResource CaptionCloseButtonStyle}"
+                                WindowChrome.IsHitTestVisibleInChrome="True">
+                            <icon:PackIconCodicons Kind="ChromeClose" Width="12" Height="12"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 분류군 탭 (관리자 통계 화면과 동일한 세그먼트 형식) -->
+            <Grid Grid.Row="1" Margin="12 12 12 8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <UniformGrid Grid.Row="0" Rows="1">
+                    <RadioButton x:Name="TabFish"     GroupName="Taxon" Content="어류"     IsChecked="True"
+                                 Style="{StaticResource TaxonTabStyle}" Tag="{StaticResource FishBrush}"/>
+                    <RadioButton x:Name="TabBenthos"  GroupName="Taxon" Content="저서동물"
+                                 Style="{StaticResource TaxonTabStyle}" Tag="{StaticResource BenthosBrush}"/>
+                    <RadioButton x:Name="TabBird"     GroupName="Taxon" Content="조류"
+                                 Style="{StaticResource TaxonTabStyle}" Tag="{StaticResource BirdBrush}"/>
+                    <RadioButton x:Name="TabMammal"   GroupName="Taxon" Content="포유류"
+                                 Style="{StaticResource TaxonTabStyle}" Tag="{StaticResource MammalBrush}"/>
+                    <RadioButton x:Name="TabAmphibian" GroupName="Taxon" Content="양서파충류"
+                                 Style="{StaticResource TaxonTabStyle}" Tag="{StaticResource AmphibianReptileBrush}"/>
+                    <RadioButton x:Name="TabHabitat"  GroupName="Taxon" Content="서식수변"
+                                 Style="{StaticResource TaxonTabStyle}" Tag="{StaticResource HabitatWaterEdgeBrush}"/>
+                    <RadioButton x:Name="TabWater"    GroupName="Taxon" Content="수질"
+                                 Style="{StaticResource TaxonTabStyle}" Tag="{StaticResource WaterQualityBrush}"/>
+                </UniformGrid>
+
+                <!-- 탭 내용 -->
+                <Border Grid.Row="1" Background="#FFFFFFFF"
+                        BorderBrush="{StaticResource FormLineBrush}" BorderThickness="1 0 1 1"
+                        CornerRadius="0 0 4 4">
+                    <Grid>
+                        <ctrl:FishEntryControl
+                            Visibility="{Binding IsChecked, ElementName=TabFish, Converter={StaticResource BoolToVisibility}}"/>
+                        <ctrl:BenthosEntryControl
+                            Visibility="{Binding IsChecked, ElementName=TabBenthos, Converter={StaticResource BoolToVisibility}}"/>
+                        <ctrl:BirdEntryControl
+                            Visibility="{Binding IsChecked, ElementName=TabBird, Converter={StaticResource BoolToVisibility}}"/>
+                        <ctrl:MammalEntryControl
+                            Visibility="{Binding IsChecked, ElementName=TabMammal, Converter={StaticResource BoolToVisibility}}"/>
+                        <ctrl:AmphibianReptileEntryControl
+                            Visibility="{Binding IsChecked, ElementName=TabAmphibian, Converter={StaticResource BoolToVisibility}}"/>
+                        <ctrl:HabitatWaterEdgeEntryControl
+                            Visibility="{Binding IsChecked, ElementName=TabHabitat, Converter={StaticResource BoolToVisibility}}"/>
+                        <ctrl:WaterQualityEntryControl
+                            Visibility="{Binding IsChecked, ElementName=TabWater, Converter={StaticResource BoolToVisibility}}"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

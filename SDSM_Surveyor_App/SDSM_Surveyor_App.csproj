@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>SDSM_Surveyor_App</RootNamespace>
+    <AssemblyName>SDSM_Surveyor_App</AssemblyName>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+    <PackageReference Include="Scrutor" Version="6.1.0" />
+    <PackageReference Include="Telerik.UI.for.Wpf.AllControls.Xaml" Version="2026.2.520" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 관리자 앱과 공유하는 POCO 모델 (Fish/ImportFishSpecies/FishSpeciesList 등) -->
+    <ProjectReference Include="..\..\SDSM\SDSM_Models\SDSM_Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 기준자료(관리자 DB에서 내보낸 종별 범위) 번들 -->
+    <Content Include="reference.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- 종목록 카탈로그(관리자 마스터 내보내기). AppData\SDSM_Surveyor\species.json으로 교체 가능 -->
+    <Content Include="species.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
