@@ -192,10 +192,18 @@
                             <TextBlock Text="임시 저장" Margin="6 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
-                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="10 4">
+                    <telerik:RadButton Command="{Binding ExportBulkCommand}" Margin="0 0 8 0" Padding="10 4"
+                                       ToolTipService.ToolTip="관리자 일괄입력용(레거시 양식) · 현행 관리자 Import 취합용">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="엑셀 내보내기" Margin="6 0 0 0"/>
+                            <TextBlock Text="일괄입력용" Margin="6 0 0 0"/>
+                        </StackPanel>
+                    </telerik:RadButton>
+                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="10 4"
+                                       ToolTipService.ToolTip="보고서·기록용 · 조사개황/출현종/출현종요약 시트">
+                        <StackPanel Orientation="Horizontal">
+                            <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="보고서 엑셀" Margin="6 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                 </StackPanel>

@@ -180,6 +180,7 @@ public partial class BirdEntryViewModel : ObservableObject, ITransientService
         // 결측치(null)와 0 엄격 구분 : 미입력은 합계에서 0으로 캐스팅
         TotalIndividualCount = Entries.Sum(x => x.IndividualCount ?? 0);
         ExportExcelCommand.NotifyCanExecuteChanged();
+        ExportBulkCommand.NotifyCanExecuteChanged();
     }
 
     [RelayCommand] private void AddRow() => Entries.Add(new BirdEntry());
@@ -200,11 +201,36 @@ public partial class BirdEntryViewModel : ObservableObject, ITransientService
         WeakReferenceMessenger.Default.Send(new NotifyMessage(("임시 저장되었습니다.", true)));
     }
 
+    /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>
     [RelayCommand(CanExecute = nameof(CanExport))]
-    private Task ExportExcel()
+    private void ExportExcel()
     {
-        StatusText = "엑셀 내보내기: 다음 단계에서 연동 예정";
-        return Task.CompletedTask;
+        try
+        {
+            var saved = Export.BirdReportExporter.Export(this);
+            if (saved is not null)
+            {
+                StatusText = $"보고서용 엑셀 완료 · {System.IO.Path.GetFileName(saved)}";
+                WeakReferenceMessenger.Default.Send(new NotifyMessage(("보고서용 엑셀을 내보냈습니다.", true)));
+            }
+        }
+        catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
+    }
+
+    /// <summary>[레거시] 관리자 일괄입력 양식으로 내보내기(현행 관리자 Import 취합용).</summary>
+    [RelayCommand(CanExecute = nameof(CanExport))]
+    private void ExportBulk()
+    {
+        try
+        {
+            var saved = Export.BirdExcelExporter.Export(this);
+            if (saved is not null)
+            {
+                StatusText = $"일괄입력용 완료 · {System.IO.Path.GetFileName(saved)}";
+                WeakReferenceMessenger.Default.Send(new NotifyMessage(("일괄입력용 엑셀을 내보냈습니다.", true)));
+            }
+        }
+        catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
     }
 
     private bool CanExport() => Entries.Any(x => !string.IsNullOrWhiteSpace(x.SpeciesKo));

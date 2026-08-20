@@ -1,14 +1,12 @@
-using System.IO;
+﻿using System.IO;
 using Microsoft.Win32;
 using SDSM_Surveyor_App.Ecology;
 using SDSM_Surveyor_App.ViewModels;
 using Telerik.Windows.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx;  // XlsxFormatProvider
-using Telerik.Windows.Documents.Spreadsheet.Formatting;                    // ColumnWidth, RadHorizontalAlignment
-using Telerik.Windows.Documents.Spreadsheet.Model;                         // Workbook, Worksheet, CellSelection, CellRange
-using Color = System.Windows.Media.Color;
-using Colors = System.Windows.Media.Colors;
+using Telerik.Windows.Documents.Spreadsheet.Formatting;                    // RadHorizontalAlignment
+using Telerik.Windows.Documents.Spreadsheet.Model;                         // Workbook, Worksheet
 using ThemableColor = Telerik.Documents.Common.Model.ThemableColor;
-using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily;
+using static SDSM_Surveyor_App.Export.ExcelStyle;                          // 공통 서식 헬퍼
 
 namespace SDSM_Surveyor_App.Export;
 
@@ -19,11 +17,6 @@ namespace SDSM_Surveyor_App.Export;
 /// </summary>
 public static class FishReportExporter
 {
-    private static readonly Color CAccent = Color.FromRgb(0x03, 0x81, 0xFE);
-    private static readonly Color CHeader = Color.FromRgb(0x35, 0x3E, 0x52);
-    private static readonly Color CKey    = Color.FromRgb(0xEE, 0xF1, 0xF5);
-    private const string Font = "맑은 고딕";
-
     public static string? Export(FishEntryViewModel vm)
     {
         var m = vm.Meta;
@@ -38,35 +31,21 @@ public static class FishReportExporter
         };
         if (dlg.ShowDialog() != true) return null;
 
+        Write(vm, dlg.FileName);
+        return dlg.FileName;
+    }
+
+    /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
+    public static void Write(FishEntryViewModel vm, string path)
+    {
         var wb = new Workbook();
         WriteOverview(wb, vm);
         WriteSpecies(wb, vm);
         WriteAssessment(wb, vm);
 
-        using (var stream = new FileStream(dlg.FileName, FileMode.Create))
+        using (var stream = new FileStream(path, FileMode.Create))
             new XlsxFormatProvider().Export(wb, stream, null);
 
-        return dlg.FileName;
-    }
-
-    // ── 스타일 헬퍼 ──
-    private static void Title(CellSelection c) { c.SetIsBold(true); c.SetFontSize(13); c.SetForeColor(new ThemableColor(CAccent)); }
-    private static void Section(CellSelection c) { c.SetIsBold(true); c.SetFontSize(12); c.SetForeColor(new ThemableColor(CAccent)); }
-    private static void HeaderCell(CellSelection c)
-    {
-        c.SetIsBold(true);
-        c.SetForeColor(new ThemableColor(Colors.White));
-        c.SetFill(new PatternFill(PatternType.Solid, CHeader, Colors.White));
-        c.SetHorizontalAlignment(RadHorizontalAlignment.Center);
-    }
-    private static void KeyCell(CellSelection c) { c.SetIsBold(true); c.SetFill(new PatternFill(PatternType.Solid, CKey, Colors.White)); }
-    private static void Width(Worksheet ws, int col, double px) => ws.Columns[col].SetWidth(new ColumnWidth(px, true));
-    private static void FontAll(Worksheet ws, int lastRow, int lastCol)
-        => ws.Cells[0, 0, lastRow, lastCol].SetFontFamily(new ThemableFontFamily(Font));
-    private static void AutoFilter(Worksheet ws, int headerRow, int lastRow, int lastCol)
-    {
-        if (lastRow >= headerRow)
-            ws.Filter.FilterRange = new CellRange(headerRow, 0, lastRow, lastCol);
     }
 
     // ── 시트1 : 조사개황 (항목 | 값) ──
@@ -166,7 +145,7 @@ public static class FishReportExporter
             if (e.IsProtected)
             {
                 ws.Cells[row, 6].SetValue("보호종");
-                ws.Cells[row, 6].SetForeColor(new ThemableColor(CAccent));
+                ws.Cells[row, 6].SetForeColor(new ThemableColor(Accent));
                 ws.Cells[row, 6].SetIsBold(true);
             }
             row++;
@@ -175,7 +154,7 @@ public static class FishReportExporter
         int lastRow = row - 1;
         Width(ws, 0, 110); Width(ws, 1, 95); Width(ws, 2, 115); Width(ws, 3, 160);
         Width(ws, 4, 230); Width(ws, 5, 75); Width(ws, 6, 70);
-        AutoFilter(ws, headerRow, lastRow, 6);
+        TryAutoFilter(ws, headerRow, lastRow, 6);
         FontAll(ws, lastRow, 6);
     }
 
@@ -228,29 +207,17 @@ public static class FishReportExporter
         if (f.Score is double sc) Num(24, sc);
         var g = f.Grade ?? "-";
         ws.Cells[row, 25].SetValue(g);
-        ws.Cells[row, 25].SetIsBold(true);
-        ws.Cells[row, 25].SetHorizontalAlignment(RadHorizontalAlignment.Center);
-        ws.Cells[row, 25].SetForeColor(new ThemableColor(GradeColor(f.Grade)));
+        GradeCell(ws.Cells[row, 25], f.Grade);
 
         int lastRow = row;
         Width(ws, 0, 110); Width(ws, 1, 100); Width(ws, 2, 100); Width(ws, 3, 95); Width(ws, 4, 75);
         Width(ws, 5, 90); Width(ws, 6, 80); Width(ws, 7, 110);
-        AutoFilter(ws, headerRow, lastRow, 25);
+        TryAutoFilter(ws, headerRow, lastRow, 25);
 
         row += 2;
         ws.Cells[row, 0].SetValue("※ 각 M = 산출값→배점(0/6.25/12.5), 합산=FAI총점. 등급 A≥80·B≥60·C≥40·D≥20·E<20.");
         FontAll(ws, row, 25);
     }
-
-    private static Color GradeColor(string? g) => g switch
-    {
-        "A" => Color.FromRgb(0x1E, 0x88, 0xE5),
-        "B" => Color.FromRgb(0x43, 0xA0, 0x47),
-        "C" => Color.FromRgb(0xFB, 0x8C, 0x00),
-        "D" => Color.FromRgb(0xE5, 0x39, 0x35),
-        "E" => Color.FromRgb(0xB7, 0x1C, 0x1C),
-        _   => Color.FromRgb(0x75, 0x75, 0x75)
-    };
 
     private static int Pi(string? s) => int.TryParse(s, out var n) ? n : 0;
 }

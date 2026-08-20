@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using Microsoft.Win32;
 using SDSM_Surveyor_App.ViewModels;
 using Telerik.Windows.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx;
@@ -31,6 +31,14 @@ public static class BenthosExcelExporter
         };
         if (dlg.ShowDialog() != true) return null;
 
+        Write(vm, dlg.FileName);
+        return dlg.FileName;
+    }
+
+    /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
+    public static void Write(BenthosEntryViewModel vm, string path)
+    {
+        var m = vm.Meta;
         var wb = new Workbook();
         var ws = wb.Worksheets.Add();
         ws.Name = "입력";
@@ -88,9 +96,8 @@ public static class BenthosExcelExporter
             r++;
         }
 
-        using (var stream = new FileStream(dlg.FileName, FileMode.Create))
+        using (var stream = new FileStream(path, FileMode.Create))
             new XlsxFormatProvider().Export(wb, stream, null);
 
-        return dlg.FileName;
     }
 }

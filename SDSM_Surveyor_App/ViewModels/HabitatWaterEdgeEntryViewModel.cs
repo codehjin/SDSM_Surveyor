@@ -70,14 +70,28 @@ public partial class HabitatWaterEdgeEntryViewModel : ObservableObject, ITransie
 
     private (double? score, string? grade) Compute()
     {
+        var d = ComputeDetail();
+        return (d.Score, d.Grade);
+    }
+
+    /// <summary>평가항목 1~10 점수·합계·평가점수·등급(보고서 엑셀에서 계산과정 수록에 사용).</summary>
+    public HriResult ComputeDetail()
+    {
         // 항목1~10 순서(좌/우안 항목은 평균)
         var eff = new double?[]
         {
             S1?.Score, Avg(B2L, B2R), S3?.Score, S4?.Score, Avg(B5L, B5R),
             Avg(B6L, B6R), S7?.Score, S8?.Score, Avg(B9L, B9R), Avg(B10L, B10R)
         };
-        return HabitatEvaluator.Evaluate(eff, SurveyUnavailableReason);
+        return HabitatEvaluator.EvaluateDetail(eff, SurveyUnavailableReason);
     }
+
+    /// <summary>평가항목 1~10 이름(보고서 엑셀 헤더용). 관리자 HabitatWaterEdge 모델 순서와 동일.</summary>
+    public static readonly string[] ItemNames =
+    {
+        "자연적 종횡사주", "하도 자연성", "유속 다양성", "하천변 폭", "저수로 하안공",
+        "제방하안 재료", "저질 상태", "횡구조물", "제외지 토지이용", "제내지 토지이용"
+    };
 
     public string ScoreText => Compute().score?.ToString("N1") ?? "-";
     public string GradeText => Compute().grade ?? "-";
@@ -87,6 +101,7 @@ public partial class HabitatWaterEdgeEntryViewModel : ObservableObject, ITransie
         OnPropertyChanged(nameof(ScoreText));
         OnPropertyChanged(nameof(GradeText));
         ExportExcelCommand.NotifyCanExecuteChanged();
+        ExportBulkCommand.NotifyCanExecuteChanged();
     }
 
     // ── [별표5] 항목별 허용점수 옵션 (드롭다운 소스) ──
@@ -123,11 +138,36 @@ public partial class HabitatWaterEdgeEntryViewModel : ObservableObject, ITransie
         WeakReferenceMessenger.Default.Send(new NotifyMessage(("임시 저장되었습니다.", true)));
     }
 
+    /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>
     [RelayCommand(CanExecute = nameof(CanExport))]
-    private Task ExportExcel()
+    private void ExportExcel()
     {
-        StatusText = "엑셀 내보내기: 다음 단계에서 연동 예정";
-        return Task.CompletedTask;
+        try
+        {
+            var saved = Export.HabitatWaterEdgeReportExporter.Export(this);
+            if (saved is not null)
+            {
+                StatusText = $"보고서용 엑셀 완료 · {System.IO.Path.GetFileName(saved)}";
+                WeakReferenceMessenger.Default.Send(new NotifyMessage(("보고서용 엑셀을 내보냈습니다.", true)));
+            }
+        }
+        catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
+    }
+
+    /// <summary>[레거시] 관리자 일괄입력 양식으로 내보내기(현행 관리자 Import 취합용).</summary>
+    [RelayCommand(CanExecute = nameof(CanExport))]
+    private void ExportBulk()
+    {
+        try
+        {
+            var saved = Export.HabitatWaterEdgeExcelExporter.Export(this);
+            if (saved is not null)
+            {
+                StatusText = $"일괄입력용 완료 · {System.IO.Path.GetFileName(saved)}";
+                WeakReferenceMessenger.Default.Send(new NotifyMessage(("일괄입력용 엑셀을 내보냈습니다.", true)));
+            }
+        }
+        catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
     }
 
     private bool CanExport() =>

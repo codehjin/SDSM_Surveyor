@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using SDSM_Surveyor_App.Data;
@@ -60,7 +60,7 @@ public partial class WaterQualityEntryViewModel : ObservableObject, ITransientSe
     partial void OnDoxChanged(string? value) => RaiseGrades();
     partial void OnTpChanged(string? value) => RaiseGrades();
     partial void OnEColiChanged(string? value) => RaiseGrades();
-    partial void OnEcotoxicityChanged(string? value) => ExportExcelCommand.NotifyCanExecuteChanged();
+    partial void OnEcotoxicityChanged(string? value) => RaiseGrades();   // 등급은 없지만 내보내기 활성 여부에 영향
 
     private void RaiseGrades()
     {
@@ -73,6 +73,7 @@ public partial class WaterQualityEntryViewModel : ObservableObject, ITransientSe
         OnPropertyChanged(nameof(TpGradeText));
         OnPropertyChanged(nameof(EColiGradeText));
         ExportExcelCommand.NotifyCanExecuteChanged();
+        ExportBulkCommand.NotifyCanExecuteChanged();
     }
 
     // 실시간 등급(표시용) — 자동계산이므로 입력 필드가 아니다.
@@ -105,11 +106,36 @@ public partial class WaterQualityEntryViewModel : ObservableObject, ITransientSe
         WeakReferenceMessenger.Default.Send(new NotifyMessage(("임시 저장되었습니다.", true)));
     }
 
+    /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>
     [RelayCommand(CanExecute = nameof(CanExport))]
-    private Task ExportExcel()
+    private void ExportExcel()
     {
-        StatusText = "엑셀 내보내기: 다음 단계에서 연동 예정";
-        return Task.CompletedTask;
+        try
+        {
+            var saved = Export.WaterQualityReportExporter.Export(this);
+            if (saved is not null)
+            {
+                StatusText = $"보고서용 엑셀 완료 · {System.IO.Path.GetFileName(saved)}";
+                WeakReferenceMessenger.Default.Send(new NotifyMessage(("보고서용 엑셀을 내보냈습니다.", true)));
+            }
+        }
+        catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
+    }
+
+    /// <summary>[레거시] 관리자 일괄입력 양식으로 내보내기(현행 관리자 Import 취합용).</summary>
+    [RelayCommand(CanExecute = nameof(CanExport))]
+    private void ExportBulk()
+    {
+        try
+        {
+            var saved = Export.WaterQualityExcelExporter.Export(this);
+            if (saved is not null)
+            {
+                StatusText = $"일괄입력용 완료 · {System.IO.Path.GetFileName(saved)}";
+                WeakReferenceMessenger.Default.Send(new NotifyMessage(("일괄입력용 엑셀을 내보냈습니다.", true)));
+            }
+        }
+        catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
     }
 
     // 측정값이 하나라도 있으면 내보내기 가능(추가항목만 측정한 회차도 있다).

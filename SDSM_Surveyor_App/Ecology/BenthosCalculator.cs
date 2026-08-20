@@ -85,20 +85,47 @@ public static class BenthosCalculator
     public static (double? score, string? grade) GetBMI(
         IEnumerable<ImportBenthosSpecies> data, string? surveyUnavailableReason)
     {
+        var d = CalculateBmiDetail(data, surveyUnavailableReason);
+        return (d.Score, d.Grade);
+    }
+
+    /// <summary>
+    /// BMI를 계산하면서 **중간 산출값까지 노출**한다(보고서 엑셀의 계산과정 수록용).
+    /// 계산식은 <see cref="GetBMI"/>와 하나의 구현을 공유하므로 결과가 갈라지지 않는다.
+    /// </summary>
+    public static BmiResult CalculateBmiDetail(
+        IEnumerable<ImportBenthosSpecies> data, string? surveyUnavailableReason)
+    {
+        var r = new BmiResult();
+        if (data == null) return r;
+
+        var list = data.ToList();
+
+        // 표시용 집계 : 결측치(null)와 0 엄격 구분 — 0 초과 개체만 유효로 본다.
+        var valid = list.Select(x => x.IndividualCount ?? 0).Where(x => x > 0).ToList();
+        r.TotalSpecies = valid.Count;
+        r.TotalIndiv = valid.Sum();
+        r.DI = GetDI(list);
+        r.H = GetH(list);
+        r.R1 = GetR1(list);
+        r.J = GetJ(list);
+
         if (!string.IsNullOrWhiteSpace(surveyUnavailableReason))
         {
             var reason = surveyUnavailableReason.Replace(" ", "");
-            if (UnavailableReasons.Contains(reason)) return (null, "-");
+            if (UnavailableReasons.Contains(reason))
+            {
+                r.Grade = "-";
+                return r;
+            }
         }
-        if (data == null) return (null, null);
 
-        var list = data.ToList();
         var aArr = list.Select(x => double.TryParse(x.SaprobicValue, out var v) ? v : 0.0).ToArray();   // 오탁치 s
         var bArr = list.Select(x => int.TryParse(x.IndicatorWeight, out var v) ? v : 0).ToArray();       // 지표가중치 g
-        var cArr = list.Select(x => x.RankScorer).ToArray();                                             // 순위점수 q
+        var cArr = list.Select(x => x.RankScorer).ToArray();                                             // 순위점수 h
 
         int len = Math.Min(aArr.Length, Math.Min(bArr.Length, cArr.Length));
-        if (len == 0) return (null, null);
+        if (len == 0) return r;
 
         double sp3 = 0, sp2 = 0;
         for (int i = 0; i < len; i++)
@@ -106,17 +133,35 @@ public static class BenthosCalculator
             sp3 += aArr[i] * bArr[i] * cArr[i];
             sp2 += bArr[i] * cArr[i];
         }
-        if (sp2 == 0) return (null, null);
+        r.SumSGH = sp3;
+        r.SumGH = sp2;
+        if (sp2 == 0) return r;
 
         double value = (4 - (sp3 / sp2)) * 25;
         double rounded = Math.Round(value, 1, MidpointRounding.AwayFromZero);
-        if (double.IsNaN(rounded) || double.IsInfinity(rounded)) return (null, null);
+        if (double.IsNaN(rounded) || double.IsInfinity(rounded)) return r;
 
-        string grade =
+        r.Score = rounded;
+        r.Grade =
             rounded >= 80 ? "A" :
             rounded >= 65 ? "B" :
             rounded >= 50 ? "C" :
             rounded >= 35 ? "D" : "E";
-        return (rounded, grade);
+        return r;
     }
+}
+
+/// <summary>저서동물 BMI 상세 결과(계산과정 포함). 보고서 엑셀에 그대로 수록한다.</summary>
+public sealed class BmiResult
+{
+    public int TotalSpecies { get; set; }    // 총 출현종수(개체수 > 0)
+    public double TotalIndiv { get; set; }   // 총 개체수
+    public double DI { get; set; }           // 우점도
+    public double H { get; set; }            // 다양도 H'
+    public double R1 { get; set; }           // 풍부도 R1
+    public double J { get; set; }            // 균등도 J'
+    public double SumSGH { get; set; }       // Σ(오탁치 s × 지표가중치 g × 순위점수 h)
+    public double SumGH { get; set; }        // Σ(지표가중치 g × 순위점수 h)
+    public double? Score { get; set; }       // BMI = (4 − ΣsghΣgh) × 25
+    public string? Grade { get; set; }       // A≥80 · B≥65 · C≥50 · D≥35 · E
 }

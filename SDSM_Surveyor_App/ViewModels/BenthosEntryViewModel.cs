@@ -1,4 +1,4 @@
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -276,6 +276,7 @@ public partial class BenthosEntryViewModel : ObservableObject, ITransientService
         }
 
         ExportExcelCommand.NotifyCanExecuteChanged();
+        ExportBulkCommand.NotifyCanExecuteChanged();
     }
 
     [RelayCommand]
@@ -306,23 +307,36 @@ public partial class BenthosEntryViewModel : ObservableObject, ITransientService
         WeakReferenceMessenger.Default.Send(new NotifyMessage(("임시 저장되었습니다.", true)));
     }
 
-    /// <summary>관리자 '입력'(저서) 일괄입력 양식으로 내보내기.</summary>
+    /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>
     [RelayCommand(CanExecute = nameof(CanExport))]
     private void ExportExcel()
+    {
+        try
+        {
+            var saved = Export.BenthosReportExporter.Export(this);
+            if (saved is not null)
+            {
+                StatusText = $"보고서용 엑셀 완료 · {System.IO.Path.GetFileName(saved)}";
+                WeakReferenceMessenger.Default.Send(new NotifyMessage(("보고서용 엑셀을 내보냈습니다.", true)));
+            }
+        }
+        catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
+    }
+
+    /// <summary>[레거시] 관리자 일괄입력 양식으로 내보내기(현행 관리자 Import 취합용).</summary>
+    [RelayCommand(CanExecute = nameof(CanExport))]
+    private void ExportBulk()
     {
         try
         {
             var saved = Export.BenthosExcelExporter.Export(this);
             if (saved is not null)
             {
-                StatusText = $"엑셀 내보내기 완료 · {System.IO.Path.GetFileName(saved)}";
-                WeakReferenceMessenger.Default.Send(new NotifyMessage(("엑셀을 내보냈습니다.", true)));
+                StatusText = $"일괄입력용 완료 · {System.IO.Path.GetFileName(saved)}";
+                WeakReferenceMessenger.Default.Send(new NotifyMessage(("일괄입력용 엑셀을 내보냈습니다.", true)));
             }
         }
-        catch (Exception ex)
-        {
-            StatusText = $"엑셀 내보내기 실패: {ex.Message}";
-        }
+        catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
     }
 
     // 이상치 경고는 알림일 뿐 제재가 아니므로 내보내기를 막지 않는다
