@@ -168,7 +168,8 @@ public static class FishReportExporter
         int abnormal = Pi(vm.DeCount) + Pi(vm.EfCount) + Pi(vm.LeCount) + Pi(vm.TuCount);
         int chasu = (int)(vm.RiverChasu ?? 0);
         var imports = vm.SpeciesEntries.Select(r => r.ToImport()).ToList();
-        var f = EcologyCalculator.CalculateFaiDetail(imports, vm.SurveyUnavailableReason, abnormal, chasu);
+        var f = EcologyCalculator.CalculateFaiDetail(imports, vm.SurveyUnavailableReason, abnormal, chasu,
+                                                     vm.NoSpeciesDeclared);
 
         int row = 0;
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("어류평가지수(FAI) 건강성평가"); row += 2;

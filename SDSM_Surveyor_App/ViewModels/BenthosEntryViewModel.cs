@@ -233,6 +233,21 @@ public partial class BenthosEntryViewModel : ObservableObject, ITransientService
         WarningCount = warn;
     }
 
+    /// <summary>조사불가 사유가 선언되어 등급이 "-"가 되는 상태인지.</summary>
+    private bool IsUnavailable =>
+        !string.IsNullOrWhiteSpace(SurveyUnavailableReason)
+        && UnavailableReasons.Contains(SurveyUnavailableReason.Replace(" ", ""));
+
+    private static readonly string[] UnavailableReasons = { "접근불가", "건천화", "준설", "공사중" };
+
+    /// <summary>출현종 없음(0종) 선언 — 조사는 수행했으나 한 종도 확인되지 않았다는 뜻.
+    /// 종 목록이 비었다는 사실만으로는 "아직 미입력"과 구분할 수 없어 명시적으로 선언받는다(12_CALC_FIX §2-1).</summary>
+    [ObservableProperty] private bool _noSpeciesDeclared;
+    partial void OnNoSpeciesDeclaredChanged(bool value) => Recalculate();
+
+    // 조사불가 사유는 등급을 "-"로 바꾸므로 입력 즉시 다시 계산한다(어류와 동일).
+    partial void OnSurveyUnavailableReasonChanged(string? value) => Recalculate();
+
     private void Recalculate()
     {
         ValidateRows();
@@ -256,12 +271,10 @@ public partial class BenthosEntryViewModel : ObservableObject, ITransientService
                                  .OrderByDescending(x => x.IndividualCount)
                                  .FirstOrDefault()?.SpeciesKo ?? "-";
 
-        // 유효 개체가 하나도 없으면 지수를 계산하지 않는다(0건인데 DI 1.000 등으로 보이는 문제 방지)
+        // 다양도 지수는 유효 개체가 있어야 의미가 있다(0건인데 DI 1.000 등으로 보이는 문제 방지)
         if (TotalSpeciesCount == 0)
         {
             IndexDI = IndexH = IndexR1 = IndexJ = null;
-            BmiScore = null;
-            BmiGrade = "-";
         }
         else
         {
@@ -269,11 +282,13 @@ public partial class BenthosEntryViewModel : ObservableObject, ITransientService
             IndexH  = Math.Round(BenthosCalculator.GetH(imports),  3, MidpointRounding.AwayFromZero);
             IndexR1 = Math.Round(BenthosCalculator.GetR1(imports), 3, MidpointRounding.AwayFromZero);
             IndexJ  = Math.Round(BenthosCalculator.GetJ(imports),  3, MidpointRounding.AwayFromZero);
-
-            var (score, grade) = BenthosCalculator.GetBMI(imports, SurveyUnavailableReason);
-            BmiScore = score;
-            BmiGrade = grade ?? "-";
         }
+
+        // 0종 처리는 계산기가 판단한다(12_CALC_FIX §2-3)
+        //  조사불가 → "-"  /  조사 수행 + 0종 선언 → 0·E  /  미입력 → "-"
+        var (bmi, bmiGrade) = BenthosCalculator.GetBMI(imports, SurveyUnavailableReason, NoSpeciesDeclared);
+        BmiScore = bmi;
+        BmiGrade = bmiGrade ?? "-";
 
         ExportExcelCommand.NotifyCanExecuteChanged();
         ExportBulkCommand.NotifyCanExecuteChanged();
@@ -297,6 +312,7 @@ public partial class BenthosEntryViewModel : ObservableObject, ITransientService
             AirTemperature = AirTemperature, WaterTemperature = WaterTemperature,
             FlowState = FlowState, Transparency = Transparency, Smell = Smell,
             SurveyUnavailableReason = SurveyUnavailableReason, Note = Note,
+            NoSpeciesDeclared = NoSpeciesDeclared,
             Rows = SpeciesEntries.Select(r => new BenthosDraftRow(r.SpeciesKo, r.IndividualCount)).ToList()
         };
 
@@ -339,9 +355,10 @@ public partial class BenthosEntryViewModel : ObservableObject, ITransientService
         catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
     }
 
-    // 이상치 경고는 알림일 뿐 제재가 아니므로 내보내기를 막지 않는다
+    // 유효 개체가 하나라도 있거나, 0종 선언·조사불가가 선언되면 내보낼 수 있다(12_CALC_FIX §2-2).
+    // 이상치 경고는 알림일 뿐 제재가 아니므로 내보내기를 막지 않는다.
     private bool CanExport() =>
-        SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0);
+        SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0) || NoSpeciesDeclared || IsUnavailable;
 }
 
 // ── 임시 저장용 DTO ──
@@ -398,6 +415,8 @@ public sealed class BenthosDraft
     // 채집불가시
     public string? SurveyUnavailableReason { get; init; }
     public string? Note { get; init; }
+    /// <summary>출현종 없음(0종) 선언.</summary>
+    public bool NoSpeciesDeclared { get; init; }
     // 종 목록
     public List<BenthosDraftRow> Rows { get; init; } = new();
 }

@@ -1,4 +1,4 @@
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -164,6 +164,18 @@ public partial class FishEntryViewModel : ObservableObject, ITransientService
         foreach (var e in empties) SpeciesEntries.Remove(e);
     }
 
+    /// <summary>조사불가 사유가 선언되어 등급이 "-"가 되는 상태인지.</summary>
+    private bool IsUnavailable =>
+        !string.IsNullOrWhiteSpace(SurveyUnavailableReason)
+        && UnavailableReasons.Contains(SurveyUnavailableReason.Replace(" ", ""));
+
+    private static readonly string[] UnavailableReasons = { "접근불가", "건천화", "준설", "공사중" };
+
+    /// <summary>출현종 없음(0종) 선언 — 조사는 수행했으나 한 종도 확인되지 않았다는 뜻.
+    /// 종 목록이 비었다는 사실만으로는 "아직 미입력"과 구분할 수 없어 명시적으로 선언받는다(12_CALC_FIX §2-1).</summary>
+    [ObservableProperty] private bool _noSpeciesDeclared;
+    partial void OnNoSpeciesDeclaredChanged(bool value) => Recalculate();
+
     // ── 실시간 통계(Center-Right) ──
     [ObservableProperty] private int _totalSpeciesCount;
     [ObservableProperty] private int _totalIndividualCount;
@@ -250,21 +262,14 @@ public partial class FishEntryViewModel : ObservableObject, ITransientService
                                  .OrderByDescending(x => x.IndividualCount)
                                  .FirstOrDefault()?.SpeciesKo ?? "-";
 
-        // 유효 개체가 하나도 없으면 지수를 계산하지 않는다.
-        // (0건인데 M1~M8 기본점이 합산되어 "37.5 D" 처럼 보이면 조사자가 오해함)
-        if (TotalSpeciesCount == 0)
-        {
-            FaiScore = null;
-            FaiGrade = "-";
-        }
-        else
-        {
-            int abnormal = Pi(DeCount) + Pi(EfCount) + Pi(LeCount) + Pi(TuCount);
-            var (score, grade) = EcologyCalculator.CalculateFai(
-                imports, SurveyUnavailableReason, abnormalCount: abnormal, chasu: (int)(RiverChasu ?? 0));
-            FaiScore = score;
-            FaiGrade = grade ?? "-";
-        }
+        // 0종 처리는 계산기가 판단한다(12_CALC_FIX §2)
+        //  조사불가 → "-"  /  조사 수행 + 0종 선언 → 0·E  /  미입력 → "-"
+        int abnormal = Pi(DeCount) + Pi(EfCount) + Pi(LeCount) + Pi(TuCount);
+        var (score, grade) = EcologyCalculator.CalculateFai(
+            imports, SurveyUnavailableReason, abnormalCount: abnormal,
+            chasu: (int)(RiverChasu ?? 0), noSpeciesDeclared: NoSpeciesDeclared);
+        FaiScore = score;
+        FaiGrade = grade ?? "-";
 
         ExportExcelCommand.NotifyCanExecuteChanged();
         ExportBulkCommand.NotifyCanExecuteChanged();
@@ -294,6 +299,7 @@ public partial class FishEntryViewModel : ObservableObject, ITransientService
             FineGravel = FineGravel, Gravel = Gravel, SmallStone = SmallStone, BigStone = BigStone,
             HabitatRiverType = HabitatRiverType, HabitatFlowState = HabitatFlowState,
             SurveyUnavailableReason = SurveyUnavailableReason, Note = Note,
+            NoSpeciesDeclared = NoSpeciesDeclared,
             DeCount = DeCount, EfCount = EfCount, LeCount = LeCount, TuCount = TuCount,
             Rows = SpeciesEntries.Select(r => new FishDraftRow(r.SpeciesKo, r.IndividualCount)).ToList()
         };
@@ -337,10 +343,11 @@ public partial class FishEntryViewModel : ObservableObject, ITransientService
         catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
     }
 
-    // 내보내기 게이트: 유효 개체가 하나라도 있으면 가능.
-    // (이상치 경고는 알림일 뿐 제재가 아니므로 내보내기를 막지 않는다)
+    // 내보내기 게이트: 유효 개체가 하나라도 있거나, 0종 선언·조사불가가 선언되면 가능.
+    // (조사했는데 0종인 지점도 결과를 전달할 수 있어야 한다 — 12_CALC_FIX §2-2)
+    // 이상치 경고는 알림일 뿐 제재가 아니므로 내보내기를 막지 않는다.
     private bool CanExport() =>
-        SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0);
+        SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0) || NoSpeciesDeclared || IsUnavailable;
 }
 
 // ── 임시 저장용 DTO ──
@@ -382,6 +389,8 @@ public sealed class FishDraft
     // 채집불가시
     public string? SurveyUnavailableReason { get; init; }
     public string? Note { get; init; }
+    /// <summary>출현종 없음(0종) 선언.</summary>
+    public bool NoSpeciesDeclared { get; init; }
     // 비정상종(개체수)
     public string? DeCount { get; init; }
     public string? EfCount { get; init; }

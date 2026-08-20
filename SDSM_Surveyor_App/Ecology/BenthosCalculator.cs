@@ -82,10 +82,12 @@ public static class BenthosCalculator
     }
 
     /// <summary>BMI 점수·등급. 각 종의 RankScorer가 미리 채워져 있어야 함.</summary>
+    /// <param name="noSpeciesDeclared">조사 수행 + 출현종 0종 선언 여부. 선언되면 점수 0·등급 E.</param>
     public static (double? score, string? grade) GetBMI(
-        IEnumerable<ImportBenthosSpecies> data, string? surveyUnavailableReason)
+        IEnumerable<ImportBenthosSpecies> data, string? surveyUnavailableReason,
+        bool noSpeciesDeclared = false)
     {
-        var d = CalculateBmiDetail(data, surveyUnavailableReason);
+        var d = CalculateBmiDetail(data, surveyUnavailableReason, noSpeciesDeclared);
         return (d.Score, d.Grade);
     }
 
@@ -93,8 +95,10 @@ public static class BenthosCalculator
     /// BMI를 계산하면서 **중간 산출값까지 노출**한다(보고서 엑셀의 계산과정 수록용).
     /// 계산식은 <see cref="GetBMI"/>와 하나의 구현을 공유하므로 결과가 갈라지지 않는다.
     /// </summary>
+    /// <param name="noSpeciesDeclared">조사 수행 + 출현종 0종 선언 여부. 선언되면 점수 0·등급 E.</param>
     public static BmiResult CalculateBmiDetail(
-        IEnumerable<ImportBenthosSpecies> data, string? surveyUnavailableReason)
+        IEnumerable<ImportBenthosSpecies> data, string? surveyUnavailableReason,
+        bool noSpeciesDeclared = false)
     {
         var r = new BmiResult();
         if (data == null) return r;
@@ -110,6 +114,7 @@ public static class BenthosCalculator
         r.R1 = GetR1(list);
         r.J = GetJ(list);
 
+        // ① 조사불가 사유가 최우선 — 조사를 못 했으면 "0종"이 아니다
         if (!string.IsNullOrWhiteSpace(surveyUnavailableReason))
         {
             var reason = surveyUnavailableReason.Replace(" ", "");
@@ -118,6 +123,19 @@ public static class BenthosCalculator
                 r.Grade = "-";
                 return r;
             }
+        }
+
+        // ② 조사 수행 + 0종 → 점수 0 · 등급 E (어류와 동일 규칙, 12_CALC_FIX §2-3)
+        // ③ 선언이 없으면 "아직 미입력" — 점수·등급을 내지 않는다(화면에서 "-")
+        if (r.TotalSpecies == 0)
+        {
+            if (noSpeciesDeclared)
+            {
+                r.NoSpeciesDeclared = true;
+                r.Score = 0;
+                r.Grade = "E";
+            }
+            return r;
         }
 
         var aArr = list.Select(x => double.TryParse(x.SaprobicValue, out var v) ? v : 0.0).ToArray();   // 오탁치 s
@@ -142,11 +160,13 @@ public static class BenthosCalculator
         if (double.IsNaN(rounded) || double.IsInfinity(rounded)) return r;
 
         r.Score = rounded;
+        // 음수는 정상 범위(오탁치 0~4)를 벗어난 값이라 등급 대신 검토 표시(관리자와 동일, 12_CALC_FIX §3)
         r.Grade =
             rounded >= 80 ? "A" :
             rounded >= 65 ? "B" :
             rounded >= 50 ? "C" :
-            rounded >= 35 ? "D" : "E";
+            rounded >= 35 ? "D" :
+            rounded >= 0 ? "E" : "Check";
         return r;
     }
 }
@@ -154,6 +174,9 @@ public static class BenthosCalculator
 /// <summary>저서동물 BMI 상세 결과(계산과정 포함). 보고서 엑셀에 그대로 수록한다.</summary>
 public sealed class BmiResult
 {
+    /// <summary>조사 수행 + 출현종 0종으로 선언된 결과(점수 0·등급 E).</summary>
+    public bool NoSpeciesDeclared { get; set; }
+
     public int TotalSpecies { get; set; }    // 총 출현종수(개체수 > 0)
     public double TotalIndiv { get; set; }   // 총 개체수
     public double DI { get; set; }           // 우점도

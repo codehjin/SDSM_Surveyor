@@ -185,7 +185,7 @@ public static class BenthosReportExporter
             e.RankScorer = BenthosCalculator.GetRankScorer(counts, (int)(e.IndividualCount ?? 0));
 
         var imports = entries.Select(e => e.ToImport()).ToList();
-        var b = BenthosCalculator.CalculateBmiDetail(imports, vm.SurveyUnavailableReason);
+        var b = BenthosCalculator.CalculateBmiDetail(imports, vm.SurveyUnavailableReason, vm.NoSpeciesDeclared);
 
         int row = 0;
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("저서동물지수(BMI) 건강성평가"); row += 2;

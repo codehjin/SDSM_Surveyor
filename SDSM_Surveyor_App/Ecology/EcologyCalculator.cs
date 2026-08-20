@@ -12,24 +12,29 @@ public static class EcologyCalculator
     private static readonly string[] UnavailableReasons = { "접근불가", "건천화", "준설", "공사중" };
 
     /// <summary>FAI 점수와 등급만 반환(실시간 표시용).</summary>
+    /// <param name="noSpeciesDeclared">조사를 수행했으나 출현종이 0종임을 조사자가 선언했는지.
+    /// 종 목록이 비었다는 사실만으로는 "아직 미입력"인지 "조사했는데 없음"인지 알 수 없다(CLAUDE.md §7.2).</param>
     public static (double? score, string? grade) CalculateFai(
         IEnumerable<ImportFishSpecies> speciesData,
         string? surveyUnavailableReason,
         int abnormalCount,
-        int chasu)
+        int chasu,
+        bool noSpeciesDeclared = false)
     {
-        var d = CalculateFaiDetail(speciesData, surveyUnavailableReason, abnormalCount, chasu);
+        var d = CalculateFaiDetail(speciesData, surveyUnavailableReason, abnormalCount, chasu, noSpeciesDeclared);
         return (d.Score, d.Grade);
     }
 
     /// <summary>FAI 계산 과정 전체(메트릭 산출값·M1~M8 점수·총점·등급)를 반환. 보고서 내보내기용.</summary>
+    /// <param name="noSpeciesDeclared">조사 수행 + 0종 선언 여부. 선언되면 점수 0·등급 E.</param>
     public static FaiResult CalculateFaiDetail(
         IEnumerable<ImportFishSpecies> speciesData,
         string? surveyUnavailableReason,
         int abnormalCount,
-        int chasu)
+        int chasu,
+        bool noSpeciesDeclared = false)
     {
-        // 조사불가 사유가 있으면 등급 "-"
+        // ① 조사불가 사유가 최우선 — 조사를 못 했으면 "0종"이 아니다
         if (!string.IsNullOrWhiteSpace(surveyUnavailableReason))
         {
             var reason = surveyUnavailableReason.Replace(" ", "");
@@ -64,8 +69,10 @@ public static class EcologyCalculator
         int insectExoticSum = list.Where(x => x.FeedingGuild == "I" && x.Exotic == "O" && x.IndividualCount is > 0).Sum(x => x.IndividualCount ?? 0);
         double insectRatio = totalIndiv != 0 ? (double)(insectSum - insectExoticSum) / totalIndiv * 100.0 : 0;
 
-        // 비정상 개체수 비율 (관리자 로직 그대로 — 정수 나눗셈 유지)
-        double abnormalRatio = abnormalCount != 0 ? (abnormalCount / totalIndiv) * 100 : 0;
+        // 비정상 개체수 비율(%) — 나눗셈 "앞"에서 실수로 승격한다.
+        // 정수 나눗셈이면 비정상 199/총 200(99.5%)도 0%가 되어 M8이 사실상 항상 만점이 된다(12_CALC_FIX §1).
+        // totalIndiv > 0 가드로 0 나누기 예외도 함께 막는다.
+        double abnormalRatio = totalIndiv > 0 ? (double)abnormalCount / totalIndiv * 100.0 : 0;
 
         result.TotalSpecies = totalSpecies;
         result.TotalIndiv = totalIndiv;
@@ -80,6 +87,21 @@ public static class EcologyCalculator
         result.InsectRatio = insectRatio;
         result.AbnormalRatio = abnormalRatio;
 
+        // ② 조사 수행 + 0종 → 점수 0 · 등급 E (12_CALC_FIX §2)
+        //    내성종 0%·잡식종 0%·비정상종 0%가 각각 만점을 받아 37.5(D)가 되는 역설을 막는다.
+        //    M1~M8도 0으로 둔다(총점 0과 어긋나지 않도록).
+        if (totalSpecies == 0)
+        {
+            if (noSpeciesDeclared)
+            {
+                result.NoSpeciesDeclared = true;
+                result.Score = 0;
+                result.Grade = "E";
+            }
+            // ③ 선언이 없으면 "아직 미입력" — 점수·등급을 내지 않는다(화면에서 "-")
+            return result;
+        }
+
         result.M1 = GetM1(chasu, domesticSpecies);
         result.M2 = GetM2(chasu, riffleBenthic);
         result.M3 = GetM3(chasu, sensitive);
@@ -92,10 +114,9 @@ public static class EcologyCalculator
         double sum = result.M1 + result.M2 + result.M3 + result.M4 + result.M5 + result.M6 + result.M7 + result.M8;
         double rounded = Math.Round(sum, 1, MidpointRounding.AwayFromZero);
 
-        if (totalSpecies == 0 || double.IsNaN(rounded) || double.IsInfinity(rounded))
+        if (double.IsNaN(rounded) || double.IsInfinity(rounded))
         {
-            result.Score = totalSpecies == 0 ? null : rounded;
-            result.Grade = totalSpecies == 0 ? null : "E";
+            result.Grade = "E";
             return result;
         }
 
@@ -177,6 +198,9 @@ public static class EcologyCalculator
 public sealed class FaiResult
 {
     public bool Unavailable { get; set; }
+
+    /// <summary>조사 수행 + 출현종 0종으로 선언된 결과(점수 0·등급 E).</summary>
+    public bool NoSpeciesDeclared { get; set; }
     public int Chasu { get; set; }
     public int TotalSpecies { get; set; }     // 총 출현종수
     public int TotalIndiv { get; set; }       // 총 개체수
