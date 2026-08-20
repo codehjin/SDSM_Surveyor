@@ -39,6 +39,28 @@
 현재 계산·검증 로직이 조사자 앱 안에만 있고, 관리자에는 `GB.cs`로 **같은 로직이 중복**되어 있다.
 → 새 프로젝트 `SDSM_Core` (netstandard2.0 또는 net8.0 클래스 라이브러리)로 분리하고 **양쪽이 참조**한다.
 
+### 2-0. 저장소가 분리된 상태에서의 배치 (결정 사항)
+
+1단계에서 저장소를 분리한 결과, 조사자 앱이 `..\..\SDSM\SDSM_Models\SDSM_Models.csproj` 를
+**상대 경로 ProjectReference로 참조**하는 크로스 저장소 의존이 드러났다.
+
+**결정: 현행 "나란히 clone" 방식을 유지한다.** NuGet 패키지·git submodule은 도입하지 않는다.
+- 이유: 유지보수 인력이 1인이고, 패키지 배포·버전 관리 비용이 얻는 것보다 크다.
+- `SDSM_Core`와 `SDSM_Models`는 **관리자 저장소(`SDSM`)에 둔다.** 관리자가 원본 데이터·모델의 기준이기 때문이다.
+- 조사자 앱은 지금처럼 상대 경로로 참조한다.
+
+**대신 반드시 할 것 — 잘못 clone했을 때 원인을 바로 알 수 있게 한다.**
+- 두 저장소 각각에 `README.md` 를 만들어 **폴더 구조와 나란히 clone 요구사항**을 최상단에 명시
+  ```
+  <상위폴더>\
+    SDSM\            (관리자, 공용 모델·SDSM_Core 포함)
+    SDSM_Surveyor\   (조사자)
+  ```
+- `SDSM_Surveyor_App.csproj` 에 참조 경로가 없을 때 **친절한 빌드 오류**를 내는 `Target` 추가
+  예: `<Error Condition="!Exists('..\..\SDSM\SDSM_Models\SDSM_Models.csproj')" Text="SDSM 저장소를 같은 상위 폴더에 나란히 clone해야 합니다." />`
+
+> 훗날 조사자 앱을 외부에 단독 배포해야 하는 상황이 오면 그때 NuGet 분리를 재검토한다. 지금은 하지 않는다.
+
 이관 대상
 - `Ecology\` 전체(FAI·BMI·다양도지수·수질등급·HRI) + 상세 결과 클래스
 - `Helpers\ChosungHelper.cs`
