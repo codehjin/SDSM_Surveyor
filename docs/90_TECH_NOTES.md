@@ -163,11 +163,17 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 
 ## 6. 데이터·모델 참고
 
-### ⚠ 관찰형 3종 종목록에는 학명이 없다
-`species.json`의 `Fish`/`Benthos`는 객체 목록(길드·오탁치 포함)이지만
-**`Bird`(169)·`Mammal`(17)·`Amphibian`(22)은 국명 문자열 목록**이다(`SpeciesCatalog.cs`).
-→ 조류·포유류·양서파충류는 종을 선택해도 **학명을 자동으로 채울 수 없다**(현재 수동 입력).
-자동 채움이 필요하면 관리자 `species.json` 내보내기에 국명·학명 쌍을 넣어야 한다(`SDSM\docs\ADMIN_TASKS.md` §3).
+### ✅ 관찰형 3종 종목록 = 국가생물종목록 (2026-08-20)
+`species.json`의 관찰형 3종은 과거 조사기록에서 뽑은 국명 문자열 목록이었으나(조류 169·포유류 17·양서파충류 22, 학명 없음),
+**국립생물자원관 국가생물종목록으로 교체**했다 → `Bird` 609 · `Mammal` 125 · `Amphibian` 65(양서28+파충37).
+
+- 타입: `SpeciesCatalog.Bird/Mammal/Amphibian` = **`List<ObservedSpecies>`**
+  (`SpeciesKo`·`SpeciesEn`·`OrderKo`·`FamilyKo`·`Endangered1/2`·`NaturalMonument`·`Invasive`·`Ktsn`)
+- **구형 파일(국명 문자열 배열)도 그대로 읽힌다** — `ObservedSpeciesListConverter`가 문자열이면 `SpeciesKo`만 채운 객체로 변환.
+  이 하위 호환을 제거하면 구형 `species.json`을 쓰는 배포본이 종목록을 통째로 잃는다.
+- 생성: `tools\build_species_json.py` (입력 `docs\_input\생물종 일괄입력.xlsx`). **어류·저서동물 부분은 건드리지 않고 보존**한다.
+  원본 목록이 갱신되면 이 스크립트를 다시 실행한다. 열 위치는 헤더 텍스트로 검증하므로 구조가 바뀌면 오류로 멈춘다.
+- 조류 617행 중 **국명 중복 8건은 첫 항목만 채택**(아종 차이로 학명이 다름) → 609종.
 
 - 공유 모델은 `SDSM\SDSM_Models\` (관리자·조사자 공용, ProjectReference로 참조)
   - `FishSpeciesList`(길드·보호종), `BenthosSpeciesList`(오탁치·가중치), `ImportFishSpecies`, `ImportBenthosSpecies`

@@ -1,4 +1,4 @@
-# CLAUDE.md — 조사자 앱 개발·아키텍처 가이드 (SDSM_Surveyor)
+﻿# CLAUDE.md — 조사자 앱 개발·아키텍처 가이드 (SDSM_Surveyor)
 
 > SDSM 조사자용 데스크톱 앱(.NET 8 WPF). 현장 조사자가 오프라인으로 자료를 입력·검증하고,
 > 관리자 표준 엑셀로 내보내 제출한다. UI 규칙은 `design.md` 참조.
@@ -86,8 +86,12 @@ Views/UserControls/    분류군별 EntryControl
 ## 5. 종명 · 초성 검색
 - 종명 입력은 `RadAutoCompleteBox` + `ChosungFilteringBehavior`(초성 `ㅋㅈㄴ` + 부분일치). Telerik `IFilteringBehavior.FindMatchingItems` 구현(검증됨).
 - **종명은 원문 그대로**(`Trim`만, 대소문자·띄어쓰기 보존; CLAUDE 규칙). 길드/보호종 코드성 값만 정규화.
-- 종목록형은 모델 기반 목록(`FishSpeciesList`/`BenthosSpeciesList`), 관찰형은 종명 문자열 목록.
-- 현재 `SpeciesListProvider`는 **데모 시드**. 실제 배포 시 관리자 종목록 로딩(+버전/체크섬)으로 교체.
+- 종목록형은 모델 기반 목록(`FishSpeciesList`/`BenthosSpeciesList`), **관찰형은 `ObservedSpecies`**(국명·학명·목·과·보호종·교란종).
+- `SpeciesListProvider`는 `species.json`을 읽는다(AppData 교체본 → 실행폴더 번들 순). 파일이 없을 때만 최소 시드로 대체.
+  - 어류·저서동물 = 관리자 마스터 내보내기, **관찰형 3종 = 국가생물종목록**(`tools\build_species_json.py`로 생성).
+  - 구형 `species.json`(관찰형이 국명 문자열 배열)도 하위 호환으로 읽힌다.
+- 관찰형은 종 선택·붙여넣기 시 **학명·목·과가 자동으로 채워지되 잠기지 않는다**(조사자가 덮어쓸 수 있음).
+  보호종(멸종위기·천연기념물)과 **생태계교란생물은 의미가 반대이므로 표기·색을 분리**한다.
 
 ---
 

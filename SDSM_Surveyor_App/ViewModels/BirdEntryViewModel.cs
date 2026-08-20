@@ -1,8 +1,9 @@
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using SDSM_Models;
 using SDSM_Surveyor_App.Data;
 using SDSM_Surveyor_App.InjectableServices;
 using SDSM_Surveyor_App.Messengers;
@@ -37,12 +38,12 @@ public partial class BirdEntryViewModel : ObservableObject, ITransientService
     public RadObservableCollection<BirdEntry> Entries { get; } = new();
 
     // 종명 초성 자동완성용 공식 종목록(species.json)
-    [ObservableProperty] private string[] _speciesListSource = Array.Empty<string>();
+    [ObservableProperty] private List<ObservedSpecies> _speciesListSource = new();
 
     // ── 빠른 추가 바(그리드 위) : 초성 검색(RadComboBox·VM에서 필터) → 개체수 → Enter/추가 ──
-    [ObservableProperty] private List<string> _filteredQuick = new();   // 콤보 드롭다운(초성 필터 결과)
+    [ObservableProperty] private List<ObservedSpecies> _filteredQuick = new();   // 콤보 드롭다운(초성 필터 결과)
     [ObservableProperty] private string? _quickSearch;                  // 검색 입력(초성/이름)
-    [ObservableProperty] private string? _quickSpecies;                 // 선택한 종
+    [ObservableProperty] private ObservedSpecies? _quickSpecies;                 // 선택한 종
     [ObservableProperty] private string? _quickCount;                   // 개체수
 
     partial void OnQuickSearchChanged(string? value) => FilterQuick();
@@ -53,7 +54,7 @@ public partial class BirdEntryViewModel : ObservableObject, ITransientService
         var q = QuickSearch?.Trim();
         FilteredQuick = string.IsNullOrEmpty(q)
             ? SpeciesListSource.ToList()
-            : SpeciesListSource.Where(s => Helpers.ChosungHelper.IsMatch(s, q)).Take(80).ToList();
+            : SpeciesListSource.Where(s => Helpers.ChosungHelper.IsMatch(s.SpeciesKo, q)).Take(80).ToList();
     }
 
     /// <summary>빠른 추가 후 검색창으로 포커스 복귀(코드비하인드가 구독).</summary>
@@ -61,18 +62,19 @@ public partial class BirdEntryViewModel : ObservableObject, ITransientService
 
     /// <summary>종을 고르면 개체수 칸으로 포커스 이동(코드비하인드가 구독).</summary>
     public event EventHandler? QuickSpeciesPicked;
-    partial void OnQuickSpeciesChanged(string? value)
+    partial void OnQuickSpeciesChanged(ObservedSpecies? value)
     {
-        if (!string.IsNullOrEmpty(value)) QuickSpeciesPicked?.Invoke(this, EventArgs.Empty);
+        if (value is not null) QuickSpeciesPicked?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>빠른 추가: 선택 종 + 개체수로 행을 추가하고 입력칸을 비운다.</summary>
     [RelayCommand]
     private void AddQuick()
     {
-        if (string.IsNullOrWhiteSpace(QuickSpecies)) return;   // 목록에서 종을 선택해야 추가(오타 방지)
+        if (QuickSpecies is null) return;   // 목록에서 종을 선택해야 추가(오타 방지)
 
-        var entry = new BirdEntry { SpeciesKo = QuickSpecies };
+        var entry = new BirdEntry { SpeciesKo = QuickSpecies.SpeciesKo };
+        entry.ApplySpecies(QuickSpecies);   // 학명·목·과 자동 채움
         if (int.TryParse(QuickCount, out var n)) entry.IndividualCount = n;
         Entries.Add(entry);
 
@@ -83,7 +85,8 @@ public partial class BirdEntryViewModel : ObservableObject, ITransientService
     }
 
     /// <summary>엑셀에서 복사한 여러 줄을 그리드 행으로 추가(그리드 Ctrl+V에서 호출).
-    /// 열 순서 = 그리드 순서 : 국명 · 개체수 · 학명 · 도래유형 · 대항목 · 세부항목 · 서식유형 · 위도 · 경도 · 특징 · 특이사항.
+    /// 열 순서 = 그리드 순서 : 국명 · 개체수 · 학명 · 목 · 과 · 도래유형 · 대항목 · 세부항목 · 서식유형 · 위도 · 경도 · 특징 · 특이사항.
+    /// 국명으로 공식 종목록을 조회해 학명·목·과를 채우고, 붙여넣은 셀이 있으면 그 값이 우선한다.
     /// (어류와 동일하게 [국명, 개체수] 2열만 붙여넣어도 된다)
     /// RadGridView 기본 붙여넣기가 커스텀 편집기 컬럼과 충돌해 한 칸에 뭉치므로 직접 파싱한다.</summary>
     public void PasteRows(string clipboard)
@@ -97,20 +100,24 @@ public partial class BirdEntryViewModel : ObservableObject, ITransientService
             var ko = cells[0].Trim();   // 종명은 원문 그대로(Trim만)
             if (string.IsNullOrEmpty(ko)) continue;
 
-            Entries.Add(new BirdEntry
+            var entry = new BirdEntry
             {
                 SpeciesKo = ko,
                 IndividualCount = Pi(Cell(cells, 1)),
-                SpeciesEn = Cell(cells, 2),
-                MigratoryType = Cell(cells, 3),
-                Category = Cell(cells, 4),
-                CategoryDetail = Cell(cells, 5),
-                HabitatType = Cell(cells, 6),
-                Lat = Pd(Cell(cells, 7)),
-                Lng = Pd(Cell(cells, 8)),
-                Feature = Cell(cells, 9),
-                Note = Cell(cells, 10),
-            });
+                MigratoryType = Cell(cells, 5),
+                Category = Cell(cells, 6),
+                CategoryDetail = Cell(cells, 7),
+                HabitatType = Cell(cells, 8),
+                Lat = Pd(Cell(cells, 9)),
+                Lng = Pd(Cell(cells, 10)),
+                Feature = Cell(cells, 11),
+                Note = Cell(cells, 12),
+            };
+            entry.ApplySpecies(SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko));
+            entry.SpeciesEn = Cell(cells, 2) ?? entry.SpeciesEn;   // 붙여넣은 값이 있으면 우선
+            entry.OrderKo = Cell(cells, 3) ?? entry.OrderKo;
+            entry.FamilyKo = Cell(cells, 4) ?? entry.FamilyKo;
+            Entries.Add(entry);
         }
     }
 
@@ -122,6 +129,16 @@ public partial class BirdEntryViewModel : ObservableObject, ITransientService
     }
     private static int? Pi(string? s) => int.TryParse(s, out var n) ? n : null;
     private static double? Pd(string? s) => double.TryParse(s, out var d) ? d : null;
+
+    /// <summary>국명을 공식 종목록과 대조해 학명·목·과·보호종 표기를 연결한다.
+    /// 직접 입력·붙여넣기로 국명만 들어온 경우에도 자동으로 채워진다. 미매칭이면 국명만 남는다.</summary>
+    private void ResolveSpecies(BirdEntry row)
+    {
+        var ko = row.SpeciesKo?.Trim();
+        if (string.IsNullOrEmpty(ko)) return;
+        if (row.MatchedSpecies?.SpeciesKo == ko) return;   // 이미 일치(자동완성 선택 등)
+        row.ApplySpecies(SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko));
+    }
 
     /// <summary>국명·개체수가 모두 빈 행 제거(붙여넣기·오클릭으로 생긴 빈 행 정리).</summary>
     [RelayCommand]
@@ -148,6 +165,10 @@ public partial class BirdEntryViewModel : ObservableObject, ITransientService
 
     private void OnRowChanged(object? sender, PropertyChangedEventArgs e)
     {
+        // 국명만 채워진 행(직접 입력)도 공식 종목록과 자동 매칭
+        if (e.PropertyName == nameof(BirdEntry.SpeciesKo) && sender is BirdEntry row)
+            ResolveSpecies(row);
+
         if (e.PropertyName is nameof(BirdEntry.SpeciesKo) or nameof(BirdEntry.IndividualCount))
             Recalculate();
     }

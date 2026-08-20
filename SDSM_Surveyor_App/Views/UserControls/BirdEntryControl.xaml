@@ -1,4 +1,4 @@
-<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.BirdEntryControl"
+﻿<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.BirdEntryControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -61,6 +61,7 @@
                         IsEditable="True" IsTextSearchEnabled="False" IsFilteringEnabled="False"
                         OpenDropDownOnFocus="True" StaysOpenOnEdit="True"
                         EmptyText="종명 초성 검색 (예: ㅊㄷㅇㄹ)"
+                        DisplayMemberPath="SpeciesKo"
                         ItemsSource="{Binding FilteredQuick}"
                         Text="{Binding QuickSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         SelectedItem="{Binding QuickSpecies, Mode=TwoWay}"/>
@@ -91,7 +92,10 @@
                             <DataTemplate>
                                 <telerik:RadAutoCompleteBox SelectionMode="Single"
                                     WatermarkContent="초성 검색 (예: ㅊㄷㅇㄹ)"
-                                    SelectedItem="{Binding SpeciesKo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    DisplayMemberPath="SpeciesKo"
+                                    TextSearchPath="SpeciesKo"
+                                    TextSearchMode="Contains"
+                                    SelectedItem="{Binding SelectedSpecies, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     ItemsSource="{Binding DataContext.SpeciesListSource, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                     <telerik:RadAutoCompleteBox.FilteringBehavior>
                                         <core:ChosungFilteringBehavior/>
@@ -105,6 +109,8 @@
                     <telerik:GridViewDataColumn Header="개체수" Width="80" DataMemberBinding="{Binding IndividualCount}"
                                                 DataFormatString="{}{0:N0}" TextAlignment="Right"/>
                     <telerik:GridViewDataColumn Header="학명" Width="170" DataMemberBinding="{Binding SpeciesEn}"/>
+                    <telerik:GridViewDataColumn Header="목" Width="90" DataMemberBinding="{Binding OrderKo}"/>
+                    <telerik:GridViewDataColumn Header="과" Width="90" DataMemberBinding="{Binding FamilyKo}"/>
                     <telerik:GridViewComboBoxColumn Header="도래유형" Width="100"
                         DataMemberBinding="{Binding MigratoryType}"
                         ItemsSourceBinding="{Binding DataContext.MigratoryTypes, RelativeSource={RelativeSource AncestorType=telerik:RadGridView}}"/>
@@ -117,7 +123,28 @@
                                                 DataMemberBinding="{Binding Lng}" DataFormatString="{}{0:N6}" TextAlignment="Right"/>
                     <telerik:GridViewDataColumn Header="특징" Width="*" MinWidth="120" DataMemberBinding="{Binding Feature}"/>
                     <telerik:GridViewDataColumn Header="특이사항" Width="150" DataMemberBinding="{Binding Note}"/>
+                    <telerik:GridViewDataColumn Header="구분" Width="140" IsReadOnly="True"
+                                               DataMemberBinding="{Binding ProtectionText}"
+                                               ToolTipService.ToolTip="공식 종목록의 법정보호종·생태계교란생물 표기(자동)"/>
                 </telerik:RadGridView.Columns>
+
+                <!-- 보호종 / 생태계교란생물 강조 (의미가 반대이므로 색을 구분한다) -->
+                <telerik:RadGridView.RowStyle>
+                    <Style TargetType="telerik:GridViewRow">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsProtected}" Value="True">
+                                <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="ToolTip" Value="{Binding ProtectionText}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsInvasive}" Value="True">
+                                <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=ValidationBrush}"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="ToolTip" Value="{Binding ProtectionText}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </telerik:RadGridView.RowStyle>
             </telerik:RadGridView>
         </Grid>
 
