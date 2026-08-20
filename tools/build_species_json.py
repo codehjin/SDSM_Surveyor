@@ -17,6 +17,7 @@ import argparse
 import datetime as _dt
 import io
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -153,35 +154,93 @@ def read_protection(wb, sheet_name: str, header_row: int, col_group: int,
     return out
 
 
+def genus_of(scientific_name: str | None) -> str | None:
+    """학명에서 속 이름(첫 단어)만 뽑는다. 예: 'Trachemys scripta' → 'Trachemys'."""
+    if not scientific_name:
+        return None
+    parts = scientific_name.split()
+    return parts[0] if parts else None
+
+
+def is_genus_level(scientific_name: str | None) -> bool:
+    """속 전체를 가리키는 등재인지. 예: 'Trachemys spp.' / 'Rana sp.'"""
+    if not scientific_name:
+        return False
+    return bool(re.search(r"\bspp?\.\s*$", scientific_name.strip()))
+
+
+def looks_like_group_name(korean_name: str | None) -> bool:
+    """국명이 종이 아니라 무리를 가리키는지. 예: '붉은귀거북속 전종', '고니류'."""
+    if not korean_name:
+        return False
+    return "전종" in korean_name or korean_name.endswith("류")
+
+
 def apply_flags(species: list[dict], entries: list[dict], taxon: str,
                 assign, report: dict, label: str) -> None:
-    """보호종 목록을 종 목록에 조인한다. 학명 우선, 안 맞으면 국명으로 보조 매칭."""
-    by_en = {}
-    by_ko = {}
+    """보호종 목록을 종 목록에 조인한다.
+
+    ① 속 단위 등재(`Trachemys spp.`)면 **그 속의 모든 종**에 플래그를 준다.
+       (이 처리가 없으면 붉은귀거북 같은 흔한 교란종이 표시되지 않는다)
+    ② 그 외에는 학명 정확 일치 → 국명 정확 일치 순으로 1종에만 준다.
+    """
+    by_en: dict[str, dict] = {}
+    by_ko: dict[str, dict] = {}
+    by_genus: dict[str, list[dict]] = {}
     for sp in species:
         if sp["SpeciesEn"]:
             by_en.setdefault(sp["SpeciesEn"], sp)
         by_ko.setdefault(sp["SpeciesKo"], sp)
+        g = genus_of(sp["SpeciesEn"])
+        if g:
+            by_genus.setdefault(g, []).append(sp)
 
     labels = TAXON_GROUP_LABELS[taxon]
-    hit_en = hit_ko = miss = 0
+    hit_en = hit_ko = hit_genus = miss = 0
     for e in entries:
         if e["group"] not in labels:
             continue
-        target = by_en.get(e["en"]) if e["en"] else None
-        if target is not None:
+
+        targets: list[dict] = []
+        kind = ""
+        if is_genus_level(e["en"]):
+            targets = by_genus.get(genus_of(e["en"]) or "", [])
+            kind = "속"
+        else:
+            t = by_en.get(e["en"]) if e["en"] else None
+            if t is not None:
+                targets, kind = [t], "학명"
+            else:
+                t = by_ko.get(e["ko"])
+                if t is not None:
+                    targets, kind = [t], "국명"
+
+        if not targets:
+            miss += 1
+            note = ""
+            # 학명 없이 국명만 무리를 가리키는 경우는 자동 확장이 불가능하므로 눈에 띄게 남긴다
+            if looks_like_group_name(e["ko"]) and not is_genus_level(e["en"]):
+                note = "  ← 무리(속/류) 단위로 보이나 학명이 종 단위가 아니어서 자동 확장 불가"
+            report["unmatched"].append(f"{taxon} · {label}: {e['ko']} ({e['en']}){note}")
+            continue
+
+        for t in targets:
+            assign(t, e)
+
+        if kind == "속":
+            hit_genus += len(targets)
+            for t in targets:
+                report["genus"].append(
+                    f"{taxon} · {label}: {e['ko']} ({e['en']}) → {t['SpeciesKo']} ({t['SpeciesEn']})"
+                )
+        elif kind == "학명":
             hit_en += 1
         else:
-            target = by_ko.get(e["ko"])
-            if target is not None:
-                hit_ko += 1
-        if target is None:
-            miss += 1
-            report["unmatched"].append(f"{taxon} · {label}: {e['ko']} ({e['en']})")
-            continue
-        assign(target, e)
+            hit_ko += 1
+
     report["join"].append(
-        f"  {taxon:<10} {label:<12} 학명매칭 {hit_en:>3} · 국명매칭 {hit_ko:>3} · 미매칭 {miss:>3}"
+        f"  {taxon:<10} {label:<12} 학명매칭 {hit_en:>3} · 국명매칭 {hit_ko:>3} · "
+        f"속단위매칭 {hit_genus:>3} · 미매칭 {miss:>3}"
     )
 
 
@@ -200,7 +259,7 @@ def main() -> int:
     if not dst.exists():
         return int(bool(sys.stderr.write(f"기존 species.json 이 없습니다: {dst}\n")))
 
-    report = {"blank_ko": [], "dupes": [], "join": [], "unmatched": []}
+    report = {"blank_ko": [], "dupes": [], "join": [], "unmatched": [], "genus": []}
 
     print(f"입력 : {src}")
     wb = openpyxl.load_workbook(src, read_only=True, data_only=True)
@@ -253,6 +312,11 @@ def main() -> int:
     print("보호종 조인")
     for line in report["join"]:
         print(line)
+
+    if report["genus"]:
+        print(f"\n속(genus) 단위 등재로 플래그가 붙은 종 ({len(report['genus'])}건)")
+        for g in report["genus"]:
+            print(f"  {g}")
 
     if report["dupes"]:
         print(f"\n국명 중복 — 첫 항목만 채택 ({len(report['dupes'])}건)")

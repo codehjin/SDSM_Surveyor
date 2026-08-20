@@ -1,6 +1,6 @@
 {
   "Version": "nibr-20260820",
-  "GeneratedAt": "2026-08-20T13:12:54",
+  "GeneratedAt": "2026-08-20T15:02:45",
   "Fish": [
     {
       "FishTrait": "O",
@@ -23184,7 +23184,7 @@
       "Endangered1": null,
       "Endangered2": null,
       "NaturalMonument": null,
-      "Invasive": null,
+      "Invasive": "O",
       "Ktsn": "120000059456"
     },
     {

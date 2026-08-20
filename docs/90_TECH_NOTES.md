@@ -1,4 +1,4 @@
-# 기술 노트 — 검증된 사실과 함정 (작업 전 필독)
+﻿# 기술 노트 — 검증된 사실과 함정 (작업 전 필독)
 
 > 이 문서의 내용은 **실제 DLL·DB·엑셀 파일을 열어 검증한 것**이다. 추측이 아니다.
 > 새 API를 쓰기 전에는 반드시 §0의 검증 절차를 거칠 것. Telerik은 버전마다 멤버 이름이 다르다.
@@ -174,6 +174,9 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 - 생성: `tools\build_species_json.py` (입력 `docs\_input\생물종 일괄입력.xlsx`). **어류·저서동물 부분은 건드리지 않고 보존**한다.
   원본 목록이 갱신되면 이 스크립트를 다시 실행한다. 열 위치는 헤더 텍스트로 검증하므로 구조가 바뀌면 오류로 멈춘다.
 - 조류 617행 중 **국명 중복 8건은 첫 항목만 채택**(아종 차이로 학명이 다름) → 609종.
+- ⚠ **보호종·교란종 목록에는 속 단위 등재가 있다.** 학명이 `spp.`/`sp.` 로 끝나면
+  **속 이름만 비교해 그 속의 모든 종에 플래그**를 줘야 한다. 정확 일치만 하면
+  `붉은귀거북`(`Trachemys scripta`)이 `Trachemys spp.` 등재와 매칭되지 않아 교란종 표시가 누락된다.
 
 - 공유 모델은 `SDSM\SDSM_Models\` (관리자·조사자 공용, ProjectReference로 참조)
   - `FishSpeciesList`(길드·보호종), `BenthosSpeciesList`(오탁치·가중치), `ImportFishSpecies`, `ImportBenthosSpecies`
