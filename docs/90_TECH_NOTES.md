@@ -86,10 +86,10 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 - 서식: `SetIsBold` `SetFontSize` `SetForeColor(new ThemableColor(color))` `SetFill(new PatternFill(PatternType.Solid, fore, back))` `SetHorizontalAlignment(RadHorizontalAlignment.Center)` `SetFontFamily(new ThemableFontFamily("맑은 고딕"))`
 - 컬럼 폭: `ws.Columns[i].SetWidth(new ColumnWidth(px, true))`
 
-### ⚠ AutoFilter (미해결 이슈)
+### ✅ AutoFilter (해결됨)
 `worksheet.Filter`의 타입은 `AutoFilter`이며 `SetFilterRange`는 **internal 인터페이스 `IWorksheetFilter`의 명시적 구현**이라 외부에서 호출 불가(CS0122).
-`FilterRange` 속성 대입(`ws.Filter.FilterRange = new CellRange(...)`)이 되는지 확인하고, **안 되면 자동 필터를 포기**한다.
-표(헤더+데이터) 구조만 유지하면 사용자가 엑셀에서 `데이터 > 필터`를 한 번 누르면 동일하다. 이 사소한 기능 때문에 진행을 막지 말 것.
+→ **`ws.Filter.FilterRange = new CellRange(headerRow, 0, lastRow, lastCol)` 속성 대입은 public이라 정상 동작한다.**
+`FishReportExporter.AutoFilter()`가 이 방식을 쓰며 빌드·실행 모두 통과(2026-08-20 확인). `SetFilterRange`는 호출하지 말 것.
 
 ---
 
@@ -162,6 +162,12 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 ---
 
 ## 6. 데이터·모델 참고
+
+### ⚠ 관찰형 3종 종목록에는 학명이 없다
+`species.json`의 `Fish`/`Benthos`는 객체 목록(길드·오탁치 포함)이지만
+**`Bird`(169)·`Mammal`(17)·`Amphibian`(22)은 국명 문자열 목록**이다(`SpeciesCatalog.cs`).
+→ 조류·포유류·양서파충류는 종을 선택해도 **학명을 자동으로 채울 수 없다**(현재 수동 입력).
+자동 채움이 필요하면 관리자 `species.json` 내보내기에 국명·학명 쌍을 넣어야 한다(`SDSM\docs\ADMIN_TASKS.md` §3).
 
 - 공유 모델은 `SDSM\SDSM_Models\` (관리자·조사자 공용, ProjectReference로 참조)
   - `FishSpeciesList`(길드·보호종), `BenthosSpeciesList`(오탁치·가중치), `ImportFishSpecies`, `ImportBenthosSpecies`

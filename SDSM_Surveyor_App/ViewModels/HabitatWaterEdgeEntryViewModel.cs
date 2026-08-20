@@ -1,10 +1,11 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using SDSM_Surveyor_App.Data;
 using SDSM_Surveyor_App.Ecology;
 using SDSM_Surveyor_App.InjectableServices;
 using SDSM_Surveyor_App.Messengers;
+using SDSM_Surveyor_App.Models;
 
 namespace SDSM_Surveyor_App.ViewModels;
 
@@ -16,15 +17,12 @@ public partial class HabitatWaterEdgeEntryViewModel : ObservableObject, ITransie
 
     public HabitatWaterEdgeEntryViewModel(ILocalDraftStore draftStore) => _draftStore = draftStore;
 
-    // 공통 기본정보
-    [ObservableProperty] private string _yearChsu = string.Empty;
-    [ObservableProperty] private DateTime? _surveyDate = DateTime.Today;
-    [ObservableProperty] private string? _river;
-    [ObservableProperty] private string? _site;
-    [ObservableProperty] private string? _surveyor;
-    [ObservableProperty] private string? _weather;
-    [ObservableProperty] private string? _surveyUnavailableReason;
-    public string[] Weathers { get; } = { "맑음", "흐림", "비(눈)" };
+    // ── 공통 조사개황 : 모든 분류군 공유(SurveyOverviewControl에서 입력) ──
+    public SurveyMeta Meta { get; } = new();
+
+    // 서식수변 고유 입력(등급 계산에 영향하므로 Meta가 아닌 이곳에 둔다)
+    [ObservableProperty] private string? _surveyUnavailableReason;   // 조사불가시
+    [ObservableProperty] private string? _note;                      // 비고(특이사항)
 
     // ── 평가항목 : 선택된 옵션(HriOption) 자체를 바인딩(SelectedItem) ──
     [ObservableProperty] private HriOption? _s1;    // 1 자연적 종횡사주
@@ -43,22 +41,22 @@ public partial class HabitatWaterEdgeEntryViewModel : ObservableObject, ITransie
     [ObservableProperty] private HriOption? _b10L;  // 10 제내지 토지이용(좌)
     [ObservableProperty] private HriOption? _b10R;  // 10 제내지 토지이용(우)
 
-    partial void OnS1Changed(HriOption? v) => RaiseResult();
-    partial void OnB2LChanged(HriOption? v) => RaiseResult();
-    partial void OnB2RChanged(HriOption? v) => RaiseResult();
-    partial void OnS3Changed(HriOption? v) => RaiseResult();
-    partial void OnS4Changed(HriOption? v) => RaiseResult();
-    partial void OnB5LChanged(HriOption? v) => RaiseResult();
-    partial void OnB5RChanged(HriOption? v) => RaiseResult();
-    partial void OnB6LChanged(HriOption? v) => RaiseResult();
-    partial void OnB6RChanged(HriOption? v) => RaiseResult();
-    partial void OnS7Changed(HriOption? v) => RaiseResult();
-    partial void OnS8Changed(HriOption? v) => RaiseResult();
-    partial void OnB9LChanged(HriOption? v) => RaiseResult();
-    partial void OnB9RChanged(HriOption? v) => RaiseResult();
-    partial void OnB10LChanged(HriOption? v) => RaiseResult();
-    partial void OnB10RChanged(HriOption? v) => RaiseResult();
-    partial void OnSurveyUnavailableReasonChanged(string? v) => RaiseResult();
+    partial void OnS1Changed(HriOption? value) => RaiseResult();
+    partial void OnB2LChanged(HriOption? value) => RaiseResult();
+    partial void OnB2RChanged(HriOption? value) => RaiseResult();
+    partial void OnS3Changed(HriOption? value) => RaiseResult();
+    partial void OnS4Changed(HriOption? value) => RaiseResult();
+    partial void OnB5LChanged(HriOption? value) => RaiseResult();
+    partial void OnB5RChanged(HriOption? value) => RaiseResult();
+    partial void OnB6LChanged(HriOption? value) => RaiseResult();
+    partial void OnB6RChanged(HriOption? value) => RaiseResult();
+    partial void OnS7Changed(HriOption? value) => RaiseResult();
+    partial void OnS8Changed(HriOption? value) => RaiseResult();
+    partial void OnB9LChanged(HriOption? value) => RaiseResult();
+    partial void OnB9RChanged(HriOption? value) => RaiseResult();
+    partial void OnB10LChanged(HriOption? value) => RaiseResult();
+    partial void OnB10RChanged(HriOption? value) => RaiseResult();
+    partial void OnSurveyUnavailableReasonChanged(string? value) => RaiseResult();
 
     // 좌/우안 산술 평균
     private static double? Avg(HriOption? l, HriOption? r)
@@ -111,7 +109,10 @@ public partial class HabitatWaterEdgeEntryViewModel : ObservableObject, ITransie
     {
         await _draftStore.SaveDraftAsync(TaxonKey, new
         {
-            YearChsu, SurveyDate, River, Site, Surveyor, Weather, SurveyUnavailableReason,
+            Meta.SurveyYear, Meta.YearChsu, Meta.SurveyDate, Meta.MajorRegion, Meta.MiddleRegion,
+            Meta.River, Meta.RiverType, Meta.Site, Meta.Lat, Meta.Lng, Meta.Weather,
+            Meta.SurveyAgency, Meta.Surveyor,
+            SurveyUnavailableReason, Note,
             S1 = S1?.Score, B2L = B2L?.Score, B2R = B2R?.Score, S3 = S3?.Score, S4 = S4?.Score,
             B5L = B5L?.Score, B5R = B5R?.Score, B6L = B6L?.Score, B6R = B6R?.Score,
             S7 = S7?.Score, S8 = S8?.Score, B9L = B9L?.Score, B9R = B9R?.Score,

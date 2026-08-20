@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:ctrl="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
              xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
              mc:Ignorable="d" d:DesignWidth="1360" d:DesignHeight="740"
              d:DataContext="{d:DesignInstance vm:HabitatWaterEdgeEntryViewModel}">
@@ -30,42 +31,43 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- 공통 기본정보 -->
+        <!-- ① 조사개황(공통·접이식) + 서식수변 고유 입력 -->
         <Border Grid.Row="0" Margin="2" Padding="14"
                 Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
                 BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
                 BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
-            <WrapPanel>
-                <StackPanel Margin="0 0 16 0">
-                    <TextBlock Text="연도차수" Style="{StaticResource HwCaption}"/>
-                    <telerik:RadWatermarkTextBox Width="110" WatermarkContent="2024반기1차" Text="{Binding YearChsu, UpdateSourceTrigger=PropertyChanged}"/>
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="조사개황" Style="{StaticResource SubHeaderTextStyle}" Margin="0"/>
+                        <TextBlock Text="지점당 1회 입력 후 접어두면 평가 항목 선택이 편해집니다" Margin="10 0 0 0"
+                                   VerticalAlignment="Center" Style="{StaticResource CaptionTextStyle}"/>
+                    </StackPanel>
+                    <telerik:RadToggleButton Grid.Column="1" x:Name="MetaToggle" IsChecked="True" Padding="12 4"
+                                             Content="접기 / 펼치기"/>
+                </Grid>
+
+                <StackPanel Margin="0 10 0 0"
+                            Visibility="{Binding IsChecked, ElementName=MetaToggle, Converter={StaticResource BoolToVisibility}}">
+                    <ctrl:SurveyOverviewControl DataContext="{Binding Meta}"/>
+
+                    <!-- 서식수변 고유 : 조사불가 사유는 등급('-') 산정에 쓰이므로 공통 조사개황이 아닌 이곳에 둔다 -->
+                    <TextBlock Text="특이사항" FontWeight="SemiBold" Margin="0 6 0 6"
+                               Foreground="{StaticResource AppAccentStrongBrush}"/>
+                    <WrapPanel>
+                        <StackPanel Width="200" Margin="0 0 12 10">
+                            <TextBlock Text="조사불가시" Style="{StaticResource HwCaption}"/>
+                            <telerik:RadWatermarkTextBox WatermarkContent="접근불가/건천화/준설/공사중"
+                                                         Text="{Binding SurveyUnavailableReason, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Width="300" Margin="0 0 12 10">
+                            <TextBlock Text="비고" Style="{StaticResource HwCaption}"/>
+                            <telerik:RadWatermarkTextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </WrapPanel>
                 </StackPanel>
-                <StackPanel Margin="0 0 16 0">
-                    <TextBlock Text="조사일자" Style="{StaticResource HwCaption}"/>
-                    <telerik:RadDatePicker Width="150" SelectedValue="{Binding SurveyDate, Mode=TwoWay}"/>
-                </StackPanel>
-                <StackPanel Margin="0 0 16 0">
-                    <TextBlock Text="하천명" Style="{StaticResource HwCaption}"/>
-                    <telerik:RadWatermarkTextBox Width="130" Text="{Binding River, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
-                <StackPanel Margin="0 0 16 0">
-                    <TextBlock Text="지점명" Style="{StaticResource HwCaption}"/>
-                    <telerik:RadWatermarkTextBox Width="130" Text="{Binding Site, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
-                <StackPanel Margin="0 0 16 0">
-                    <TextBlock Text="조사자" Style="{StaticResource HwCaption}"/>
-                    <telerik:RadWatermarkTextBox Width="110" Text="{Binding Surveyor, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
-                <StackPanel Margin="0 0 16 0">
-                    <TextBlock Text="날씨" Style="{StaticResource HwCaption}"/>
-                    <telerik:RadComboBox Width="100" ItemsSource="{Binding Weathers}" SelectedItem="{Binding Weather, Mode=TwoWay}"/>
-                </StackPanel>
-                <StackPanel Margin="0 0 16 0">
-                    <TextBlock Text="조사불가시" Style="{StaticResource HwCaption}"/>
-                    <telerik:RadWatermarkTextBox Width="130" WatermarkContent="접근불가 등"
-                                                 Text="{Binding SurveyUnavailableReason, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
-            </WrapPanel>
+            </StackPanel>
         </Border>
 
         <!-- 평가 항목(드롭다운) + 결과 -->
