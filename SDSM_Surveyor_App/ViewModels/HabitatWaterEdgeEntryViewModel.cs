@@ -6,23 +6,18 @@ using SDSM_Core.Ecology;
 using SDSM_Surveyor_App.InjectableServices;
 using SDSM_Surveyor_App.Messengers;
 using SDSM_Surveyor_App.Models;
+using SDSM_Surveyor_App.ViewModels.Base;
 
 namespace SDSM_Surveyor_App.ViewModels;
 
 /// <summary>서식·수변환경 탭 : [별표5] 항목별 허용점수 드롭다운 + 좌/우안 평균 → 실시간 HRI.</summary>
-public partial class HabitatWaterEdgeEntryViewModel : ObservableObject, ISingletonService
+public partial class HabitatWaterEdgeEntryViewModel : TaxonEntryViewModelBase, ISingletonService
 {
     internal const string TaxonKey = "HabitatWaterEdge";
-    private readonly ISessionService _sessions;
 
     public HabitatWaterEdgeEntryViewModel(ISessionService sessions, SurveyMeta meta)
-    {
-        _sessions = sessions;
-        Meta = meta;
-    }
+        : base(sessions, meta) { }
 
-    // ── 공통 조사개황 : 모든 분류군 공유(SurveyOverviewControl에서 입력) ──
-    public SurveyMeta Meta { get; }
 
     // 서식수변 고유 입력(등급 계산에 영향하므로 Meta가 아닌 이곳에 둔다)
     [ObservableProperty] private string? _surveyUnavailableReason;   // 조사불가시
@@ -120,20 +115,6 @@ public partial class HabitatWaterEdgeEntryViewModel : ObservableObject, ISinglet
     public HriOption[] Opt9 { get; } = { new(10,"자연식생"), new(5,"자연+인공식생"), new(3,"경작지"), new(1,"공원/운동장"), new(0,"주차장/불투수") };
     public HriOption[] Opt10 { get; } = { new(10,"초지/관목"), new(5,"인공+자연녹지"), new(3,"경작지/공원"), new(1,"일부 시가지"), new(0,"1/2↑ 시가지") };
 
-    [ObservableProperty] private string _statusText = "임시 저장 없음";
-    [ObservableProperty] private DateTime? _lastSavedTime;
-
-    [RelayCommand]
-    private async Task SaveTemporary()
-    {
-        // 분류군 하나가 아니라 세션(조사개황 + 7개 분류군) 전체를 저장한다.
-        // 어느 탭에서 눌러도 같은 세션 파일이 갱신되므로 지점을 옮겨도 이전 자료가 사라지지 않는다.
-        var idx = await _sessions.SaveCurrentAsync();
-
-        LastSavedTime = DateTime.Now;
-        StatusText = $"자료함 저장됨 · {idx.Site} {idx.YearChsu} · {LastSavedTime:HH:mm:ss}";
-        WeakReferenceMessenger.Default.Send(new NotifyMessage(("자료함에 저장되었습니다.", true)));
-    }
 
     /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>
     [RelayCommand(CanExecute = nameof(CanExport))]

@@ -10,36 +10,28 @@ using SDSM_Core.Ecology;
 using SDSM_Surveyor_App.InjectableServices;
 using SDSM_Surveyor_App.Messengers;
 using SDSM_Surveyor_App.Models;
+using SDSM_Surveyor_App.ViewModels.Base;
 using Telerik.Windows.Data;
 
 namespace SDSM_Surveyor_App.ViewModels;
 
 /// <summary>저서동물 탭: 초고속 입력 + 실시간 지수(DI/H'/R1/J'/BMI) + 임시저장/내보내기.
 /// (자동계산 외 관리자 전체 필드 입력 · 빠른 추가 바 · 엑셀 붙여넣기)</summary>
-public partial class BenthosEntryViewModel : ObservableObject, ISingletonService
+public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSpeciesEntry, BenthosSpeciesList>, ISingletonService
 {
     internal const string TaxonKey = "Benthos";
 
-    private readonly ISpeciesListProvider _speciesProvider;
-    private readonly ISessionService _sessions;
     private readonly IReferenceRangeProvider _reference;
 
     public BenthosEntryViewModel(ISpeciesListProvider speciesProvider, ISessionService sessions,
-                                 IReferenceRangeProvider reference, SurveyMeta meta)
+                 IReferenceRangeProvider reference, SurveyMeta meta)
+        : base(sessions, meta)
     {
-        _speciesProvider = speciesProvider;
-        _sessions = sessions;
-        Meta = meta;
         _reference = reference;
-
-        SpeciesListSource = _speciesProvider.GetBenthosSpecies();
-        FilteredQuick = SpeciesListSource;   // 콤보 초기 목록
-        SpeciesEntries.CollectionChanged += OnEntriesChanged;
+        SpeciesListSource = speciesProvider.GetBenthosSpecies();
         // 종 추가는 상단 '빠른 추가' 바로 하므로 초기 빈 행을 넣지 않는다(빈 행 누적 방지).
     }
 
-    // ── 공통 조사개황 : 모든 분류군 공유(SurveyOverviewControl에서 입력) ──
-    public SurveyMeta Meta { get; }
 
     // ── 채집방법(정량 채집기 회수) ──
     [ObservableProperty] private string? _surbernet30;      // Surber net 30×30
@@ -82,83 +74,25 @@ public partial class BenthosEntryViewModel : ObservableObject, ISingletonService
     [ObservableProperty] private string? _note;                     // 특이사항
 
     // ── 입력 그리드 ──
-    public RadObservableCollection<BenthosSpeciesEntry> SpeciesEntries { get; } = new();
+    /// <summary>종 행. 기반 클래스의 <c>Rows</c> 를 화면 바인딩 이름으로 노출한다.</summary>
+    public RadObservableCollection<BenthosSpeciesEntry> SpeciesEntries => Rows;
     [ObservableProperty] private List<BenthosSpeciesList> _speciesListSource = new();
 
-    // ── 빠른 추가 바(그리드 위) : 초성 검색(RadComboBox·VM에서 필터) → 개체수 → Enter/추가 ──
-    [ObservableProperty] private List<BenthosSpeciesList> _filteredQuick = new();
-    [ObservableProperty] private string? _quickSearch;
-    [ObservableProperty] private BenthosSpeciesList? _quickSpecies;
-    [ObservableProperty] private string? _quickCount;
-
-    partial void OnQuickSearchChanged(string? value) => FilterQuick();
-
-    private void FilterQuick()
+    /// <summary>붙여넣기 한 줄 → 행. 열 순서 = [국명, 개체수].
+    /// 국명이 공식 종목록에 있으면 학명·길드가 자동으로 연결된다.</summary>
+    protected override BenthosSpeciesEntry CreateRowFromCells(string ko, string[] cells)
     {
-        var q = QuickSearch?.Trim();
-        FilteredQuick = string.IsNullOrEmpty(q)
-            ? SpeciesListSource
-            : SpeciesListSource.Where(s => ChosungHelper.IsMatch(s.SpeciesKo, q)).Take(80).ToList();
+        var entry = new BenthosSpeciesEntry();
+        var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko);
+        if (match is not null) entry.SelectedSpecies = match;   // 학명·길드 자동 연결
+        else entry.SpeciesKo = ko;
+
+        if (cells.Length > 1 && double.TryParse(cells[1].Trim(), out var n))
+            entry.IndividualCount = n;
+
+        return entry;
     }
 
-    /// <summary>종을 고르면 개체수 칸으로 포커스 이동(코드비하인드가 구독).</summary>
-    public event EventHandler? QuickSpeciesPicked;
-    partial void OnQuickSpeciesChanged(BenthosSpeciesList? value)
-    {
-        if (value is not null) QuickSpeciesPicked?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>빠른 추가 후 검색 콤보로 포커스 복귀(코드비하인드가 구독).</summary>
-    public event EventHandler? QuickAddCompleted;
-
-    [RelayCommand]
-    private void AddQuick()
-    {
-        if (QuickSpecies is null) return;
-
-        var entry = new BenthosSpeciesEntry { SelectedSpecies = QuickSpecies };
-        if (double.TryParse(QuickCount, out var n)) entry.IndividualCount = n;
-        SpeciesEntries.Add(entry);
-
-        QuickSpecies = null;
-        QuickCount = null;
-        QuickSearch = null;
-        QuickAddCompleted?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>엑셀에서 복사한 [국명, 개체수] 여러 줄을 그리드 행으로 추가(그리드 Ctrl+V에서 호출).</summary>
-    public void PasteRows(string clipboard)
-    {
-        if (string.IsNullOrWhiteSpace(clipboard)) return;
-        var lines = clipboard.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
-        foreach (var line in lines)
-        {
-            if (string.IsNullOrWhiteSpace(line)) continue;
-            var cells = line.Split('\t');
-            var ko = cells[0].Trim();
-            if (string.IsNullOrEmpty(ko)) continue;
-
-            var entry = new BenthosSpeciesEntry();
-            var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko);
-            if (match is not null) entry.SelectedSpecies = match;
-            else entry.SpeciesKo = ko;
-
-            if (cells.Length > 1 && double.TryParse(cells[1].Trim(), out var n))
-                entry.IndividualCount = n;
-
-            SpeciesEntries.Add(entry);
-        }
-    }
-
-    /// <summary>국명·개체수가 모두 빈 행 제거.</summary>
-    [RelayCommand]
-    private void PruneEmpty()
-    {
-        var empties = SpeciesEntries
-            .Where(r => string.IsNullOrWhiteSpace(r.SelectedSpecies?.SpeciesKo ?? r.SpeciesKo) && r.IndividualCount is null)
-            .ToList();
-        foreach (var e in empties) SpeciesEntries.Remove(e);
-    }
 
     // ── 실시간 통계·지수 ──
     [ObservableProperty] private int _totalSpeciesCount;
@@ -173,29 +107,7 @@ public partial class BenthosEntryViewModel : ObservableObject, ISingletonService
     [ObservableProperty] private string _bmiGrade = "-";
 
     // 상태바
-    [ObservableProperty] private string _statusText = "임시 저장 없음";
-    [ObservableProperty] private DateTime? _lastSavedTime;
 
-    private void OnEntriesChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        if (e.OldItems is not null)
-            foreach (BenthosSpeciesEntry r in e.OldItems) r.PropertyChanged -= OnRowChanged;
-        if (e.NewItems is not null)
-            foreach (BenthosSpeciesEntry r in e.NewItems) r.PropertyChanged += OnRowChanged;
-        Recalculate();
-    }
-
-    private void OnRowChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        // 붙여넣기/직접입력으로 국명만 채워진 행 → 공식 종목록과 자동 매칭
-        if (e.PropertyName == nameof(BenthosSpeciesEntry.SpeciesKo) && sender is BenthosSpeciesEntry row)
-            ResolveSpecies(row);
-
-        if (e.PropertyName is nameof(BenthosSpeciesEntry.IndividualCount)
-                           or nameof(BenthosSpeciesEntry.SelectedSpecies)
-                           or nameof(BenthosSpeciesEntry.SpeciesKo))
-            Recalculate();
-    }
 
     /// <summary>국명 문자열을 공식 종목록과 대조해 SelectedSpecies(학명·오탁치·가중치)를 연결.</summary>
     private void ResolveSpecies(BenthosSpeciesEntry row)
@@ -250,7 +162,7 @@ public partial class BenthosEntryViewModel : ObservableObject, ISingletonService
     // 조사불가 사유는 등급을 "-"로 바꾸므로 입력 즉시 다시 계산한다(어류와 동일).
     partial void OnSurveyUnavailableReasonChanged(string? value) => Recalculate();
 
-    private void Recalculate()
+    protected override void Recalculate()
     {
         ValidateRows();
 
@@ -296,18 +208,6 @@ public partial class BenthosEntryViewModel : ObservableObject, ISingletonService
         ExportBulkCommand.NotifyCanExecuteChanged();
     }
 
-    [RelayCommand]
-    private async Task SaveTemporary()
-    {
-        // 분류군 하나가 아니라 세션(조사개황 + 7개 분류군) 전체를 저장한다.
-        // 어느 탭에서 눌러도 같은 세션 파일이 갱신되므로 지점을 옮겨도 이전 자료가 사라지지 않는다.
-        var idx = await _sessions.SaveCurrentAsync();
-
-        LastSavedTime = DateTime.Now;
-        StatusText = $"자료함 저장됨 · {idx.Site} {idx.YearChsu} · {LastSavedTime:HH:mm:ss}";
-        WeakReferenceMessenger.Default.Send(new NotifyMessage(("자료함에 저장되었습니다.", true)));
-    }
-
     /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>
     [RelayCommand(CanExecute = nameof(CanExport))]
     private void ExportExcel()
@@ -344,6 +244,24 @@ public partial class BenthosEntryViewModel : ObservableObject, ISingletonService
     // 이상치 경고는 알림일 뿐 제재가 아니므로 내보내기를 막지 않는다.
     private bool CanExport() =>
         SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0) || NoSpeciesDeclared || IsUnavailable;
+// ── 기반 클래스가 요구하는 분류군 고유 동작 ──────────────────────────────
+
+    protected override string? SpeciesKoOf(BenthosSpeciesList species) => species.SpeciesKo;
+
+    protected override BenthosSpeciesEntry CreateRow(BenthosSpeciesList species, string? count)
+    {
+        var entry = new BenthosSpeciesEntry { SelectedSpecies = species };
+        if (double.TryParse(count, out var n)) entry.IndividualCount = n;
+        return entry;
+    }
+
+    protected override bool IsRowEmpty(BenthosSpeciesEntry row) =>
+        string.IsNullOrWhiteSpace(row.SelectedSpecies?.SpeciesKo ?? row.SpeciesKo) && row.IndividualCount is null;
+
+    protected override bool AffectsRecalculation(string? propertyName) =>
+        propertyName is nameof(BenthosSpeciesEntry.IndividualCount)
+                     or nameof(BenthosSpeciesEntry.SelectedSpecies)
+                     or nameof(BenthosSpeciesEntry.SpeciesKo);
 }
 
 // ── 임시 저장용 DTO ──

@@ -6,26 +6,21 @@ using SDSM_Core.Ecology;
 using SDSM_Surveyor_App.InjectableServices;
 using SDSM_Surveyor_App.Messengers;
 using SDSM_Surveyor_App.Models;
+using SDSM_Surveyor_App.ViewModels.Base;
 
 namespace SDSM_Surveyor_App.ViewModels;
 
 /// <summary>수질 탭: 측정값 폼 입력(관리자 WaterQuality 전 필드) + 항목별 등급 실시간 산정.
 /// 등급 8종(pH/BOD/COD/TOC/SS/DO/T-P/대장균군)은 자동계산이므로 입력하지 않는다.</summary>
-public partial class WaterQualityEntryViewModel : ObservableObject, ISingletonService
+public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISingletonService
 {
     internal const string TaxonKey = "WaterQuality";
-    private readonly ISessionService _sessions;
 
     public WaterQualityEntryViewModel(ISessionService sessions, SurveyMeta meta)
-    {
-        _sessions = sessions;
-        Meta = meta;
-    }
+        : base(sessions, meta) { }
 
     private static double? P(string? s) => double.TryParse(s, out var d) ? d : null;
 
-    // ── 공통 조사개황 : 모든 분류군 공유(SurveyOverviewControl에서 입력) ──
-    public SurveyMeta Meta { get; }
 
     // ── 측정 항목(등급 산정 대상) : 빈 문자열=미측정, 관리자와 동일하게 문자열로 다룸 ──
     [ObservableProperty] private string? _pH;
@@ -90,20 +85,6 @@ public partial class WaterQualityEntryViewModel : ObservableObject, ISingletonSe
     public string TpGradeText    => WaterQualityCalculator.TpGrade(P(Tp)) ?? "-";
     public string EColiGradeText => WaterQualityCalculator.EColiGrade(P(EColi)) ?? "-";
 
-    [ObservableProperty] private string _statusText = "임시 저장 없음";
-    [ObservableProperty] private DateTime? _lastSavedTime;
-
-    [RelayCommand]
-    private async Task SaveTemporary()
-    {
-        // 분류군 하나가 아니라 세션(조사개황 + 7개 분류군) 전체를 저장한다.
-        // 어느 탭에서 눌러도 같은 세션 파일이 갱신되므로 지점을 옮겨도 이전 자료가 사라지지 않는다.
-        var idx = await _sessions.SaveCurrentAsync();
-
-        LastSavedTime = DateTime.Now;
-        StatusText = $"자료함 저장됨 · {idx.Site} {idx.YearChsu} · {LastSavedTime:HH:mm:ss}";
-        WeakReferenceMessenger.Default.Send(new NotifyMessage(("자료함에 저장되었습니다.", true)));
-    }
 
     /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>
     [RelayCommand(CanExecute = nameof(CanExport))]

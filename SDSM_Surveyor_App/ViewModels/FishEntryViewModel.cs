@@ -10,35 +10,27 @@ using SDSM_Core.Ecology;
 using SDSM_Surveyor_App.InjectableServices;
 using SDSM_Surveyor_App.Messengers;
 using SDSM_Surveyor_App.Models;
+using SDSM_Surveyor_App.ViewModels.Base;
 using Telerik.Windows.Data;   // RadObservableCollection
 
 namespace SDSM_Surveyor_App.ViewModels;
 
 /// <summary>어류 탭: 초고속 입력 + 실시간 통계/FAI + 임시저장/내보내기.</summary>
-public partial class FishEntryViewModel : ObservableObject, ISingletonService
+public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesEntry, FishSpeciesList>, ISingletonService
 {
     internal const string TaxonKey = "Fish";
 
-    private readonly ISpeciesListProvider _speciesProvider;
-    private readonly ISessionService _sessions;
     private readonly IReferenceRangeProvider _reference;
 
     public FishEntryViewModel(ISpeciesListProvider speciesProvider, ISessionService sessions,
-                              IReferenceRangeProvider reference, SurveyMeta meta)
+                 IReferenceRangeProvider reference, SurveyMeta meta)
+        : base(sessions, meta)
     {
-        _speciesProvider = speciesProvider;
-        _sessions = sessions;
-        Meta = meta;
         _reference = reference;
-
-        SpeciesListSource = _speciesProvider.GetFishSpecies();
-        FilteredQuick = SpeciesListSource;   // 콤보 초기 목록
-        SpeciesEntries.CollectionChanged += OnEntriesChanged;
+        SpeciesListSource = speciesProvider.GetFishSpecies();
         // 종 추가는 상단 '빠른 추가' 바로 하므로 초기 빈 행을 넣지 않는다(빈 행 누적 방지).
     }
 
-    // ── 공통 조사개황 : 모든 분류군 공유(SurveyOverviewControl에서 입력) ──
-    public SurveyMeta Meta { get; }
 
     // ── 어류 고유 기본정보 ──
     [ObservableProperty] private string? _collectionTool;                 // 채집도구
@@ -83,88 +75,24 @@ public partial class FishEntryViewModel : ObservableObject, ISingletonService
     public string[] CollectionTools { get; } = { "투망/족대" };
 
     // ── 초고속 입력 그리드(Center-Left) ──
-    public RadObservableCollection<FishSpeciesEntry> SpeciesEntries { get; } = new();
+    /// <summary>종 행. 기반 클래스의 <c>Rows</c> 를 화면 바인딩 이름으로 노출한다.</summary>
+    public RadObservableCollection<FishSpeciesEntry> SpeciesEntries => Rows;
 
-    // 종명 초성 자동완성용 공식 종목록
-    [ObservableProperty] private List<FishSpeciesList> _speciesListSource = new();
-
-    // ── 빠른 추가 바(그리드 위) : 초성 검색(RadComboBox·VM에서 필터) → 개체수 → Enter/추가 ──
-    [ObservableProperty] private List<FishSpeciesList> _filteredQuick = new();  // 콤보 드롭다운(초성 필터 결과)
-    [ObservableProperty] private string? _quickSearch;           // 검색 입력(초성/이름)
-    [ObservableProperty] private FishSpeciesList? _quickSpecies; // 선택한 종
-    [ObservableProperty] private string? _quickCount;            // 개체수
-
-    partial void OnQuickSearchChanged(string? value) => FilterQuick();
-
-    /// <summary>입력한 초성/이름으로 종목록을 필터해 콤보 드롭다운을 갱신.</summary>
-    private void FilterQuick()
+    /// <summary>붙여넣기 한 줄 → 행. 열 순서 = [국명, 개체수].
+    /// 국명이 공식 종목록에 있으면 학명·길드가 자동으로 연결된다.</summary>
+    protected override FishSpeciesEntry CreateRowFromCells(string ko, string[] cells)
     {
-        var q = QuickSearch?.Trim();
-        FilteredQuick = string.IsNullOrEmpty(q)
-            ? SpeciesListSource
-            : SpeciesListSource.Where(s => ChosungHelper.IsMatch(s.SpeciesKo, q)).Take(80).ToList();
+        var entry = new FishSpeciesEntry();
+        var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko);
+        if (match is not null) entry.SelectedSpecies = match;   // 학명·길드 자동 연결
+        else entry.SpeciesKo = ko;
+
+        if (cells.Length > 1 && int.TryParse(cells[1].Trim(), out var n))
+            entry.IndividualCount = n;
+
+        return entry;
     }
 
-    /// <summary>빠른 추가 후 검색창으로 포커스 복귀(코드비하인드가 구독).</summary>
-    public event EventHandler? QuickAddCompleted;
-
-    /// <summary>종을 고르면 개체수 칸으로 포커스 이동(코드비하인드가 구독).</summary>
-    public event EventHandler? QuickSpeciesPicked;
-    partial void OnQuickSpeciesChanged(FishSpeciesList? value)
-    {
-        if (value is not null) QuickSpeciesPicked?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>빠른 추가: 선택 종(또는 입력 문자열) + 개체수로 행을 추가하고 입력칸을 비운다.</summary>
-    [RelayCommand]
-    private void AddQuick()
-    {
-        if (QuickSpecies is null) return;   // 목록에서 종을 선택해야 추가(오타 방지)
-
-        var entry = new FishSpeciesEntry { SelectedSpecies = QuickSpecies };
-        if (int.TryParse(QuickCount, out var n)) entry.IndividualCount = n;
-        SpeciesEntries.Add(entry);
-
-        QuickSpecies = null;
-        QuickCount = null;
-        QuickSearch = null;   // 콤보 텍스트 비움 + 목록 원복
-        QuickAddCompleted?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>엑셀에서 복사한 [국명, 개체수] 여러 줄을 그리드 행으로 추가(그리드 Ctrl+V에서 호출).
-    /// RadGridView 기본 붙여넣기가 커스텀 편집기 컬럼과 충돌해 한 칸에 뭉치므로 직접 파싱한다.</summary>
-    public void PasteRows(string clipboard)
-    {
-        if (string.IsNullOrWhiteSpace(clipboard)) return;
-        var lines = clipboard.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
-        foreach (var line in lines)
-        {
-            if (string.IsNullOrWhiteSpace(line)) continue;
-            var cells = line.Split('\t');
-            var ko = cells[0].Trim();
-            if (string.IsNullOrEmpty(ko)) continue;
-
-            var entry = new FishSpeciesEntry();
-            var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko);
-            if (match is not null) entry.SelectedSpecies = match;   // 학명·길드 자동 연결
-            else entry.SpeciesKo = ko;
-
-            if (cells.Length > 1 && int.TryParse(cells[1].Trim(), out var n))
-                entry.IndividualCount = n;
-
-            SpeciesEntries.Add(entry);
-        }
-    }
-
-    /// <summary>국명·개체수가 모두 빈 행 제거(붙여넣기·오클릭으로 생긴 빈 행 정리).</summary>
-    [RelayCommand]
-    private void PruneEmpty()
-    {
-        var empties = SpeciesEntries
-            .Where(r => string.IsNullOrWhiteSpace(r.SelectedSpecies?.SpeciesKo ?? r.SpeciesKo) && r.IndividualCount is null)
-            .ToList();
-        foreach (var e in empties) SpeciesEntries.Remove(e);
-    }
 
     /// <summary>조사불가 사유가 선언되어 등급이 "-"가 되는 상태인지.</summary>
     private bool IsUnavailable =>
@@ -186,29 +114,7 @@ public partial class FishEntryViewModel : ObservableObject, ISingletonService
     [ObservableProperty] private string _faiGrade = "-";
 
     // ── 상태바(Bottom) ──
-    [ObservableProperty] private string _statusText = "임시 저장 없음";
-    [ObservableProperty] private DateTime? _lastSavedTime;
 
-    private void OnEntriesChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        if (e.OldItems is not null)
-            foreach (FishSpeciesEntry r in e.OldItems) r.PropertyChanged -= OnRowChanged;
-        if (e.NewItems is not null)
-            foreach (FishSpeciesEntry r in e.NewItems) r.PropertyChanged += OnRowChanged;
-        Recalculate();
-    }
-
-    private void OnRowChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        // 붙여넣기/직접입력으로 국명만 채워진 행 → 공식 종목록과 자동 매칭
-        if (e.PropertyName == nameof(FishSpeciesEntry.SpeciesKo) && sender is FishSpeciesEntry row)
-            ResolveSpecies(row);
-
-        if (e.PropertyName is nameof(FishSpeciesEntry.IndividualCount)
-                           or nameof(FishSpeciesEntry.SelectedSpecies)
-                           or nameof(FishSpeciesEntry.SpeciesKo))
-            Recalculate();
-    }
 
     /// <summary>국명 문자열을 공식 종목록과 대조해 SelectedSpecies(학명·길드·보호종)를 연결.
     /// 엑셀 복사·붙여넣기로 국명만 들어온 경우에도 학명/지수가 채워지도록 한다.</summary>
@@ -251,7 +157,7 @@ public partial class FishEntryViewModel : ObservableObject, ISingletonService
     }
 
     /// <summary>입력 즉시 실시간 통계·FAI 재계산.</summary>
-    private void Recalculate()
+    protected override void Recalculate()
     {
         ValidateRows();
 
@@ -284,19 +190,6 @@ public partial class FishEntryViewModel : ObservableObject, ISingletonService
     private void RemoveRow(FishSpeciesEntry? row)
     {
         if (row is not null) SpeciesEntries.Remove(row);
-    }
-
-    /// <summary>오프라인 로컬 임시 저장(AppData JSON).</summary>
-    [RelayCommand]
-    private async Task SaveTemporary()
-    {
-        // 분류군 하나가 아니라 세션(조사개황 + 7개 분류군) 전체를 저장한다.
-        // 어느 탭에서 눌러도 같은 세션 파일이 갱신되므로 지점을 옮겨도 이전 자료가 사라지지 않는다.
-        var idx = await _sessions.SaveCurrentAsync();
-
-        LastSavedTime = DateTime.Now;
-        StatusText = $"자료함 저장됨 · {idx.Site} {idx.YearChsu} · {LastSavedTime:HH:mm:ss}";
-        WeakReferenceMessenger.Default.Send(new NotifyMessage(("자료함에 저장되었습니다.", true)));
     }
 
     /// <summary>보고서·기록용 엑셀 내보내기(조사개황·출현종·FAI 건강성평가 3개 시트).</summary>
@@ -336,6 +229,24 @@ public partial class FishEntryViewModel : ObservableObject, ISingletonService
     // 이상치 경고는 알림일 뿐 제재가 아니므로 내보내기를 막지 않는다.
     private bool CanExport() =>
         SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0) || NoSpeciesDeclared || IsUnavailable;
+// ── 기반 클래스가 요구하는 분류군 고유 동작 ──────────────────────────────
+
+    protected override string? SpeciesKoOf(FishSpeciesList species) => species.SpeciesKo;
+
+    protected override FishSpeciesEntry CreateRow(FishSpeciesList species, string? count)
+    {
+        var entry = new FishSpeciesEntry { SelectedSpecies = species };
+        if (int.TryParse(count, out var n)) entry.IndividualCount = n;
+        return entry;
+    }
+
+    protected override bool IsRowEmpty(FishSpeciesEntry row) =>
+        string.IsNullOrWhiteSpace(row.SelectedSpecies?.SpeciesKo ?? row.SpeciesKo) && row.IndividualCount is null;
+
+    protected override bool AffectsRecalculation(string? propertyName) =>
+        propertyName is nameof(FishSpeciesEntry.IndividualCount)
+                     or nameof(FishSpeciesEntry.SelectedSpecies)
+                     or nameof(FishSpeciesEntry.SpeciesKo);
 }
 
 // ── 임시 저장용 DTO ──
