@@ -32,8 +32,6 @@ App.xaml(.cs)          진입점(Windows11 테마 + DI)
 InjectableServices/    DI 마커 인터페이스
 Helpers/               ChosungHelper (초성 검색)
 Behaviors/             ChosungFilteringBehavior
-Ecology/               EcologyCalculator(FAI) · BenthosCalculator(DI/H/R1/J/BMI)
-                       · WaterQualityCalculator(등급) · HabitatEvaluator(평가점수)
 Models/                *Entry / *SpeciesEntry (화면 행 모델)
 Data/                  ISpeciesListProvider · SpeciesListProvider(시드)
                        · ISiteListProvider · SiteListProvider(지점 마스터)
@@ -45,7 +43,9 @@ Export/                분류군별 exporter 14종 · ExcelStyle · SiteColumns(
 Views/Windows/         MainSurveyWindow · SyncWindow · SessionBrowserWindow(자료함)
 Views/UserControls/    분류군별 EntryControl
 ```
-> 향후 `Helpers`/`Behaviors`/`Ecology`는 관리자와 공유하는 **SDSM_Core**로 이관 예정.
+> 생태 계산은 **`..\SDSM\SDSM_Core\Ecology\` 로 이관 완료**(2026-08-21 · R1).
+> 관리자 `GB` 도 같은 코드를 호출한다. 계산식을 고치면 **양쪽이 함께 바뀐다.**
+> 향후 `Helpers`/`Behaviors` 도 `SDSM_Core` 로 이관 예정(R3).
 
 ---
 
@@ -77,7 +77,9 @@ Views/UserControls/    분류군별 EntryControl
 
 > **확인된 사실:** 관리자 앱은 엑셀에 적힌 지수 "값"을 쓰지 않고, **원자료(종별 개체수 + 종속성 + 하천차수 등)로 재계산**한다(BulkFish:379, BulkBenthos:362~366, Editor에서도). 따라서 조사자 앱의 **실시간 재계산 방식이 관리자와 일치**한다.
 
-- 계산기 위치(`Ecology/`)와 관리자 원본:
+- **계산 코드는 이제 한 곳뿐이다** — `..\SDSM\SDSM_Core\Ecology\`. 관리자 `GB` 는 이 코드를 호출하는 어댑터다.
+  고치기 전후로 `SDSM	ools\CalcParity` 대조와 `tools\BaselineGen` 기준 파일 대조를 **둘 다** 돌린다.
+- 계산기 위치(`SDSM_Core\Ecology\`)와 관리자 원본:
   - `EcologyCalculator.CalculateFai` ← `GB.GetFAI` (M1~M8, 등급 A~E, 조사불가 "-")
   - `BenthosCalculator.GetDI/GetH/GetR1/GetJ/GetBMI/GetRankScorer` ← `GB.*`
   - `WaterQualityCalculator.*Grade` ← `GB.Get*Grade` (pH/BOD/COD/TOC/SS/DO/TP/대장균)
@@ -86,7 +88,7 @@ Views/UserControls/    분류군별 EntryControl
   - **결측치(null) vs 0 엄격 구분.** 개체수/측정값 미입력은 `null`, 실측 부재만 `0`. 집계는 `?? 0` 후 `> 0` 필터.
   - 반올림 `MidpointRounding.AwayFromZero`, NaN/Infinity·분모 0 가드, 조사불가 사유(`접근불가/건천화/준설/공사중`) 시 등급 `"-"`.
   - 지수 입력에 쓰는 **종속성(길드·오탁치·지표가중치)은 종목록에서 자동 상속**한다. → 지수가 관리자와 일치하려면 **종목록(기준자료) 버전이 관리자와 동일**해야 한다.
-- 계산식 변경 금지. 관리자 로직이 바뀌면 여기도 함께 바꾼다(장기적으로 SDSM_Core로 단일화).
+- 계산식 변경 금지. 고쳐야 하면 `SDSM_Core` 한 곳만 고치고 회귀 대조를 돌린다(양쪽이 동시에 바뀐다).
 
 ---
 
