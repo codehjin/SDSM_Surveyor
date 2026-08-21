@@ -1,4 +1,5 @@
 ﻿using System.Collections.Specialized;
+using SDSM_Core.Helpers;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -97,7 +98,7 @@ public partial class BenthosEntryViewModel : ObservableObject, ISingletonService
         var q = QuickSearch?.Trim();
         FilteredQuick = string.IsNullOrEmpty(q)
             ? SpeciesListSource
-            : SpeciesListSource.Where(s => Helpers.ChosungHelper.IsMatch(s.SpeciesKo, q)).Take(80).ToList();
+            : SpeciesListSource.Where(s => ChosungHelper.IsMatch(s.SpeciesKo, q)).Take(80).ToList();
     }
 
     /// <summary>종을 고르면 개체수 칸으로 포커스 이동(코드비하인드가 구독).</summary>

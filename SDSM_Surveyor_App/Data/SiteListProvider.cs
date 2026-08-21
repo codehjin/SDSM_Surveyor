@@ -1,6 +1,6 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.Json;
-using System.Text.RegularExpressions;
+using SDSM_Core.Data;
 using SDSM_Models;
 using SDSM_Surveyor_App.InjectableServices;
 
@@ -11,11 +11,11 @@ namespace SDSM_Surveyor_App.Data;
 /// ① %AppData%\SDSM_Surveyor\sites.json (관리자 배포·교체본)
 /// ② 실행폴더 번들(sites.json)
 /// 파일이 없거나 손상되면 빈 목록으로 동작한다(지점 드롭다운만 비고 앱은 계속 동작).
+///
+/// 해석 규칙(대분류 격리 포함)은 <see cref="SiteResolver"/> 에 있다 — 여기 다시 쓰지 말 것.
 /// </summary>
 public sealed class SiteListProvider : ISiteListProvider, ISingletonService
 {
-    private static readonly Regex StPattern = new(@"^\s*st\.?\s*(\d+)\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
     private readonly SiteCatalog _cat;
 
     public SiteListProvider() => _cat = Load();
@@ -24,54 +24,10 @@ public sealed class SiteListProvider : ISiteListProvider, ISingletonService
 
     public IReadOnlyList<SurveySite> All => _cat.Sites;
 
-    /// <summary>
-    /// 대분류로 거른 지점. **대분류가 비면 빈 목록**이다.
-    /// 방류하천과 생태현황에 같은 이름의 지점이 따로 있고 서로 다른 장소이므로
-    /// 섞어서 보여주면 조사자가 다른 지점을 고를 수 있다(_ecostatus_sites_extracted §8-2).
-    /// </summary>
-    public List<SurveySite> ByProject(string? project) =>
-        string.IsNullOrWhiteSpace(project)
-            ? new List<SurveySite>()
-            : _cat.Sites.Where(s => s.Project == project).ToList();
+    public List<SurveySite> ByProject(string? project) => SiteResolver.ByProject(_cat.Sites, project);
 
-    /// <summary>
-    /// 조사자가 친 값을 지점으로 해석한다. 우선순위:
-    /// ① 지점명 정확일치 → ② 조사장소 번호(ST1·St.1·st 1) → ③ 연도별 표기·지도번호.
-    /// 종명과 달리 지점명은 코드성 값이라 공백 제거·대문자 비교를 쓴다(CLAUDE.md §7.3).
-    /// ⚠ **항상 해당 대분류 안에서만 찾는다.** 대분류가 없으면 해석하지 않는다(§8-2 Project 격리).
-    /// 다른 대분류로 넘어가 찾으면 이름이 같고 장소가 다른 지점이 조용히 걸린다.
-    /// </summary>
     public SurveySite? Resolve(string? input, string? project = null)
-    {
-        var q = input?.Trim();
-        if (string.IsNullOrEmpty(q)) return null;
-
-        var pool = ByProject(project);
-        if (pool.Count == 0) return null;
-
-        static string Key(string? s) => (s ?? string.Empty).Replace(" ", "").ToUpperInvariant();
-        var key = Key(q);
-
-        // ① 지점명
-        var hit = pool.FirstOrDefault(s => Key(s.SiteName) == key);
-        if (hit is not null) return hit;
-
-        // ② 조사장소 번호 — "ST1" "St.1" "st 1" 모두 St.1 로 본다
-        var m = StPattern.Match(q);
-        if (m.Success)
-        {
-            var no = m.Groups[1].Value;
-            hit = pool.FirstOrDefault(s => Key(s.StNo) == Key($"St.{no}"));
-            if (hit is not null) return hit;
-
-            // St 번호가 없는 하천은 연도별 지도 번호가 그 역할을 한다(오산천 등)
-            hit = pool.FirstOrDefault(s => s.MapNumbers.Values.Any(v => v == no));
-            if (hit is not null) return hit;
-        }
-
-        // ③ 연도별 표기 이력(옛 보고서 지점명으로 찾는 경우)
-        return pool.FirstOrDefault(s => s.YearAliases.Values.Any(v => Key(v) == key));
-    }
+        => SiteResolver.Resolve(_cat.Sites, input, project);
 
     private static SiteCatalog Load()
     {

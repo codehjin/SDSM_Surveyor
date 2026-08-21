@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SDSM_Models;
 using SDSM_Surveyor_App.Data;
-using SDSM_Surveyor_App.Helpers;
+using SDSM_Core.Helpers;
 using SDSM_Surveyor_App.InjectableServices;
 
 namespace SDSM_Surveyor_App.Models;
@@ -161,8 +161,8 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     }
 
     /// <summary>좌표가 있어 지도를 열 수 있는지.</summary>
-    public bool HasMap => CoordinateHelper.MapUrl(
-        CoordinateHelper.ToDecimal(Lat), CoordinateHelper.ToDecimal(Lng)) is not null;
+    public bool HasMap => Coordinate.MapUrl(
+        Coordinate.ToDecimal(Lat), Coordinate.ToDecimal(Lng)) is not null;
 
     partial void OnLatChanged(string? value) => OnPropertyChanged(nameof(HasMap));
     partial void OnLngChanged(string? value) => OnPropertyChanged(nameof(HasMap));
@@ -171,7 +171,7 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     [RelayCommand]
     private void OpenMap()
     {
-        var url = CoordinateHelper.MapUrl(CoordinateHelper.ToDecimal(Lat), CoordinateHelper.ToDecimal(Lng));
+        var url = Coordinate.MapUrl(Coordinate.ToDecimal(Lat), Coordinate.ToDecimal(Lng));
         if (url is null) return;
         try
         {

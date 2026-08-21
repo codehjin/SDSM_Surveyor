@@ -1,4 +1,5 @@
 ﻿using System.Collections.Specialized;
+using SDSM_Core.Helpers;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -56,7 +57,7 @@ public partial class BirdEntryViewModel : ObservableObject, ISingletonService
         var q = QuickSearch?.Trim();
         FilteredQuick = string.IsNullOrEmpty(q)
             ? SpeciesListSource.ToList()
-            : SpeciesListSource.Where(s => Helpers.ChosungHelper.IsMatch(s.SpeciesKo, q)).Take(80).ToList();
+            : SpeciesListSource.Where(s => ChosungHelper.IsMatch(s.SpeciesKo, q)).Take(80).ToList();
     }
 
     /// <summary>빠른 추가 후 검색창으로 포커스 복귀(코드비하인드가 구독).</summary>

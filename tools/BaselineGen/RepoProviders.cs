@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using SDSM_Core.Data;
 using SDSM_Models;
 using SDSM_Surveyor_App.Data;
 using SDSM_Surveyor_App.Models;
@@ -56,7 +57,8 @@ internal sealed class RepoReferenceProvider(string path) : IReferenceRangeProvid
 
 /// <summary>
 /// 저장소 번들 `sites.json` 만 읽는 지점 제공자.
-/// ⚠ 대분류(Project) 격리 규칙은 운영 제공자와 **똑같이** 지킨다(_ecostatus §8-2).
+/// 해석 규칙(대분류 격리 포함)은 운영과 **같은 코드**(<see cref="SiteResolver"/>)를 쓴다 —
+/// 여기 복제해 두면 운영 규칙이 바뀌었을 때 기준 파일만 옛 규칙으로 만들어진다.
 /// </summary>
 internal sealed class RepoSiteProvider(string path) : ISiteListProvider
 {
@@ -65,38 +67,10 @@ internal sealed class RepoSiteProvider(string path) : ISiteListProvider
     public string? Version => string.IsNullOrEmpty(_cat.Version) ? null : _cat.Version;
     public IReadOnlyList<SurveySite> All => _cat.Sites;
 
-    public List<SurveySite> ByProject(string? project) =>
-        string.IsNullOrWhiteSpace(project)
-            ? []
-            : _cat.Sites.Where(s => s.Project == project).ToList();
+    public List<SurveySite> ByProject(string? project) => SiteResolver.ByProject(_cat.Sites, project);
 
     public SurveySite? Resolve(string? input, string? project = null)
-    {
-        var q = input?.Trim();
-        if (string.IsNullOrEmpty(q)) return null;
-
-        var pool = ByProject(project);
-        if (pool.Count == 0) return null;
-
-        static string Key(string? s) => (s ?? string.Empty).Replace(" ", "").ToUpperInvariant();
-        var key = Key(q);
-
-        var hit = pool.FirstOrDefault(s => Key(s.SiteName) == key);
-        if (hit is not null) return hit;
-
-        var m = System.Text.RegularExpressions.Regex.Match(q, @"^\s*st\.?\s*(\d+)\s*$",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        if (m.Success)
-        {
-            var no = m.Groups[1].Value;
-            hit = pool.FirstOrDefault(s => Key(s.StNo) == Key($"St.{no}"));
-            if (hit is not null) return hit;
-            hit = pool.FirstOrDefault(s => s.MapNumbers.Values.Any(v => v == no));
-            if (hit is not null) return hit;
-        }
-
-        return pool.FirstOrDefault(s => s.YearAliases.Values.Any(v => Key(v) == key));
-    }
+        => SiteResolver.Resolve(_cat.Sites, input, project);
 }
 
 /// <summary>

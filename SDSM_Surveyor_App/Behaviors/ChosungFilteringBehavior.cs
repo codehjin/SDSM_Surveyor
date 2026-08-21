@@ -1,6 +1,6 @@
 using System.Collections;              // IList
 using System.Reflection;
-using SDSM_Surveyor_App.Helpers;       // ChosungHelper
+using SDSM_Core.Helpers;               // ChosungHelper
 using Telerik.Windows.Controls;        // IFilteringBehavior, TextSearchMode
 
 namespace SDSM_Surveyor_App.Behaviors;
