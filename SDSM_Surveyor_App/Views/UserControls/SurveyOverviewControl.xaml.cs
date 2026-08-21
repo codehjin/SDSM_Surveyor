@@ -1,4 +1,7 @@
 using System.Windows.Controls;
+using System.Windows.Input;
+using SDSM_Surveyor_App.Models;
+using Telerik.Windows.Controls;
 
 namespace SDSM_Surveyor_App.Views.UserControls;
 
@@ -9,4 +12,24 @@ namespace SDSM_Surveyor_App.Views.UserControls;
 public partial class SurveyOverviewControl : UserControl
 {
     public SurveyOverviewControl() => InitializeComponent();
+
+    // 지점 콤보는 편집 가능(IsEditable)이라 조사자가 `ST1` 처럼 칠 수 있다.
+    // RadComboBox 에는 TextChanged 이벤트가 없어 포커스 이탈·Enter 시점에 해석한다.
+    private void SiteCombo_LostFocus(object sender, System.Windows.RoutedEventArgs e) => ResolveSite();
+
+    private void SiteCombo_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key is Key.Enter or Key.Tab) ResolveSite();
+    }
+
+    private void ResolveSite()
+    {
+        if (DataContext is not SurveyMeta meta) return;
+        if (SiteCombo.SelectedItem is not null) return;   // 목록에서 고른 경우는 그대로
+
+        meta.ResolveSiteText(SiteCombo.Text);
+
+        // 해석에 성공했으면 콤보 텍스트를 정규화된 표기로 맞춘다(곡교천1 (St.1))
+        if (meta.SelectedSite is not null) SiteCombo.SelectedItem = meta.SelectedSite;
+    }
 }

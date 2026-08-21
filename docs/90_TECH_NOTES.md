@@ -241,3 +241,19 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 
 - F: 드라이브 마운트에서 **bash로 방금 쓴 파일을 읽으면 내용이 오래된 경우가 있다.** 파일 도구(Read/Edit/Write)를 신뢰할 것. 특히 `.git/config`를 bash로 판단하지 말 것.
 - CS8826 경고(부분 메서드 시그니처 차이)는 `On○○Changed(T v)` 매개변수명을 소스 생성기 규약인 **`value`** 로 바꾸면 사라진다. 동작에는 영향 없음.
+
+- WPF `App.xaml`의 리소스 사전은 **절대 pack URI**(`pack://application:,,,/SDSM_Surveyor_App;component/Styles/Colors.xaml`)로 쓴다.
+  상대 URI(`/Styles/Colors.xaml`)는 **진입 어셈블리** 기준으로 풀려서, 앱을 다른 exe(테스트 하네스 등)에서 호스팅하면 `'styles/colors.xaml' 리소스가 없습니다`로 실패한다.
+- **캡션바(WindowChrome) 버튼은 UI Automation으로 누를 수 없다.** `InvokePattern.Invoke()`도 합성 마우스 클릭도 핸들러에 닿지 않는다
+  (기존 [동기화] 버튼도 동일). 창 자체를 검증할 때는 `Application.ResourceAssembly` 대신 **실제 `App`을 생성해 창을 직접 `Show()`** 하는 하네스를 쓴다.
+- **UI 스레드에서 `Task.GetAwaiter().GetResult()` 금지.** WPF 디스패처가 잡혀 교착한다. `DispatcherTimer.Tick`은 `async (_, _) =>` 로 만들고 `await` 할 것.
+  `[RelayCommand]`가 만든 **비동기 명령은 `Execute(null)`로 완료를 기다릴 수 없다** — `await cmd.ExecuteAsync(null)` 을 쓴다.
+
+## 8. AppData 실자료 취급 (사고 재발 방지)
+
+`%AppData%\SDSM_Surveyor\` 는 **사용자의 실제 조사 자료**다. 검증 하네스에서 절대 하지 말 것:
+
+- ❌ 폴더를 다른 이름으로 **옮겼다가 되돌리는** 기법. 복구 루틴이 두 번 돌면(명시 호출 + `ProcessExit`) 되돌린 폴더를 그대로 지운다.
+- ❌ `Directory.Delete(appRoot, true)` — 되돌리기 실패 시 원본이 사라진다. 휴지통으로도 가지 않는다.
+- ✅ 하네스는 **자기가 만든 파일만 이름으로 지운다**. 실폴더 자체는 건드리지 않는다.
+- ✅ `Environment.GetFolderPath(ApplicationData)` 는 **`APPDATA` 환경변수로 못 바꾼다**(Windows는 레지스트리를 본다). 샌드박스로 돌릴 수 있다고 가정하지 말 것.

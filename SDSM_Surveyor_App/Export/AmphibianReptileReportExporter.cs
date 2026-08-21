@@ -26,14 +26,15 @@ public static class AmphibianReptileReportExporter
     public static string? Export(AmphibianReptileEntryViewModel vm)
     {
         var m = vm.Meta;
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "" : m.Project! + "_";
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : m.Site + "_";
+        var project = FileToken(m.Project);
+        var chasu = FileToken(m.YearChsu);      // 세션 정보(대분류·연도차수·지점)를 파일명에 반영
+        var site = FileToken(m.Site);
 
         var dlg = new SaveFileDialog
         {
             Title = "양서파충류 조사결과(보고서용) 엑셀 내보내기",
             Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{site}양서파충류_조사결과.xlsx"
+            FileName = $"{project}{chasu}{site}양서파충류_조사결과.xlsx"
         };
         if (dlg.ShowDialog() != true) return null;
 
@@ -64,7 +65,7 @@ public static class AmphibianReptileReportExporter
 
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("양서파충류 출현종 목록"); row += 2;
 
-        var headers = new List<string> { "지점명", "목", "과", "국명", "학명", "대분류", "중분류" };
+        var headers = new List<string>(SiteColumns.Headers) { "목", "과", "국명", "학명", "대분류", "중분류" };
         headers.AddRange(TraceNames);
         headers.AddRange(new[] { "합계", "위도", "경도", "특징", "특이사항", "구분" });
 
@@ -72,20 +73,19 @@ public static class AmphibianReptileReportExporter
         WriteHeader(ws, row, headers.ToArray());
         row++;
 
-        var site = vm.Meta.Site ?? "";
         foreach (var e in vm.Entries)
         {
             if (string.IsNullOrWhiteSpace(e.SpeciesKo) || e.TraceSum <= 0) continue;   // 관측된 기록만
 
-            Str(ws, row, 0, site);
-            Str(ws, row, 1, e.OrderKo);
-            Str(ws, row, 2, e.FamilyKo);
-            ws.Cells[row, 3].SetValue(e.SpeciesKo);
-            Str(ws, row, 4, e.SpeciesEn);
-            Str(ws, row, 5, e.MajorCategory);
-            Str(ws, row, 6, e.MiddleCategory);
+            SiteColumns.Write(ws, row, vm.Meta);
+            Str(ws, row, 4, e.OrderKo);
+            Str(ws, row, 5, e.FamilyKo);
+            ws.Cells[row, 6].SetValue(e.SpeciesKo);
+            Str(ws, row, 7, e.SpeciesEn);
+            Str(ws, row, 8, e.MajorCategory);
+            Str(ws, row, 9, e.MiddleCategory);
 
-            int col = 7;
+            int col = 10;
             foreach (var t in Traces(e)) { Num(ws, row, col, t); col++; }   // 미입력(null)은 빈 칸
 
             Num(ws, row, col, e.TraceSum); col++;
@@ -105,9 +105,10 @@ public static class AmphibianReptileReportExporter
 
         int lastCol = headers.Count - 1;
         int lastRow = row - 1;
-        Width(ws, 0, 110); Width(ws, 1, 95); Width(ws, 2, 110); Width(ws, 3, 140); Width(ws, 4, 200);
-        Width(ws, 5, 90); Width(ws, 6, 110);
-        for (int c = 7; c < 7 + TraceNames.Length; c++) Width(ws, c, 75);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 95); Width(ws, 5, 110); Width(ws, 6, 140); Width(ws, 7, 200);
+        Width(ws, 8, 90); Width(ws, 9, 110);
+        for (int c = 10; c < 10 + TraceNames.Length; c++) Width(ws, c, 75);
         Width(ws, lastCol - 4, 70);  Width(ws, lastCol - 3, 95); Width(ws, lastCol - 2, 95);
         Width(ws, lastCol - 1, 130); Width(ws, lastCol, 150);
         TryAutoFilter(ws, headerRow, lastRow, lastCol);
@@ -126,9 +127,9 @@ public static class AmphibianReptileReportExporter
         int row = 0;
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("양서파충류 출현종 요약"); row += 2;
 
-        var headers = new List<string>
+        var headers = new List<string>(SiteColumns.Headers)
         {
-            "지점명", "연도차수", "하천명", "조사일",
+            "연도차수", "하천명", "조사일",
             "총종수", "총개체수", "관찰건수", "법정보호종 수", "법정보호종 목록", "생태계교란생물",
             "양서류 종수", "파충류 종수"
         };
@@ -141,29 +142,30 @@ public static class AmphibianReptileReportExporter
         var protectedList = observed.Where(e => e.IsProtected).Select(e => e.SpeciesKo!).Distinct().ToList();
         var invasiveList = observed.Where(e => e.IsInvasive).Select(e => e.SpeciesKo!).Distinct().ToList();
 
-        Str(ws, row, 0, m.Site);
-        Str(ws, row, 1, m.YearChsu);
-        Str(ws, row, 2, m.River);
-        Str(ws, row, 3, m.SurveyDate?.ToString("yyyy-MM-dd"));
-        Num(ws, row, 4, observed.Select(e => e.SpeciesKo).Distinct().Count());
-        Num(ws, row, 5, observed.Sum(e => e.TraceSum));
-        Num(ws, row, 6, observed.Count);
-        Num(ws, row, 7, protectedList.Count);
-        Str(ws, row, 8, string.Join(", ", protectedList));
-        Str(ws, row, 9, string.Join(", ", invasiveList));
-        Num(ws, row, 10, observed.Where(e => e.MajorCategory == "양서류").Select(e => e.SpeciesKo).Distinct().Count());
-        Num(ws, row, 11, observed.Where(e => e.MajorCategory == "파충류").Select(e => e.SpeciesKo).Distinct().Count());
+        SiteColumns.Write(ws, row, m);
+        Str(ws, row, 4, m.YearChsu);
+        Str(ws, row, 5, m.River);
+        Str(ws, row, 6, m.SurveyDate?.ToString("yyyy-MM-dd"));
+        Num(ws, row, 7, observed.Select(e => e.SpeciesKo).Distinct().Count());
+        Num(ws, row, 8, observed.Sum(e => e.TraceSum));
+        Num(ws, row, 9, observed.Count);
+        Num(ws, row, 10, protectedList.Count);
+        Str(ws, row, 11, string.Join(", ", protectedList));
+        Str(ws, row, 12, string.Join(", ", invasiveList));
+        Num(ws, row, 13, observed.Where(e => e.MajorCategory == "양서류").Select(e => e.SpeciesKo).Distinct().Count());
+        Num(ws, row, 14, observed.Where(e => e.MajorCategory == "파충류").Select(e => e.SpeciesKo).Distinct().Count());
 
-        int col = 12;
+        int col = 15;
         for (int i = 0; i < TraceNames.Length; i++, col++)
             Num(ws, row, col, observed.Sum(e => Traces(e)[i] ?? 0));
 
         int lastCol = headers.Count - 1;
         int lastRow = row;
-        Width(ws, 0, 110); Width(ws, 1, 100); Width(ws, 2, 100); Width(ws, 3, 95);
-        Width(ws, 4, 75); Width(ws, 5, 85); Width(ws, 6, 85); Width(ws, 7, 100);
-        Width(ws, 8, 320); Width(ws, 9, 220); Width(ws, 10, 95); Width(ws, 11, 95);
-        for (int c = 12; c <= lastCol; c++) Width(ws, c, 90);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 100); Width(ws, 5, 100); Width(ws, 6, 95);
+        Width(ws, 7, 75); Width(ws, 8, 85); Width(ws, 9, 85); Width(ws, 10, 100);
+        Width(ws, 11, 320); Width(ws, 12, 220); Width(ws, 13, 95); Width(ws, 14, 95);
+        for (int c = 15; c <= lastCol; c++) Width(ws, c, 90);
         TryAutoFilter(ws, headerRow, lastRow, lastCol);
 
         row += 2;

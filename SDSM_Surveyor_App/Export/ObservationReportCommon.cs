@@ -1,4 +1,4 @@
-using SDSM_Surveyor_App.Models;
+﻿using SDSM_Surveyor_App.Models;
 using Telerik.Windows.Documents.Spreadsheet.Model;
 using static SDSM_Surveyor_App.Export.ExcelStyle;
 
@@ -36,6 +36,7 @@ internal static class ObservationReportCommon
         Kv("중권역명", m.MiddleRegion);
         Kv("하천명", m.River);
         Kv("하천유형", m.RiverType);
+        Kv("사업장", m.Workplace);
         Kv("지점명", m.Site);
         Kv("위도", m.Lat);
         Kv("경도", m.Lng);

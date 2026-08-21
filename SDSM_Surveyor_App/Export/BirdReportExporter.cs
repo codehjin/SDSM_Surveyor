@@ -18,14 +18,15 @@ public static class BirdReportExporter
     public static string? Export(BirdEntryViewModel vm)
     {
         var m = vm.Meta;
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "" : m.Project! + "_";
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : m.Site + "_";
+        var project = FileToken(m.Project);
+        var chasu = FileToken(m.YearChsu);      // 세션 정보(대분류·연도차수·지점)를 파일명에 반영
+        var site = FileToken(m.Site);
 
         var dlg = new SaveFileDialog
         {
             Title = "조류 조사결과(보고서용) 엑셀 내보내기",
             Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{site}조류_조사결과.xlsx"
+            FileName = $"{project}{chasu}{site}조류_조사결과.xlsx"
         };
         if (dlg.ShowDialog() != true) return null;
 
@@ -57,45 +58,45 @@ public static class BirdReportExporter
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("조류 출현종 목록"); row += 2;
 
         int headerRow = row;
-        WriteHeader(ws, row, "지점명", "목", "과", "국명", "학명", "개체수",
-                    "도래유형", "대항목", "세부항목", "서식유형", "위도", "경도", "특징", "특이사항", "구분");
+        WriteHeader(ws, row, SiteColumns.With("목", "과", "국명", "학명", "개체수",
+                    "도래유형", "대항목", "세부항목", "서식유형", "위도", "경도", "특징", "특이사항", "구분"));
         row++;
 
-        var site = vm.Meta.Site ?? "";
         foreach (var e in vm.Entries)
         {
             if (string.IsNullOrWhiteSpace(e.SpeciesKo) || (e.IndividualCount ?? 0) <= 0) continue;  // 관측된 종만
 
-            Str(ws, row, 0, site);
-            Str(ws, row, 1, e.OrderKo);
-            Str(ws, row, 2, e.FamilyKo);
-            ws.Cells[row, 3].SetValue(e.SpeciesKo);
-            Str(ws, row, 4, e.SpeciesEn);
-            Num(ws, row, 5, e.IndividualCount!.Value);
-            Str(ws, row, 6, e.MigratoryType);
-            Str(ws, row, 7, e.Category);
-            Str(ws, row, 8, e.CategoryDetail);
-            Str(ws, row, 9, e.HabitatType);
-            Num(ws, row, 10, e.Lat);
-            Num(ws, row, 11, e.Lng);
-            Str(ws, row, 12, e.Feature);
-            Str(ws, row, 13, e.Note);
+            SiteColumns.Write(ws, row, vm.Meta);
+            Str(ws, row, 4, e.OrderKo);
+            Str(ws, row, 5, e.FamilyKo);
+            ws.Cells[row, 6].SetValue(e.SpeciesKo);
+            Str(ws, row, 7, e.SpeciesEn);
+            Num(ws, row, 8, e.IndividualCount!.Value);
+            Str(ws, row, 9, e.MigratoryType);
+            Str(ws, row, 10, e.Category);
+            Str(ws, row, 11, e.CategoryDetail);
+            Str(ws, row, 12, e.HabitatType);
+            Num(ws, row, 13, e.Lat);
+            Num(ws, row, 14, e.Lng);
+            Str(ws, row, 15, e.Feature);
+            Str(ws, row, 16, e.Note);
             var tag = e.ProtectionText;
             if (!string.IsNullOrEmpty(tag))
             {
-                ws.Cells[row, 14].SetValue(tag);
-                ws.Cells[row, 14].SetIsBold(true);
-                ws.Cells[row, 14].SetForeColor(new ThemableColor(e.IsInvasive ? GradeColor("D") : Accent));
+                ws.Cells[row, 17].SetValue(tag);
+                ws.Cells[row, 17].SetIsBold(true);
+                ws.Cells[row, 17].SetForeColor(new ThemableColor(e.IsInvasive ? GradeColor("D") : Accent));
             }
             row++;
         }
 
         int lastRow = row - 1;
-        Width(ws, 0, 110); Width(ws, 1, 95); Width(ws, 2, 100); Width(ws, 3, 140); Width(ws, 4, 200);
-        Width(ws, 5, 75); Width(ws, 6, 90); Width(ws, 7, 100); Width(ws, 8, 100); Width(ws, 9, 100);
-        Width(ws, 10, 95); Width(ws, 11, 95); Width(ws, 12, 130); Width(ws, 13, 130); Width(ws, 14, 150);
-        TryAutoFilter(ws, headerRow, lastRow, 14);
-        FontAll(ws, lastRow, 14);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 95); Width(ws, 5, 100); Width(ws, 6, 140); Width(ws, 7, 200);
+        Width(ws, 8, 75); Width(ws, 9, 90); Width(ws, 10, 100); Width(ws, 11, 100); Width(ws, 12, 100);
+        Width(ws, 13, 95); Width(ws, 14, 95); Width(ws, 15, 130); Width(ws, 16, 130); Width(ws, 17, 150);
+        TryAutoFilter(ws, headerRow, lastRow, 17);
+        FontAll(ws, lastRow, 17);
     }
 
     // ── 시트3 : 출현종요약 (지수 없음 → 총계·보호종·도래유형별 합계) ──
@@ -114,9 +115,9 @@ public static class BirdReportExporter
 
         // 도래유형별 합계(조류에는 흔적 구분이 없어 도래유형이 이에 대응한다)
         var types = vm.MigratoryTypes;
-        var headers = new List<string>
+        var headers = new List<string>(SiteColumns.Headers)
         {
-            "지점명", "연도차수", "하천명", "조사일",
+            "연도차수", "하천명", "조사일",
             "총종수", "총개체수", "법정보호종 수", "법정보호종 목록", "생태계교란생물"
         };
         headers.AddRange(types.Select(t => $"{t} 개체수"));
@@ -129,17 +130,17 @@ public static class BirdReportExporter
         var protectedList = observed.Where(e => e.IsProtected).Select(e => e.SpeciesKo!).Distinct().ToList();
         var invasiveList = observed.Where(e => e.IsInvasive).Select(e => e.SpeciesKo!).Distinct().ToList();
 
-        Str(ws, row, 0, m.Site);
-        Str(ws, row, 1, m.YearChsu);
-        Str(ws, row, 2, m.River);
-        Str(ws, row, 3, m.SurveyDate?.ToString("yyyy-MM-dd"));
-        Num(ws, row, 4, observed.Select(e => e.SpeciesKo).Distinct().Count());
-        Num(ws, row, 5, observed.Sum(e => e.IndividualCount ?? 0));
-        Num(ws, row, 6, protectedList.Count);
-        Str(ws, row, 7, string.Join(", ", protectedList));
-        Str(ws, row, 8, string.Join(", ", invasiveList));
+        SiteColumns.Write(ws, row, m);
+        Str(ws, row, 4, m.YearChsu);
+        Str(ws, row, 5, m.River);
+        Str(ws, row, 6, m.SurveyDate?.ToString("yyyy-MM-dd"));
+        Num(ws, row, 7, observed.Select(e => e.SpeciesKo).Distinct().Count());
+        Num(ws, row, 8, observed.Sum(e => e.IndividualCount ?? 0));
+        Num(ws, row, 9, protectedList.Count);
+        Str(ws, row, 10, string.Join(", ", protectedList));
+        Str(ws, row, 11, string.Join(", ", invasiveList));
 
-        int col = 9;
+        int col = 12;
         foreach (var t in types)
         {
             Num(ws, row, col, observed.Where(e => e.MigratoryType == t).Sum(e => e.IndividualCount ?? 0));
@@ -150,9 +151,10 @@ public static class BirdReportExporter
 
         int lastCol = headers.Count - 1;
         int lastRow = row;
-        Width(ws, 0, 110); Width(ws, 1, 100); Width(ws, 2, 100); Width(ws, 3, 95);
-        Width(ws, 4, 75); Width(ws, 5, 85); Width(ws, 6, 100); Width(ws, 7, 320); Width(ws, 8, 220);
-        for (int c = 9; c <= lastCol; c++) Width(ws, c, 110);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 100); Width(ws, 5, 100); Width(ws, 6, 95);
+        Width(ws, 7, 75); Width(ws, 8, 85); Width(ws, 9, 100); Width(ws, 10, 320); Width(ws, 11, 220);
+        for (int c = 12; c <= lastCol; c++) Width(ws, c, 110);
         TryAutoFilter(ws, headerRow, lastRow, lastCol);
 
         row += 2;

@@ -10,15 +10,19 @@ using SDSM_Surveyor_App.Models;
 namespace SDSM_Surveyor_App.ViewModels;
 
 /// <summary>서식·수변환경 탭 : [별표5] 항목별 허용점수 드롭다운 + 좌/우안 평균 → 실시간 HRI.</summary>
-public partial class HabitatWaterEdgeEntryViewModel : ObservableObject, ITransientService
+public partial class HabitatWaterEdgeEntryViewModel : ObservableObject, ISingletonService
 {
-    private const string TaxonKey = "HabitatWaterEdge";
-    private readonly ILocalDraftStore _draftStore;
+    internal const string TaxonKey = "HabitatWaterEdge";
+    private readonly ISessionService _sessions;
 
-    public HabitatWaterEdgeEntryViewModel(ILocalDraftStore draftStore) => _draftStore = draftStore;
+    public HabitatWaterEdgeEntryViewModel(ISessionService sessions, SurveyMeta meta)
+    {
+        _sessions = sessions;
+        Meta = meta;
+    }
 
     // ── 공통 조사개황 : 모든 분류군 공유(SurveyOverviewControl에서 입력) ──
-    public SurveyMeta Meta { get; } = new();
+    public SurveyMeta Meta { get; }
 
     // 서식수변 고유 입력(등급 계산에 영향하므로 Meta가 아닌 이곳에 둔다)
     [ObservableProperty] private string? _surveyUnavailableReason;   // 조사불가시
@@ -122,20 +126,13 @@ public partial class HabitatWaterEdgeEntryViewModel : ObservableObject, ITransie
     [RelayCommand]
     private async Task SaveTemporary()
     {
-        await _draftStore.SaveDraftAsync(TaxonKey, new
-        {
-            Meta.SurveyYear, Meta.YearChsu, Meta.SurveyDate, Meta.MajorRegion, Meta.MiddleRegion,
-            Meta.River, Meta.RiverType, Meta.Site, Meta.Lat, Meta.Lng, Meta.Weather,
-            Meta.SurveyAgency, Meta.Surveyor,
-            SurveyUnavailableReason, Note,
-            S1 = S1?.Score, B2L = B2L?.Score, B2R = B2R?.Score, S3 = S3?.Score, S4 = S4?.Score,
-            B5L = B5L?.Score, B5R = B5R?.Score, B6L = B6L?.Score, B6R = B6R?.Score,
-            S7 = S7?.Score, S8 = S8?.Score, B9L = B9L?.Score, B9R = B9R?.Score,
-            B10L = B10L?.Score, B10R = B10R?.Score
-        });
+        // 분류군 하나가 아니라 세션(조사개황 + 7개 분류군) 전체를 저장한다.
+        // 어느 탭에서 눌러도 같은 세션 파일이 갱신되므로 지점을 옮겨도 이전 자료가 사라지지 않는다.
+        var idx = await _sessions.SaveCurrentAsync();
+
         LastSavedTime = DateTime.Now;
-        StatusText = $"임시 저장됨 · {LastSavedTime:HH:mm:ss}";
-        WeakReferenceMessenger.Default.Send(new NotifyMessage(("임시 저장되었습니다.", true)));
+        StatusText = $"자료함 저장됨 · {idx.Site} {idx.YearChsu} · {LastSavedTime:HH:mm:ss}";
+        WeakReferenceMessenger.Default.Send(new NotifyMessage(("자료함에 저장되었습니다.", true)));
     }
 
     /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>

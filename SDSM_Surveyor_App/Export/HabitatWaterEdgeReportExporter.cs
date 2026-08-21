@@ -17,14 +17,15 @@ public static class HabitatWaterEdgeReportExporter
     public static string? Export(HabitatWaterEdgeEntryViewModel vm)
     {
         var m = vm.Meta;
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "" : m.Project! + "_";
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : m.Site + "_";
+        var project = FileToken(m.Project);
+        var chasu = FileToken(m.YearChsu);      // 세션 정보(대분류·연도차수·지점)를 파일명에 반영
+        var site = FileToken(m.Site);
 
         var dlg = new SaveFileDialog
         {
             Title = "서식·수변환경 조사결과(보고서용) 엑셀 내보내기",
             Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{site}서식수변_조사결과.xlsx"
+            FileName = $"{project}{chasu}{site}서식수변_조사결과.xlsx"
         };
         if (dlg.ShowDialog() != true) return null;
 
@@ -72,6 +73,7 @@ public static class HabitatWaterEdgeReportExporter
         Kv("중권역명", m.MiddleRegion);
         Kv("하천명", m.River);
         Kv("하천유형", m.RiverType);
+        Kv("사업장", m.Workplace);
         Kv("지점명", m.Site);
         Kv("위도", m.Lat);
         Kv("경도", m.Lng);
@@ -97,7 +99,7 @@ public static class HabitatWaterEdgeReportExporter
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("서식·수변환경 평가항목 [별표5]"); row += 2;
 
         int headerRow = row;
-        WriteHeader(ws, row, "지점명", "번호", "평가항목", "좌안 선택", "좌안 점수", "우안 선택", "우안 점수", "적용점수");
+        WriteHeader(ws, row, SiteColumns.With("번호", "평가항목", "좌안 선택", "좌안 점수", "우안 선택", "우안 점수", "적용점수"));
         row++;
 
         // 좌/우안이 있는 항목은 두 선택을 모두 남기고, 적용점수(평균)를 함께 기록한다.
@@ -116,41 +118,41 @@ public static class HabitatWaterEdgeReportExporter
         };
 
         var detail = vm.ComputeDetail();
-        var site = vm.Meta.Site ?? "";
         for (int i = 0; i < rows.Length; i++)
         {
             var (name, l, r, single) = rows[i];
-            Str(ws, row, 0, site);
-            Num(ws, row, 1, i + 1);
-            ws.Cells[row, 2].SetValue(name);
+            SiteColumns.Write(ws, row, vm.Meta);
+            Num(ws, row, 4, i + 1);
+            ws.Cells[row, 5].SetValue(name);
             if (single is not null)
             {
-                ws.Cells[row, 3].SetValue(single.Desc);
-                Num(ws, row, 4, single.Score);
+                ws.Cells[row, 6].SetValue(single.Desc);
+                Num(ws, row, 7, single.Score);
             }
             else
             {
-                if (l is not null) { ws.Cells[row, 3].SetValue(l.Desc); Num(ws, row, 4, l.Score); }
-                if (r is not null) { ws.Cells[row, 5].SetValue(r.Desc); Num(ws, row, 6, r.Score); }
+                if (l is not null) { ws.Cells[row, 6].SetValue(l.Desc); Num(ws, row, 7, l.Score); }
+                if (r is not null) { ws.Cells[row, 8].SetValue(r.Desc); Num(ws, row, 9, r.Score); }
             }
-            if (i < detail.Items.Length) Num(ws, row, 7, detail.Items[i]);
+            if (i < detail.Items.Length) Num(ws, row, 10, detail.Items[i]);
             row++;
         }
 
         // 합계
-        KeyCell(ws.Cells[row, 2]);
-        ws.Cells[row, 2].SetValue("합계");
-        Num(ws, row, 7, detail.Total);
-        ws.Cells[row, 7].SetIsBold(true);
+        KeyCell(ws.Cells[row, 5]);
+        ws.Cells[row, 5].SetValue("합계");
+        Num(ws, row, 10, detail.Total);
+        ws.Cells[row, 10].SetIsBold(true);
 
         int lastRow = row;
-        Width(ws, 0, 110); Width(ws, 1, 55); Width(ws, 2, 150);
-        Width(ws, 3, 190); Width(ws, 4, 85); Width(ws, 5, 190); Width(ws, 6, 85); Width(ws, 7, 85);
-        TryAutoFilter(ws, headerRow, lastRow - 1, 7);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 55); Width(ws, 5, 150);
+        Width(ws, 6, 190); Width(ws, 7, 85); Width(ws, 8, 190); Width(ws, 9, 85); Width(ws, 10, 85);
+        TryAutoFilter(ws, headerRow, lastRow - 1, 10);
 
         row += 2;
         ws.Cells[row, 0].SetValue("※ 좌/우안이 있는 항목의 적용점수는 좌·우안 산술평균이다(한쪽만 입력하면 그 값).");
-        FontAll(ws, row, 7);
+        FontAll(ws, row, 10);
     }
 
     // ── 시트3 : 건강성평가(HRI) — 항목1~10 점수 → 합계 → 평가점수 → 등급 ──
@@ -164,7 +166,7 @@ public static class HabitatWaterEdgeReportExporter
         int row = 0;
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("서식·수변환경 평가(HRI)"); row += 2;
 
-        var headers = new List<string> { "지점명", "연도차수", "하천명", "조사일" };
+        var headers = new List<string>(SiteColumns.Headers) { "연도차수", "하천명", "조사일" };
         for (int i = 0; i < HabitatWaterEdgeEntryViewModel.ItemNames.Length; i++)
             headers.Add($"{i + 1}. {HabitatWaterEdgeEntryViewModel.ItemNames[i]}");
         headers.Add("합계");
@@ -175,12 +177,12 @@ public static class HabitatWaterEdgeReportExporter
         WriteHeader(ws, row, headers.ToArray());
         row++;
 
-        Str(ws, row, 0, m.Site);
-        Str(ws, row, 1, m.YearChsu);
-        Str(ws, row, 2, m.River);
-        Str(ws, row, 3, m.SurveyDate?.ToString("yyyy-MM-dd"));
+        SiteColumns.Write(ws, row, m);
+        Str(ws, row, 4, m.YearChsu);
+        Str(ws, row, 5, m.River);
+        Str(ws, row, 6, m.SurveyDate?.ToString("yyyy-MM-dd"));
 
-        int col = 4;
+        int col = 7;
         for (int i = 0; i < HabitatWaterEdgeEntryViewModel.ItemNames.Length; i++, col++)
             if (i < d.Items.Length) Num(ws, row, col, d.Items[i]);
 
@@ -192,8 +194,9 @@ public static class HabitatWaterEdgeReportExporter
 
         int lastCol = headers.Count - 1;
         int lastRow = row;
-        Width(ws, 0, 110); Width(ws, 1, 100); Width(ws, 2, 100); Width(ws, 3, 95);
-        for (int c = 4; c <= lastCol; c++) Width(ws, c, 120);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 100); Width(ws, 5, 100); Width(ws, 6, 95);
+        for (int c = 7; c <= lastCol; c++) Width(ws, c, 120);
         TryAutoFilter(ws, headerRow, lastRow, lastCol);
 
         row += 2;

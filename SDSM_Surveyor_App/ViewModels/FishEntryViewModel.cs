@@ -14,19 +14,20 @@ using Telerik.Windows.Data;   // RadObservableCollection
 namespace SDSM_Surveyor_App.ViewModels;
 
 /// <summary>어류 탭: 초고속 입력 + 실시간 통계/FAI + 임시저장/내보내기.</summary>
-public partial class FishEntryViewModel : ObservableObject, ITransientService
+public partial class FishEntryViewModel : ObservableObject, ISingletonService
 {
-    private const string TaxonKey = "Fish";
+    internal const string TaxonKey = "Fish";
 
     private readonly ISpeciesListProvider _speciesProvider;
-    private readonly ILocalDraftStore _draftStore;
+    private readonly ISessionService _sessions;
     private readonly IReferenceRangeProvider _reference;
 
-    public FishEntryViewModel(ISpeciesListProvider speciesProvider, ILocalDraftStore draftStore,
-                              IReferenceRangeProvider reference)
+    public FishEntryViewModel(ISpeciesListProvider speciesProvider, ISessionService sessions,
+                              IReferenceRangeProvider reference, SurveyMeta meta)
     {
         _speciesProvider = speciesProvider;
-        _draftStore = draftStore;
+        _sessions = sessions;
+        Meta = meta;
         _reference = reference;
 
         SpeciesListSource = _speciesProvider.GetFishSpecies();
@@ -36,7 +37,7 @@ public partial class FishEntryViewModel : ObservableObject, ITransientService
     }
 
     // ── 공통 조사개황 : 모든 분류군 공유(SurveyOverviewControl에서 입력) ──
-    public SurveyMeta Meta { get; } = new();
+    public SurveyMeta Meta { get; }
 
     // ── 어류 고유 기본정보 ──
     [ObservableProperty] private string? _collectionTool;                 // 채집도구
@@ -288,27 +289,13 @@ public partial class FishEntryViewModel : ObservableObject, ITransientService
     [RelayCommand]
     private async Task SaveTemporary()
     {
-        var draft = new FishDraft
-        {
-            SurveyYear = Meta.SurveyYear, YearChsu = Meta.YearChsu, SurveyDate = Meta.SurveyDate,
-            MajorRegion = Meta.MajorRegion, MiddleRegion = Meta.MiddleRegion, River = Meta.River, RiverType = Meta.RiverType,
-            Site = Meta.Site, Lat = Meta.Lat, Lng = Meta.Lng, Weather = Meta.Weather, SurveyAgency = Meta.SurveyAgency, Surveyor = Meta.Surveyor,
-            CollectionTime = CollectionTime, CollectionTool = CollectionTool,
-            CollectionFlowState = CollectionFlowState, RiverChasu = RiverChasu,
-            Bedrock = Bedrock, Concrete = Concrete, Mud = Mud, Sand = Sand,
-            FineGravel = FineGravel, Gravel = Gravel, SmallStone = SmallStone, BigStone = BigStone,
-            HabitatRiverType = HabitatRiverType, HabitatFlowState = HabitatFlowState,
-            SurveyUnavailableReason = SurveyUnavailableReason, Note = Note,
-            NoSpeciesDeclared = NoSpeciesDeclared,
-            DeCount = DeCount, EfCount = EfCount, LeCount = LeCount, TuCount = TuCount,
-            Rows = SpeciesEntries.Select(r => new FishDraftRow(r.SpeciesKo, r.IndividualCount)).ToList()
-        };
-
-        await _draftStore.SaveDraftAsync(TaxonKey, draft);
+        // 분류군 하나가 아니라 세션(조사개황 + 7개 분류군) 전체를 저장한다.
+        // 어느 탭에서 눌러도 같은 세션 파일이 갱신되므로 지점을 옮겨도 이전 자료가 사라지지 않는다.
+        var idx = await _sessions.SaveCurrentAsync();
 
         LastSavedTime = DateTime.Now;
-        StatusText = $"임시 저장됨 · {LastSavedTime:HH:mm:ss}";
-        WeakReferenceMessenger.Default.Send(new NotifyMessage(("임시 저장되었습니다.", true)));
+        StatusText = $"자료함 저장됨 · {idx.Site} {idx.YearChsu} · {LastSavedTime:HH:mm:ss}";
+        WeakReferenceMessenger.Default.Send(new NotifyMessage(("자료함에 저장되었습니다.", true)));
     }
 
     /// <summary>보고서·기록용 엑셀 내보내기(조사개황·출현종·FAI 건강성평가 3개 시트).</summary>

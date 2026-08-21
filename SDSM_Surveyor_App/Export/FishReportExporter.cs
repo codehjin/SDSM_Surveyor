@@ -20,14 +20,15 @@ public static class FishReportExporter
     public static string? Export(FishEntryViewModel vm)
     {
         var m = vm.Meta;
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "" : m.Project! + "_";
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : m.Site + "_";
+        var project = FileToken(m.Project);
+        var chasu = FileToken(m.YearChsu);      // 세션 정보(대분류·연도차수·지점)를 파일명에 반영
+        var site = FileToken(m.Site);
 
         var dlg = new SaveFileDialog
         {
             Title = "어류 조사결과(보고서용) 엑셀 내보내기",
             Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{site}어류_조사결과.xlsx"
+            FileName = $"{project}{chasu}{site}어류_조사결과.xlsx"
         };
         if (dlg.ShowDialog() != true) return null;
 
@@ -75,6 +76,7 @@ public static class FishReportExporter
         Kv("중권역명", m.MiddleRegion);
         Kv("하천명", m.River);
         Kv("하천유형", m.RiverType);
+        Kv("사업장", m.Workplace);
         Kv("지점명", m.Site);
         Kv("위도", m.Lat);
         Kv("경도", m.Lng);
@@ -124,38 +126,38 @@ public static class FishReportExporter
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("어류 출현종 목록"); row += 2;
 
         int headerRow = row;
-        string[] headers = { "지점명", "목", "과", "국명", "학명", "개체수", "보호종" };
+        string[] headers = SiteColumns.With("목", "과", "국명", "학명", "개체수", "보호종");
         for (int c = 0; c < headers.Length; c++) { ws.Cells[row, c].SetValue(headers[c]); HeaderCell(ws.Cells[row, c]); }
         row++;
 
-        var site = vm.Meta.Site ?? "";
         foreach (var e in vm.SpeciesEntries)
         {
             var ko = e.SelectedSpecies?.SpeciesKo ?? e.SpeciesKo;
             if (string.IsNullOrWhiteSpace(ko) || (e.IndividualCount ?? 0) <= 0) continue;
 
             var sp = e.SelectedSpecies;
-            ws.Cells[row, 0].SetValue(site);
-            if (!string.IsNullOrWhiteSpace(sp?.OrderKo)) ws.Cells[row, 1].SetValue(sp!.OrderKo);
-            if (!string.IsNullOrWhiteSpace(sp?.FamilyKo)) ws.Cells[row, 2].SetValue(sp!.FamilyKo);
-            ws.Cells[row, 3].SetValue(ko);
-            if (!string.IsNullOrWhiteSpace(sp?.SpeciesEn)) ws.Cells[row, 4].SetValue(sp!.SpeciesEn);
-            ws.Cells[row, 5].SetValue((double)e.IndividualCount!.Value);
-            ws.Cells[row, 5].SetHorizontalAlignment(RadHorizontalAlignment.Right);
+            SiteColumns.Write(ws, row, vm.Meta);
+            if (!string.IsNullOrWhiteSpace(sp?.OrderKo)) ws.Cells[row, 4].SetValue(sp!.OrderKo);
+            if (!string.IsNullOrWhiteSpace(sp?.FamilyKo)) ws.Cells[row, 5].SetValue(sp!.FamilyKo);
+            ws.Cells[row, 6].SetValue(ko);
+            if (!string.IsNullOrWhiteSpace(sp?.SpeciesEn)) ws.Cells[row, 7].SetValue(sp!.SpeciesEn);
+            ws.Cells[row, 8].SetValue((double)e.IndividualCount!.Value);
+            ws.Cells[row, 8].SetHorizontalAlignment(RadHorizontalAlignment.Right);
             if (e.IsProtected)
             {
-                ws.Cells[row, 6].SetValue("보호종");
-                ws.Cells[row, 6].SetForeColor(new ThemableColor(Accent));
-                ws.Cells[row, 6].SetIsBold(true);
+                ws.Cells[row, 9].SetValue("보호종");
+                ws.Cells[row, 9].SetForeColor(new ThemableColor(Accent));
+                ws.Cells[row, 9].SetIsBold(true);
             }
             row++;
         }
 
         int lastRow = row - 1;
-        Width(ws, 0, 110); Width(ws, 1, 95); Width(ws, 2, 115); Width(ws, 3, 160);
-        Width(ws, 4, 230); Width(ws, 5, 75); Width(ws, 6, 70);
-        TryAutoFilter(ws, headerRow, lastRow, 6);
-        FontAll(ws, lastRow, 6);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 95); Width(ws, 5, 115); Width(ws, 6, 160);
+        Width(ws, 7, 230); Width(ws, 8, 75); Width(ws, 9, 70);
+        TryAutoFilter(ws, headerRow, lastRow, 9);
+        FontAll(ws, lastRow, 9);
     }
 
     // ── 시트3 : 건강성평가 (지점명 포함 · 1행 관리 테이블) ──
@@ -175,49 +177,48 @@ public static class FishReportExporter
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("어류평가지수(FAI) 건강성평가"); row += 2;
 
         int headerRow = row;
-        string[] headers =
-        {
-            "지점명", "연도차수", "하천명", "조사일", "하천차수",
+        string[] headers = SiteColumns.With(
+            "연도차수", "하천명", "조사일", "하천차수",
             "총출현종수", "총개체수", "우점종",
             "M1 국내종수", "M1 점", "M2 여울성종수", "M2 점", "M3 민감종수", "M3 점", "M4 내성종비율%", "M4 점",
             "M5 잡식종비율%", "M5 점", "M6 충식종비율%", "M6 점", "M7 국내개체수", "M7 점", "M8 비정상비율%", "M8 점",
-            "FAI총점", "등급"
-        };
+            "FAI총점", "등급");
         for (int c = 0; c < headers.Length; c++) { ws.Cells[row, c].SetValue(headers[c]); HeaderCell(ws.Cells[row, c]); }
         row++;
 
         void Str(int col, string? v) { if (!string.IsNullOrWhiteSpace(v)) ws.Cells[row, col].SetValue(v); }
         void Num(int col, double v) { ws.Cells[row, col].SetValue(v); ws.Cells[row, col].SetHorizontalAlignment(RadHorizontalAlignment.Right); }
 
-        Str(0, m.Site);
-        Str(1, m.YearChsu);
-        Str(2, m.River);
-        Str(3, m.SurveyDate?.ToString("yyyy-MM-dd"));
-        Num(4, chasu);
-        Num(5, f.TotalSpecies);
-        Num(6, f.TotalIndiv);
-        Str(7, vm.DominantSpecies);
-        Num(8,  f.DomesticSpecies);                       Num(9,  f.M1);
-        Num(10, f.RiffleBenthic);                         Num(11, f.M2);
-        Num(12, f.Sensitive);                             Num(13, f.M3);
-        Num(14, System.Math.Round(f.TolerantRatio, 1));   Num(15, f.M4);
-        Num(16, System.Math.Round(f.OmnivoreRatio, 1));   Num(17, f.M5);
-        Num(18, System.Math.Round(f.InsectRatio, 1));     Num(19, f.M6);
-        Num(20, f.DomesticIndiv);                         Num(21, f.M7);
-        Num(22, System.Math.Round(f.AbnormalRatio, 1));   Num(23, f.M8);
-        if (f.Score is double sc) Num(24, sc);
+        SiteColumns.Write(ws, row, m);
+        Str(4, m.YearChsu);
+        Str(5, m.River);
+        Str(6, m.SurveyDate?.ToString("yyyy-MM-dd"));
+        Num(7, chasu);
+        Num(8, f.TotalSpecies);
+        Num(9, f.TotalIndiv);
+        Str(10, vm.DominantSpecies);
+        Num(11,  f.DomesticSpecies);                       Num(12,  f.M1);
+        Num(13, f.RiffleBenthic);                         Num(14, f.M2);
+        Num(15, f.Sensitive);                             Num(16, f.M3);
+        Num(17, System.Math.Round(f.TolerantRatio, 1));   Num(18, f.M4);
+        Num(19, System.Math.Round(f.OmnivoreRatio, 1));   Num(20, f.M5);
+        Num(21, System.Math.Round(f.InsectRatio, 1));     Num(22, f.M6);
+        Num(23, f.DomesticIndiv);                         Num(24, f.M7);
+        Num(25, System.Math.Round(f.AbnormalRatio, 1));   Num(26, f.M8);
+        if (f.Score is double sc) Num(27, sc);
         var g = f.Grade ?? "-";
-        ws.Cells[row, 25].SetValue(g);
-        GradeCell(ws.Cells[row, 25], f.Grade);
+        ws.Cells[row, 28].SetValue(g);
+        GradeCell(ws.Cells[row, 28], f.Grade);
 
         int lastRow = row;
-        Width(ws, 0, 110); Width(ws, 1, 100); Width(ws, 2, 100); Width(ws, 3, 95); Width(ws, 4, 75);
-        Width(ws, 5, 90); Width(ws, 6, 80); Width(ws, 7, 110);
-        TryAutoFilter(ws, headerRow, lastRow, 25);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 100); Width(ws, 5, 100); Width(ws, 6, 95); Width(ws, 7, 75);
+        Width(ws, 8, 90); Width(ws, 9, 80); Width(ws, 10, 110);
+        TryAutoFilter(ws, headerRow, lastRow, 28);
 
         row += 2;
         ws.Cells[row, 0].SetValue("※ 각 M = 산출값→배점(0/6.25/12.5), 합산=FAI총점. 등급 A≥80·B≥60·C≥40·D≥20·E<20.");
-        FontAll(ws, row, 25);
+        FontAll(ws, row, 28);
     }
 
     private static int Pi(string? s) => int.TryParse(s, out var n) ? n : 0;

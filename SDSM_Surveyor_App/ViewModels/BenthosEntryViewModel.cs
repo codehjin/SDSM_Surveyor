@@ -15,19 +15,20 @@ namespace SDSM_Surveyor_App.ViewModels;
 
 /// <summary>저서동물 탭: 초고속 입력 + 실시간 지수(DI/H'/R1/J'/BMI) + 임시저장/내보내기.
 /// (자동계산 외 관리자 전체 필드 입력 · 빠른 추가 바 · 엑셀 붙여넣기)</summary>
-public partial class BenthosEntryViewModel : ObservableObject, ITransientService
+public partial class BenthosEntryViewModel : ObservableObject, ISingletonService
 {
-    private const string TaxonKey = "Benthos";
+    internal const string TaxonKey = "Benthos";
 
     private readonly ISpeciesListProvider _speciesProvider;
-    private readonly ILocalDraftStore _draftStore;
+    private readonly ISessionService _sessions;
     private readonly IReferenceRangeProvider _reference;
 
-    public BenthosEntryViewModel(ISpeciesListProvider speciesProvider, ILocalDraftStore draftStore,
-                                 IReferenceRangeProvider reference)
+    public BenthosEntryViewModel(ISpeciesListProvider speciesProvider, ISessionService sessions,
+                                 IReferenceRangeProvider reference, SurveyMeta meta)
     {
         _speciesProvider = speciesProvider;
-        _draftStore = draftStore;
+        _sessions = sessions;
+        Meta = meta;
         _reference = reference;
 
         SpeciesListSource = _speciesProvider.GetBenthosSpecies();
@@ -37,7 +38,7 @@ public partial class BenthosEntryViewModel : ObservableObject, ITransientService
     }
 
     // ── 공통 조사개황 : 모든 분류군 공유(SurveyOverviewControl에서 입력) ──
-    public SurveyMeta Meta { get; } = new();
+    public SurveyMeta Meta { get; }
 
     // ── 채집방법(정량 채집기 회수) ──
     [ObservableProperty] private string? _surbernet30;      // Surber net 30×30
@@ -297,30 +298,13 @@ public partial class BenthosEntryViewModel : ObservableObject, ITransientService
     [RelayCommand]
     private async Task SaveTemporary()
     {
-        var draft = new BenthosDraft
-        {
-            SurveyYear = Meta.SurveyYear, YearChsu = Meta.YearChsu, SurveyDate = Meta.SurveyDate,
-            MajorRegion = Meta.MajorRegion, MiddleRegion = Meta.MiddleRegion, River = Meta.River, RiverType = Meta.RiverType,
-            Site = Meta.Site, Lat = Meta.Lat, Lng = Meta.Lng, Weather = Meta.Weather, SurveyAgency = Meta.SurveyAgency, Surveyor = Meta.Surveyor,
-            Surbernet30 = Surbernet30, Surbernet50 = Surbernet50, Dredge = Dredge, Ekman = Ekman,
-            Watershed = Watershed, PollutionSource = PollutionSource, CanopyCover = CanopyCover,
-            Floodplain = Floodplain, LeveeLeft = LeveeLeft, LeveeRight = LeveeRight,
-            Bedrock = Bedrock, Concrete = Concrete, Mud = Mud, Sand = Sand,
-            FineGravel = FineGravel, Gravel = Gravel, SmallStone = SmallStone, BigStone = BigStone,
-            HabitatRiverType = HabitatRiverType, RiverWidth = RiverWidth, WaterWidth = WaterWidth,
-            AverageDepth = AverageDepth, AverageVelocity = AverageVelocity,
-            AirTemperature = AirTemperature, WaterTemperature = WaterTemperature,
-            FlowState = FlowState, Transparency = Transparency, Smell = Smell,
-            SurveyUnavailableReason = SurveyUnavailableReason, Note = Note,
-            NoSpeciesDeclared = NoSpeciesDeclared,
-            Rows = SpeciesEntries.Select(r => new BenthosDraftRow(r.SpeciesKo, r.IndividualCount)).ToList()
-        };
-
-        await _draftStore.SaveDraftAsync(TaxonKey, draft);
+        // 분류군 하나가 아니라 세션(조사개황 + 7개 분류군) 전체를 저장한다.
+        // 어느 탭에서 눌러도 같은 세션 파일이 갱신되므로 지점을 옮겨도 이전 자료가 사라지지 않는다.
+        var idx = await _sessions.SaveCurrentAsync();
 
         LastSavedTime = DateTime.Now;
-        StatusText = $"임시 저장됨 · {LastSavedTime:HH:mm:ss}";
-        WeakReferenceMessenger.Default.Send(new NotifyMessage(("임시 저장되었습니다.", true)));
+        StatusText = $"자료함 저장됨 · {idx.Site} {idx.YearChsu} · {LastSavedTime:HH:mm:ss}";
+        WeakReferenceMessenger.Default.Send(new NotifyMessage(("자료함에 저장되었습니다.", true)));
     }
 
     /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>

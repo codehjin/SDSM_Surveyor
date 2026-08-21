@@ -1,4 +1,4 @@
-using Telerik.Windows.Documents.Spreadsheet.Formatting;   // ColumnWidth, RadHorizontalAlignment
+﻿using Telerik.Windows.Documents.Spreadsheet.Formatting;   // ColumnWidth, RadHorizontalAlignment
 using Telerik.Windows.Documents.Spreadsheet.Model;        // Worksheet, CellSelection, CellRange, PatternFill
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
@@ -17,6 +17,16 @@ public static class ExcelStyle
     public static readonly Color Header = Color.FromRgb(0x35, 0x3E, 0x52);   // 헤더 배경
     public static readonly Color Key    = Color.FromRgb(0xEE, 0xF1, 0xF5);   // 라벨 배경
     public const string Font = "맑은 고딕";
+
+    /// <summary>파일명 토큰. 빈 값이면 빈 문자열, 값이 있으면 `값_` 로 만들어 이어붙인다.
+    /// 파일명에 못 쓰는 문자는 '_' 로 바꾼다(지점명에 '/' 가 들어간 경우 등).</summary>
+    public static string FileToken(string? v)
+    {
+        if (string.IsNullOrWhiteSpace(v)) return "";
+        var t = v.Trim();
+        foreach (var c in System.IO.Path.GetInvalidFileNameChars()) t = t.Replace(c, '_');
+        return t + "_";
+    }
 
     /// <summary>시트 제목(큰 강조).</summary>
     public static void Title(CellSelection c)

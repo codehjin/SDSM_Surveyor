@@ -19,14 +19,15 @@ public static class BenthosReportExporter
     public static string? Export(BenthosEntryViewModel vm)
     {
         var m = vm.Meta;
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "" : m.Project! + "_";
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : m.Site + "_";
+        var project = FileToken(m.Project);
+        var chasu = FileToken(m.YearChsu);      // 세션 정보(대분류·연도차수·지점)를 파일명에 반영
+        var site = FileToken(m.Site);
 
         var dlg = new SaveFileDialog
         {
             Title = "저서동물 조사결과(보고서용) 엑셀 내보내기",
             Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{site}저서동물_조사결과.xlsx"
+            FileName = $"{project}{chasu}{site}저서동물_조사결과.xlsx"
         };
         if (dlg.ShowDialog() != true) return null;
 
@@ -74,6 +75,7 @@ public static class BenthosReportExporter
         Kv("중권역명", m.MiddleRegion);
         Kv("하천명", m.River);
         Kv("하천유형", m.RiverType);
+        Kv("사업장", m.Workplace);
         Kv("지점명", m.Site);
         Kv("위도", m.Lat);
         Kv("경도", m.Lng);
@@ -135,40 +137,40 @@ public static class BenthosReportExporter
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("저서동물 출현종 목록"); row += 2;
 
         int headerRow = row;
-        WriteHeader(ws, row, "지점명", "문", "강", "목", "과", "국명", "학명", "개체수", "오탁치", "지표가중치", "보호종");
+        WriteHeader(ws, row, SiteColumns.With("문", "강", "목", "과", "국명", "학명", "개체수", "오탁치", "지표가중치", "보호종"));
         row++;
 
-        var site = vm.Meta.Site ?? "";
         foreach (var e in vm.SpeciesEntries)
         {
             var ko = e.SelectedSpecies?.SpeciesKo ?? e.SpeciesKo;
             if (string.IsNullOrWhiteSpace(ko) || (e.IndividualCount ?? 0) <= 0) continue;   // 관측된 종만
 
             var sp = e.SelectedSpecies;
-            Str(ws, row, 0, site);
-            Str(ws, row, 1, sp?.PhylumKo);
-            Str(ws, row, 2, sp?.ClassKo);
-            Str(ws, row, 3, sp?.OrderKo);
-            Str(ws, row, 4, sp?.FamilyKo);
-            ws.Cells[row, 5].SetValue(ko);
-            Str(ws, row, 6, sp?.SpeciesEn);
-            Num(ws, row, 7, e.IndividualCount!.Value);
-            Num(ws, row, 8, sp?.SaprobicValue);
-            if (sp?.IndicatorWeight is int iw) Num(ws, row, 9, iw);
+            SiteColumns.Write(ws, row, vm.Meta);
+            Str(ws, row, 4, sp?.PhylumKo);
+            Str(ws, row, 5, sp?.ClassKo);
+            Str(ws, row, 6, sp?.OrderKo);
+            Str(ws, row, 7, sp?.FamilyKo);
+            ws.Cells[row, 8].SetValue(ko);
+            Str(ws, row, 9, sp?.SpeciesEn);
+            Num(ws, row, 10, e.IndividualCount!.Value);
+            Num(ws, row, 11, sp?.SaprobicValue);
+            if (sp?.IndicatorWeight is int iw) Num(ws, row, 12, iw);
             if (e.IsProtected)
             {
-                ws.Cells[row, 10].SetValue("보호종");
-                ws.Cells[row, 10].SetForeColor(new ThemableColor(Accent));
-                ws.Cells[row, 10].SetIsBold(true);
+                ws.Cells[row, 13].SetValue("보호종");
+                ws.Cells[row, 13].SetForeColor(new ThemableColor(Accent));
+                ws.Cells[row, 13].SetIsBold(true);
             }
             row++;
         }
 
         int lastRow = row - 1;
-        Width(ws, 0, 110); Width(ws, 1, 95); Width(ws, 2, 95); Width(ws, 3, 110); Width(ws, 4, 120);
-        Width(ws, 5, 150); Width(ws, 6, 220); Width(ws, 7, 75); Width(ws, 8, 70); Width(ws, 9, 85); Width(ws, 10, 70);
-        TryAutoFilter(ws, headerRow, lastRow, 10);
-        FontAll(ws, lastRow, 10);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 95); Width(ws, 5, 95); Width(ws, 6, 110); Width(ws, 7, 120);
+        Width(ws, 8, 150); Width(ws, 9, 220); Width(ws, 10, 75); Width(ws, 11, 70); Width(ws, 12, 85); Width(ws, 13, 70);
+        TryAutoFilter(ws, headerRow, lastRow, 13);
+        FontAll(ws, lastRow, 13);
     }
 
     // ── 시트3 : 건강성평가(BMI) — 계산과정 → 결과 → 등급 ──
@@ -191,42 +193,43 @@ public static class BenthosReportExporter
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("저서동물지수(BMI) 건강성평가"); row += 2;
 
         int headerRow = row;
-        WriteHeader(ws, row,
-            "지점명", "연도차수", "하천명", "조사일",
+        WriteHeader(ws, row, SiteColumns.With(
+            "연도차수", "하천명", "조사일",
             "총출현종수", "총개체수", "우점종",
             "우점도 DI", "다양도 H'", "풍부도 R1", "균등도 J'",
-            "Σ(s·g·h)", "Σ(g·h)", "BMI점수", "등급");
+            "Σ(s·g·h)", "Σ(g·h)", "BMI점수", "등급"));
         row++;
 
-        Str(ws, row, 0, m.Site);
-        Str(ws, row, 1, m.YearChsu);
-        Str(ws, row, 2, m.River);
-        Str(ws, row, 3, m.SurveyDate?.ToString("yyyy-MM-dd"));
-        Num(ws, row, 4, b.TotalSpecies);
-        Num(ws, row, 5, b.TotalIndiv);
-        Str(ws, row, 6, vm.DominantSpecies);
-        Num(ws, row, 7, Math.Round(b.DI, 3));
-        Num(ws, row, 8, Math.Round(b.H, 3));
-        Num(ws, row, 9, Math.Round(b.R1, 3));
-        Num(ws, row, 10, Math.Round(b.J, 3));
-        Num(ws, row, 11, Math.Round(b.SumSGH, 3));
-        Num(ws, row, 12, Math.Round(b.SumGH, 3));
-        Num(ws, row, 13, b.Score);
+        SiteColumns.Write(ws, row, m);
+        Str(ws, row, 4, m.YearChsu);
+        Str(ws, row, 5, m.River);
+        Str(ws, row, 6, m.SurveyDate?.ToString("yyyy-MM-dd"));
+        Num(ws, row, 7, b.TotalSpecies);
+        Num(ws, row, 8, b.TotalIndiv);
+        Str(ws, row, 9, vm.DominantSpecies);
+        Num(ws, row, 10, Math.Round(b.DI, 3));
+        Num(ws, row, 11, Math.Round(b.H, 3));
+        Num(ws, row, 12, Math.Round(b.R1, 3));
+        Num(ws, row, 13, Math.Round(b.J, 3));
+        Num(ws, row, 14, Math.Round(b.SumSGH, 3));
+        Num(ws, row, 15, Math.Round(b.SumGH, 3));
+        Num(ws, row, 16, b.Score);
         var g = b.Grade ?? "-";
-        ws.Cells[row, 14].SetValue(g);
-        GradeCell(ws.Cells[row, 14], b.Grade);
+        ws.Cells[row, 17].SetValue(g);
+        GradeCell(ws.Cells[row, 17], b.Grade);
 
         int lastRow = row;
-        Width(ws, 0, 110); Width(ws, 1, 100); Width(ws, 2, 100); Width(ws, 3, 95);
-        Width(ws, 4, 90); Width(ws, 5, 80); Width(ws, 6, 130);
-        Width(ws, 7, 80); Width(ws, 8, 80); Width(ws, 9, 80); Width(ws, 10, 80);
-        Width(ws, 11, 95); Width(ws, 12, 90); Width(ws, 13, 80); Width(ws, 14, 60);
-        TryAutoFilter(ws, headerRow, lastRow, 14);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 100); Width(ws, 5, 100); Width(ws, 6, 95);
+        Width(ws, 7, 90); Width(ws, 8, 80); Width(ws, 9, 130);
+        Width(ws, 10, 80); Width(ws, 11, 80); Width(ws, 12, 80); Width(ws, 13, 80);
+        Width(ws, 14, 95); Width(ws, 15, 90); Width(ws, 16, 80); Width(ws, 17, 60);
+        TryAutoFilter(ws, headerRow, lastRow, 17);
 
         row += 2;
         ws.Cells[row, 0].SetValue("※ BMI = (4 − Σ(s·g·h)/Σ(g·h)) × 25.  s=오탁치, g=지표가중치, h=개체수 순위점수.");
         row++;
         ws.Cells[row, 0].SetValue("※ 등급 A≥80·B≥65·C≥50·D≥35·E<35. 채집불가(접근불가/건천화/준설/공사중) 시 등급 '-'.");
-        FontAll(ws, row, 14);
+        FontAll(ws, row, 17);
     }
 }

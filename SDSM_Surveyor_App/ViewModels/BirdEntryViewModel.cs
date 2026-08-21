@@ -13,16 +13,18 @@ using Telerik.Windows.Data;
 namespace SDSM_Surveyor_App.ViewModels;
 
 /// <summary>조류 탭: 종별 관찰 입력(관리자 Bird 전 필드) + 총 종수/개체수.</summary>
-public partial class BirdEntryViewModel : ObservableObject, ITransientService
+public partial class BirdEntryViewModel : ObservableObject, ISingletonService
 {
-    private const string TaxonKey = "Bird";
+    internal const string TaxonKey = "Bird";
     private readonly ISpeciesListProvider _speciesProvider;
-    private readonly ILocalDraftStore _draftStore;
+    private readonly ISessionService _sessions;
 
-    public BirdEntryViewModel(ISpeciesListProvider speciesProvider, ILocalDraftStore draftStore)
+    public BirdEntryViewModel(ISpeciesListProvider speciesProvider, ISessionService sessions,
+                              SurveyMeta meta)
     {
         _speciesProvider = speciesProvider;
-        _draftStore = draftStore;
+        _sessions = sessions;
+        Meta = meta;
         SpeciesListSource = _speciesProvider.GetBirdSpecies();
         FilteredQuick = SpeciesListSource.ToList();   // 콤보 초기 목록
         Entries.CollectionChanged += OnEntriesChanged;
@@ -31,7 +33,7 @@ public partial class BirdEntryViewModel : ObservableObject, ITransientService
 
     // ── 공통 조사개황 : 모든 분류군 공유(SurveyOverviewControl에서 입력) ──
     // ※ 관리자 Bird 테이블에는 대권역/중권역/하천유형/조사기관 컬럼이 없다 → 내보내기 시 해당 열만 비운다.
-    public SurveyMeta Meta { get; } = new();
+    public SurveyMeta Meta { get; }
 
     public string[] MigratoryTypes { get; } = { "텃새", "여름철새", "겨울철새", "나그네새", "길잃은새" };
 
@@ -189,16 +191,13 @@ public partial class BirdEntryViewModel : ObservableObject, ITransientService
     [RelayCommand]
     private async Task SaveTemporary()
     {
-        await _draftStore.SaveDraftAsync(TaxonKey, new
-        {
-            Meta.SurveyYear, Meta.YearChsu, Meta.SurveyDate, Meta.MajorRegion, Meta.MiddleRegion,
-            Meta.River, Meta.RiverType, Meta.Site, Meta.Lat, Meta.Lng, Meta.Weather,
-            Meta.SurveyAgency, Meta.Surveyor,
-            Rows = Entries.ToList()
-        });
+        // 분류군 하나가 아니라 세션(조사개황 + 7개 분류군) 전체를 저장한다.
+        // 어느 탭에서 눌러도 같은 세션 파일이 갱신되므로 지점을 옮겨도 이전 자료가 사라지지 않는다.
+        var idx = await _sessions.SaveCurrentAsync();
+
         LastSavedTime = DateTime.Now;
-        StatusText = $"임시 저장됨 · {LastSavedTime:HH:mm:ss}";
-        WeakReferenceMessenger.Default.Send(new NotifyMessage(("임시 저장되었습니다.", true)));
+        StatusText = $"자료함 저장됨 · {idx.Site} {idx.YearChsu} · {LastSavedTime:HH:mm:ss}";
+        WeakReferenceMessenger.Default.Send(new NotifyMessage(("자료함에 저장되었습니다.", true)));
     }
 
     /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>

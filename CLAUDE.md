@@ -36,10 +36,13 @@ Ecology/               EcologyCalculator(FAI) · BenthosCalculator(DI/H/R1/J/BMI
                        · WaterQualityCalculator(등급) · HabitatEvaluator(평가점수)
 Models/                *Entry / *SpeciesEntry (화면 행 모델)
 Data/                  ISpeciesListProvider · SpeciesListProvider(시드)
-                       · ILocalDraftStore · LocalDraftStore(임시저장)
+                       · ISiteListProvider · SiteListProvider(지점 마스터)
+                       · ISessionStore · SessionStore(세션 파일) · SessionService(화면↔세션)
+                       · ITaxonSession(분류군별 저장/복원 규약)
 Messengers/            NotifyMessage (토스트)
-ViewModels/            분류군별 EntryViewModel
-Views/Windows/         MainSurveyWindow
+ViewModels/            분류군별 EntryViewModel (+ Sessions/*.Session.cs 저장·복원)
+Export/                분류군별 exporter 14종 · ExcelStyle · SiteColumns(구분 4열)
+Views/Windows/         MainSurveyWindow · SyncWindow · SessionBrowserWindow(자료함)
 Views/UserControls/    분류군별 EntryControl
 ```
 > 향후 `Helpers`/`Behaviors`/`Ecology`는 관리자와 공유하는 **SDSM_Core**로 이관 예정.
@@ -50,6 +53,10 @@ Views/UserControls/    분류군별 EntryControl
 - ViewModel: `ObservableObject` 상속 + `partial class`. 상태는 `[ObservableProperty]`, 명령은 `[RelayCommand]`(+ `CanExecute = nameof(CanXxx)`).
 - View는 코드비하인드에서 **DI로 VM 주입**: `DataContext = App.Current.Services.GetRequiredService<XxxViewModel>();`
 - DI 등록은 **마커 인터페이스 자동 스캔**(Scrutor): 화면/VM/Provider에 `ITransientService` 또는 `ISingletonService` 부여.
+- **7개 분류군 EntryViewModel과 `SurveyMeta` 는 싱글턴이다.** 세션이 7개 탭 전체를 한 번에 저장·복원해야 하고,
+  조사개황은 세션당 한 벌이기 때문이다. 그래서 어느 탭에서 지점을 적어도 나머지 6개 탭에 그대로 보인다.
+- `SessionService` 는 7개 VM을 **`IServiceProvider`로 늦게** 가져온다. 각 VM이 `ISessionService`를 주입받으므로
+  생성자 주입은 순환 의존이 되어 앱이 아예 시작되지 않는다.
 - 컬렉션은 `RadObservableCollection<T>`. 토스트는 `WeakReferenceMessenger` + `NotifyMessage`.
 
 ---
@@ -97,20 +104,30 @@ Views/UserControls/    분류군별 EntryControl
 
 ## 6. 입력 범위 · 오프라인 저장 · 내보내기 (정책)
 - **입력 범위:** 관리자 그리드에서 **자동계산 항목을 제외한 모든 항목**을 조사자가 입력(기존 분류군별 엑셀 양식 기준 아님).
-- **오프라인 임시저장:** `ILocalDraftStore` → `%AppData%\SDSM_Surveyor\drafts\{taxon}.json`. 실행폴더가 아닌 AppData(업데이트·재설치에도 데이터 보존).
-- **엑셀 내보내기(2종, 구현 예정):**
+- **오프라인 저장(세션 단위):** `ISessionStore` → `%AppData%\SDSM_Surveyor\sessions\{sessionId}.json` + `index.json`.
+  `sessionId` = `대분류_연도차수_지점`. **세션 하나가 공통 조사개황 + 7개 분류군 자료를 함께 담는다** —
+  어느 탭에서 [임시 저장]을 눌러도 세션 전체가 저장되므로 지점을 옮겨도 이전 자료가 사라지지 않는다.
+  구버전 `drafts\{taxon}.json` 은 첫 실행 시 세션 하나로 편입된다(1회, 표식 파일로 재실행 방지).
+  실행폴더가 아닌 AppData를 쓰는 이유는 전과 같다(업데이트·재설치에도 데이터 보존).
+  ⚠ 이 폴더는 **사용자 실자료**다. 검증 스크립트가 폴더를 옮기거나 지우지 않게 할 것(90_TECH_NOTES §8).
+- **엑셀 내보내기(2종, 구현 완료):**
   - ① 일괄입력용 — 관리자 Import에 필요한 **필수자료만**.
   - ② 열람·보관용 — **모든 수식 포함**.
   - 생물종별 개별 엑셀 지원. 내보내기 엑셀에 구분 컬럼: 프로젝트명·사업장·과업대표하천·지점명(= `SiteDivision`).
 
 ---
 
-## 7. 조사지점 (구현 예정 · 핵심)
-- 대분류 **방류하천 / 생태현황** 구분 입력폼.
-- 조사자는 **관리자가 등록한 지점 번호만 선택**(자유 입력 제한). `ST1/ST2` 입력 → DB 저장 시 실제 지점명(`곡교천1`)으로 변환.
-- 연도별 지점 이력(엑셀 `조사지점` 시트) 기준. 좌표 클릭 시 외부 지도 연동.
-- 관리자만 지점 수정·병합·분야 선택(설정 창, 평상시 비활성화).
+## 7. 조사지점 (구현 완료 · 2026-08-21)
+- 대분류 **방류하천 / 생태현황** 으로 지점 목록이 걸러진다.
+- 조사자는 **등록된 지점만 선택**(`sites.json` 기반 드롭다운). `ST1`/`St.1`/`st 1` 입력 → **`곡교천1`로 정규화** 저장, 화면에는 `곡교천1 (St.1)` 병기.
+  미등록 값을 치면 지우지 않고 경고만 띄운다(오타를 조사자가 알아채도록).
+- 지점을 고르면 **하천명·사업장·좌표**가 자동으로 채워지고 [지도] 버튼으로 기본 브라우저에서 위치를 연다.
+- `sites.json` 은 제출 엑셀의 `조사지점` 시트에서 만든다(`tools/build_sites_json.py`).
+  ⚠ **열 배치가 하천마다 다르므로 고정 열 인덱스를 쓰지 말 것** — 변환기는 2행 머리글 텍스트로 열을 찾는다.
+- 로드 규칙은 `species.json` 과 동일(AppData 교체본 → 실행폴더 번들). 공유 모델은 `SDSM_Models/SiteCatalog.cs`.
+- 관리자만 지점 수정·병합·분야 선택(설정 창) — 관리자 쪽 미구현(`..\SDSM\docs\ADMIN_TASKS.md`).
 - 데이터 기준: `SiteDivision`(Project=프로젝트명, Workplace=사업장, WorkplaceRiver=과업대표하천, WorkplaceSite=지점명).
+  내보내기 보고서 시트는 이 4단계를 표 앞머리 4열로 싣는다(`Export/SiteColumns.cs`).
 
 ---
 

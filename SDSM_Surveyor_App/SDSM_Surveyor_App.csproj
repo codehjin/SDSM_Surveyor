@@ -34,6 +34,10 @@
     <Content Include="species.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <!-- 조사지점 마스터(제출 엑셀 조사지점 시트에서 생성). AppData\SDSM_Surveyor\sites.json으로 교체 가능 -->
+    <Content Include="sites.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

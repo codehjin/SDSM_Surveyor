@@ -50,14 +50,15 @@ public static class WaterQualityReportExporter
     public static string? Export(WaterQualityEntryViewModel vm)
     {
         var m = vm.Meta;
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "" : m.Project! + "_";
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : m.Site + "_";
+        var project = FileToken(m.Project);
+        var chasu = FileToken(m.YearChsu);      // 세션 정보(대분류·연도차수·지점)를 파일명에 반영
+        var site = FileToken(m.Site);
 
         var dlg = new SaveFileDialog
         {
             Title = "수질 조사결과(보고서용) 엑셀 내보내기",
             Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{site}수질_조사결과.xlsx"
+            FileName = $"{project}{chasu}{site}수질_조사결과.xlsx"
         };
         if (dlg.ShowDialog() != true) return null;
 
@@ -105,6 +106,7 @@ public static class WaterQualityReportExporter
         Kv("중권역명", m.MiddleRegion);
         Kv("하천명", m.River);
         Kv("하천유형", m.RiverType);
+        Kv("사업장", m.Workplace);
         Kv("지점명", m.Site);
         Kv("위도", m.Lat);
         Kv("경도", m.Lng);
@@ -126,37 +128,37 @@ public static class WaterQualityReportExporter
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("수질 측정결과"); row += 2;
 
         int headerRow = row;
-        WriteHeader(ws, row, "지점명", "구분", "항목", "측정값", "등급");
+        WriteHeader(ws, row, SiteColumns.With("구분", "항목", "측정값", "등급"));
         row++;
 
-        var site = vm.Meta.Site ?? "";
         foreach (var (name, value, grade) in Graded(vm))
         {
-            Str(ws, row, 0, site);
-            ws.Cells[row, 1].SetValue("측정항목");
-            ws.Cells[row, 2].SetValue(name);
-            NumOrText(ws, row, 3, value);
-            ws.Cells[row, 4].SetValue(grade);
-            ws.Cells[row, 4].SetIsBold(true);
+            SiteColumns.Write(ws, row, vm.Meta);
+            ws.Cells[row, 4].SetValue("측정항목");
+            ws.Cells[row, 5].SetValue(name);
+            NumOrText(ws, row, 6, value);
+            ws.Cells[row, 7].SetValue(grade);
+            ws.Cells[row, 7].SetIsBold(true);
             row++;
         }
         foreach (var (name, value) in Extra(vm))
         {
-            Str(ws, row, 0, site);
-            ws.Cells[row, 1].SetValue("추가항목");
-            ws.Cells[row, 2].SetValue(name);
-            NumOrText(ws, row, 3, value);
-            ws.Cells[row, 4].SetValue("-");     // 등급 산정 대상 아님
+            SiteColumns.Write(ws, row, vm.Meta);
+            ws.Cells[row, 4].SetValue("추가항목");
+            ws.Cells[row, 5].SetValue(name);
+            NumOrText(ws, row, 6, value);
+            ws.Cells[row, 7].SetValue("-");     // 등급 산정 대상 아님
             row++;
         }
 
         int lastRow = row - 1;
-        Width(ws, 0, 110); Width(ws, 1, 90); Width(ws, 2, 190); Width(ws, 3, 100); Width(ws, 4, 70);
-        TryAutoFilter(ws, headerRow, lastRow, 4);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 90); Width(ws, 5, 190); Width(ws, 6, 100); Width(ws, 7, 70);
+        TryAutoFilter(ws, headerRow, lastRow, 7);
 
         row++;
         ws.Cells[row, 0].SetValue("※ 등급은 조사자가 입력하지 않고 측정값으로 자동 산정된다(관리자와 동일 기준).");
-        FontAll(ws, row, 4);
+        FontAll(ws, row, 7);
     }
 
     // ── 시트3 : 건강성평가(수질등급) — 1조사 = 1행 ──
@@ -172,7 +174,7 @@ public static class WaterQualityReportExporter
         var graded = Graded(vm);
         var extra = Extra(vm);
 
-        var headers = new List<string> { "지점명", "연도차수", "하천명", "조사일" };
+        var headers = new List<string>(SiteColumns.Headers) { "연도차수", "하천명", "조사일" };
         foreach (var (name, _, _) in graded) { headers.Add(name); headers.Add($"{name} 등급"); }
         foreach (var (name, _) in extra) headers.Add(name);
 
@@ -180,12 +182,12 @@ public static class WaterQualityReportExporter
         WriteHeader(ws, row, headers.ToArray());
         row++;
 
-        Str(ws, row, 0, m.Site);
-        Str(ws, row, 1, m.YearChsu);
-        Str(ws, row, 2, m.River);
-        Str(ws, row, 3, m.SurveyDate?.ToString("yyyy-MM-dd"));
+        SiteColumns.Write(ws, row, m);
+        Str(ws, row, 4, m.YearChsu);
+        Str(ws, row, 5, m.River);
+        Str(ws, row, 6, m.SurveyDate?.ToString("yyyy-MM-dd"));
 
-        int col = 4;
+        int col = 7;
         foreach (var (_, value, grade) in graded)
         {
             NumOrText(ws, row, col, value);
@@ -201,8 +203,9 @@ public static class WaterQualityReportExporter
 
         int lastCol = headers.Count - 1;
         int lastRow = row;
-        Width(ws, 0, 110); Width(ws, 1, 100); Width(ws, 2, 100); Width(ws, 3, 95);
-        for (int c = 4; c <= lastCol; c++) Width(ws, c, 110);
+        SiteColumns.Widths(ws);
+        Width(ws, 3, 110); Width(ws, 4, 100); Width(ws, 5, 100); Width(ws, 6, 95);
+        for (int c = 7; c <= lastCol; c++) Width(ws, c, 110);
         TryAutoFilter(ws, headerRow, lastRow, lastCol);
 
         row += 2;
