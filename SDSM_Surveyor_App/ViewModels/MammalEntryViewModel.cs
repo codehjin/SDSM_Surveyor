@@ -79,7 +79,6 @@ public partial class MammalEntryViewModel : SpeciesEntryViewModelBase<MammalEntr
     [ObservableProperty] private int _totalObservations;
 
 
-
     protected override void Recalculate()
     {
         var named = Entries.Where(x => !string.IsNullOrWhiteSpace(x.SpeciesKo)).ToList();
@@ -92,7 +91,6 @@ public partial class MammalEntryViewModel : SpeciesEntryViewModelBase<MammalEntr
     }
 
     [RelayCommand] private void AddRow() => Entries.Add(new MammalEntry());
-    [RelayCommand] private void RemoveRow(MammalEntry? row) { if (row is not null) Entries.Remove(row); }
 
     /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>
     [RelayCommand(CanExecute = nameof(CanExport))]

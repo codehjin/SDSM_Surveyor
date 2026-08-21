@@ -62,15 +62,17 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     [ObservableProperty] private string? _leCount;   // 피부손상 lesions
     [ObservableProperty] private string? _tuCount;   // 종양 tumors
 
-    private static int Pi(string? s) => int.TryParse(s, out var n) ? n : 0;
+    /// <summary>비정상종 개체수 파싱 — 미입력은 **0**으로 본다(합산 대상).
+    /// 기반 클래스의 <c>Pi</c> 는 미입력을 null 로 두므로 이름을 갈라 둔다.</summary>
+    private static int PiOrZero(string? s) => int.TryParse(s, out var n) ? n : 0;
 
     // 위 헤더 값 변경 시에도 FAI 재계산
-    partial void OnRiverChasuChanged(double? v) => Recalculate();
-    partial void OnSurveyUnavailableReasonChanged(string? v) => Recalculate();
-    partial void OnDeCountChanged(string? v) => Recalculate();
-    partial void OnEfCountChanged(string? v) => Recalculate();
-    partial void OnLeCountChanged(string? v) => Recalculate();
-    partial void OnTuCountChanged(string? v) => Recalculate();
+    partial void OnRiverChasuChanged(double? value) => Recalculate();
+    partial void OnSurveyUnavailableReasonChanged(string? value) => Recalculate();
+    partial void OnDeCountChanged(string? value) => Recalculate();
+    partial void OnEfCountChanged(string? value) => Recalculate();
+    partial void OnLeCountChanged(string? value) => Recalculate();
+    partial void OnTuCountChanged(string? value) => Recalculate();
 
     public string[] CollectionTools { get; } = { "투망/족대" };
 
@@ -172,7 +174,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
 
         // 0종 처리는 계산기가 판단한다(12_CALC_FIX §2)
         //  조사불가 → "-"  /  조사 수행 + 0종 선언 → 0·E  /  미입력 → "-"
-        int abnormal = Pi(DeCount) + Pi(EfCount) + Pi(LeCount) + Pi(TuCount);
+        int abnormal = PiOrZero(DeCount) + PiOrZero(EfCount) + PiOrZero(LeCount) + PiOrZero(TuCount);
         var (score, grade) = EcologyCalculator.CalculateFai(
             imports, SurveyUnavailableReason, abnormalCount: abnormal,
             chasu: (int)(RiverChasu ?? 0), noSpeciesDeclared: NoSpeciesDeclared);
@@ -183,14 +185,6 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         ExportBulkCommand.NotifyCanExecuteChanged();
     }
 
-    [RelayCommand]
-    private void AddRow() => SpeciesEntries.Add(new FishSpeciesEntry());
-
-    [RelayCommand]
-    private void RemoveRow(FishSpeciesEntry? row)
-    {
-        if (row is not null) SpeciesEntries.Remove(row);
-    }
 
     /// <summary>보고서·기록용 엑셀 내보내기(조사개황·출현종·FAI 건강성평가 3개 시트).</summary>
     [RelayCommand(CanExecute = nameof(CanExport))]

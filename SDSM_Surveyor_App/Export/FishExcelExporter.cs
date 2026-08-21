@@ -85,7 +85,7 @@ public static class FishExcelExporter
             SetSp(12, sp?.FamilyKo);
             ws.Cells[r, 13].SetValue(ko);                              // 국명 N
             SetSp(14, sp?.SpeciesEn);                                  // 학명 O
-            ws.Cells[r, RecordCol].SetValue((double)e.IndividualCount.Value); // 개체수 Q
+            ws.Cells[r, RecordCol].SetValue((double)(e.IndividualCount ?? 0)); // 개체수 Q (위 가드로 항상 >0)
             r++;
         }
 

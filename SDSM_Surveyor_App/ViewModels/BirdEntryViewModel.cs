@@ -74,7 +74,6 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
     [ObservableProperty] private int _totalIndividualCount;
 
 
-
     protected override void Recalculate()
     {
         TotalSpeciesCount = Entries.Where(x => !string.IsNullOrWhiteSpace(x.SpeciesKo))
@@ -86,7 +85,6 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
     }
 
     [RelayCommand] private void AddRow() => Entries.Add(new BirdEntry());
-    [RelayCommand] private void RemoveRow(BirdEntry? row) { if (row is not null) Entries.Remove(row); }
 
     /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>
     [RelayCommand(CanExecute = nameof(CanExport))]
