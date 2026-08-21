@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>BaselineGen</RootNamespace>
+    <AssemblyName>BaselineGen</AssemblyName>
+    <!-- 조사자 앱 솔루션에 딸려 빌드되지 않게 한다(도구일 뿐이다) -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 운영 코드를 그대로 호출해야 회귀 기준이 된다 -->
+    <ProjectReference Include="..\..\SDSM_Surveyor_App\SDSM_Surveyor_App.csproj" />
+  </ItemGroup>
+
+</Project>
