@@ -219,6 +219,27 @@ git tag before-refactor      # 두 저장소 모두
 ## 3. 경고·잔재 정리
 
 - **CS8826 경고 21건**: `On○○Changed(T v)` → 매개변수명을 **`value`** 로 통일(소스 생성기 규약). 동작 영향 없음.
+
+- **⚠ `.gitattributes` 신설 — 개행 문자 고정** (2026-08-21 발견, 두 저장소 모두)
+
+  현재 두 저장소에 `.gitattributes` 가 없고 `core.autocrlf` 도 설정돼 있지 않다.
+  그래서 어떤 도구가 파일을 다시 쓰느냐에 따라 LF ↔ CRLF 가 오간다.
+
+  실제로 `docs\_recalc_impact_20260820.md` 가 **내용은 한 글자도 안 바뀌었는데
+  `65 insertions(+), 65 deletions(-)` 로 전체 재작성처럼** 보이는 상태다(LF → CRLF).
+
+  이런 diff가 섞이면 **진짜 변경이 묻힌다.** 리팩토링처럼 "값이 안 바뀌었는가"가
+  유일한 판정 기준인 작업에서는 특히 위험하다.
+
+  ```gitattributes
+  * text=auto eol=lf
+  *.xlsx binary
+  *.sqlite binary
+  *.png binary
+  ```
+  - [ ] 두 저장소에 추가 후 `git add --renormalize .` 로 1회 정규화
+  - [ ] `_recalc_impact_20260820.md` 의 미커밋 CRLF 변경을 함께 정리
+  - ⚠ **기준 엑셀(`docs\_baseline\*.xlsx`)은 반드시 `binary`** 로 지정한다. 텍스트로 취급되면 손상된다.
 - 미사용 코드 제거: 사용되지 않는 `AddRow`/`RemoveRow` 커맨드, 남은 시드 데이터, 폐기된 필드
 - `SpeciesListProvider`의 `Fallback()` 최소 시드는 유지(파일 없을 때 앱이 죽지 않게 하는 안전장치)
 - 폴더 구조 정리: `Export\`, `Data\`, `Ecology\`, `Helpers\`, `Behaviors\`, `Models\`, `ViewModels\`, `Views\`

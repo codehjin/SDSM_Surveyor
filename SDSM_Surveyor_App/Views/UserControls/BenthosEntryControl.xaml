@@ -19,10 +19,7 @@
         </Grid.RowDefinitions>
 
         <!-- ① 조사개황·조사환경 : 지점당 1회 입력 후 접기 -->
-        <Border Grid.Row="0" Margin="2" Padding="14"
-                Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
-                BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
-                BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+        <Border Grid.Row="0" Margin="2" Padding="14" Style="{StaticResource CardBorderStyle}">
             <StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -209,10 +206,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- 빠른 추가 바 -->
-                <Border Grid.Row="0" Margin="0 0 0 8" Padding="10 8"
-                        Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
-                        BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
-                        BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+                <Border Grid.Row="0" Margin="0 0 0 8" Padding="10 8" Style="{StaticResource CardBorderStyle}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="종 빠른 추가" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0 0 12 0"/>
                         <telerik:RadComboBox x:Name="QuickSpeciesBox" Width="260"
@@ -298,10 +292,7 @@
             </Grid>
 
             <!-- ③ 실시간 지수 -->
-            <Border Grid.Column="1" Margin="8 0 0 0" Padding="14"
-                    Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
-                    BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
-                    BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+            <Border Grid.Column="1" Margin="8 0 0 0" Padding="14" Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
                     <TextBlock Text="실시간 지수" Style="{StaticResource SubHeaderTextStyle}"/>
 
@@ -376,10 +367,7 @@
         </Grid>
 
         <!-- 하단 상태바 + 액션 -->
-        <Border Grid.Row="2" Margin="2 8 2 2" Padding="8 6"
-                Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
-                BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
-                BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+        <Border Grid.Row="2" Margin="2 8 2 2" Padding="8 6" Style="{StaticResource CardBorderStyle}">
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">

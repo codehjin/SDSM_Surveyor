@@ -32,11 +32,7 @@
         </Grid.RowDefinitions>
 
         <!-- ① 조사개황 -->
-        <Border Grid.Row="0" Margin="2" Padding="14"
-                Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
-                BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+        <Border Grid.Row="0" Margin="2" Padding="14" Style="{StaticResource CardBorderStyle}">
             <StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -61,10 +57,7 @@
             <StackPanel>
 
                 <!-- 측정 항목 : 등급 8종은 자동 산정(입력 대상 아님) -->
-                <Border Padding="14" Margin="0 0 0 10"
-                        Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
-                        BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
-                        BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+                <Border Padding="14" Margin="0 0 0 10" Style="{StaticResource CardBorderStyle}">
                     <StackPanel>
                         <TextBlock Text="측정 항목" FontWeight="SemiBold" Margin="0 0 0 2"
                                    Foreground="{StaticResource AppAccentStrongBrush}"/>
@@ -122,10 +115,7 @@
                 </Border>
 
                 <!-- 추가 항목 : 등급 산정 대상이 아닌 확장 측정값 -->
-                <Border Padding="14"
-                        Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
-                        BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
-                        BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+                <Border Padding="14" Style="{StaticResource CardBorderStyle}">
                     <StackPanel>
                         <TextBlock Text="추가 항목" FontWeight="SemiBold" Margin="0 0 0 2"
                                    Foreground="{StaticResource AppAccentStrongBrush}"/>
@@ -196,10 +186,7 @@
         </ScrollViewer>
 
         <!-- 하단 상태바 + 액션 -->
-        <Border Grid.Row="2" Margin="2 8 2 2" Padding="8 6"
-                Background="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"
-                BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
-                BorderThickness="1" CornerRadius="{telerik:Windows11Resource ResourceKey=CornerRadius}">
+        <Border Grid.Row="2" Margin="2 8 2 2" Padding="8 6" Style="{StaticResource CardBorderStyle}">
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
