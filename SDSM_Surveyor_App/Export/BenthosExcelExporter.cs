@@ -17,23 +17,11 @@ public static class BenthosExcelExporter
     private const int RecordCol = 12;       // M열(0-based)
     private const int SpeciesFirstRow = 46; // 행47(0-based)
 
-    public static string? Export(BenthosEntryViewModel vm)
-    {
-        var m = vm.Meta;
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "방류하천" : m.Project!;
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : $"_{m.Site}";
-
-        var dlg = new SaveFileDialog
-        {
-            Title = "저서동물 일괄입력 엑셀 내보내기",
-            Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{site}_저서동물_DB_v1.xlsx"
-        };
-        if (dlg.ShowDialog() != true) return null;
-
-        Write(vm, dlg.FileName);
-        return dlg.FileName;
-    }
+    public static string? Export(BenthosEntryViewModel vm) =>
+        ReportExporterBase.SaveWithDialog(
+            "저서동물 일괄입력 엑셀 내보내기",
+            ReportExporterBase.BulkFileName(vm.Meta, "저서동물"),
+            path => Write(vm, path));
 
     /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
     public static void Write(BenthosEntryViewModel vm, string path)
@@ -96,8 +84,7 @@ public static class BenthosExcelExporter
             r++;
         }
 
-        using (var stream = new FileStream(path, FileMode.Create))
-            new XlsxFormatProvider().Export(wb, stream, null);
+        ReportExporterBase.Save(wb, path);
 
     }
 }

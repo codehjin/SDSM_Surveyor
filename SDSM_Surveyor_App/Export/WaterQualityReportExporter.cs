@@ -47,24 +47,11 @@ public static class WaterQualityReportExporter
         ("일당유량 (m³/day)",    vm.FlowDay),
     };
 
-    public static string? Export(WaterQualityEntryViewModel vm)
-    {
-        var m = vm.Meta;
-        var project = FileToken(m.Project);
-        var chasu = FileToken(m.YearChsu);      // 세션 정보(대분류·연도차수·지점)를 파일명에 반영
-        var site = FileToken(m.Site);
-
-        var dlg = new SaveFileDialog
-        {
-            Title = "수질 조사결과(보고서용) 엑셀 내보내기",
-            Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{chasu}{site}수질_조사결과.xlsx"
-        };
-        if (dlg.ShowDialog() != true) return null;
-
-        Write(vm, dlg.FileName);
-        return dlg.FileName;
-    }
+    public static string? Export(WaterQualityEntryViewModel vm) =>
+        ReportExporterBase.SaveWithDialog(
+            "수질 조사결과(보고서용) 엑셀 내보내기",
+            ReportExporterBase.ReportFileName(vm.Meta, "수질"),
+            path => Write(vm, path));
 
     /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
     public static void Write(WaterQualityEntryViewModel vm, string path)
@@ -74,48 +61,19 @@ public static class WaterQualityReportExporter
         WriteMeasurements(wb, vm);
         WriteAssessment(wb, vm);
 
-        using (var stream = new FileStream(path, FileMode.Create))
-            new XlsxFormatProvider().Export(wb, stream, null);
+        ReportExporterBase.Save(wb, path);
 
     }
 
     // ── 시트1 : 조사개황 ──
     private static void WriteOverview(Workbook wb, WaterQualityEntryViewModel vm)
     {
-        var ws = wb.Worksheets.Add();
-        ws.Name = "조사개황";
         var m = vm.Meta;
-        int row = 0;
+        var s = ReportExporterBase.BeginOverview(wb, "수질 조사결과 — 조사개황");
+        s.Head("[ 조사개황 ]");
+        s.WriteSurveyMeta(m);
 
-        void Kv(string key, string? val)
-        {
-            KeyCell(ws.Cells[row, 0]);
-            ws.Cells[row, 0].SetValue(key);
-            Str(ws, row, 1, val);
-            row++;
-        }
-        void Head(string t) { Section(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue(t); row += 2; }
-
-        Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("수질 조사결과 — 조사개황"); row += 2;
-        Head("[ 조사개황 ]");
-        Kv("대분류", m.Project);
-        Kv("연도", m.SurveyYear);
-        Kv("연도차수", m.YearChsu);
-        Kv("조사일자", m.SurveyDate?.ToString("yyyy-MM-dd"));
-        Kv("대권역명", m.MajorRegion);
-        Kv("중권역명", m.MiddleRegion);
-        Kv("하천명", m.River);
-        Kv("하천유형", m.RiverType);
-        Kv("사업장", m.Workplace);
-        Kv("지점명", m.Site);
-        Kv("위도", m.Lat);
-        Kv("경도", m.Lng);
-        Kv("날씨", m.Weather);
-        Kv("조사기관", m.SurveyAgency);
-        Kv("조사자", m.Surveyor);
-
-        Width(ws, 0, 200); Width(ws, 1, 240);
-        FontAll(ws, row, 1);
+        s.Finish();
     }
 
     // ── 시트2 : 측정결과 (항목 | 측정값 | 등급) ──

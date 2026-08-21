@@ -17,23 +17,11 @@ public static class MammalExcelExporter
     private const int FirstRow = 4;      // 0-based
     private const int TraceFirstCol = 19; // Trace1
 
-    public static string? Export(MammalEntryViewModel vm)
-    {
-        var m = vm.Meta;
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "방류하천" : m.Project!;
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : $"_{m.Site}";
-
-        var dlg = new SaveFileDialog
-        {
-            Title = "포유류 일괄입력 엑셀 내보내기",
-            Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{site}_포유류_DB_v1.xlsx"
-        };
-        if (dlg.ShowDialog() != true) return null;
-
-        Write(vm, dlg.FileName);
-        return dlg.FileName;
-    }
+    public static string? Export(MammalEntryViewModel vm) =>
+        ReportExporterBase.SaveWithDialog(
+            "포유류 일괄입력 엑셀 내보내기",
+            ReportExporterBase.BulkFileName(vm.Meta, "포유류"),
+            path => Write(vm, path));
 
     /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
     public static void Write(MammalEntryViewModel vm, string path)
@@ -85,8 +73,7 @@ public static class MammalExcelExporter
             r++;
         }
 
-        using (var stream = new FileStream(path, FileMode.Create))
-            new XlsxFormatProvider().Export(wb, stream, null);
+        ReportExporterBase.Save(wb, path);
 
     }
 }

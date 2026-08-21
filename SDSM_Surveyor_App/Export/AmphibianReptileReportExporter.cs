@@ -23,24 +23,11 @@ public static class AmphibianReptileReportExporter
         e.Trace1, e.Trace2, e.Trace3, e.Trace4, e.Trace5, e.Trace6
     };
 
-    public static string? Export(AmphibianReptileEntryViewModel vm)
-    {
-        var m = vm.Meta;
-        var project = FileToken(m.Project);
-        var chasu = FileToken(m.YearChsu);      // 세션 정보(대분류·연도차수·지점)를 파일명에 반영
-        var site = FileToken(m.Site);
-
-        var dlg = new SaveFileDialog
-        {
-            Title = "양서파충류 조사결과(보고서용) 엑셀 내보내기",
-            Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{chasu}{site}양서파충류_조사결과.xlsx"
-        };
-        if (dlg.ShowDialog() != true) return null;
-
-        Write(vm, dlg.FileName);
-        return dlg.FileName;
-    }
+    public static string? Export(AmphibianReptileEntryViewModel vm) =>
+        ReportExporterBase.SaveWithDialog(
+            "양서파충류 조사결과(보고서용) 엑셀 내보내기",
+            ReportExporterBase.ReportFileName(vm.Meta, "양서파충류"),
+            path => Write(vm, path));
 
     /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
     public static void Write(AmphibianReptileEntryViewModel vm, string path)
@@ -51,8 +38,7 @@ public static class AmphibianReptileReportExporter
         WriteSpecies(wb, vm);
         WriteSummary(wb, vm);
 
-        using (var stream = new FileStream(path, FileMode.Create))
-            new XlsxFormatProvider().Export(wb, stream, null);
+        ReportExporterBase.Save(wb, path);
 
     }
 

@@ -18,23 +18,11 @@ public static class FishExcelExporter
     private const int SpeciesFirstRow = 78; // 행79(0-based 78)부터 종 목록
 
     /// <summary>저장 대화상자 → 내보내기. 저장 경로 반환(취소 시 null).</summary>
-    public static string? Export(FishEntryViewModel vm)
-    {
-        var m = vm.Meta;
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "방류하천" : m.Project!;   // 파일명 키워드(관리자 import 필수)
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : $"_{m.Site}";
-
-        var dlg = new SaveFileDialog
-        {
-            Title = "어류 일괄입력 엑셀 내보내기",
-            Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{site}_어류_DB_v1.xlsx"
-        };
-        if (dlg.ShowDialog() != true) return null;
-
-        Write(vm, dlg.FileName);
-        return dlg.FileName;
-    }
+    public static string? Export(FishEntryViewModel vm) =>
+        ReportExporterBase.SaveWithDialog(
+            "어류 일괄입력 엑셀 내보내기",
+            ReportExporterBase.BulkFileName(vm.Meta, "어류"),
+            path => Write(vm, path));
 
     /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
     public static void Write(FishEntryViewModel vm, string path)
@@ -101,8 +89,7 @@ public static class FishExcelExporter
             r++;
         }
 
-        using (var stream = new FileStream(path, FileMode.Create))
-            new XlsxFormatProvider().Export(wb, stream, null);   // (Workbook, Stream, TimeSpan?) — 이 버전 시그니처
+        ReportExporterBase.Save(wb, path);
 
     }
 }

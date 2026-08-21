@@ -16,24 +16,11 @@ namespace SDSM_Surveyor_App.Export;
 /// </summary>
 public static class BenthosReportExporter
 {
-    public static string? Export(BenthosEntryViewModel vm)
-    {
-        var m = vm.Meta;
-        var project = FileToken(m.Project);
-        var chasu = FileToken(m.YearChsu);      // 세션 정보(대분류·연도차수·지점)를 파일명에 반영
-        var site = FileToken(m.Site);
-
-        var dlg = new SaveFileDialog
-        {
-            Title = "저서동물 조사결과(보고서용) 엑셀 내보내기",
-            Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{chasu}{site}저서동물_조사결과.xlsx"
-        };
-        if (dlg.ShowDialog() != true) return null;
-
-        Write(vm, dlg.FileName);
-        return dlg.FileName;
-    }
+    public static string? Export(BenthosEntryViewModel vm) =>
+        ReportExporterBase.SaveWithDialog(
+            "저서동물 조사결과(보고서용) 엑셀 내보내기",
+            ReportExporterBase.ReportFileName(vm.Meta, "저서동물"),
+            path => Write(vm, path));
 
     /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
     public static void Write(BenthosEntryViewModel vm, string path)
@@ -43,88 +30,59 @@ public static class BenthosReportExporter
         WriteSpecies(wb, vm);
         WriteAssessment(wb, vm);
 
-        using (var stream = new FileStream(path, FileMode.Create))
-            new XlsxFormatProvider().Export(wb, stream, null);
+        ReportExporterBase.Save(wb, path);
 
     }
 
     // ── 시트1 : 조사개황 ──
     private static void WriteOverview(Workbook wb, BenthosEntryViewModel vm)
     {
-        var ws = wb.Worksheets.Add();
-        ws.Name = "조사개황";
         var m = vm.Meta;
-        int row = 0;
+        var s = ReportExporterBase.BeginOverview(wb, "저서동물 조사결과 — 조사개황");
+        s.Head("[ 조사개황 ]");
+        s.WriteSurveyMeta(m);
+        s.Blank();
+        s.Head("[ 채집방법 ]");
+        s.Kv("Surber net 30×30", vm.Surbernet30);
+        s.Kv("Surber net 50×50", vm.Surbernet50);
+        s.Kv("드렛지", vm.Dredge);
+        s.Kv("에크만", vm.Ekman);
+        s.Blank();
+        s.Head("[ 서식처(하천 이용·식생) ]");
+        s.Kv("유역이용", vm.Watershed);
+        s.Kv("확인가능 오염원", vm.PollutionSource);
+        s.Kv("식생 수피도", vm.CanopyCover);
+        s.Kv("범람원의 이용", vm.Floodplain);
+        s.Kv("제방(좌안)", vm.LeveeLeft);
+        s.Kv("제방(우안)", vm.LeveeRight);
+        s.Blank();
+        s.Head("[ 서식지 하상구성(%) ]");
+        s.Kv("암반", vm.Bedrock);
+        s.Kv("콘크리트", vm.Concrete);
+        s.Kv("진흙이하(<0.063mm)", vm.Mud);
+        s.Kv("모래(0.063-2mm)", vm.Sand);
+        s.Kv("잔자갈(2-16mm)", vm.FineGravel);
+        s.Kv("자갈(16-64mm)", vm.Gravel);
+        s.Kv("작은돌(64-256mm)", vm.SmallStone);
+        s.Kv("큰돌(>256mm)", vm.BigStone);
+        s.Blank();
+        s.Head("[ 서식처(수리·환경) ]");
+        s.Kv("하천형태", vm.HabitatRiverType);
+        s.Kv("하폭(m)", vm.RiverWidth);
+        s.Kv("수폭(m)", vm.WaterWidth);
+        s.Kv("평균수심(cm)", vm.AverageDepth);
+        s.Kv("평균유속(cm/s)", vm.AverageVelocity);
+        s.Kv("기온(℃)", vm.AirTemperature);
+        s.Kv("수온(℃)", vm.WaterTemperature);
+        s.Kv("흐름상태", vm.FlowState);
+        s.Kv("투명도", vm.Transparency);
+        s.Kv("냄새", vm.Smell);
+        s.Blank();
+        s.Head("[ 특이사항 ]");
+        s.Kv("채집불가시", vm.SurveyUnavailableReason);
+        s.Kv("비고", vm.Note);
 
-        void Kv(string key, string? val)
-        {
-            KeyCell(ws.Cells[row, 0]);
-            ws.Cells[row, 0].SetValue(key);
-            Str(ws, row, 1, val);
-            row++;
-        }
-        void Head(string t) { Section(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue(t); row += 2; }
-
-        Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("저서동물 조사결과 — 조사개황"); row += 2;
-        Head("[ 조사개황 ]");
-        Kv("대분류", m.Project);
-        Kv("연도", m.SurveyYear);
-        Kv("연도차수", m.YearChsu);
-        Kv("조사일자", m.SurveyDate?.ToString("yyyy-MM-dd"));
-        Kv("대권역명", m.MajorRegion);
-        Kv("중권역명", m.MiddleRegion);
-        Kv("하천명", m.River);
-        Kv("하천유형", m.RiverType);
-        Kv("사업장", m.Workplace);
-        Kv("지점명", m.Site);
-        Kv("위도", m.Lat);
-        Kv("경도", m.Lng);
-        Kv("날씨", m.Weather);
-        Kv("조사기관", m.SurveyAgency);
-        Kv("조사자", m.Surveyor);
-        row++;
-        Head("[ 채집방법 ]");
-        Kv("Surber net 30×30", vm.Surbernet30);
-        Kv("Surber net 50×50", vm.Surbernet50);
-        Kv("드렛지", vm.Dredge);
-        Kv("에크만", vm.Ekman);
-        row++;
-        Head("[ 서식처(하천 이용·식생) ]");
-        Kv("유역이용", vm.Watershed);
-        Kv("확인가능 오염원", vm.PollutionSource);
-        Kv("식생 수피도", vm.CanopyCover);
-        Kv("범람원의 이용", vm.Floodplain);
-        Kv("제방(좌안)", vm.LeveeLeft);
-        Kv("제방(우안)", vm.LeveeRight);
-        row++;
-        Head("[ 서식지 하상구성(%) ]");
-        Kv("암반", vm.Bedrock);
-        Kv("콘크리트", vm.Concrete);
-        Kv("진흙이하(<0.063mm)", vm.Mud);
-        Kv("모래(0.063-2mm)", vm.Sand);
-        Kv("잔자갈(2-16mm)", vm.FineGravel);
-        Kv("자갈(16-64mm)", vm.Gravel);
-        Kv("작은돌(64-256mm)", vm.SmallStone);
-        Kv("큰돌(>256mm)", vm.BigStone);
-        row++;
-        Head("[ 서식처(수리·환경) ]");
-        Kv("하천형태", vm.HabitatRiverType);
-        Kv("하폭(m)", vm.RiverWidth);
-        Kv("수폭(m)", vm.WaterWidth);
-        Kv("평균수심(cm)", vm.AverageDepth);
-        Kv("평균유속(cm/s)", vm.AverageVelocity);
-        Kv("기온(℃)", vm.AirTemperature);
-        Kv("수온(℃)", vm.WaterTemperature);
-        Kv("흐름상태", vm.FlowState);
-        Kv("투명도", vm.Transparency);
-        Kv("냄새", vm.Smell);
-        row++;
-        Head("[ 특이사항 ]");
-        Kv("채집불가시", vm.SurveyUnavailableReason);
-        Kv("비고", vm.Note);
-
-        Width(ws, 0, 200); Width(ws, 1, 240);
-        FontAll(ws, row, 1);
+        s.Finish();
     }
 
     // ── 시트2 : 출현종 (지점명 포함 · 필터 테이블) ──

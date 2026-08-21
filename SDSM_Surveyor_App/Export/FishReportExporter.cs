@@ -17,24 +17,11 @@ namespace SDSM_Surveyor_App.Export;
 /// </summary>
 public static class FishReportExporter
 {
-    public static string? Export(FishEntryViewModel vm)
-    {
-        var m = vm.Meta;
-        var project = FileToken(m.Project);
-        var chasu = FileToken(m.YearChsu);      // 세션 정보(대분류·연도차수·지점)를 파일명에 반영
-        var site = FileToken(m.Site);
-
-        var dlg = new SaveFileDialog
-        {
-            Title = "어류 조사결과(보고서용) 엑셀 내보내기",
-            Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{chasu}{site}어류_조사결과.xlsx"
-        };
-        if (dlg.ShowDialog() != true) return null;
-
-        Write(vm, dlg.FileName);
-        return dlg.FileName;
-    }
+    public static string? Export(FishEntryViewModel vm) =>
+        ReportExporterBase.SaveWithDialog(
+            "어류 조사결과(보고서용) 엑셀 내보내기",
+            ReportExporterBase.ReportFileName(vm.Meta, "어류"),
+            path => Write(vm, path));
 
     /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
     public static void Write(FishEntryViewModel vm, string path)
@@ -44,76 +31,47 @@ public static class FishReportExporter
         WriteSpecies(wb, vm);
         WriteAssessment(wb, vm);
 
-        using (var stream = new FileStream(path, FileMode.Create))
-            new XlsxFormatProvider().Export(wb, stream, null);
+        ReportExporterBase.Save(wb, path);
 
     }
 
     // ── 시트1 : 조사개황 (항목 | 값) ──
     private static void WriteOverview(Workbook wb, FishEntryViewModel vm)
     {
-        var ws = wb.Worksheets.Add();
-        ws.Name = "조사개황";
         var m = vm.Meta;
-        int row = 0;
+        var s = ReportExporterBase.BeginOverview(wb, "어류 조사결과 — 조사개황");
+        s.Head("[ 조사개황 ]");
+        s.WriteSurveyMeta(m);
+        s.Blank();
+        s.Head("[ 채집방법 ]");
+        s.Kv("채집소요시간(분)", vm.CollectionTime);
+        s.Kv("채집도구", vm.CollectionTool);
+        s.Kv("흐름상태", vm.CollectionFlowState);
+        s.Kv("하천차수", vm.RiverChasu?.ToString());
+        s.Blank();
+        s.Head("[ 서식지 하상구성(%) ]");
+        s.Kv("암반", vm.Bedrock);
+        s.Kv("콘크리트", vm.Concrete);
+        s.Kv("진흙이하(<0.063mm)", vm.Mud);
+        s.Kv("모래(0.063-2mm)", vm.Sand);
+        s.Kv("잔자갈(2-16mm)", vm.FineGravel);
+        s.Kv("자갈(16-64mm)", vm.Gravel);
+        s.Kv("작은돌(64-256mm)", vm.SmallStone);
+        s.Kv("큰돌(>256mm)", vm.BigStone);
+        s.Blank();
+        s.Head("[ 서식처·특이사항 ]");
+        s.Kv("하천형태", vm.HabitatRiverType);
+        s.Kv("흐름상태(서식처)", vm.HabitatFlowState);
+        s.Kv("특이사항(조사불가 등)", vm.SurveyUnavailableReason);
+        s.Kv("비고", vm.Note);
+        s.Blank();
+        s.Head("[ 비정상종 개체수 ]");
+        s.Kv("기형(DE)", vm.DeCount);
+        s.Kv("지느러미손상(EF)", vm.EfCount);
+        s.Kv("피부손상(LE)", vm.LeCount);
+        s.Kv("종양(TU)", vm.TuCount);
 
-        void Kv(string key, string? val)
-        {
-            KeyCell(ws.Cells[row, 0]);
-            ws.Cells[row, 0].SetValue(key);
-            if (!string.IsNullOrWhiteSpace(val)) ws.Cells[row, 1].SetValue(val);
-            row++;
-        }
-        void Head(string t) { Section(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue(t); row += 2; }
-
-        Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("어류 조사결과 — 조사개황"); row += 2;
-        Head("[ 조사개황 ]");
-        Kv("대분류", m.Project);
-        Kv("연도", m.SurveyYear);
-        Kv("연도차수", m.YearChsu);
-        Kv("조사일자", m.SurveyDate?.ToString("yyyy-MM-dd"));
-        Kv("대권역명", m.MajorRegion);
-        Kv("중권역명", m.MiddleRegion);
-        Kv("하천명", m.River);
-        Kv("하천유형", m.RiverType);
-        Kv("사업장", m.Workplace);
-        Kv("지점명", m.Site);
-        Kv("위도", m.Lat);
-        Kv("경도", m.Lng);
-        Kv("날씨", m.Weather);
-        Kv("조사기관", m.SurveyAgency);
-        Kv("조사자", m.Surveyor);
-        row++;
-        Head("[ 채집방법 ]");
-        Kv("채집소요시간(분)", vm.CollectionTime);
-        Kv("채집도구", vm.CollectionTool);
-        Kv("흐름상태", vm.CollectionFlowState);
-        Kv("하천차수", vm.RiverChasu?.ToString());
-        row++;
-        Head("[ 서식지 하상구성(%) ]");
-        Kv("암반", vm.Bedrock);
-        Kv("콘크리트", vm.Concrete);
-        Kv("진흙이하(<0.063mm)", vm.Mud);
-        Kv("모래(0.063-2mm)", vm.Sand);
-        Kv("잔자갈(2-16mm)", vm.FineGravel);
-        Kv("자갈(16-64mm)", vm.Gravel);
-        Kv("작은돌(64-256mm)", vm.SmallStone);
-        Kv("큰돌(>256mm)", vm.BigStone);
-        row++;
-        Head("[ 서식처·특이사항 ]");
-        Kv("하천형태", vm.HabitatRiverType);
-        Kv("흐름상태(서식처)", vm.HabitatFlowState);
-        Kv("특이사항(조사불가 등)", vm.SurveyUnavailableReason);
-        Kv("비고", vm.Note);
-        row++;
-        Head("[ 비정상종 개체수 ]");
-        Kv("기형(DE)", vm.DeCount);
-        Kv("지느러미손상(EF)", vm.EfCount);
-        Kv("피부손상(LE)", vm.LeCount);
-        Kv("종양(TU)", vm.TuCount);
-
-        Width(ws, 0, 200); Width(ws, 1, 240);
-        FontAll(ws, row, 1);
+        s.Finish();
     }
 
     // ── 시트2 : 출현종 (지점명 포함 · 필터 테이블) ──

@@ -23,23 +23,11 @@ public static class WaterQualityExcelExporter
     private const int UnitCol = 4;      // E열 — 검색 대상이 아니므로 단위는 여기에
     private const int ExtraFirstRow = 22;
 
-    public static string? Export(WaterQualityEntryViewModel vm)
-    {
-        var m = vm.Meta;
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "방류하천" : m.Project!;
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : $"_{m.Site}";
-
-        var dlg = new SaveFileDialog
-        {
-            Title = "수질 일괄입력 엑셀 내보내기",
-            Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{site}_수질_DB_v1.xlsx"
-        };
-        if (dlg.ShowDialog() != true) return null;
-
-        Write(vm, dlg.FileName);
-        return dlg.FileName;
-    }
+    public static string? Export(WaterQualityEntryViewModel vm) =>
+        ReportExporterBase.SaveWithDialog(
+            "수질 일괄입력 엑셀 내보내기",
+            ReportExporterBase.BulkFileName(vm.Meta, "수질"),
+            path => Write(vm, path));
 
     /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
     public static void Write(WaterQualityEntryViewModel vm, string path)
@@ -106,8 +94,7 @@ public static class WaterQualityExcelExporter
             r++;
         }
 
-        using (var stream = new FileStream(path, FileMode.Create))
-            new XlsxFormatProvider().Export(wb, stream, null);
+        ReportExporterBase.Save(wb, path);
 
     }
 }

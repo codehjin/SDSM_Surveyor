@@ -18,23 +18,11 @@ public static class HabitatWaterEdgeExcelExporter
     private const int LabelCol = 2;     // C열 — 사람이 읽기 위한 라벨(관리자는 행 번호로 읽는다)
     private const int ItemFirstRow = 16; // 평가항목1 = 행16
 
-    public static string? Export(HabitatWaterEdgeEntryViewModel vm)
-    {
-        var m = vm.Meta;
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "방류하천" : m.Project!;
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : $"_{m.Site}";
-
-        var dlg = new SaveFileDialog
-        {
-            Title = "서식·수변환경 일괄입력 엑셀 내보내기",
-            Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = $"{project}{site}_서식수변_DB_v1.xlsx"
-        };
-        if (dlg.ShowDialog() != true) return null;
-
-        Write(vm, dlg.FileName);
-        return dlg.FileName;
-    }
+    public static string? Export(HabitatWaterEdgeEntryViewModel vm) =>
+        ReportExporterBase.SaveWithDialog(
+            "서식·수변환경 일괄입력 엑셀 내보내기",
+            ReportExporterBase.BulkFileName(vm.Meta, "서식수변"),
+            path => Write(vm, path));
 
     /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
     public static void Write(HabitatWaterEdgeEntryViewModel vm, string path)
@@ -74,8 +62,7 @@ public static class HabitatWaterEdgeExcelExporter
             if (i < items.Length && items[i] is double v) ws.Cells[row, RecordCol].SetValue(v);
         }
 
-        using (var stream = new FileStream(path, FileMode.Create))
-            new XlsxFormatProvider().Export(wb, stream, null);
+        ReportExporterBase.Save(wb, path);
 
     }
 }
