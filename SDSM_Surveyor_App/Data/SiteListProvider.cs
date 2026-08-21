@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using SDSM_Models;
@@ -24,15 +24,22 @@ public sealed class SiteListProvider : ISiteListProvider, ISingletonService
 
     public IReadOnlyList<SurveySite> All => _cat.Sites;
 
+    /// <summary>
+    /// 대분류로 거른 지점. **대분류가 비면 빈 목록**이다.
+    /// 방류하천과 생태현황에 같은 이름의 지점이 따로 있고 서로 다른 장소이므로
+    /// 섞어서 보여주면 조사자가 다른 지점을 고를 수 있다(_ecostatus_sites_extracted §8-2).
+    /// </summary>
     public List<SurveySite> ByProject(string? project) =>
         string.IsNullOrWhiteSpace(project)
-            ? _cat.Sites.ToList()
+            ? new List<SurveySite>()
             : _cat.Sites.Where(s => s.Project == project).ToList();
 
     /// <summary>
     /// 조사자가 친 값을 지점으로 해석한다. 우선순위:
     /// ① 지점명 정확일치 → ② 조사장소 번호(ST1·St.1·st 1) → ③ 연도별 표기·지도번호.
     /// 종명과 달리 지점명은 코드성 값이라 공백 제거·대문자 비교를 쓴다(CLAUDE.md §7.3).
+    /// ⚠ **항상 해당 대분류 안에서만 찾는다.** 대분류가 없으면 해석하지 않는다(§8-2 Project 격리).
+    /// 다른 대분류로 넘어가 찾으면 이름이 같고 장소가 다른 지점이 조용히 걸린다.
     /// </summary>
     public SurveySite? Resolve(string? input, string? project = null)
     {
@@ -40,7 +47,7 @@ public sealed class SiteListProvider : ISiteListProvider, ISingletonService
         if (string.IsNullOrEmpty(q)) return null;
 
         var pool = ByProject(project);
-        if (pool.Count == 0) pool = _cat.Sites.ToList();
+        if (pool.Count == 0) return null;
 
         static string Key(string? s) => (s ?? string.Empty).Replace(" ", "").ToUpperInvariant();
         var key = Key(q);

@@ -46,8 +46,11 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
 
     // ── 조사지점 : 등록된 지점만 고르게 한다(04_FEATURE_SITE_SESSION §A-2) ──────
 
-    /// <summary>대분류로 거른 지점 목록(드롭다운 항목).</summary>
-    [ObservableProperty] private List<SurveySite> _siteOptions = new();
+    /// <summary>대분류로 거른 지점 목록(드롭다운 항목). 대분류가 비면 빈 목록이다(§8-2).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSiteSelectable))]
+    [NotifyPropertyChangedFor(nameof(SiteHint))]
+    private List<SurveySite> _siteOptions = new();
 
     /// <summary>선택된 지점. 고르면 하천·사업장·좌표가 자동으로 채워진다.</summary>
     [ObservableProperty] private SurveySite? _selectedSite;
@@ -66,13 +69,35 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     {
         if (_sites is null) return;
         SiteOptions = _sites.ByProject(Project);
-
-        // 대분류가 바뀌어 현재 지점이 목록에서 빠지면 선택을 비운다(잘못된 조합 방지)
-        if (SelectedSite is not null && !SiteOptions.Contains(SelectedSite))
-            SelectedSite = null;
+        OnPropertyChanged(nameof(IsSiteSelectable));
+        OnPropertyChanged(nameof(SiteHint));
     }
 
-    partial void OnProjectChanged(string? value) => RefreshSiteOptions();
+    /// <summary>
+    /// 대분류가 바뀌면 **선택된 지점을 즉시 해제**한다.
+    /// 방류하천과 생태현황에 같은 이름의 다른 지점이 있어, 이전 선택이 남으면
+    /// 다른 대분류의 지점으로 자료가 조용히 섞인다(_ecostatus_sites_extracted §8-2).
+    /// </summary>
+    partial void OnProjectChanged(string? value)
+    {
+        SelectedSite = null;
+        Site = null;
+        River = null;
+        Workplace = null;
+        Lat = null;
+        Lng = null;
+
+        RefreshSiteOptions();
+    }
+
+    /// <summary>대분류를 고르기 전에는 지점 드롭다운을 쓸 수 없다(§8-2).</summary>
+    public bool IsSiteSelectable => !string.IsNullOrWhiteSpace(Project) && SiteOptions.Count > 0;
+
+    /// <summary>지점 드롭다운 아래 안내 문구.</summary>
+    public string SiteHint =>
+        string.IsNullOrWhiteSpace(Project) ? "대분류를 먼저 고르세요."
+        : SiteOptions.Count == 0 ? $"'{Project}' 에 등록된 지점이 없습니다. 관리자에게 지점 등록을 요청하세요."
+        : SiteDesc;
 
     partial void OnSelectedSiteChanged(SurveySite? value)
     {
@@ -124,9 +149,7 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     partial void OnSiteChanged(string? value)
     {
         OnPropertyChanged(nameof(SiteDisplay));
-        OnPropertyChanged(nameof(IsSiteRegistered));
-        OnPropertyChanged(nameof(IsSiteUnregistered));
-        OnPropertyChanged(nameof(SiteDesc));
+        RaiseSiteFlags();
     }
 
     private void RaiseSiteFlags()
@@ -134,6 +157,7 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
         OnPropertyChanged(nameof(IsSiteRegistered));
         OnPropertyChanged(nameof(IsSiteUnregistered));
         OnPropertyChanged(nameof(SiteDesc));
+        OnPropertyChanged(nameof(SiteHint));
     }
 
     /// <summary>좌표가 있어 지도를 열 수 있는지.</summary>

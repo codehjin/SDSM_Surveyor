@@ -53,16 +53,19 @@
             </StackPanel>
             <StackPanel Width="230" Margin="0 0 12 10">
                 <TextBlock Text="지점명" Style="{StaticResource FormLabelStyle}"/>
-                <!-- 등록된 지점만 선택. ST번호(ST1·St.1·st 1)를 쳐도 DB상 지점명으로 정규화한다. -->
+                <!-- 등록된 지점만 선택. ST번호(ST1·St.1·st 1)를 쳐도 DB상 지점명으로 정규화한다.
+                     ⚠ 대분류를 고르기 전에는 잠긴다 — 방류하천과 생태현황에 같은 이름의 다른 지점이 있어
+                        섞어 보여주면 자료가 조용히 섞인다(_ecostatus_sites_extracted §8-2). -->
                 <telerik:RadComboBox x:Name="SiteCombo" AutomationProperties.AutomationId="SiteCombo"
                                      ItemsSource="{Binding SiteOptions}"
                                      SelectedItem="{Binding SelectedSite, Mode=TwoWay}"
                                      DisplayMemberPath="Display"
+                                     IsEnabled="{Binding IsSiteSelectable}"
                                      IsEditable="True" IsFilteringEnabled="True"
                                      EmptyText="지점 선택 또는 ST번호 입력"
                                      LostFocus="SiteCombo_LostFocus"
                                      KeyDown="SiteCombo_KeyDown"/>
-                <TextBlock Text="{Binding SiteDesc}" FontSize="11" Margin="2 2 0 0" TextTrimming="CharacterEllipsis"
+                <TextBlock Text="{Binding SiteHint}" FontSize="11" Margin="2 2 0 0" TextTrimming="CharacterEllipsis"
                            Foreground="{StaticResource ShellForegroundBrush}"/>
                 <TextBlock Text="미등록 지점입니다 — 목록에서 선택하세요" FontSize="11" Margin="2 2 0 0"
                            Foreground="{StaticResource MaxBrush}"
