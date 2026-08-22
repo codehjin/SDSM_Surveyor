@@ -1,4 +1,4 @@
-using SDSM_Models;
+﻿using SDSM_Models;
 using SDSM_Surveyor_App.Models;
 using SDSM_Surveyor_App.ViewModels;
 
@@ -255,6 +255,31 @@ internal static class Fixtures
         vm.B9L = Pick(vm.Opt9, 3);  vm.B9R = Pick(vm.Opt9, 1);
         vm.B10L = Pick(vm.Opt10, 5); vm.B10R = Pick(vm.Opt10, 3);
         vm.Note = "기준 픽스처";
+    }
+
+    /// <summary>
+    /// 평가항목 **10개를 전부 0점**으로 고른 케이스 — 콘크리트로 직강화된 도시하천이 실제로 이렇게 나온다.
+    ///
+    /// 기대값: 합계 <b>0</b> · 평가점수 <b>0</b> · 등급 <b>E</b>.
+    /// 종전 판정 기준(<c>total != 0</c>)이면 미입력으로 뭉개져 점수·등급이 `-` 로 빠졌다
+    /// (docs\_excel_formula_audit.md §5-2). 이 케이스가 없으면 그 기준이 되살아나도 아무도 모른다 —
+    /// 어류 M8 케이스를 남겨 둔 것과 같은 이유다.
+    ///
+    /// ⚠ <b>전부 미선택</b>(15개가 전부 null)과는 다르다. 그쪽은 지금도 `-` 가 맞다.
+    /// </summary>
+    public static void FillHabitatAllZero(HabitatWaterEdgeEntryViewModel vm)
+    {
+        vm.S1 = Pick(vm.Opt1, 0);                                 // 없음
+        vm.B2L = Pick(vm.Opt2, 0); vm.B2R = Pick(vm.Opt2, 0);     // 인공 직강화
+        vm.S3 = Pick(vm.Opt3, 0);                                 // 건천화
+        vm.S4 = Pick(vm.Opt4, 0);                                 // ≤ 0.5
+        vm.B5L = Pick(vm.Opt5, 0); vm.B5R = Pick(vm.Opt5, 0);     // 콘크리트(불투수)
+        vm.B6L = Pick(vm.Opt6, 0); vm.B6R = Pick(vm.Opt6, 0);     // 하안블록/콘크리트
+        vm.S7 = Pick(vm.Opt7, 0);                                 // 콘크리트
+        vm.S8 = Pick(vm.Opt8, 0);                                 // 어도없음/파손
+        vm.B9L = Pick(vm.Opt9, 0); vm.B9R = Pick(vm.Opt9, 0);     // 주차장/불투수
+        vm.B10L = Pick(vm.Opt10, 0); vm.B10R = Pick(vm.Opt10, 0); // 1/2↑ 시가지
+        vm.Note = "평가항목 10개 전부 0점 — 합계 0 · 점수 0 · 등급 E 여야 한다";
     }
 
     private static HriOption? Pick(HriOption[] options, double score)

@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using BaselineGen;
 using SDSM_Surveyor_App.Export;
 using SDSM_Surveyor_App.Models;
@@ -115,6 +115,21 @@ Fixtures.FillFishNoSpecies(fishZero);
 Console.WriteLine($"  어류 0종  FAI {fishZero.FaiScore} · {fishZero.FaiGrade}  (0 · E 여야 한다)");
 Write("fish_zero_report.xlsx", p => FishReportExporter.Write(fishZero, p));
 Write("fish_zero_bulk.xlsx", p => FishExcelExporter.Write(fishZero, p));
+
+// ── 서식수변 전부 0점 : 합계 0 · 점수 0 · 등급 E (_excel_formula_audit §5-5 회귀) ──────
+// 콘크리트로 직강화된 도시하천은 10개 항목이 전부 0점으로 나온다. 종전 `total != 0` 판정이면
+// 미입력으로 뭉개져 `-` 가 됐다 — 가장 훼손된 하천이 평가를 못 받는 구조였다.
+Console.WriteLine("\n=== 서식수변 전부 0점 케이스 ===");
+var metaHri = new SurveyMeta(sites);
+Fixtures.FillMeta(metaHri);
+metaHri.YearChsu = "2026반기1차_HRI0";
+
+var habitatZero = new HabitatWaterEdgeEntryViewModel(noSession, metaHri);
+Fixtures.FillHabitatAllZero(habitatZero);
+var hriDetail = habitatZero.ComputeDetail();
+Console.WriteLine($"  서식수변  합계 {hriDetail.Total} · HRI {habitatZero.ScoreText} · {habitatZero.GradeText}  (0 · 0.0 · E 여야 한다)");
+Write("habitat_zero_report.xlsx", p => HabitatWaterEdgeReportExporter.Write(habitatZero, p));
+Write("habitat_zero_bulk.xlsx", p => HabitatWaterEdgeExcelExporter.Write(habitatZero, p));
 
 Console.WriteLine($"\n기준 엑셀 {n}개 생성 완료 → {outDir}");
 return 0;
