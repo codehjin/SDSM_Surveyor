@@ -192,6 +192,14 @@
                                                         <Setter Property="Text"
                                                                 Value="관리자 포유류 자료에는 대권역·중권역·하천유형·조사기관이 없습니다(내보내기 시 비워짐)"/>
                                                     </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsChecked, ElementName=TabBird}" Value="True">
+                                                        <Setter Property="Text"
+                                                                Value="관리자 조류 자료에는 대권역·중권역·하천유형·조사기관이 없습니다(내보내기 시 비워짐)"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsChecked, ElementName=TabAmphibian}" Value="True">
+                                                        <Setter Property="Text"
+                                                                Value="관리자 양서파충류 자료에는 대권역·중권역·하천유형·조사기관이 없습니다(내보내기 시 비워짐)"/>
+                                                    </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </TextBlock.Style>

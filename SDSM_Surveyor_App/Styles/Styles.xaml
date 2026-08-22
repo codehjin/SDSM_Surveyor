@@ -385,6 +385,27 @@
         <Setter Property="Margin" Value="0 0 8 0"/>
     </Style>
 
+    <!-- 관찰형 그리드 행 : 보호종 = 강조색 · 생태계교란생물 = 경고색.
+         **의미가 반대이므로 색을 구분한다.** 툴팁으로 근거를 함께 보여 색만으로 구분하지 않는다.
+         종전에는 조류·포유류·양서파충류 XAML 에 같은 내용이 세 벌 있었다. -->
+    <Style x:Key="ObservationRowStyle" TargetType="telerik:GridViewRow">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsProtected}" Value="True">
+                <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="ToolTip" Value="{Binding ProtectionText}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsInvasive}" Value="True">
+                <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=ValidationBrush}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="ToolTip" Value="{Binding ProtectionText}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- 2행 흔적/분류 칸 : 미입력은 워터마크 `·`, 실측 0 은 `0` (CLAUDE.md §7.2) -->
+    <sys:Double x:Key="RowDetailsCellWidth">44</sys:Double>
+
     <!--=========== 버튼 계층 (§5-3) ===========-->
     <!-- ⚠ RadButton 에 Style 을 통째로 지정하지 않는다. 사용처에서 아래 브러시를 개별 속성으로 준다.
          위험 버튼(빈 행 정리)은 주요 버튼과 멀리 떨어뜨려 가장 왼쪽에 둔다. -->

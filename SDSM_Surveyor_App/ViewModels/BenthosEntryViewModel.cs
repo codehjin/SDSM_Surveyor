@@ -122,7 +122,17 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
 
     // 입력 이상치 경고 개수(상태바 표시)
     [ObservableProperty] private int _warningCount;
-    partial void OnWarningCountChanged(int value) => OnPropertyChanged(nameof(WarningText));
+
+    /// <summary>경고 영역 표시 여부(06_DESIGN_REBUILD §5-2-1). 경고는 비차단이다 — 저장을 막지 않는다.</summary>
+    public bool HasWarnings => WarningCount > 0;
+
+    /// <summary>경고가 걸린 종 이름. 종전에는 건수만 보여 어느 종인지 알 수 없었다(§5-2-1).</summary>
+    [ObservableProperty] private string _warningDetail = string.Empty;
+    partial void OnWarningCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(WarningText));
+        OnPropertyChanged(nameof(HasWarnings));
+    }
     public string WarningText => WarningCount > 0 ? $"⚠ 이상치 경고 {WarningCount}건" : string.Empty;
 
     private void ValidateRows()
@@ -145,6 +155,17 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
             if (e.HasWarning) warn++;
         }
         WarningCount = warn;
+
+        var names = SpeciesEntries.Where(x => x.HasWarning)
+                                  .Select(x => x.SelectedSpecies?.SpeciesKo ?? x.SpeciesKo)
+                                  .Where(x => !string.IsNullOrWhiteSpace(x))
+                                  .ToList();
+        WarningDetail = names.Count switch
+        {
+            0 => string.Empty,
+            <= 3 => string.Join(" · ", names),
+            _ => string.Join(" · ", names.Take(3)) + $" 외 {names.Count - 3}종",
+        };
     }
 
     /// <summary>조사불가 사유가 선언되어 등급이 "-"가 되는 상태인지.</summary>

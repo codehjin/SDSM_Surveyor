@@ -21,4 +21,10 @@ public interface IQuickAddHost
 
     /// <summary>수량 칸에서 Enter 를 눌렀을 때 실행할 행 추가 명령(`[RelayCommand]` 생성 속성).</summary>
     IRelayCommand AddQuickCommand { get; }
+
+    /// <summary>
+    /// 엑셀에서 복사한 여러 줄을 행으로 붙여넣는다(<c>ObservationGrid</c> 의 Ctrl+V 가 호출).
+    /// RadGridView 기본 붙여넣기는 커스텀 편집기 컬럼과 충돌해 한 칸에 뭉친다(90_TECH_NOTES §2).
+    /// </summary>
+    void PasteRows(string clipboard);
 }

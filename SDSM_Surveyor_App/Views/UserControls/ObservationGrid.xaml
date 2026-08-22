@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.ObservationGrid"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             mc:Ignorable="d" d:DesignWidth="1224" d:DesignHeight="400"
+             x:Name="Root">
+
+    <!-- ══ 관찰형 그리드 (06_DESIGN_REBUILD §5-2-2 · §5-3) ═══════════════════════
+         조류 · 포유류 · 양서파충류 세 화면이 공유한다.
+
+         **세 화면의 차이는 두 가지뿐이어야 한다** — 1행 열 목록과 2행 묶음.
+         나머지(그리드 설정 · 2단 행 껍데기 · Ctrl+V · 보호종 강조)는 여기 한 곳에 있다.
+
+         ⚠ Telerik 컨트롤에 Style 을 통째로 지정하지 않는다(90_TECH_NOTES §2).
+            그래서 상속·Style 이 아니라 **감싸는 UserControl** 로 만들었다.
+         ⚠ RowDetailsVisibilityMode="Visible" = 2행 **상시 표시**. 접거나 감추지 않는다(§3-6).
+            Tab 은 1행 열을 모두 지난 뒤 2행 칸으로 들어간다(스파이크 실측).
+         ══════════════════════════════════════════════════════════════════════ -->
+    <telerik:RadGridView x:Name="Grid"
+                         ItemsSource="{Binding Rows, ElementName=Root}"
+                         AutoGenerateColumns="False"
+                         CanUserInsertRows="True" NewRowPosition="Bottom"
+                         GroupRenderMode="Flat" ShowGroupPanel="False"
+                         SelectionUnit="Cell" GridLinesVisibility="Both"
+                         RowIndicatorVisibility="Collapsed"
+                         ClipboardCopyMode="Cells"
+                         FrozenColumnCount="1"
+                         RowHeight="{StaticResource GridRowHeight}"
+                         AlternationCount="2"
+                         AlternateRowBackground="{StaticResource RowAltBrush}"
+                         RowDetailsVisibilityMode="Visible"
+                         RowStyle="{StaticResource ObservationRowStyle}"
+                         PreviewKeyDown="Grid_PreviewKeyDown"/>
+</UserControl>

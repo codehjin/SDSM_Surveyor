@@ -1,5 +1,4 @@
-using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -8,8 +7,9 @@ using SDSM_Surveyor_App.ViewModels;
 
 namespace SDSM_Surveyor_App.Views.UserControls;
 
-/// <summary>저서동물 탭 입력 컨트롤. ViewModel은 DI로 주입.
-/// 빠른 추가 바 포커스 이동과 그리드 Ctrl+V(엑셀 붙여넣기)만 코드비하인드에서 처리.</summary>
+/// <summary>저서동물 탭 입력 컨트롤(종 입력형 · 06_DESIGN_REBUILD §5-2-4).
+/// 빠른 추가 바의 포커스 이동은 <see cref="QuickAddBar"/> 가 맡는다.
+/// 여기서는 그리드 Ctrl+V(엑셀 붙여넣기)만 처리한다.</summary>
 public partial class BenthosEntryControl : UserControl
 {
     private readonly BenthosEntryViewModel _vm;
@@ -19,38 +19,18 @@ public partial class BenthosEntryControl : UserControl
         InitializeComponent();
         _vm = App.Current.Services.GetRequiredService<BenthosEntryViewModel>();
         DataContext = _vm;
-
-        // 추가 완료 후 검색 콤보로 포커스 복귀 → 연속 입력
-        _vm.QuickAddCompleted += (_, _) =>
-            Dispatcher.BeginInvoke(new Action(() => QuickSpeciesBox.Focus()), DispatcherPriority.Input);
-
-        // 종을 고르면 개체수 칸으로 자동 이동
-        _vm.QuickSpeciesPicked += (_, _) =>
-            Dispatcher.BeginInvoke(new Action(() => QuickCountBox.Focus()), DispatcherPriority.Input);
     }
 
-    // 개체수 칸에서 Enter → 행 추가
-    private void QuickCountBox_PreviewKeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter)
-        {
-            if (_vm.AddQuickCommand.CanExecute(null)) _vm.AddQuickCommand.Execute(null);
-            e.Handled = true;
-        }
-    }
-
-    // 그리드 Ctrl+V : 엑셀 [국명, 개체수] 여러 줄을 직접 파싱해 행 추가
+    // 그리드 Ctrl+V : 엑셀 여러 줄을 직접 파싱해 행 추가
+    // (RadGridView 기본 붙여넣기는 커스텀 편집기 컬럼과 충돌해 한 칸에 뭉침 — 90_TECH_NOTES §2)
     private void Grid_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.V && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-        {
-            if (Clipboard.ContainsText())
-            {
-                if (sender is Telerik.Windows.Controls.RadGridView grid) grid.CancelEdit();
-                var text = Clipboard.GetText();
-                Dispatcher.BeginInvoke(new Action(() => _vm.PasteRows(text)), DispatcherPriority.Background);
-                e.Handled = true;
-            }
-        }
+        if (e.Key != Key.V || (Keyboard.Modifiers & ModifierKeys.Control) != ModifierKeys.Control) return;
+        if (!Clipboard.ContainsText()) return;
+
+        if (sender is Telerik.Windows.Controls.RadGridView grid) grid.CancelEdit();
+        var text = Clipboard.GetText();
+        Dispatcher.BeginInvoke(new Action(() => _vm.PasteRows(text)), DispatcherPriority.Background);
+        e.Handled = true;
     }
 }

@@ -24,53 +24,45 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="6">
+    <Grid Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- ① 서식수변 고유 입력 (조사개황은 셸이 소유 · §5-1-4) -->
-        <Border Grid.Row="0" Margin="2" Padding="14" Style="{StaticResource CardBorderStyle}">
+        <!-- ① 서식수변 고유 입력 (조사개황은 셸이 소유 · §5-1-4)
+             2칸뿐이라 접기 토글을 두지 않는다 — 접을 이유가 없는 카드에 토글만 남으면 군더더기다. -->
+        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}">
             <StackPanel>
-                <Grid>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="조사환경" Style="{StaticResource SubHeaderTextStyle}" Margin="0"/>
-                        <TextBlock Text="지점당 1회 입력 후 접어두면 평가 항목 선택이 편해집니다" Margin="10 0 0 0"
-                                   VerticalAlignment="Center" Style="{StaticResource CaptionTextStyle}"/>
-                    </StackPanel>
-                    <telerik:RadToggleButton Grid.Column="1" x:Name="MetaToggle" IsChecked="True" Padding="12 4"
-                                             Content="접기 / 펼치기"/>
-                </Grid>
-
-                <StackPanel Margin="0 10 0 0"
-                            Visibility="{Binding IsChecked, ElementName=MetaToggle, Converter={StaticResource BoolToVisibility}}">
-
-                    <!-- 서식수변 고유 : 조사불가 사유는 등급('-') 산정에 쓰이므로 공통 조사개황이 아닌 이곳에 둔다 -->
-                    <TextBlock Text="특이사항" FontWeight="SemiBold" Margin="0 6 0 6"
-                               Foreground="{StaticResource AppAccentStrongBrush}"/>
-                    <WrapPanel>
-                        <StackPanel Width="200" Margin="0 0 12 10">
-                            <TextBlock Text="조사불가시" Style="{StaticResource HwCaption}"/>
-                            <telerik:RadWatermarkTextBox WatermarkContent="접근불가/건천화/준설/공사중"
-                                                         Text="{Binding SurveyUnavailableReason, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                        <StackPanel Width="300" Margin="0 0 12 10">
-                            <TextBlock Text="비고" Style="{StaticResource HwCaption}"/>
-                            <telerik:RadWatermarkTextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                    </WrapPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
+                    <Border Style="{StaticResource GroupHeaderBarStyle}"/>
+                    <TextBlock Text="특이사항" Style="{StaticResource GroupHeaderTextStyle}"/>
+                    <TextBlock Margin="12 0 0 0" VerticalAlignment="Center" Style="{StaticResource CaptionTextStyle}"
+                               Text="조사불가 사유는 등급 산정에 쓰이므로 공통 조사개황이 아니라 여기 둔다"/>
                 </StackPanel>
+                <WrapPanel>
+                    <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                        <TextBlock Text="조사불가시" Style="{StaticResource FormLabelStyle}"/>
+                        <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                     WatermarkContent="접근불가"
+                                                     Text="{Binding SurveyUnavailableReason, UpdateSourceTrigger=PropertyChanged}"
+                                                     ToolTipService.ToolTip="서식수변의 조사불가 사유는 '접근불가' 하나뿐이다(어류 FAI 는 4종)."/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource FormFieldLgStyle}">
+                        <TextBlock Text="비고" Style="{StaticResource FormLabelStyle}"/>
+                        <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                     Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </WrapPanel>
             </StackPanel>
         </Border>
 
-        <!-- 평가 항목(드롭다운) + 결과 -->
-        <Grid Grid.Row="1" Margin="2 8 2 2">
+        <!-- ② 좌: 평가 항목 10개 / 우: HRI 레일 -->
+        <Grid Grid.Row="1" Margin="0 8 0 0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="*" MinWidth="{StaticResource RailMinWidth}" MaxWidth="{StaticResource RailMaxWidth}"/>
             </Grid.ColumnDefinitions>
 
             <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
@@ -163,46 +155,95 @@
                 </Border>
             </ScrollViewer>
 
-            <!-- 결과 -->
-            <Border Grid.Column="1" Margin="8 0 0 0" Padding="14" Style="{StaticResource CardBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="서식·수변환경 평가 (HRI)" Style="{StaticResource SubHeaderTextStyle}"/>
-                    <TextBlock Text="평가점수 (합÷2)" Margin="0 8 0 0" Style="{StaticResource FormLabelStyle}"/>
-                    <TextBlock Text="{Binding ScoreText}" Style="{StaticResource ValueTextStyle}"/>
-                    <TextBlock Text="평가등급" Margin="0 12 0 0" Style="{StaticResource FormLabelStyle}"/>
-                    <TextBlock Text="{Binding GradeText}" Style="{StaticResource GradeTextStyle}"/>
-                    <TextBlock Text="* [별표5] 기준. A80·B60·C40·D20·E. 접근불가 시 '-'." Margin="0 16 0 0"
-                               TextWrapping="Wrap" FontSize="11"
-                               Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
-                </StackPanel>
-            </Border>
+            <!-- ③ HRI 레일 : 합계 → 점수 → 등급 순으로 계산 과정을 보여준다(§5-2-4) -->
+            <ctrl:ResultRail Grid.Column="1" Header="서식·수변환경 평가 (HRI)">
+                <ctrl:ResultRail.Body>
+                    <StackPanel>
+                        <Grid Style="{StaticResource RailRowStyle}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="선택 현황" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding SelectedCountText}" Style="{StaticResource RailValueStyle}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource RailRowStyle}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="① 항목 합계" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TotalText}" Style="{StaticResource RailValueStyle}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource RailRowStyle}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="② 평가점수 (합÷2)" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ScoreText}" Style="{StaticResource RailValueStyle}"/>
+                        </Grid>
+
+                        <Border Style="{StaticResource RailDividerStyle}"/>
+
+                        <TextBlock Text="③ 평가등급" Style="{StaticResource RailValueStyle}"/>
+                        <StackPanel Orientation="Horizontal" Margin="0 6 0 0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding ScoreText}" Style="{StaticResource ValueTextStyle}"/>
+                            <Border Margin="12 0 0 0">
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource GradeBadgeBorderStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding GradeText}" Value="A">
+                                                <Setter Property="Background" Value="{StaticResource GradeABrush}"/></DataTrigger>
+                                            <DataTrigger Binding="{Binding GradeText}" Value="B">
+                                                <Setter Property="Background" Value="{StaticResource GradeBBrush}"/></DataTrigger>
+                                            <DataTrigger Binding="{Binding GradeText}" Value="C">
+                                                <Setter Property="Background" Value="{StaticResource GradeCBrush}"/></DataTrigger>
+                                            <DataTrigger Binding="{Binding GradeText}" Value="D">
+                                                <Setter Property="Background" Value="{StaticResource GradeDBrush}"/></DataTrigger>
+                                            <DataTrigger Binding="{Binding GradeText}" Value="E">
+                                                <Setter Property="Background" Value="{StaticResource GradeEBrush}"/></DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding GradeText}" Style="{StaticResource GradeBadgeTextStyle}"/>
+                            </Border>
+                        </StackPanel>
+
+                        <Border Style="{StaticResource RailDividerStyle}"/>
+
+                        <!-- ⚠ 미평가(`-`)와 0점·E등급은 다르다(_excel_formula_audit §5-5).
+                             10개를 전부 0점으로 골랐으면 그것은 평가한 것이다. -->
+                        <TextBlock Text="{Binding EvaluationStateText}" TextWrapping="Wrap"
+                                   Style="{StaticResource RailValueStyle}"/>
+                        <TextBlock Margin="0 8 0 0" Style="{StaticResource CaptionTextStyle}"
+                                   Text="[별표5] 기준 · A≥80 · B≥60 · C≥40 · D≥20 · E"/>
+                        <TextBlock Margin="0 6 0 0" Style="{StaticResource CaptionTextStyle}"
+                                   Text="10개를 전부 0점으로 골라도 미평가가 아닙니다 — 0 · E 로 산정됩니다."/>
+                        <TextBlock Margin="0 6 0 0" Style="{StaticResource CaptionTextStyle}"
+                                   Text="조사불가 사유는 '접근불가' 하나뿐입니다(어류 FAI 와 다릅니다)."/>
+                    </StackPanel>
+                </ctrl:ResultRail.Body>
+            </ctrl:ResultRail>
         </Grid>
 
-        <!-- 상태바 -->
-        <Border Grid.Row="2" Margin="2 8 2 2" Padding="8 6" Style="{StaticResource CardBorderStyle}">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <icon:PackIconMaterial Kind="ClockOutline" Width="14" Height="14" VerticalAlignment="Center"
-                                           Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
-                    <TextBlock Text="{Binding StatusText}" Margin="6 0 0 0"
-                               Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <telerik:RadButton Command="{Binding SaveTemporaryCommand}" Margin="0 0 8 0" Padding="10 4">
+        <!-- ④ 상태 · 액션 바 (7개 화면 공유) -->
+        <ctrl:TaxonStatusBar Grid.Row="2" Margin="0 8 0 0">
+            <ctrl:TaxonStatusBar.Summary>
+                <TextBlock Text="{Binding SelectedCountText}" FontWeight="SemiBold" VerticalAlignment="Center"
+                           Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+            </ctrl:TaxonStatusBar.Summary>
+            <ctrl:TaxonStatusBar.Actions>
+                <StackPanel Orientation="Horizontal">
+                    <telerik:RadButton Command="{Binding SaveTemporaryCommand}"
+                                       Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconMaterial Kind="ContentSaveOutline" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="임시 저장" Margin="6 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
-                    <telerik:RadButton Command="{Binding ExportBulkCommand}" Margin="0 0 8 0" Padding="10 4"
+                    <telerik:RadButton Command="{Binding ExportBulkCommand}"
+                                       Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}"
                                        ToolTipService.ToolTip="관리자 일괄입력용(레거시 양식) · 현행 관리자 Import 취합용">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="일괄입력용" Margin="6 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
-                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="10 4"
+                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="{StaticResource ActionButtonPadding}"
+                                       Background="{StaticResource PrimaryActionBackBrush}"
+                                       Foreground="{StaticResource PrimaryActionForeBrush}"
                                        ToolTipService.ToolTip="보고서·기록용 · 조사개황/평가항목/건강성평가(HRI) 시트">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
@@ -210,7 +251,7 @@
                         </StackPanel>
                     </telerik:RadButton>
                 </StackPanel>
-            </Grid>
-        </Border>
+            </ctrl:TaxonStatusBar.Actions>
+        </ctrl:TaxonStatusBar>
     </Grid>
 </UserControl>

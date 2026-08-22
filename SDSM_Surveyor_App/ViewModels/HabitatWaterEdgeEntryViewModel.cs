@@ -95,10 +95,42 @@ public partial class HabitatWaterEdgeEntryViewModel : TaxonEntryViewModelBase, I
     public string ScoreText => Compute().score?.ToString("N1") ?? "-";
     public string GradeText => Compute().grade ?? "-";
 
+    // ── HRI 레일 (06_DESIGN_REBUILD §5-2-4) ───────────────────────────
+    // 합계 → 점수 → 등급 순서로 계산 과정을 보여준다.
+    // ⚠ **미평가(`-`)와 0점·E등급은 다르다**(_excel_formula_audit §5-5).
+    //   10개를 전부 0점으로 골랐으면 그것은 평가한 것이다 — 0 · E 가 나온다.
+    //   화면에서 둘이 구분되지 않으면 그 수정의 의미가 사라진다.
+
+    /// <summary>평가항목 10개 합계.</summary>
+    public string TotalText => ComputeDetail().Total.ToString("N1");
+
+    /// <summary>선택한 항목 수 / 10.</summary>
+    public string SelectedCountText
+    {
+        get
+        {
+            int n = ComputeDetail().Items.Count(x => x.HasValue);
+            return $"{n} / 10 항목 선택";
+        }
+    }
+
+    /// <summary>평가가 성립했는가(= 항목을 하나라도 골랐는가).</summary>
+    public bool HasScore => Compute().score is not null;
+
+    /// <summary>레일 상태 문구. 세 상태(미평가 · 조사불가 · 평가완료)를 글자로 구분한다.</summary>
+    public string EvaluationStateText =>
+        Compute().grade == "-" ? "조사불가(접근불가) — 등급 산정 대상 아님"
+        : !HasScore ? "미평가 — 평가항목을 하나도 고르지 않았습니다"
+        : "평가 완료";
+
     private void RaiseResult()
     {
         OnPropertyChanged(nameof(ScoreText));
         OnPropertyChanged(nameof(GradeText));
+        OnPropertyChanged(nameof(TotalText));
+        OnPropertyChanged(nameof(SelectedCountText));
+        OnPropertyChanged(nameof(HasScore));
+        OnPropertyChanged(nameof(EvaluationStateText));
         ExportExcelCommand.NotifyCanExecuteChanged();
         ExportBulkCommand.NotifyCanExecuteChanged();
     }
