@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -8,8 +8,9 @@ using SDSM_Surveyor_App.ViewModels;
 
 namespace SDSM_Surveyor_App.Views.UserControls;
 
-/// <summary>포유류 탭 입력 컨트롤. ViewModel은 DI로 주입.
-/// 빠른 추가 바 포커스 이동과 그리드 Ctrl+V(엑셀 붙여넣기)만 코드비하인드에서 처리.</summary>
+/// <summary>포유류 탭 입력 컨트롤(관찰형 기준 화면 · 06_DESIGN_REBUILD §5-2-2).
+/// 빠른 추가 바의 포커스 이동은 <see cref="QuickAddBar"/> 가 맡는다.
+/// 여기서는 그리드 Ctrl+V(엑셀 붙여넣기)만 처리한다.</summary>
 public partial class MammalEntryControl : UserControl
 {
     private readonly MammalEntryViewModel _vm;
@@ -19,24 +20,6 @@ public partial class MammalEntryControl : UserControl
         InitializeComponent();
         _vm = App.Current.Services.GetRequiredService<MammalEntryViewModel>();
         DataContext = _vm;
-
-        // 추가 완료 후 검색 콤보로 포커스 복귀 → 연속 입력
-        _vm.QuickAddCompleted += (_, _) =>
-            Dispatcher.BeginInvoke(new Action(() => QuickSpeciesBox.Focus()), DispatcherPriority.Input);
-
-        // 종을 고르면 개체수 칸으로 자동 이동
-        _vm.QuickSpeciesPicked += (_, _) =>
-            Dispatcher.BeginInvoke(new Action(() => QuickCountBox.Focus()), DispatcherPriority.Input);
-    }
-
-    // 개체수 칸에서 Enter → 행 추가
-    private void QuickCountBox_PreviewKeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter)
-        {
-            if (_vm.AddQuickCommand.CanExecute(null)) _vm.AddQuickCommand.Execute(null);
-            e.Handled = true;
-        }
     }
 
     // 그리드 Ctrl+V : 엑셀 여러 줄을 직접 파싱해 행 추가

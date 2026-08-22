@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.QuickAddBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             mc:Ignorable="d" d:DesignWidth="900"
+             x:Name="Root">
+
+    <!-- 종 빠른 추가 (06_DESIGN_REBUILD §5-3 · §5-5)
+         5개 화면(어류·저서·조류·포유류·양서파충류)이 같은 바를 쓴다.
+         종전에는 5벌이 복붙돼 있었고 포커스 이동 코드도 각자 들고 있었다.
+
+         키보드 흐름 : 초성 검색 → (자동) 수량 → Enter → (자동) 검색창 복귀
+         ⚠ RadAutoCompleteBox 가 아니라 RadComboBox 다 — 자동완성 + 커스텀 필터 조합은
+            선택하려면 두 번 클릭해야 한다(90_TECH_NOTES §2). -->
+    <Border Style="{StaticResource CardBorderStyle}" Padding="{StaticResource StatusBarPadding}">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="종 빠른 추가" VerticalAlignment="Center"
+                       Style="{StaticResource GroupHeaderTextStyle}" Margin="0 0 12 0"/>
+
+            <telerik:RadComboBox x:Name="SpeciesBox" Width="260" Height="{StaticResource InputHeight}"
+                                 IsEditable="True" IsTextSearchEnabled="False" IsFilteringEnabled="False"
+                                 OpenDropDownOnFocus="True" StaysOpenOnEdit="True"
+                                 EmptyText="{Binding SearchWatermark, ElementName=Root}"
+                                 DisplayMemberPath="SpeciesKo"
+                                 ItemsSource="{Binding FilteredQuick}"
+                                 Text="{Binding QuickSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 SelectedItem="{Binding QuickSpecies, Mode=TwoWay}"/>
+
+            <telerik:RadWatermarkTextBox x:Name="CountBox" Width="96" Height="{StaticResource InputHeight}"
+                                         Margin="8 0 0 0"
+                                         WatermarkContent="{Binding CountWatermark, ElementName=Root}"
+                                         Text="{Binding QuickCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         PreviewKeyDown="CountBox_PreviewKeyDown"/>
+
+            <telerik:RadButton Content="추가" Margin="8 0 0 0" Height="{StaticResource InputHeight}"
+                               Padding="16 0" Command="{Binding AddQuickCommand}"
+                               Background="{StaticResource PrimaryActionBackBrush}"
+                               Foreground="{StaticResource PrimaryActionForeBrush}"/>
+
+            <TextBlock Text="{Binding Hint, ElementName=Root}" VerticalAlignment="Center"
+                       Margin="12 0 0 0" Style="{StaticResource CaptionTextStyle}"/>
+        </StackPanel>
+    </Border>
+</UserControl>

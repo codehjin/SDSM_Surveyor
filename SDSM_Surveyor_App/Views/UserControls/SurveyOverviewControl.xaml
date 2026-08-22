@@ -8,94 +8,149 @@
              mc:Ignorable="d" d:DesignWidth="1200"
              d:DataContext="{d:DesignInstance models:SurveyMeta}">
 
-    <!-- 공통 조사개황 : 모든 분류군이 이 컨트롤을 끼워 사용. 규칙 변경은 여기 한 곳에서. -->
-    <StackPanel>
-        <TextBlock Text="조사개황" FontWeight="SemiBold" Margin="0 2 0 6"
-                   Foreground="{StaticResource AppAccentStrongBrush}"/>
-        <WrapPanel>
-            <StackPanel Width="120" Margin="0 0 12 10">
-                <TextBlock Text="대분류" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadComboBox ItemsSource="{Binding Projects}" SelectedItem="{Binding Project, Mode=TwoWay}"
-                                     EmptyText="방류하천/생태현황"/>
-            </StackPanel>
-            <StackPanel Width="90"  Margin="0 0 12 10">
-                <TextBlock Text="연도" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadWatermarkTextBox WatermarkContent="2024" Text="{Binding SurveyYear, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
-            <StackPanel Width="120" Margin="0 0 12 10">
-                <TextBlock Text="연도차수" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadWatermarkTextBox WatermarkContent="2024반기1차" Text="{Binding YearChsu, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
-            <StackPanel Width="150" Margin="0 0 12 10">
-                <TextBlock Text="조사일자" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadDatePicker SelectedValue="{Binding SurveyDate, Mode=TwoWay}"/>
-            </StackPanel>
-            <StackPanel Width="120" Margin="0 0 12 10">
-                <TextBlock Text="대권역명" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadWatermarkTextBox Text="{Binding MajorRegion, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
-            <StackPanel Width="120" Margin="0 0 12 10">
-                <TextBlock Text="중권역명" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadWatermarkTextBox Text="{Binding MiddleRegion, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
-            <StackPanel Width="120" Margin="0 0 12 10">
-                <TextBlock Text="하천명" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadWatermarkTextBox Text="{Binding River, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
-            <StackPanel Width="120" Margin="0 0 12 10">
-                <TextBlock Text="하천유형" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadWatermarkTextBox Text="{Binding RiverType, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
-            <StackPanel Width="140" Margin="0 0 12 10">
-                <TextBlock Text="사업장" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadWatermarkTextBox WatermarkContent="지점 선택 시 자동"
-                                             Text="{Binding Workplace, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
-            <StackPanel Width="230" Margin="0 0 12 10">
-                <TextBlock Text="지점명" Style="{StaticResource FormLabelStyle}"/>
-                <!-- 등록된 지점만 선택. ST번호(ST1·St.1·st 1)를 쳐도 DB상 지점명으로 정규화한다.
-                     ⚠ 대분류를 고르기 전에는 잠긴다 — 방류하천과 생태현황에 같은 이름의 다른 지점이 있어
-                        섞어 보여주면 자료가 조용히 섞인다(_ecostatus_sites_extracted §8-2). -->
-                <telerik:RadComboBox x:Name="SiteCombo" AutomationProperties.AutomationId="SiteCombo"
-                                     ItemsSource="{Binding SiteOptions}"
-                                     SelectedItem="{Binding SelectedSite, Mode=TwoWay}"
-                                     DisplayMemberPath="Display"
-                                     IsEnabled="{Binding IsSiteSelectable}"
-                                     IsEditable="True" IsFilteringEnabled="True"
-                                     EmptyText="지점 선택 또는 ST번호 입력"
-                                     LostFocus="SiteCombo_LostFocus"
-                                     KeyDown="SiteCombo_KeyDown"/>
-                <TextBlock Text="{Binding SiteHint}" FontSize="11" Margin="2 2 0 0" TextTrimming="CharacterEllipsis"
-                           Foreground="{StaticResource ShellForegroundBrush}"/>
-                <TextBlock Text="미등록 지점입니다 — 목록에서 선택하세요" FontSize="11" Margin="2 2 0 0"
-                           Foreground="{StaticResource MaxBrush}"
-                           Visibility="{Binding IsSiteUnregistered, Converter={StaticResource BoolToVisibility}}"/>
-            </StackPanel>
-            <StackPanel Width="110" Margin="0 0 12 10">
+    <!-- 공통 조사개황 : **셸이 한 번만** 소유한다(06_DESIGN_REBUILD §5-1-4).
+         종전에는 7개 분류군 컨트롤이 이 컨트롤을 각자 끼워 껍데기가 7벌이었다.
+         SurveyMeta 는 싱글턴이라 내용은 원래 하나였다.
+         ⚠ §3-8 대분류 격리 UI(지점 잠금·해제·목록 분리)가 이제 이 한 곳에만 존재한다.
+            x:Name·AutomationId·바인딩 이름을 바꾸지 말 것(격리 검증 26건이 SiteCombo 를 찾는다). -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── 1행 : 언제·어디서 ─────────────────────────────────────────────── -->
+        <StackPanel Grid.Row="0" Grid.Column="0" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="대분류" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadComboBox Height="{StaticResource InputHeight}"
+                                 ItemsSource="{Binding Projects}" SelectedItem="{Binding Project, Mode=TwoWay}"
+                                 EmptyText="방류하천/생태현황"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="1" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="연도" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                         WatermarkContent="2024" Text="{Binding SurveyYear, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="2" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="연도차수" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                         WatermarkContent="2024반기1차" Text="{Binding YearChsu, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="3" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="조사일자" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadDatePicker Height="{StaticResource InputHeight}" SelectedValue="{Binding SurveyDate, Mode=TwoWay}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="4" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="날씨" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadComboBox Height="{StaticResource InputHeight}"
+                                 ItemsSource="{Binding Weathers}" SelectedItem="{Binding Weather, Mode=TwoWay}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="5" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="조사자" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                         Text="{Binding Surveyor, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <!-- ── 2행 : 지점 (2칸 차지 — 안내 문구가 아래에 붙는다) ──────────────── -->
+        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="지점명" Style="{StaticResource FormLabelStyle}"/>
+            <!-- 등록된 지점만 선택. ST번호(ST1·St.1·st 1)를 쳐도 DB상 지점명으로 정규화한다.
+                 ⚠ 대분류를 고르기 전에는 잠긴다 — 방류하천과 생태현황에 같은 이름의 다른 지점이 있어
+                    섞어 보여주면 자료가 조용히 섞인다(_ecostatus_sites_extracted §8-2). -->
+            <telerik:RadComboBox x:Name="SiteCombo" AutomationProperties.AutomationId="SiteCombo"
+                                 Height="{StaticResource InputHeight}"
+                                 ItemsSource="{Binding SiteOptions}"
+                                 SelectedItem="{Binding SelectedSite, Mode=TwoWay}"
+                                 DisplayMemberPath="Display"
+                                 IsEnabled="{Binding IsSiteSelectable}"
+                                 IsEditable="True" IsFilteringEnabled="True"
+                                 EmptyText="지점 선택 또는 ST번호 입력"
+                                 LostFocus="SiteCombo_LostFocus"
+                                 KeyDown="SiteCombo_KeyDown"/>
+            <TextBlock Text="{Binding SiteHint}" Style="{StaticResource CaptionTextStyle}"
+                       Margin="2 2 0 0" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Text="미등록 지점입니다 — 목록에서 선택하세요"
+                       Style="{StaticResource CaptionTextStyle}" Margin="2 2 0 0"
+                       Foreground="{StaticResource MaxBrush}"
+                       Visibility="{Binding IsSiteUnregistered, Converter={StaticResource BoolToVisibility}}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="2" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="하천명" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                         WatermarkContent="지점 선택 시 자동"
+                                         Text="{Binding River, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="3" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="사업장" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                         WatermarkContent="지점 선택 시 자동"
+                                         Text="{Binding Workplace, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <!-- 좌표 2칸 + 지도 버튼 -->
+        <Grid Grid.Row="1" Grid.Column="4" Grid.ColumnSpan="2" Margin="{StaticResource FieldMargin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Margin="0 0 8 0">
                 <TextBlock Text="위도" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadWatermarkTextBox WatermarkContent="37.xxxxxx" Text="{Binding Lat, UpdateSourceTrigger=PropertyChanged}"/>
+                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                             WatermarkContent="37.xxxxxx" Text="{Binding Lat, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
-            <StackPanel Width="110" Margin="0 0 6 10">
+            <StackPanel Grid.Column="1" Margin="0 0 8 0">
                 <TextBlock Text="경도" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadWatermarkTextBox WatermarkContent="127.xxxxxx" Text="{Binding Lng, UpdateSourceTrigger=PropertyChanged}"/>
+                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                             WatermarkContent="127.xxxxxx" Text="{Binding Lng, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
-            <StackPanel Width="60" Margin="0 0 12 10">
+            <StackPanel Grid.Column="2" Width="58">
                 <TextBlock Text=" " Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadButton Content="지도" Command="{Binding OpenMapCommand}"
+                <telerik:RadButton Content="지도" Height="{StaticResource InputHeight}"
+                                   Command="{Binding OpenMapCommand}"
                                    IsEnabled="{Binding HasMap}" ToolTip="기본 브라우저로 좌표 위치 열기"/>
             </StackPanel>
-            <StackPanel Width="110" Margin="0 0 12 10">
-                <TextBlock Text="날씨" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadComboBox ItemsSource="{Binding Weathers}" SelectedItem="{Binding Weather, Mode=TwoWay}"/>
-            </StackPanel>
-            <StackPanel Width="120" Margin="0 0 12 10">
-                <TextBlock Text="조사기관" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadWatermarkTextBox Text="{Binding SurveyAgency, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
-            <StackPanel Width="110" Margin="0 0 12 10">
-                <TextBlock Text="조사자" Style="{StaticResource FormLabelStyle}"/>
-                <telerik:RadWatermarkTextBox Text="{Binding Surveyor, UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
-        </WrapPanel>
-    </StackPanel>
+        </Grid>
+
+        <!-- ── 3행 : 행정·기관 ───────────────────────────────────────────────── -->
+        <StackPanel Grid.Row="2" Grid.Column="0" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="대권역명" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                         Text="{Binding MajorRegion, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="1" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="중권역명" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                         Text="{Binding MiddleRegion, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="2" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="하천유형" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                         Text="{Binding RiverType, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Style="{StaticResource FormFieldStyle}">
+            <TextBlock Text="조사기관" Style="{StaticResource FormLabelStyle}"/>
+            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                         Text="{Binding SurveyAgency, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+    </Grid>
 </UserControl>

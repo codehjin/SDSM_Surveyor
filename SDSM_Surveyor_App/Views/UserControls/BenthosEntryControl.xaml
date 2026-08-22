@@ -13,18 +13,18 @@
 
     <Grid Margin="6">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>  <!-- ① 조사개황(접이식) -->
+            <RowDefinition Height="Auto"/>  <!-- ① 조사환경(접이식) -->
             <RowDefinition Height="*"/>     <!-- ② 그리드 + ③ 지수 -->
             <RowDefinition Height="Auto"/>  <!-- 하단 상태바 -->
         </Grid.RowDefinitions>
 
-        <!-- ① 조사개황·조사환경 : 지점당 1회 입력 후 접기 -->
+        <!-- ① 조사환경 : 지점당 1회 입력 후 접기 (조사개황은 셸이 소유 · §5-1-4) -->
         <Border Grid.Row="0" Margin="2" Padding="14" Style="{StaticResource CardBorderStyle}">
             <StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="조사개황 · 조사환경" Style="{StaticResource SubHeaderTextStyle}" Margin="0"/>
+                        <TextBlock Text="조사환경" Style="{StaticResource SubHeaderTextStyle}" Margin="0"/>
                         <TextBlock Text="지점당 1회 입력 후 접어두면 종 입력이 편해집니다" Margin="10 0 0 0"
                                    VerticalAlignment="Center" Style="{StaticResource CaptionTextStyle}"/>
                     </StackPanel>
@@ -35,8 +35,6 @@
                 <StackPanel Margin="0 10 0 0"
                             Visibility="{Binding IsChecked, ElementName=MetaToggle, Converter={StaticResource BoolToVisibility}}">
 
-                    <!-- 조사개황(공통) : SurveyOverviewControl -->
-                    <ctrl:SurveyOverviewControl DataContext="{Binding Meta}"/>
 
                     <!-- 채집방법 -->
                     <TextBlock Text="채집방법 (정량 채집기)" FontWeight="SemiBold" Margin="0 6 0 6"

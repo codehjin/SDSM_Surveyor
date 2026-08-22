@@ -88,6 +88,7 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
         Lng = null;
 
         RefreshSiteOptions();
+        RaiseSummary();
     }
 
     /// <summary>대분류를 고르기 전에는 지점 드롭다운을 쓸 수 없다(§8-2).</summary>
@@ -158,7 +159,45 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
         OnPropertyChanged(nameof(IsSiteUnregistered));
         OnPropertyChanged(nameof(SiteDesc));
         OnPropertyChanged(nameof(SiteHint));
+        RaiseSummary();
     }
+
+    // ── 접힌 조사개황 요약줄 (06_DESIGN_REBUILD §5-1-5) ─────────────────────
+    // 조사개황을 접어도 **무엇을 고르고 있는지**가 항상 보여야 한다.
+    // 대분류를 바꿔 지점·하천·좌표가 비워지는 것이 눈에 보여야 자료가 조용히 섞이지 않았음을
+    // 조사자가 확인할 수 있다(§3-8).
+
+    /// <summary>대분류를 골랐는가. 안 골랐으면 요약줄이 경고로 바뀌고 카드가 펼쳐진 채 고정된다.</summary>
+    public bool HasProject => !string.IsNullOrWhiteSpace(Project);
+
+    /// <summary>요약줄 앞의 대분류 표기. 색점과 **함께** 쓴다(색만으로 구분하지 않는다).</summary>
+    public string ProjectText => HasProject ? Project! : "대분류 미선택";
+
+    /// <summary>접힌 조사개황 한 줄 요약 — `곡교천1 (St.1) · 2026반기1차 · 05-14`.</summary>
+    public string OverviewSummary
+    {
+        get
+        {
+            if (!HasProject) return "⚠ 대분류를 먼저 고르세요";
+
+            var parts = new List<string>();
+            if (SiteDisplay.Length > 0) parts.Add(SiteDisplay);
+            else parts.Add("지점 미선택");
+            if (!string.IsNullOrWhiteSpace(YearChsu)) parts.Add(YearChsu);
+            if (SurveyDate is DateTime d) parts.Add(d.ToString("MM-dd"));
+            return string.Join("  ·  ", parts);
+        }
+    }
+
+    private void RaiseSummary()
+    {
+        OnPropertyChanged(nameof(HasProject));
+        OnPropertyChanged(nameof(ProjectText));
+        OnPropertyChanged(nameof(OverviewSummary));
+    }
+
+    partial void OnYearChsuChanged(string value) => RaiseSummary();
+    partial void OnSurveyDateChanged(DateTime? value) => RaiseSummary();
 
     /// <summary>좌표가 있어 지도를 열 수 있는지.</summary>
     public bool HasMap => Coordinate.MapUrl(

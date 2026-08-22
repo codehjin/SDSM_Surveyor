@@ -7,217 +7,304 @@
              xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:ctrl="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
              xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="1360" d:DesignHeight="740"
+             mc:Ignorable="d" d:DesignWidth="1224" d:DesignHeight="540"
              d:DataContext="{d:DesignInstance vm:WaterQualityEntryViewModel}">
 
     <UserControl.Resources>
-        <!-- 공용 폼 라벨 스타일 상속 (design.md §4) -->
-        <Style x:Key="WqCaption" TargetType="TextBlock" BasedOn="{StaticResource FormLabelStyle}"/>
-        <!-- 항목 타일 : 라벨 · 입력 · (등급) 을 한 칸에 -->
+        <!-- 측정 항목 타일 : 라벨 · 입력 · 등급 -->
         <Style x:Key="WqTile" TargetType="StackPanel">
             <Setter Property="Margin" Value="0 0 16 12"/>
         </Style>
-        <Style x:Key="WqGrade" TargetType="TextBlock">
-            <Setter Property="Margin" Value="0 3 0 0"/>
+        <Style x:Key="WqGrade" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+            <Setter Property="Margin" Value="0 4 0 0"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
         </Style>
+        <!-- 레일의 '항목 — 등급' 한 줄 -->
+        <Style x:Key="WqRailRow" TargetType="Grid" BasedOn="{StaticResource RailRowStyle}"/>
     </UserControl.Resources>
 
-    <Grid Margin="6">
+    <!-- 폼형 기준 화면 — 수질 23칸 (06_DESIGN_REBUILD §5-2-3)
+         종전 문제 : 측정 9칸이 상단 3×3 에 몰리고 **아래가 비었다.**
+                     등급 8종이 각 칸에 흩어져 한눈에 안 들어왔다.
+         해결      : 우측 **등급 요약 레일**이 빈 공간을 채우고, 3유형 배치가 통일된다. -->
+    <Grid Margin="8">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>  <!-- ① 조사개황(접이식) -->
-            <RowDefinition Height="*"/>     <!-- ② 측정항목 · 추가항목 -->
-            <RowDefinition Height="Auto"/>  <!-- 하단 상태바/액션 -->
+            <RowDefinition Height="*"/>     <!-- ① 측정 항목 + 등급 레일 -->
+            <RowDefinition Height="Auto"/>  <!-- ② 추가 항목(전폭) -->
+            <RowDefinition Height="Auto"/>  <!-- ③ 상태 · 액션 -->
         </Grid.RowDefinitions>
 
-        <!-- ① 조사개황 -->
-        <Border Grid.Row="0" Margin="2" Padding="14" Style="{StaticResource CardBorderStyle}">
-            <StackPanel>
-                <Grid>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="조사개황" Style="{StaticResource SubHeaderTextStyle}" Margin="0"/>
-                        <TextBlock Text="지점당 1회 입력 후 접어두면 측정값 입력이 편해집니다" Margin="10 0 0 0"
-                                   VerticalAlignment="Center" Style="{StaticResource CaptionTextStyle}"/>
-                    </StackPanel>
-                    <telerik:RadToggleButton Grid.Column="1" x:Name="MetaToggle" IsChecked="True" Padding="12 4"
-                                             Content="접기 / 펼치기"/>
-                </Grid>
+        <!-- ① 좌: 측정 항목 3×3 / 우: 등급 요약 레일 -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="*" MinWidth="{StaticResource RailMinWidth}" MaxWidth="{StaticResource RailMaxWidth}"/>
+            </Grid.ColumnDefinitions>
 
-                <StackPanel Margin="0 10 0 0"
-                            Visibility="{Binding IsChecked, ElementName=MetaToggle, Converter={StaticResource BoolToVisibility}}">
-                    <ctrl:SurveyOverviewControl DataContext="{Binding Meta}"/>
+            <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 2">
+                        <Border Style="{StaticResource GroupHeaderBarStyle}"/>
+                        <TextBlock Text="측정 항목" Style="{StaticResource GroupHeaderTextStyle}"/>
+                    </StackPanel>
+                    <TextBlock Text="입력 즉시 등급이 자동 산정됩니다 (등급은 조사자가 입력하지 않습니다)"
+                               Margin="11 0 0 12" Style="{StaticResource CaptionTextStyle}"/>
+
+                    <UniformGrid Columns="3">
+                        <StackPanel Style="{StaticResource WqTile}">
+                            <TextBlock Text="pH" Style="{StaticResource FormLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                         Text="{Binding PH, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Style="{StaticResource WqGrade}" Text="{Binding PhGradeText, StringFormat=등급  {0}}"/>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource WqTile}">
+                            <TextBlock Text="BOD (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                         Text="{Binding Bod, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Style="{StaticResource WqGrade}" Text="{Binding BodGradeText, StringFormat=등급  {0}}"/>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource WqTile}">
+                            <TextBlock Text="COD (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                         Text="{Binding Cod, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Style="{StaticResource WqGrade}" Text="{Binding CodGradeText, StringFormat=등급  {0}}"/>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource WqTile}">
+                            <TextBlock Text="TOC (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                         Text="{Binding Toc, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Style="{StaticResource WqGrade}" Text="{Binding TocGradeText, StringFormat=등급  {0}}"/>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource WqTile}">
+                            <TextBlock Text="SS (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                         Text="{Binding Ss, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Style="{StaticResource WqGrade}" Text="{Binding SsGradeText, StringFormat=등급  {0}}"/>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource WqTile}">
+                            <TextBlock Text="DO (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                         Text="{Binding Dox, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Style="{StaticResource WqGrade}" Text="{Binding DoGradeText, StringFormat=등급  {0}}"/>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource WqTile}">
+                            <TextBlock Text="T-P (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                         Text="{Binding Tp, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Style="{StaticResource WqGrade}" Text="{Binding TpGradeText, StringFormat=등급  {0}}"/>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource WqTile}">
+                            <TextBlock Text="대장균군 (군수/100mL)" Style="{StaticResource FormLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                         Text="{Binding EColi, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Style="{StaticResource WqGrade}" Text="{Binding EColiGradeText, StringFormat=등급  {0}}"/>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource WqTile}">
+                            <TextBlock Text="생태독성 (TU)" Style="{StaticResource FormLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                         Text="{Binding Ecotoxicity, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="등급 없음" Margin="0 4 0 0" Style="{StaticResource CaptionTextStyle}"/>
+                        </StackPanel>
+                    </UniformGrid>
                 </StackPanel>
+            </Border>
+
+            <!-- 등급 8종을 한 번에 본다 — 각 타일의 등급은 입력 직후 피드백, 레일은 전체 조망 -->
+            <ctrl:ResultRail Grid.Column="1" Header="수질 등급 요약">
+                <ctrl:ResultRail.Body>
+                    <StackPanel>
+                        <Grid Style="{StaticResource WqRailRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="pH" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding PhGradeText}" Style="{StaticResource RailValueStyle}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource WqRailRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="BOD" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding BodGradeText}" Style="{StaticResource RailValueStyle}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource WqRailRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="COD" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding CodGradeText}" Style="{StaticResource RailValueStyle}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource WqRailRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="TOC" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TocGradeText}" Style="{StaticResource RailValueStyle}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource WqRailRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="SS" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding SsGradeText}" Style="{StaticResource RailValueStyle}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource WqRailRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="DO" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding DoGradeText}" Style="{StaticResource RailValueStyle}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource WqRailRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="T-P" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding TpGradeText}" Style="{StaticResource RailValueStyle}"/>
+                        </Grid>
+                        <Grid Style="{StaticResource WqRailRow}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock Text="대장균군" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding EColiGradeText}" Style="{StaticResource RailValueStyle}"/>
+                        </Grid>
+
+                        <Border Style="{StaticResource RailDividerStyle}"/>
+
+                        <!-- 등급 8종 중 몇 개가 비었는지 — 조사자에게 중요하다 -->
+                        <TextBlock Text="{Binding UnfilledGradeText}" Style="{StaticResource RailValueStyle}"/>
+                        <TextBlock Margin="0 6 0 0" Style="{StaticResource CaptionTextStyle}"
+                                   Text="`-` 는 미입력입니다. 측정값 0 은 미입력이 아닙니다."/>
+                        <TextBlock Margin="0 6 0 0" Style="{StaticResource CaptionTextStyle}"
+                                   Text="생태독성(TU)은 등급 산정 대상이 아닙니다."/>
+                    </StackPanel>
+                </ctrl:ResultRail.Body>
+            </ctrl:ResultRail>
+        </Grid>
+
+        <!-- ② 추가 항목(전폭) : 수질 확장 9 / 현장 측정 4 로 성격을 갈랐다 -->
+        <Border Grid.Row="1" Margin="0 8 0 0" Style="{StaticResource CardBorderStyle}">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 0 0 2">
+                    <Border Style="{StaticResource GroupHeaderBarStyle}"/>
+                    <TextBlock Text="추가 항목" Style="{StaticResource GroupHeaderTextStyle}"/>
+                </StackPanel>
+                <TextBlock Text="등급 산정 대상이 아닌 확장 측정값입니다 (측정한 항목만 입력)"
+                           Margin="11 0 0 12" Style="{StaticResource CaptionTextStyle}"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 수질 확장 9 -->
+                    <StackPanel Grid.Column="0" Margin="0 0 24 0">
+                        <TextBlock Text="수질 확장" Style="{StaticResource FormLabelStyle}" Margin="0 0 0 6"/>
+                        <WrapPanel>
+                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                                <TextBlock Text="T-N (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding TN, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                                <TextBlock Text="전기전도도 (µS/cm)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding EC, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                                <TextBlock Text="염소이온 (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding Cl, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                                <TextBlock Text="황이온 (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding SO42, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
+                                <TextBlock Text="구리 Cu (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding Cu, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
+                                <TextBlock Text="아연 Zn (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding Zn, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
+                                <TextBlock Text="크롬 Cr (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding Cr, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
+                                <TextBlock Text="탁도 (NTU)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding Turbidity, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                                <TextBlock Text="클로로필a (mg/m³)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding Chla, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+
+                    <!-- 현장 측정 5 : 성격이 다르므로 분리한다 -->
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="현장 측정" Style="{StaticResource FormLabelStyle}" Margin="0 0 0 6"/>
+                        <WrapPanel MaxWidth="420">
+                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
+                                <TextBlock Text="수온 (℃)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding WaterTemperature, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
+                                <TextBlock Text="수심 (cm)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding WaterDepth, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
+                                <TextBlock Text="유속 (cm/s)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding FlowVelocity, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                                <TextBlock Text="초당유량 (m³/sec)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding FlowSec, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                                <TextBlock Text="일당유량 (m³/day)" Style="{StaticResource FormLabelStyle}"/>
+                                <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
+                                                             Text="{Binding FlowDay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+                </Grid>
             </StackPanel>
         </Border>
 
-        <!-- ② 측정 항목 + 추가 항목 -->
-        <ScrollViewer Grid.Row="1" Margin="2 8 2 2" VerticalScrollBarVisibility="Auto">
-            <StackPanel>
-
-                <!-- 측정 항목 : 등급 8종은 자동 산정(입력 대상 아님) -->
-                <Border Padding="14" Margin="0 0 0 10" Style="{StaticResource CardBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="측정 항목" FontWeight="SemiBold" Margin="0 0 0 2"
-                                   Foreground="{StaticResource AppAccentStrongBrush}"/>
-                        <TextBlock Text="입력 즉시 등급이 자동 산정됩니다 (등급은 조사자가 입력하지 않습니다)"
-                                   Margin="0 0 0 10" Style="{StaticResource CaptionTextStyle}"/>
-
-                        <UniformGrid Columns="3">
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="pH" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding PH, UpdateSourceTrigger=PropertyChanged}"/>
-                                <TextBlock Style="{StaticResource WqGrade}" Text="{Binding PhGradeText, StringFormat=등급  {0}}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="BOD (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Bod, UpdateSourceTrigger=PropertyChanged}"/>
-                                <TextBlock Style="{StaticResource WqGrade}" Text="{Binding BodGradeText, StringFormat=등급  {0}}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="COD (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Cod, UpdateSourceTrigger=PropertyChanged}"/>
-                                <TextBlock Style="{StaticResource WqGrade}" Text="{Binding CodGradeText, StringFormat=등급  {0}}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="TOC (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Toc, UpdateSourceTrigger=PropertyChanged}"/>
-                                <TextBlock Style="{StaticResource WqGrade}" Text="{Binding TocGradeText, StringFormat=등급  {0}}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="SS (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Ss, UpdateSourceTrigger=PropertyChanged}"/>
-                                <TextBlock Style="{StaticResource WqGrade}" Text="{Binding SsGradeText, StringFormat=등급  {0}}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="DO (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Dox, UpdateSourceTrigger=PropertyChanged}"/>
-                                <TextBlock Style="{StaticResource WqGrade}" Text="{Binding DoGradeText, StringFormat=등급  {0}}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="T-P (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Tp, UpdateSourceTrigger=PropertyChanged}"/>
-                                <TextBlock Style="{StaticResource WqGrade}" Text="{Binding TpGradeText, StringFormat=등급  {0}}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="대장균군 (군수/100mL)" Style="{StaticResource WqCaption}" TextWrapping="Wrap"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding EColi, UpdateSourceTrigger=PropertyChanged}"/>
-                                <TextBlock Style="{StaticResource WqGrade}" Text="{Binding EColiGradeText, StringFormat=등급  {0}}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="생태독성 (TU)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Ecotoxicity, UpdateSourceTrigger=PropertyChanged}"/>
-                                <TextBlock Text="등급 없음" Margin="0 3 0 0" Style="{StaticResource CaptionTextStyle}"/>
-                            </StackPanel>
-                        </UniformGrid>
-                    </StackPanel>
-                </Border>
-
-                <!-- 추가 항목 : 등급 산정 대상이 아닌 확장 측정값 -->
-                <Border Padding="14" Style="{StaticResource CardBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="추가 항목" FontWeight="SemiBold" Margin="0 0 0 2"
-                                   Foreground="{StaticResource AppAccentStrongBrush}"/>
-                        <TextBlock Text="등급 산정 대상이 아닌 확장 측정값입니다 (측정한 항목만 입력)"
-                                   Margin="0 0 0 10" Style="{StaticResource CaptionTextStyle}"/>
-
-                        <UniformGrid Columns="4">
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="T-N (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding TN, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="전기전도도 (µS/cm)" Style="{StaticResource WqCaption}" TextWrapping="Wrap"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding EC, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="염소이온 (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Cl, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="황이온 (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding SO42, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="구리 Cu (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Cu, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="아연 Zn (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Zn, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="크롬 Cr (mg/L)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Cr, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="탁도 (NTU)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Turbidity, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="클로로필a (mg/m³)" Style="{StaticResource WqCaption}" TextWrapping="Wrap"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding Chla, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="수온 (℃)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding WaterTemperature, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="수심 (cm)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding WaterDepth, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="유속 (cm/s)" Style="{StaticResource WqCaption}"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding FlowVelocity, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="초당유량 (m³/sec)" Style="{StaticResource WqCaption}" TextWrapping="Wrap"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding FlowSec, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="일당유량 (m³/day)" Style="{StaticResource WqCaption}" TextWrapping="Wrap"/>
-                                <telerik:RadWatermarkTextBox Text="{Binding FlowDay, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                        </UniformGrid>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </ScrollViewer>
-
-        <!-- 하단 상태바 + 액션 -->
-        <Border Grid.Row="2" Margin="2 8 2 2" Padding="8 6" Style="{StaticResource CardBorderStyle}">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <icon:PackIconMaterial Kind="ClockOutline" Width="14" Height="14" VerticalAlignment="Center"
-                                           Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
-                    <TextBlock Text="{Binding StatusText}" Margin="6 0 0 0"
-                               Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <telerik:RadButton Command="{Binding SaveTemporaryCommand}" Margin="0 0 8 0" Padding="10 4">
+        <!-- ③ 상태 · 액션 -->
+        <ctrl:TaxonStatusBar Grid.Row="2" Margin="0 8 0 0">
+            <ctrl:TaxonStatusBar.Summary>
+                <TextBlock Text="{Binding UnfilledGradeText}" FontWeight="SemiBold" VerticalAlignment="Center"
+                           Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+            </ctrl:TaxonStatusBar.Summary>
+            <ctrl:TaxonStatusBar.Actions>
+                <StackPanel Orientation="Horizontal">
+                    <telerik:RadButton Command="{Binding SaveTemporaryCommand}"
+                                       Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconMaterial Kind="ContentSaveOutline" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="임시 저장" Margin="6 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
-                    <telerik:RadButton Command="{Binding ExportBulkCommand}" Margin="0 0 8 0" Padding="10 4"
-                                       ToolTipService.ToolTip="관리자 일괄입력용(레거시 양식) · 현행 관리자 Import 취합용">
+                    <telerik:RadButton Command="{Binding ExportBulkCommand}"
+                                       Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}"
+                                       ToolTipService.ToolTip="관리자 일괄입력용 · 현행 관리자 Import 취합용">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="일괄입력용" Margin="6 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
-                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="10 4"
-                                       ToolTipService.ToolTip="보고서·기록용 · 조사개황/측정결과/건강성평가(수질등급) 시트">
+                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="{StaticResource ActionButtonPadding}"
+                                       Background="{StaticResource PrimaryActionBackBrush}"
+                                       Foreground="{StaticResource PrimaryActionForeBrush}"
+                                       ToolTipService.ToolTip="보고서·기록용 · 조사개황/측정값/등급 시트">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="보고서 엑셀" Margin="6 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                 </StackPanel>
-            </Grid>
-        </Border>
+            </ctrl:TaxonStatusBar.Actions>
+        </ctrl:TaxonStatusBar>
     </Grid>
 </UserControl>

@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
                     xmlns:conv="clr-namespace:SDSM_Surveyor_App.Converters"
@@ -17,17 +17,56 @@
     <sys:Double x:Key="PageTitleFontSize">26</sys:Double>
     <sys:Double x:Key="SectionTitleFontSize">19</sys:Double>
     <sys:Double x:Key="FormLabelFontSize">15</sys:Double>
-    <sys:Double x:Key="CaptionFontSize">11.5</sys:Double>
+    <sys:Double x:Key="CaptionFontSize">12</sys:Double>   <!-- 11.5 는 소수점이라 렌더링이 흐렸다(§5-4) -->
     <sys:Double x:Key="ValueFontSize">30</sys:Double>
     <sys:Double x:Key="GradeFontSize">24</sys:Double>
 
+    <!--=========== 간격 스케일 (06_DESIGN_REBUILD §5-1-2) ===========-->
+    <!-- 여백은 이 6단계만 쓴다. 화면에 숫자를 직접 적지 않는다. -->
+    <sys:Double x:Key="SpaceXs">4</sys:Double>
+    <sys:Double x:Key="SpaceSm">8</sys:Double>
+    <sys:Double x:Key="SpaceMd">12</sys:Double>
+    <sys:Double x:Key="SpaceLg">16</sys:Double>
+    <sys:Double x:Key="SpaceXl">20</sys:Double>
+    <sys:Double x:Key="Space2Xl">32</sys:Double>
+
+    <Thickness x:Key="CardPadding">16</Thickness>
+    <Thickness x:Key="CardPaddingRoomy">20</Thickness>
+    <Thickness x:Key="StatusBarPadding">12 8</Thickness>
+    <Thickness x:Key="FieldMargin">0 0 12 12</Thickness>
+
     <!--=========== 치수 ===========-->
-    <sys:Double x:Key="DefaultHeight">40</sys:Double>
+    <!-- ⚠ DefaultHeight 40 → 36 (§5-4 · 승인 §5-7 결정 3).
+         760 높이 노트북에서 폼 4칸당 16 px 를 번다. -->
+    <sys:Double x:Key="DefaultHeight">36</sys:Double>
+    <sys:Double x:Key="InputHeight">36</sys:Double>
     <sys:Double x:Key="TitleBarHeight">50</sys:Double>
+    <!-- Grid.RowDefinition.Height 는 GridLength 를 요구한다 — Double 을 넣으면 XAML 로드가 터진다. -->
+    <GridLength x:Key="TitleBarRowHeight">50</GridLength>
+    <sys:Double x:Key="TaxonTabHeight">44</sys:Double>
     <sys:Double x:Key="ContentXSmallMaxWidth">1240</sys:Double>
+
+    <!-- 폼 입력 폭 4단 규격 (§5-2-1). 92·100·112·130·150·200·220 이 뒤섞이던 것을 정리한다. -->
+    <sys:Double x:Key="FieldXs">96</sys:Double>
+    <sys:Double x:Key="FieldSm">128</sys:Double>
+    <sys:Double x:Key="FieldMd">176</sys:Double>
+    <sys:Double x:Key="FieldLg">264</sys:Double>
+
+    <!-- 구버전 이름 유지 (design.md §2 표기와 외부 참조 호환) -->
     <sys:Double x:Key="FormControlSmallWidth">120</sys:Double>
     <sys:Double x:Key="FormControlMiddleWidth">149.5</sys:Double>
     <sys:Double x:Key="FormControlWidth">240</sys:Double>
+
+    <!--=========== 표 (§5-3) ===========-->
+    <sys:Double x:Key="GridHeaderHeight">34</sys:Double>
+    <sys:Double x:Key="GridRowHeight">34</sys:Double>
+    <!-- 관찰형 2단 행 : 윗줄 34 + 아랫줄 30 -->
+    <sys:Double x:Key="GridRow2LineHeight">30</sys:Double>
+
+    <!--=========== 결과 레일 (§5-2-1) ===========-->
+    <!-- 320 고정을 버린다. 1280 에서 그리드를 과하게 누르고 넓은 화면에서는 낭비였다. -->
+    <sys:Double x:Key="RailMinWidth">280</sys:Double>
+    <sys:Double x:Key="RailMaxWidth">360</sys:Double>
 
     <!--=========== 타이포그래피 ===========-->
     <Style x:Key="BodyTextStyle" TargetType="TextBlock">
@@ -87,12 +126,17 @@
         <Setter Property="BorderBrush" Value="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{telerik:Windows11Resource ResourceKey=CornerRadius}"/>
-        <Setter Property="Padding" Value="20"/>
+        <Setter Property="Padding" Value="{StaticResource CardPadding}"/>
+    </Style>
+
+    <!-- 여유 있는 카드(항목이 적은 곳) -->
+    <Style x:Key="CardBorderRoomyStyle" TargetType="Border" BasedOn="{StaticResource CardBorderStyle}">
+        <Setter Property="Padding" Value="{StaticResource CardPaddingRoomy}"/>
     </Style>
 
     <!-- 하단 상태바 -->
     <Style x:Key="StatusBarBorderStyle" TargetType="Border" BasedOn="{StaticResource CardBorderStyle}">
-        <Setter Property="Padding" Value="10 6"/>
+        <Setter Property="Padding" Value="{StaticResource StatusBarPadding}"/>
     </Style>
 
     <!--=========== 셸 캡션 버튼 (딥네이비 상단바용) ===========-->
@@ -194,7 +238,7 @@
     <!--=========== 분류군 탭 (관리자 통계 화면과 동일 형식) ===========-->
     <!-- Tag에 분류군 브러시를 지정하면 표시등 색으로 사용됨 -->
     <Style x:Key="TaxonTabStyle" TargetType="RadioButton">
-        <Setter Property="Height" Value="46"/>
+        <Setter Property="Height" Value="{StaticResource TaxonTabHeight}"/>
         <Setter Property="FontSize" Value="15"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="IsTabStop" Value="True"/>
@@ -235,5 +279,120 @@
 
     <!-- ※ StyleManager 테마 사용 중이므로 RadTabItem에 Style을 통째로 지정하지 않는다
          (테마 템플릿이 벗겨짐). 분류군 탭은 위 RadioButton 기반 세그먼트 탭을 사용한다. -->
+
+    <!--=========== 폼 필드 (06_DESIGN_REBUILD §5-3) ===========-->
+    <!-- 라벨(위) + 입력(아래) 한 칸. 폭은 FieldXs/Sm/Md/Lg 4단 규격에서 고른다.
+         ⚠ Telerik 입력 컨트롤에는 Style 을 통째로 지정하지 않는다(90_TECH_NOTES §2 — 테마 템플릿이 벗겨진다).
+            높이는 사용처에서 Height="{StaticResource InputHeight}" 로 직접 준다. -->
+    <Style x:Key="FormFieldStyle" TargetType="StackPanel">
+        <Setter Property="Margin" Value="{StaticResource FieldMargin}"/>
+    </Style>
+
+    <Style x:Key="FormFieldXsStyle" TargetType="StackPanel" BasedOn="{StaticResource FormFieldStyle}">
+        <Setter Property="Width" Value="{StaticResource FieldXs}"/>
+    </Style>
+    <Style x:Key="FormFieldSmStyle" TargetType="StackPanel" BasedOn="{StaticResource FormFieldStyle}">
+        <Setter Property="Width" Value="{StaticResource FieldSm}"/>
+    </Style>
+    <Style x:Key="FormFieldMdStyle" TargetType="StackPanel" BasedOn="{StaticResource FormFieldStyle}">
+        <Setter Property="Width" Value="{StaticResource FieldMd}"/>
+    </Style>
+    <Style x:Key="FormFieldLgStyle" TargetType="StackPanel" BasedOn="{StaticResource FormFieldStyle}">
+        <Setter Property="Width" Value="{StaticResource FieldLg}"/>
+    </Style>
+
+    <!--=========== 그룹 헤더 (§5-3) ===========-->
+    <!-- 좌측 3px 강조 바 + SemiBold. 카드 안에 구분선을 더 긋지 않는다(선이 너무 많아진다). -->
+    <Style x:Key="GroupHeaderBarStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource AppAccentBrush}"/>
+        <Setter Property="Width" Value="3"/>
+        <Setter Property="CornerRadius" Value="1.5"/>
+        <Setter Property="Margin" Value="0 0 8 0"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style x:Key="GroupHeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FormLabelFontSize}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+    </Style>
+
+    <!--=========== 등급 뱃지 (§5-3) ===========-->
+    <!-- 배경색은 사용처에서 GradeA~E/None 브러시를 골라 준다.
+         글자(A~E)가 항상 함께 나오므로 색만으로 구분하지 않는다(design.md §10). -->
+    <Style x:Key="GradeBadgeBorderStyle" TargetType="Border">
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="MinWidth" Value="34"/>
+        <Setter Property="CornerRadius" Value="13"/>
+        <Setter Property="Padding" Value="10 0"/>
+        <Setter Property="Background" Value="{StaticResource GradeNoneBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="GradeBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!--=========== 결과 레일 (§5-1-3) ===========-->
+    <!-- 결과가 '값'인 유형(종 입력형·폼형)에만 둔다.
+         관찰형은 레일을 두지 않는다 — 그리드가 300px 더 좁아지면 22열이 안 들어간다. -->
+    <Style x:Key="RailBorderStyle" TargetType="Border" BasedOn="{StaticResource CardBorderStyle}">
+        <Setter Property="Margin" Value="8 0 0 0"/>
+    </Style>
+
+    <Style x:Key="RailRowStyle" TargetType="Grid">
+        <Setter Property="Margin" Value="0 4"/>
+    </Style>
+
+    <Style x:Key="RailLabelStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="RailValueStyle" TargetType="TextBlock">
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+    </Style>
+
+    <Style x:Key="RailDividerStyle" TargetType="Border">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Margin" Value="0 10"/>
+        <Setter Property="Background" Value="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"/>
+    </Style>
+
+    <!--=========== 관찰형 2단 행 아랫줄 (§5-2-2) ===========-->
+    <!-- RowDetails 로 상시 표시한다. 접거나 감추지 않는다(§3-6).
+         TabNavigation=Local 은 Tab 이 아랫줄 12칸을 차례로 지나게 한다(스파이크 확인됨). -->
+    <Style x:Key="RowDetailsPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+        <Setter Property="Margin" Value="24 2 0 2"/>
+        <Setter Property="KeyboardNavigation.TabNavigation" Value="Local"/>
+    </Style>
+
+    <Style x:Key="RowDetailsLabelStyle" TargetType="TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0 0 4 0"/>
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
+    </Style>
+
+    <Style x:Key="RowDetailsTagStyle" TargetType="TextBlock" BasedOn="{StaticResource RowDetailsLabelStyle}">
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Margin" Value="0 0 8 0"/>
+    </Style>
+
+    <!--=========== 버튼 계층 (§5-3) ===========-->
+    <!-- ⚠ RadButton 에 Style 을 통째로 지정하지 않는다. 사용처에서 아래 브러시를 개별 속성으로 준다.
+         위험 버튼(빈 행 정리)은 주요 버튼과 멀리 떨어뜨려 가장 왼쪽에 둔다. -->
+    <SolidColorBrush x:Key="PrimaryActionBackBrush" Color="{StaticResource AppAccentColor}"/>
+    <SolidColorBrush x:Key="PrimaryActionForeBrush" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="DangerActionForeBrush" Color="{StaticResource MaxColor}"/>
+
+    <Thickness x:Key="ActionButtonPadding">12 4</Thickness>
+    <Thickness x:Key="ActionButtonMargin">0 0 8 0</Thickness>
 
 </ResourceDictionary>

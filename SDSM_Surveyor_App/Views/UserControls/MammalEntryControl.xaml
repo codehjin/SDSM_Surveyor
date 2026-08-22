@@ -8,188 +8,213 @@
              xmlns:core="clr-namespace:SDSM_Surveyor_App.Behaviors"
              xmlns:ctrl="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
              xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="1360" d:DesignHeight="740"
+             mc:Ignorable="d" d:DesignWidth="1224" d:DesignHeight="540"
              d:DataContext="{d:DesignInstance vm:MammalEntryViewModel}">
 
-    <Grid Margin="6">
+    <!-- ══ 관찰형 기준 화면 — 포유류 22열 (06_DESIGN_REBUILD §5-2-2) ═══════════════
+         22열을 **하나도 줄이지 않는다**(§3-6). 폭을 최소 실용폭까지 깎아도 1,504 px 라
+         1280 창의 가용폭 1,224 에 280 px 모자란다 → 구조를 바꾼다.
+
+           1행 : 종 식별 5 + 흔적계(읽기전용) + 위도·경도·특징·특이사항·구분  = 11열
+           2행 : 흔적 12칸  (RowDetails 상시 표시 — 접거나 감추지 않는다)
+
+         1행 고정 합 1,096 + 특징 128 = 1,224 로 1280 창에 정확히 들어간다.
+         ⚠ 표시 행이 6행으로 줄어드는 것은 **승인된 대가**다(§5-7).
+            행이 적게 보인다는 이유로 흔적 열을 접는 구조로 되돌아가지 말 것.
+
+         Tab 순서(스파이크로 실측) :
+           일반명 → … → 구분 → [2행] 포획 → … → 기타 → 다음 행 일반명
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <Grid Margin="8">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>  <!-- ① 조사개황(접이식) -->
-            <RowDefinition Height="*"/>     <!-- ② 빠른추가 + 관찰 그리드 -->
-            <RowDefinition Height="Auto"/>  <!-- 하단 상태바/액션 -->
+            <RowDefinition Height="Auto"/>  <!-- ① 빠른 추가 -->
+            <RowDefinition Height="*"/>     <!-- ② 관찰 그리드(2단 행) -->
+            <RowDefinition Height="Auto"/>  <!-- ③ 상태 · 액션 -->
         </Grid.RowDefinitions>
 
-        <!-- ① 조사개황 : 지점당 1회 입력 후 접어두면 관찰 입력 공간이 넓어짐 -->
-        <Border Grid.Row="0" Margin="2" Padding="14" Style="{StaticResource CardBorderStyle}">
-            <StackPanel>
-                <Grid>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="조사개황" Style="{StaticResource SubHeaderTextStyle}" Margin="0"/>
-                        <TextBlock Text="관리자 포유류 자료에는 대권역·중권역·하천유형·조사기관이 없습니다(내보내기 시 비워짐)"
-                                   Margin="10 0 0 0" VerticalAlignment="Center" Style="{StaticResource CaptionTextStyle}"/>
-                    </StackPanel>
-                    <telerik:RadToggleButton Grid.Column="1" x:Name="MetaToggle" IsChecked="True" Padding="12 4"
-                                             Content="접기 / 펼치기"/>
-                </Grid>
+        <!-- ① 빠른 추가 : 개체수는 '관찰'(Trace2) 흔적으로 들어간다 -->
+        <ctrl:QuickAddBar Grid.Row="0" Margin="0 0 0 8"
+                          SearchWatermark="종명 초성 검색 (예: ㄱㄹㄴ)"
+                          CountWatermark="관찰 개체수"
+                          Hint="개체수는 '관찰' 흔적에 들어갑니다 · 나머지 흔적은 아랫줄에서 입력 · 엑셀 Ctrl+V 가능"/>
 
-                <StackPanel Margin="0 10 0 0"
-                            Visibility="{Binding IsChecked, ElementName=MetaToggle, Converter={StaticResource BoolToVisibility}}">
-                    <ctrl:SurveyOverviewControl DataContext="{Binding Meta}"/>
-                </StackPanel>
-            </StackPanel>
-        </Border>
+        <!-- ② 관찰 그리드 -->
+        <telerik:RadGridView Grid.Row="1"
+                             ItemsSource="{Binding Entries}"
+                             AutoGenerateColumns="False"
+                             CanUserInsertRows="True" NewRowPosition="Bottom"
+                             GroupRenderMode="Flat" ShowGroupPanel="False"
+                             SelectionUnit="Cell" GridLinesVisibility="Both"
+                             RowIndicatorVisibility="Collapsed"
+                             ClipboardCopyMode="Cells"
+                             FrozenColumnCount="1"
+                             RowHeight="{StaticResource GridRowHeight}"
+                             AlternationCount="2"
+                             AlternateRowBackground="{StaticResource RowAltBrush}"
+                             RowDetailsVisibilityMode="Visible"
+                             PreviewKeyDown="Grid_PreviewKeyDown">
 
-        <!-- ② 빠른 추가 바 + 관찰 그리드 -->
-        <Grid Grid.Row="1" Margin="2 8 2 2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+            <telerik:RadGridView.Columns>
+                <!-- 국명 : 초성 자동완성 (가로 스크롤이 없어도 고정해 둔다 — 2단 행의 기준점) -->
+                <telerik:GridViewDataColumn Header="일반명" Width="168" DataMemberBinding="{Binding SpeciesKo}">
+                    <telerik:GridViewDataColumn.CellEditTemplate>
+                        <DataTemplate>
+                            <telerik:RadAutoCompleteBox SelectionMode="Single"
+                                WatermarkContent="초성 검색 (예: ㄱㄹㄴ)"
+                                DisplayMemberPath="SpeciesKo"
+                                TextSearchPath="SpeciesKo"
+                                TextSearchMode="Contains"
+                                SelectedItem="{Binding SelectedSpecies, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ItemsSource="{Binding DataContext.SpeciesListSource, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                <telerik:RadAutoCompleteBox.FilteringBehavior>
+                                    <core:ChosungFilteringBehavior/>
+                                </telerik:RadAutoCompleteBox.FilteringBehavior>
+                            </telerik:RadAutoCompleteBox>
+                        </DataTemplate>
+                    </telerik:GridViewDataColumn.CellEditTemplate>
+                </telerik:GridViewDataColumn>
 
-            <Border Grid.Row="0" Margin="0 0 0 8" Padding="10 8" Style="{StaticResource CardBorderStyle}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="종 빠른 추가" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0 0 12 0"/>
-                    <telerik:RadComboBox x:Name="QuickSpeciesBox" Width="260"
-                        IsEditable="True" IsTextSearchEnabled="False" IsFilteringEnabled="False"
-                        OpenDropDownOnFocus="True" StaysOpenOnEdit="True"
-                        EmptyText="종명 초성 검색 (예: ㄱㄹㄴ)"
-                        DisplayMemberPath="SpeciesKo"
-                        ItemsSource="{Binding FilteredQuick}"
-                        Text="{Binding QuickSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        SelectedItem="{Binding QuickSpecies, Mode=TwoWay}"/>
-                    <telerik:RadWatermarkTextBox x:Name="QuickCountBox" Width="90" Margin="8 0 0 0"
-                        WatermarkContent="관찰 개체수"
-                        Text="{Binding QuickCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        PreviewKeyDown="QuickCountBox_PreviewKeyDown"/>
-                    <telerik:RadButton Content="추가" Margin="8 0 0 0" Padding="16 4" Command="{Binding AddQuickCommand}"/>
-                    <TextBlock Text="개체수는 '관찰' 흔적에 들어갑니다 · 나머지 흔적은 그리드에서 입력 · 엑셀 Ctrl+V 가능"
-                               VerticalAlignment="Center" Margin="12 0 0 0" Style="{StaticResource CaptionTextStyle}"/>
-                </StackPanel>
-            </Border>
+                <telerik:GridViewDataColumn Header="학명" Width="150" DataMemberBinding="{Binding SpeciesEn}"/>
+                <telerik:GridViewDataColumn Header="목" Width="78" DataMemberBinding="{Binding OrderKo}"/>
+                <telerik:GridViewDataColumn Header="과" Width="78" DataMemberBinding="{Binding FamilyKo}"/>
+                <telerik:GridViewDataColumn Header="관찰지유형" Width="104" DataMemberBinding="{Binding ObservationSite}"/>
 
-            <!-- 관찰 그리드 : 관리자 Mammal 전 필드. 흔적 12종은 체크가 아니라 개체수(정수) 입력 -->
-            <telerik:RadGridView Grid.Row="1"
-                                 ItemsSource="{Binding Entries}"
-                                 AutoGenerateColumns="False"
-                                 CanUserInsertRows="True" NewRowPosition="Bottom"
-                                 GroupRenderMode="Flat" ShowGroupPanel="False"
-                                 SelectionUnit="Cell" GridLinesVisibility="Both"
-                                 RowIndicatorVisibility="Collapsed"
-                                 ClipboardCopyMode="Cells"
-                                 FrozenColumnCount="1"
-                                 PreviewKeyDown="Grid_PreviewKeyDown">
-                <telerik:RadGridView.Columns>
-                    <!-- 국명 : 초성 자동완성 (가로 스크롤 시에도 고정) -->
-                    <telerik:GridViewDataColumn Header="일반명" Width="180" DataMemberBinding="{Binding SpeciesKo}">
-                        <telerik:GridViewDataColumn.CellEditTemplate>
-                            <DataTemplate>
-                                <telerik:RadAutoCompleteBox SelectionMode="Single"
-                                    WatermarkContent="초성 검색 (예: ㄱㄹㄴ)"
-                                    DisplayMemberPath="SpeciesKo"
-                                    TextSearchPath="SpeciesKo"
-                                    TextSearchMode="Contains"
-                                    SelectedItem="{Binding SelectedSpecies, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    ItemsSource="{Binding DataContext.SpeciesListSource, RelativeSource={RelativeSource AncestorType=UserControl}}">
-                                    <telerik:RadAutoCompleteBox.FilteringBehavior>
-                                        <core:ChosungFilteringBehavior/>
-                                    </telerik:RadAutoCompleteBox.FilteringBehavior>
-                                </telerik:RadAutoCompleteBox>
-                            </DataTemplate>
-                        </telerik:GridViewDataColumn.CellEditTemplate>
-                    </telerik:GridViewDataColumn>
+                <!-- 흔적계 : 입력 항목이 아니라 **피드백**이다(§3-4). 모델의 TraceSum 을 그대로 읽는다.
+                     아랫줄을 보지 않아도 그 행에 흔적이 있는지 알 수 있다. -->
+                <telerik:GridViewDataColumn Header="흔적계" Width="66" IsReadOnly="True" IsFilterable="False"
+                                            TextAlignment="Right" DataMemberBinding="{Binding TraceSum}"
+                                            ToolTipService.ToolTip="흔적 12칸의 합계(자동)"/>
 
-                    <telerik:GridViewDataColumn Header="학명" Width="150" DataMemberBinding="{Binding SpeciesEn}"/>
-                    <telerik:GridViewDataColumn Header="목" Width="90" DataMemberBinding="{Binding OrderKo}"/>
-                    <telerik:GridViewDataColumn Header="과" Width="90" DataMemberBinding="{Binding FamilyKo}"/>
-                    <telerik:GridViewDataColumn Header="관찰지유형" Width="110" DataMemberBinding="{Binding ObservationSite}"/>
+                <telerik:GridViewDataColumn Header="위도" Width="92" IsFilterable="False"
+                                            DataMemberBinding="{Binding Lat}" DataFormatString="{}{0:N6}" TextAlignment="Right"/>
+                <telerik:GridViewDataColumn Header="경도" Width="92" IsFilterable="False"
+                                            DataMemberBinding="{Binding Lng}" DataFormatString="{}{0:N6}" TextAlignment="Right"/>
+                <telerik:GridViewDataColumn Header="특징" Width="*" MinWidth="120" DataMemberBinding="{Binding Feature}"/>
+                <telerik:GridViewDataColumn Header="특이사항" Width="150" DataMemberBinding="{Binding Note}"/>
+                <telerik:GridViewDataColumn Header="구분" Width="118" IsReadOnly="True"
+                                            DataMemberBinding="{Binding ProtectionText}"
+                                            ToolTipService.ToolTip="공식 종목록의 법정보호종·생태계교란생물 표기(자동)"/>
+            </telerik:RadGridView.Columns>
 
-                    <!-- 흔적 12종 (개체수/횟수) : 헤더가 잘리지 않도록 폭을 주고 필터 아이콘 제거 -->
-                    <telerik:GridViewDataColumn Header="포획"   Width="66" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace1}"/>
-                    <telerik:GridViewDataColumn Header="관찰"   Width="66" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace2}"/>
-                    <telerik:GridViewDataColumn Header="울음"   Width="66" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace3}"/>
-                    <telerik:GridViewDataColumn Header="사체"   Width="66" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace4}"/>
-                    <telerik:GridViewDataColumn Header="족적"   Width="66" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace5}"/>
-                    <telerik:GridViewDataColumn Header="털"     Width="58" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace6}"/>
-                    <telerik:GridViewDataColumn Header="식흔"   Width="66" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace7}"/>
-                    <telerik:GridViewDataColumn Header="굴"     Width="58" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace8}"/>
-                    <telerik:GridViewDataColumn Header="번식지" Width="76" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace9}"/>
-                    <telerik:GridViewDataColumn Header="배설물" Width="76" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace10}"/>
-                    <telerik:GridViewDataColumn Header="카메라" Width="76" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace11}"/>
-                    <telerik:GridViewDataColumn Header="기타"   Width="66" IsFilterable="False" TextAlignment="Right" DataMemberBinding="{Binding Trace12}"
-                                                ToolTipService.ToolTip="기타(탐문 등)"/>
+            <!-- ── 2행 : 흔적 12칸 ──────────────────────────────────────────────────
+                 RowDetailsVisibilityMode="Visible" → **항상 펼쳐져 있다.** 클릭해서 여는 구조가 아니다.
+                 미입력은 워터마크 `·`, 실측 0 은 `0` — null 과 0 을 눈으로 구분한다(CLAUDE.md §7.2). -->
+            <telerik:RadGridView.RowDetailsTemplate>
+                <DataTemplate>
+                    <Border Background="{StaticResource Row2LineBrush}"
+                            Height="{StaticResource GridRow2LineHeight}">
+                        <StackPanel Style="{StaticResource RowDetailsPanelStyle}">
+                            <TextBlock Text="╰▸ 흔적" Width="66" Style="{StaticResource RowDetailsTagStyle}"/>
 
-                    <telerik:GridViewDataColumn Header="위도" Width="95" IsFilterable="False"
-                                                DataMemberBinding="{Binding Lat}" DataFormatString="{}{0:N6}" TextAlignment="Right"/>
-                    <telerik:GridViewDataColumn Header="경도" Width="95" IsFilterable="False"
-                                                DataMemberBinding="{Binding Lng}" DataFormatString="{}{0:N6}" TextAlignment="Right"/>
-                    <telerik:GridViewDataColumn Header="특징" Width="*" MinWidth="120" DataMemberBinding="{Binding Feature}"/>
-                    <telerik:GridViewDataColumn Header="특이사항" Width="150" DataMemberBinding="{Binding Note}"/>
-                    <telerik:GridViewDataColumn Header="구분" Width="140" IsReadOnly="True"
-                                               DataMemberBinding="{Binding ProtectionText}"
-                                               ToolTipService.ToolTip="공식 종목록의 법정보호종·생태계교란생물 표기(자동)"/>
-                </telerik:RadGridView.Columns>
+                            <TextBlock Text="포획" Style="{StaticResource RowDetailsLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Width="44" Margin="0 0 8 0" WatermarkContent="·"
+                                                         Text="{Binding Trace1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                            <TextBlock Text="관찰" Style="{StaticResource RowDetailsLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Width="44" Margin="0 0 8 0" WatermarkContent="·"
+                                                         Text="{Binding Trace2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                            <TextBlock Text="울음" Style="{StaticResource RowDetailsLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Width="44" Margin="0 0 8 0" WatermarkContent="·"
+                                                         Text="{Binding Trace3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                            <TextBlock Text="사체" Style="{StaticResource RowDetailsLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Width="44" Margin="0 0 8 0" WatermarkContent="·"
+                                                         Text="{Binding Trace4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                            <TextBlock Text="족적" Style="{StaticResource RowDetailsLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Width="44" Margin="0 0 8 0" WatermarkContent="·"
+                                                         Text="{Binding Trace5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                            <TextBlock Text="털" Style="{StaticResource RowDetailsLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Width="44" Margin="0 0 8 0" WatermarkContent="·"
+                                                         Text="{Binding Trace6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                            <TextBlock Text="식흔" Style="{StaticResource RowDetailsLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Width="44" Margin="0 0 8 0" WatermarkContent="·"
+                                                         Text="{Binding Trace7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                            <TextBlock Text="굴" Style="{StaticResource RowDetailsLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Width="44" Margin="0 0 8 0" WatermarkContent="·"
+                                                         Text="{Binding Trace8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                            <TextBlock Text="번식지" Style="{StaticResource RowDetailsLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Width="44" Margin="0 0 8 0" WatermarkContent="·"
+                                                         Text="{Binding Trace9, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                            <TextBlock Text="배설물" Style="{StaticResource RowDetailsLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Width="44" Margin="0 0 8 0" WatermarkContent="·"
+                                                         Text="{Binding Trace10, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                            <TextBlock Text="카메라" Style="{StaticResource RowDetailsLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox Width="44" Margin="0 0 8 0" WatermarkContent="·"
+                                                         Text="{Binding Trace11, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                            <TextBlock Text="기타" Style="{StaticResource RowDetailsLabelStyle}"
+                                       ToolTipService.ToolTip="기타(탐문 등)"/>
+                            <telerik:RadWatermarkTextBox Width="44" WatermarkContent="·"
+                                                         Text="{Binding Trace12, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </telerik:RadGridView.RowDetailsTemplate>
 
-                <!-- 보호종 / 생태계교란생물 강조 (의미가 반대이므로 색을 구분한다) -->
-                <telerik:RadGridView.RowStyle>
-                    <Style TargetType="telerik:GridViewRow">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsProtected}" Value="True">
-                                <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                                <Setter Property="ToolTip" Value="{Binding ProtectionText}"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsInvasive}" Value="True">
-                                <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=ValidationBrush}"/>
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                                <Setter Property="ToolTip" Value="{Binding ProtectionText}"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </telerik:RadGridView.RowStyle>
-            </telerik:RadGridView>
-        </Grid>
+            <!-- 보호종 = 강조색 · 생태계교란생물 = 경고색. 의미가 반대이므로 색을 구분한다. -->
+            <telerik:RadGridView.RowStyle>
+                <Style TargetType="telerik:GridViewRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsProtected}" Value="True">
+                            <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="ToolTip" Value="{Binding ProtectionText}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsInvasive}" Value="True">
+                            <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=ValidationBrush}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="ToolTip" Value="{Binding ProtectionText}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </telerik:RadGridView.RowStyle>
+        </telerik:RadGridView>
 
-        <!-- 하단 상태바 + 액션 -->
-        <Border Grid.Row="2" Margin="2 8 2 2" Padding="8 6" Style="{StaticResource CardBorderStyle}">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+        <!-- ③ 상태 · 액션 바 : 관찰형은 결과 레일을 두지 않고 총계를 여기에 싣는다(§5-1-3) -->
+        <ctrl:TaxonStatusBar Grid.Row="2" Margin="0 8 0 0">
+            <ctrl:TaxonStatusBar.Summary>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="{Binding TotalSpeciesCount, StringFormat=총 {0}종}" FontWeight="SemiBold"
                                Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
                     <TextBlock Text="{Binding TotalIndividualCount, StringFormat= · {0}개체}" Margin="4 0 0 0"
                                Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
-                    <TextBlock Text="{Binding TotalObservations, StringFormat= · {0}건}" Margin="4 0 16 0"
+                    <TextBlock Text="{Binding TotalObservations, StringFormat= · 흔적 {0}건}" Margin="4 0 0 0"
                                Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
-                    <TextBlock Text="{Binding StatusText}" Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <telerik:RadButton Command="{Binding PruneEmptyCommand}" Margin="0 0 8 0" Padding="10 4"
+            </ctrl:TaxonStatusBar.Summary>
+            <ctrl:TaxonStatusBar.Actions>
+                <StackPanel Orientation="Horizontal">
+                    <telerik:RadButton Command="{Binding PruneEmptyCommand}"
+                                       Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}"
+                                       Foreground="{StaticResource DangerActionForeBrush}"
                                        ToolTipService.ToolTip="국명·흔적이 모두 빈 행을 제거합니다">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconMaterial Kind="DeleteSweepOutline" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="빈 행 정리" Margin="6 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
-                    <telerik:RadButton Command="{Binding AddRowCommand}" Margin="0 0 8 0" Padding="10 4">
+                    <telerik:RadButton Command="{Binding AddRowCommand}"
+                                       Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconMaterial Kind="PlusBoxOutline" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="행 추가" Margin="6 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
-                    <telerik:RadButton Command="{Binding SaveTemporaryCommand}" Margin="0 0 8 0" Padding="10 4">
+                    <telerik:RadButton Command="{Binding SaveTemporaryCommand}"
+                                       Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconMaterial Kind="ContentSaveOutline" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="임시 저장" Margin="6 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
-                    <telerik:RadButton Command="{Binding ExportBulkCommand}" Margin="0 0 8 0" Padding="10 4"
+                    <telerik:RadButton Command="{Binding ExportBulkCommand}"
+                                       Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}"
                                        ToolTipService.ToolTip="관리자 일괄입력용(레거시 양식) · 현행 관리자 Import 취합용">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="일괄입력용" Margin="6 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
-                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="10 4"
+                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="{StaticResource ActionButtonPadding}"
+                                       Background="{StaticResource PrimaryActionBackBrush}"
+                                       Foreground="{StaticResource PrimaryActionForeBrush}"
                                        ToolTipService.ToolTip="보고서·기록용 · 조사개황/출현종/출현종요약 시트">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
@@ -197,7 +222,7 @@
                         </StackPanel>
                     </telerik:RadButton>
                 </StackPanel>
-            </Grid>
-        </Border>
+            </ctrl:TaxonStatusBar.Actions>
+        </ctrl:TaxonStatusBar>
     </Grid>
 </UserControl>

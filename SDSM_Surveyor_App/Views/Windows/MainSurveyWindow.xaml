@@ -37,8 +37,8 @@
 
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="50"/>   <!-- 캡션 -->
-                <RowDefinition Height="*"/>    <!-- 탭 -->
+                <RowDefinition Height="{StaticResource TitleBarRowHeight}"/>   <!-- 캡션 -->
+                <RowDefinition Height="*"/>                                 <!-- 탭 -->
             </Grid.RowDefinitions>
 
             <!-- 캡션 바 (딥네이비 셸 · design.md §3.2) -->
@@ -126,20 +126,108 @@
                         BorderBrush="{StaticResource FormLineBrush}" BorderThickness="1 0 1 1"
                         CornerRadius="0 0 4 4">
                     <Grid>
-                        <ctrl:FishEntryControl
-                            Visibility="{Binding IsChecked, ElementName=TabFish, Converter={StaticResource BoolToVisibility}}"/>
-                        <ctrl:BenthosEntryControl
-                            Visibility="{Binding IsChecked, ElementName=TabBenthos, Converter={StaticResource BoolToVisibility}}"/>
-                        <ctrl:BirdEntryControl
-                            Visibility="{Binding IsChecked, ElementName=TabBird, Converter={StaticResource BoolToVisibility}}"/>
-                        <ctrl:MammalEntryControl
-                            Visibility="{Binding IsChecked, ElementName=TabMammal, Converter={StaticResource BoolToVisibility}}"/>
-                        <ctrl:AmphibianReptileEntryControl
-                            Visibility="{Binding IsChecked, ElementName=TabAmphibian, Converter={StaticResource BoolToVisibility}}"/>
-                        <ctrl:HabitatWaterEdgeEntryControl
-                            Visibility="{Binding IsChecked, ElementName=TabHabitat, Converter={StaticResource BoolToVisibility}}"/>
-                        <ctrl:WaterQualityEntryControl
-                            Visibility="{Binding IsChecked, ElementName=TabWater, Converter={StaticResource BoolToVisibility}}"/>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>   <!-- 조사개황 (셸 소유 · 접이식) -->
+                            <RowDefinition Height="*"/>      <!-- 분류군 본문 -->
+                        </Grid.RowDefinitions>
+
+                        <!-- ── 조사개황 : 셸이 한 번만 소유한다 (06_DESIGN_REBUILD §5-1-4) ──────────
+                             종전에는 7개 분류군 컨트롤이 같은 카드를 각자 그렸다(껍데기 7벌).
+                             SurveyMeta 는 원래 싱글턴이라 내용은 하나였다.
+                             ⚠ §3-8 대분류 격리 UI 가 이제 이 한 곳에만 있다. -->
+                        <Border x:Name="MetaCard" Grid.Row="0" Margin="8 8 8 0"
+                                Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- ── 요약줄 : 접어도 무엇을 고르고 있는지 항상 보인다(§5-1-5) ─────
+                                         대분류를 색점 + 글자로 함께 표시한다(색만으로 구분하지 않는다). -->
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="9" Height="9" CornerRadius="4.5" Margin="0 0 8 0"
+                                                VerticalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{StaticResource GradeNoneBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Project}" Value="방류하천">
+                                                            <Setter Property="Background" Value="{StaticResource AppAccentBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Project}" Value="생태현황">
+                                                            <Setter Property="Background" Value="{StaticResource BirdBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+                                        <TextBlock Text="조사개황" Style="{StaticResource GroupHeaderTextStyle}" Margin="0 0 12 0"/>
+                                        <TextBlock Text="{Binding ProjectText}" VerticalAlignment="Center" FontWeight="SemiBold"
+                                                   Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+                                        <TextBlock Text="{Binding OverviewSummary}" VerticalAlignment="Center" Margin="10 0 0 0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource RailLabelStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasProject}" Value="False">
+                                                            <Setter Property="Foreground" Value="{StaticResource MaxBrush}"/>
+                                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <!-- 분류군별 주석 슬롯 — 탭마다 다르다(§5-1-4) -->
+                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="16 0 8 0"
+                                               TextTrimming="CharacterEllipsis">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+                                                <Setter Property="Text" Value=""/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsChecked, ElementName=TabMammal}" Value="True">
+                                                        <Setter Property="Text"
+                                                                Value="관리자 포유류 자료에는 대권역·중권역·하천유형·조사기관이 없습니다(내보내기 시 비워짐)"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <!-- 대분류를 고르기 전에는 접을 수 없다 — 격리 규칙을 눈에서 놓치지 않게 한다(§3-8) -->
+                                    <telerik:RadToggleButton Grid.Column="2" x:Name="MetaToggle" IsChecked="True"
+                                                             Padding="12 4" Content="접기 / 펼치기"
+                                                             IsEnabled="{Binding HasProject}"
+                                                             ToolTipService.ToolTip="대분류를 고르기 전에는 접을 수 없습니다"/>
+                                </Grid>
+
+                                <ContentControl Margin="0 12 0 0"
+                                                Visibility="{Binding IsChecked, ElementName=MetaToggle, Converter={StaticResource BoolToVisibility}}">
+                                    <ctrl:SurveyOverviewControl/>
+                                </ContentControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 분류군 본문 -->
+                        <Grid Grid.Row="1">
+                            <ctrl:FishEntryControl
+                                Visibility="{Binding IsChecked, ElementName=TabFish, Converter={StaticResource BoolToVisibility}}"/>
+                            <ctrl:BenthosEntryControl
+                                Visibility="{Binding IsChecked, ElementName=TabBenthos, Converter={StaticResource BoolToVisibility}}"/>
+                            <ctrl:BirdEntryControl
+                                Visibility="{Binding IsChecked, ElementName=TabBird, Converter={StaticResource BoolToVisibility}}"/>
+                            <ctrl:MammalEntryControl
+                                Visibility="{Binding IsChecked, ElementName=TabMammal, Converter={StaticResource BoolToVisibility}}"/>
+                            <ctrl:AmphibianReptileEntryControl
+                                Visibility="{Binding IsChecked, ElementName=TabAmphibian, Converter={StaticResource BoolToVisibility}}"/>
+                            <ctrl:HabitatWaterEdgeEntryControl
+                                Visibility="{Binding IsChecked, ElementName=TabHabitat, Converter={StaticResource BoolToVisibility}}"/>
+                            <ctrl:WaterQualityEntryControl
+                                Visibility="{Binding IsChecked, ElementName=TabWater, Converter={StaticResource BoolToVisibility}}"/>
+                        </Grid>
                     </Grid>
                 </Border>
             </Grid>

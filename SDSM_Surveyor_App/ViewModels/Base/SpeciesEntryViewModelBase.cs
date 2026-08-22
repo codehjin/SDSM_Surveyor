@@ -1,4 +1,4 @@
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -27,7 +27,7 @@ namespace SDSM_Surveyor_App.ViewModels.Base;
 /// </summary>
 /// <typeparam name="TEntry">화면 행 모델(FishSpeciesEntry·BirdEntry 등)</typeparam>
 /// <typeparam name="TSpecies">공식 종목록 항목(FishSpeciesList·ObservedSpecies 등)</typeparam>
-public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : TaxonEntryViewModelBase
+public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : TaxonEntryViewModelBase, IQuickAddHost
     where TEntry : class, INotifyPropertyChanged
     where TSpecies : class
 {

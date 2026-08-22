@@ -71,6 +71,8 @@ public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISing
         OnPropertyChanged(nameof(DoGradeText));
         OnPropertyChanged(nameof(TpGradeText));
         OnPropertyChanged(nameof(EColiGradeText));
+        OnPropertyChanged(nameof(UnfilledGradeCount));
+        OnPropertyChanged(nameof(UnfilledGradeText));
         ExportExcelCommand.NotifyCanExecuteChanged();
         ExportBulkCommand.NotifyCanExecuteChanged();
     }
@@ -84,6 +86,21 @@ public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISing
     public string DoGradeText    => WaterQualityCalculator.DoGrade(P(Dox)) ?? "-";
     public string TpGradeText    => WaterQualityCalculator.TpGrade(P(Tp)) ?? "-";
     public string EColiGradeText => WaterQualityCalculator.EColiGrade(P(EColi)) ?? "-";
+
+    // ── 등급 요약 레일 (06_DESIGN_REBUILD §5-2-3) ─────────────────────────
+    // 등급 8종 중 몇 개가 비었는지는 조사자에게 중요하다 — 종전에는 화면 어디에도 없었다.
+    // ⚠ 미입력(`-`)과 실측값이 있는 등급을 구분해서 센다. 0 을 적은 것은 미입력이 아니다.
+
+    /// <summary>등급 8종 중 아직 값이 없는 항목 수.</summary>
+    public int UnfilledGradeCount => new[]
+    {
+        PhGradeText, BodGradeText, CodGradeText, TocGradeText,
+        SsGradeText, DoGradeText, TpGradeText, EColiGradeText,
+    }.Count(g => g == "-");
+
+    /// <summary>레일 하단 안내 문구.</summary>
+    public string UnfilledGradeText =>
+        UnfilledGradeCount == 0 ? "등급 8종 모두 산정됨" : $"미입력 {UnfilledGradeCount}항목";
 
 
     /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>

@@ -15,6 +15,11 @@ public partial class MainSurveyWindow : Window, ISingletonService
     {
         InitializeComponent();
         DataContext = App.Current.Services.GetRequiredService<MainSurveyWindowViewModel>();
+
+        // 조사개황 카드는 셸이 소유한다(06_DESIGN_REBUILD §5-1-4). SurveyMeta 는 싱글턴이라
+        // 7개 탭이 같은 인스턴스를 본다 — 어느 탭에서 지점을 골라도 나머지에 그대로 보인다.
+        MetaCard.DataContext = App.Current.Services.GetRequiredService<Models.SurveyMeta>();
+
         StateChanged += (_, _) => HandleMaximized();
         Loaded += (_, _) => MigrateLegacyDrafts();
     }
