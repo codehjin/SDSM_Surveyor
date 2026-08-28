@@ -55,7 +55,7 @@
                         <icon:PackIconMaterial Kind="ClipboardTextOutline" Width="17" Height="17"
                                                VerticalAlignment="Center"
                                                Foreground="{StaticResource AppAccentBrush}"/>
-                        <TextBlock Text="{Binding Version}" Margin="10 0 0 0"
+                        <TextBlock Text="{Binding Version}" Margin="8 0 0 0"
                                    VerticalAlignment="Center"
                                    Foreground="{StaticResource ShellForegroundBrush}"/>
                     </StackPanel>
@@ -71,14 +71,14 @@
                                 WindowChrome.IsHitTestVisibleInChrome="True">
                             <StackPanel Orientation="Horizontal">
                                 <icon:PackIconMaterial Kind="FolderMultipleOutline" Width="14" Height="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="자료함" Margin="6 0 0 0" VerticalAlignment="Center"/>
+                                <TextBlock Text="자료함" Margin="4 0 0 0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         <Button Click="Sync_Click" Style="{StaticResource CaptionTextButtonStyle}"
                                 WindowChrome.IsHitTestVisibleInChrome="True">
                             <StackPanel Orientation="Horizontal">
                                 <icon:PackIconMaterial Kind="CloudSyncOutline" Width="14" Height="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="동기화" Margin="6 0 0 0" VerticalAlignment="Center"/>
+                                <TextBlock Text="동기화" Margin="4 0 0 0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         <Button Click="Minimize_Click" Style="{StaticResource CaptionButtonStyle}"
@@ -122,7 +122,7 @@
                 </UniformGrid>
 
                 <!-- 탭 내용 -->
-                <Border Grid.Row="1" Background="#FFFFFFFF"
+                <Border Grid.Row="1" Background="{StaticResource TabContentBackBrush}"
                         BorderBrush="{StaticResource FormLineBrush}" BorderThickness="1 0 1 1"
                         CornerRadius="0 0 4 4">
                     <Grid>
@@ -167,7 +167,7 @@
                                         <TextBlock Text="조사개황" Style="{StaticResource GroupHeaderTextStyle}" Margin="0 0 12 0"/>
                                         <TextBlock Text="{Binding ProjectText}" VerticalAlignment="Center" FontWeight="SemiBold"
                                                    Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="{Binding OverviewSummary}" VerticalAlignment="Center" Margin="10 0 0 0">
+                                        <TextBlock Text="{Binding OverviewSummary}" VerticalAlignment="Center" Margin="8 0 0 0">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource RailLabelStyle}">
                                                     <Style.Triggers>

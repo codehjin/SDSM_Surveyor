@@ -44,12 +44,12 @@
 
             <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0 0 0 2">
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 4">
                         <Border Style="{StaticResource GroupHeaderBarStyle}"/>
                         <TextBlock Text="측정 항목" Style="{StaticResource GroupHeaderTextStyle}"/>
                     </StackPanel>
                     <TextBlock Text="입력 즉시 등급이 자동 산정됩니다 (등급은 조사자가 입력하지 않습니다)"
-                               Margin="11 0 0 12" Style="{StaticResource CaptionTextStyle}"/>
+                               Margin="12 0 0 12" Style="{StaticResource CaptionTextStyle}"/>
 
                     <UniformGrid Columns="3">
                         <StackPanel Style="{StaticResource WqTile}">
@@ -159,9 +159,9 @@
 
                         <!-- 등급 8종 중 몇 개가 비었는지 — 조사자에게 중요하다 -->
                         <TextBlock Text="{Binding UnfilledGradeText}" Style="{StaticResource RailValueStyle}"/>
-                        <TextBlock Margin="0 6 0 0" Style="{StaticResource CaptionTextStyle}"
+                        <TextBlock Margin="0 4 0 0" Style="{StaticResource CaptionTextStyle}"
                                    Text="`-` 는 미입력입니다. 측정값 0 은 미입력이 아닙니다."/>
-                        <TextBlock Margin="0 6 0 0" Style="{StaticResource CaptionTextStyle}"
+                        <TextBlock Margin="0 4 0 0" Style="{StaticResource CaptionTextStyle}"
                                    Text="생태독성(TU)은 등급 산정 대상이 아닙니다."/>
                     </StackPanel>
                 </ctrl:ResultRail.Body>
@@ -171,12 +171,12 @@
         <!-- ② 추가 항목(전폭) : 수질 확장 9 / 현장 측정 4 로 성격을 갈랐다 -->
         <Border Grid.Row="1" Margin="0 8 0 0" Style="{StaticResource CardBorderStyle}">
             <StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0 0 0 2">
+                <StackPanel Orientation="Horizontal" Margin="0 0 0 4">
                     <Border Style="{StaticResource GroupHeaderBarStyle}"/>
                     <TextBlock Text="추가 항목" Style="{StaticResource GroupHeaderTextStyle}"/>
                 </StackPanel>
                 <TextBlock Text="등급 산정 대상이 아닌 확장 측정값입니다 (측정한 항목만 입력)"
-                           Margin="11 0 0 12" Style="{StaticResource CaptionTextStyle}"/>
+                           Margin="12 0 0 12" Style="{StaticResource CaptionTextStyle}"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -185,8 +185,8 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- 수질 확장 9 -->
-                    <StackPanel Grid.Column="0" Margin="0 0 24 0">
-                        <TextBlock Text="수질 확장" Style="{StaticResource FormLabelStyle}" Margin="0 0 0 6"/>
+                    <StackPanel Grid.Column="0" Margin="0 0 20 0">
+                        <TextBlock Text="수질 확장" Style="{StaticResource FormLabelStyle}" Margin="0 0 0 4"/>
                         <WrapPanel>
                             <StackPanel Style="{StaticResource FormFieldSmStyle}">
                                 <TextBlock Text="T-N (mg/L)" Style="{StaticResource FormLabelStyle}"/>
@@ -238,7 +238,7 @@
 
                     <!-- 현장 측정 5 : 성격이 다르므로 분리한다 -->
                     <StackPanel Grid.Column="1">
-                        <TextBlock Text="현장 측정" Style="{StaticResource FormLabelStyle}" Margin="0 0 0 6"/>
+                        <TextBlock Text="현장 측정" Style="{StaticResource FormLabelStyle}" Margin="0 0 0 4"/>
                         <WrapPanel MaxWidth="420">
                             <StackPanel Style="{StaticResource FormFieldXsStyle}">
                                 <TextBlock Text="수온 (℃)" Style="{StaticResource FormLabelStyle}"/>
@@ -283,7 +283,7 @@
                                        Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconMaterial Kind="ContentSaveOutline" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="임시 저장" Margin="6 0 0 0"/>
+                            <TextBlock Text="임시 저장" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                     <telerik:RadButton Command="{Binding ExportBulkCommand}"
@@ -291,7 +291,7 @@
                                        ToolTipService.ToolTip="관리자 일괄입력용 · 현행 관리자 Import 취합용">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="일괄입력용" Margin="6 0 0 0"/>
+                            <TextBlock Text="일괄입력용" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                     <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="{StaticResource ActionButtonPadding}"
@@ -300,7 +300,7 @@
                                        ToolTipService.ToolTip="보고서·기록용 · 조사개황/측정값/등급 시트">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="보고서 엑셀" Margin="6 0 0 0"/>
+                            <TextBlock Text="보고서 엑셀" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                 </StackPanel>

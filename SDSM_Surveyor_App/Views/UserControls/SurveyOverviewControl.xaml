@@ -82,9 +82,9 @@
                                  LostFocus="SiteCombo_LostFocus"
                                  KeyDown="SiteCombo_KeyDown"/>
             <TextBlock Text="{Binding SiteHint}" Style="{StaticResource CaptionTextStyle}"
-                       Margin="2 2 0 0" TextTrimming="CharacterEllipsis"/>
+                       Margin="0 4 0 0" TextTrimming="CharacterEllipsis"/>
             <TextBlock Text="미등록 지점입니다 — 목록에서 선택하세요"
-                       Style="{StaticResource CaptionTextStyle}" Margin="2 2 0 0"
+                       Style="{StaticResource CaptionTextStyle}" Margin="0 4 0 0"
                        Foreground="{StaticResource MaxBrush}"
                        Visibility="{Binding IsSiteUnregistered, Converter={StaticResource BoolToVisibility}}"/>
         </StackPanel>

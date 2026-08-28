@@ -146,21 +146,21 @@
                                        ToolTipService.ToolTip="국명·흔적이 모두 빈 행을 제거합니다">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconMaterial Kind="DeleteSweepOutline" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="빈 행 정리" Margin="6 0 0 0"/>
+                            <TextBlock Text="빈 행 정리" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                     <telerik:RadButton Command="{Binding AddRowCommand}"
                                        Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconMaterial Kind="PlusBoxOutline" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="행 추가" Margin="6 0 0 0"/>
+                            <TextBlock Text="행 추가" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                     <telerik:RadButton Command="{Binding SaveTemporaryCommand}"
                                        Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconMaterial Kind="ContentSaveOutline" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="임시 저장" Margin="6 0 0 0"/>
+                            <TextBlock Text="임시 저장" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                     <telerik:RadButton Command="{Binding ExportBulkCommand}"
@@ -168,7 +168,7 @@
                                        ToolTipService.ToolTip="관리자 일괄입력용(레거시 양식) · 현행 관리자 Import 취합용">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="일괄입력용" Margin="6 0 0 0"/>
+                            <TextBlock Text="일괄입력용" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                     <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="{StaticResource ActionButtonPadding}"
@@ -177,7 +177,7 @@
                                        ToolTipService.ToolTip="보고서·기록용 · 조사개황/출현종/출현종요약 시트">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="보고서 엑셀" Margin="6 0 0 0"/>
+                            <TextBlock Text="보고서 엑셀" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                 </StackPanel>

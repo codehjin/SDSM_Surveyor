@@ -27,17 +27,17 @@
                 <icon:PackIconMaterial Kind="ClockOutline" Width="14" Height="14" Margin="16 0 0 0"
                                        VerticalAlignment="Center"
                                        Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
-                <TextBlock Text="{Binding StatusText}" Margin="6 0 0 0"
+                <TextBlock Text="{Binding StatusText}" Margin="4 0 0 0"
                            Style="{StaticResource RailLabelStyle}"/>
 
                 <!-- 이상치 경고 : 붉은 글자 + 아이콘 병행(색만으로 구분하지 않는다 · design.md §10).
                      ⚠ 비차단이다 — 저장·내보내기를 막지 않는다(§3-5). -->
-                <StackPanel Orientation="Horizontal" Margin="14 0 0 0" VerticalAlignment="Center"
+                <StackPanel Orientation="Horizontal" Margin="12 0 0 0" VerticalAlignment="Center"
                             Visibility="{Binding HasWarning, ElementName=Root, Converter={StaticResource BoolToVisibility}}">
                     <icon:PackIconMaterial Kind="AlertCircleOutline" Width="14" Height="14"
                                            VerticalAlignment="Center"
                                            Foreground="{telerik:Windows11Resource ResourceKey=ValidationBrush}"/>
-                    <TextBlock Text="{Binding WarningText, ElementName=Root}" Margin="6 0 0 0"
+                    <TextBlock Text="{Binding WarningText, ElementName=Root}" Margin="4 0 0 0"
                                FontWeight="SemiBold" VerticalAlignment="Center"
                                Foreground="{telerik:Windows11Resource ResourceKey=ValidationBrush}"/>
                 </StackPanel>

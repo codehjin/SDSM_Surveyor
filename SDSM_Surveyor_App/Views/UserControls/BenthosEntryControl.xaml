@@ -359,7 +359,7 @@
                                                  ToolTipService.ToolTip="조사는 수행했으나 한 종도 확인되지 않은 경우 선택합니다. 점수 0 · 등급 E로 산정되고 내보내기가 가능해집니다.">
                             <StackPanel Orientation="Horizontal">
                                 <icon:PackIconMaterial Kind="CheckboxBlankOutline" Width="13" Height="13" VerticalAlignment="Center"/>
-                                <TextBlock Text="출현종 없음(0종)" Margin="6 0 0 0"/>
+                                <TextBlock Text="출현종 없음(0종)" Margin="4 0 0 0"/>
                             </StackPanel>
                         </telerik:RadToggleButton>
                         <TextBlock Text="채집불가 사유가 있으면 그쪽이 우선합니다" Margin="0 4 0 0"
@@ -368,7 +368,7 @@
                         <Border Style="{StaticResource RailDividerStyle}"/>
 
                         <TextBlock Text="BMI (저서동물지수)" Style="{StaticResource RailValueStyle}"/>
-                        <StackPanel Orientation="Horizontal" Margin="0 6 0 0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding BmiScore, TargetNullValue='-', StringFormat={}{0:N1}}"
                                        Style="{StaticResource ValueTextStyle}"/>
                             <Border Margin="12 0 0 0">
@@ -400,7 +400,7 @@
                                 <icon:PackIconMaterial Kind="AlertCircleOutline" Width="14" Height="14"
                                                        VerticalAlignment="Center"
                                                        Foreground="{telerik:Windows11Resource ResourceKey=ValidationBrush}"/>
-                                <TextBlock Text="{Binding WarningText}" Margin="6 0 0 0" FontWeight="SemiBold"
+                                <TextBlock Text="{Binding WarningText}" Margin="4 0 0 0" FontWeight="SemiBold"
                                            Foreground="{telerik:Windows11Resource ResourceKey=ValidationBrush}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding WarningDetail}" Margin="0 4 0 0"
@@ -429,14 +429,14 @@
                                        ToolTipService.ToolTip="국명·개체수가 모두 빈 행을 제거합니다">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconMaterial Kind="DeleteSweepOutline" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="빈 행 정리" Margin="6 0 0 0"/>
+                            <TextBlock Text="빈 행 정리" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                     <telerik:RadButton Command="{Binding SaveTemporaryCommand}"
                                        Margin="{StaticResource ActionButtonMargin}" Padding="{StaticResource ActionButtonPadding}">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconMaterial Kind="ContentSaveOutline" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="임시 저장" Margin="6 0 0 0"/>
+                            <TextBlock Text="임시 저장" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                     <telerik:RadButton Command="{Binding ExportBulkCommand}"
@@ -444,7 +444,7 @@
                                        ToolTipService.ToolTip="관리자 일괄입력용 · 현행 관리자 Import 취합용">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="일괄입력용" Margin="6 0 0 0"/>
+                            <TextBlock Text="일괄입력용" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                     <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="{StaticResource ActionButtonPadding}"
@@ -453,7 +453,7 @@
                                        ToolTipService.ToolTip="보고서·기록용 · 조사개황/출현종/건강성평가(BMI) 시트">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="보고서 엑셀" Margin="6 0 0 0"/>
+                            <TextBlock Text="보고서 엑셀" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                 </StackPanel>

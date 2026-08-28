@@ -102,6 +102,10 @@
     <Color x:Key="GridHeaderColor">#FFF1F2F4</Color>
     <SolidColorBrush x:Key="GridHeaderBrush" Color="{StaticResource GridHeaderColor}"/>
 
+    <!-- 탭 내용 바닥. 페이지 배경과 구분되는 흰 면이라 테마 브러시를 쓰지 않는다. -->
+    <Color x:Key="TabContentBackColor">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="TabContentBackBrush" Color="{StaticResource TabContentBackColor}"/>
+
     <!--=========== 읽기전용 · 비활성 (§5-6 — 둘을 구분한다) ===========-->
     <!-- 읽기전용 : 값은 유효하다. 편집만 안 된다. -->
     <Color x:Key="ReadOnlyBackColor">#FFF7F8FA</Color>

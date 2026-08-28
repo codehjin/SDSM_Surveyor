@@ -22,8 +22,15 @@ bool(re.search(b'(?<=\x00)' + b'ThemableColor' + b'\x00', d))   # 표준 토큰 
 b'Telerik.Documents.Common.Model.ThemableColor' in d            # 정규화된 전체 이름
 ```
 
+> ⚠ **널 선행 정규식은 일부 이름을 놓친다.** 2026-08-23 에 `PlusBoxOutline` 이 이 방식으로
+> "없음"으로 나왔지만 **평문 검색으로는 있었고 실제로도 동작한다.**
+> 아이콘 Kind 처럼 존재 여부만 알면 될 때는 **평문 부분문자열 검색**(`b'PlusBoxOutline' in d`)을 쓴다.
+> 널 선행은 "토큰 경계까지 정확히" 봐야 할 때만.
+
 **아이콘 Kind도 동일**하게 검증한다. (`MahApps.Metro.IconPacks.Material.dll`)
-- 확인됨: `ClockOutline`, `ContentSaveOutline`, `PlusBoxOutline`, `DeleteSweepOutline`, `CloudSyncOutline`, `CloudDownloadOutline`, `FolderOpenOutline`, `Reload`
+- 확인됨: `ClockOutline`, `ContentSaveOutline`, `PlusBoxOutline`, `DeleteSweepOutline`, `CloudSyncOutline`,
+  `CloudDownloadOutline`, `FolderOpenOutline`, `Reload`, `ClipboardTextOutline`, `FolderMultipleOutline`,
+  `AlertCircleOutline`, `CheckboxBlankOutline` (뒤 4개는 2026-08-23 추가 대조)
 - **없음**: `Refresh`, `ContentSaveClockOutline`, `BroomOutline`, `Sync`, `Import`
 
 ---
@@ -61,6 +68,77 @@ b'Telerik.Documents.Common.Model.ThemableColor' in d            # 정규화된 �
 | 커스텀 CellEditTemplate 컬럼이 있으면 **기본 붙여넣기가 탭 분리를 못 함**(한 칸에 뭉침) | 그리드 `PreviewKeyDown`에서 Ctrl+V를 가로채 **클립보드를 직접 파싱**(`VM.PasteRows`) |
 | 붙여넣기 직후 **그리드가 즉시 안 그려짐**(인서트 행 편집 상태) | `grid.CancelEdit()` 후 `Dispatcher.BeginInvoke(..., DispatcherPriority.Background)`로 행 추가 |
 | Telerik 기본 UI 문구가 영문 | `LocalizationManager.Manager = new KoreanLocalizationManager()` (App 생성자, `Helpers/KoreanLocalizationManager.cs`) |
+
+
+### ⚠ RadGridView 는 열이 넘쳐도 가로 스크롤을 만들지 않는다 — **뭉갠다** (2026-08-23 실측)
+
+열 폭 합이 뷰포트를 넘으면 스크롤바가 생길 것 같지만, `RadGridView` 는 **모든 열을 균등하게 눌러** 폭을 맞춘다.
+선언한 `Width` 는 무시되고 `ActualWidth` 만 줄어든다.
+
+```
+조류(재배치 전) 1280 폭 :  일반명 선언 190 → 실제  86 px   ← 종명이 안 보인다
+양서파충류      1280 폭 :  일반명 선언 180 → 실제  70 px
+포유류(재배치 후) 1280 폭 : 일반명 선언 168 → 실제 168 px  ✅
+```
+
+**세 경우 모두 "가로 스크롤 없음" 검사는 통과한다.** 그래서 그 검사는 아무것도 걸러내지 못한다.
+
+**판정은 `선언 폭 == 실제 폭` 으로 한다.**
+
+```csharp
+// 뭉개진 열이 하나라도 있으면 실패
+var squashed = grid.Columns.Cast<GridViewColumn>()
+    .Where(c => c.Width.IsAbsolute && c.ActualWidth < c.Width.Value - 1)
+    .ToList();
+```
+
+- `ComputedHorizontalScrollBarVisibility` 로 판정하지 말 것. 언제나 `Collapsed` 다.
+- `ScrollViewer` 를 찾을 때는 `ExtentWidth` 가 가장 큰 것을 고른다 — 첫 번째를 잡으면 머리글용 뷰어라 오판한다.
+- 실무 상한(1280 창) : **1행 고정폭 합 ≤ 1,104 px** (= 가용 1,224 − 자유폭 열 최소 120).
+  넘치면 폭을 깎지 말고 `RowDetails` 2행으로 내린다(`06_DESIGN_REBUILD.md` §5-2-2).
+- **열 수가 아니라 폭 합계로 판단한다.** 6칸을 내려도 새 열 하나가 붙으면 순감이 줄어든다.
+
+### ⚠ Telerik 키 동작은 `MoveFocus()` 로 확인하면 안 된다 (2026-08-23 실측)
+
+`MoveFocus(new TraversalRequest(...))` 는 WPF 논리 포커스만 옮긴다.
+**Telerik 컨트롤의 `OnKeyDown` 을 건너뛰므로** "된다"는 잘못된 결론이 난다
+(RadGridView 는 Tab 을 가로채 셀 이동으로 처리한다).
+
+**진짜 키를 `InputManager` 로 흘려야 한다.**
+
+```csharp
+static void SendTab(Window win)
+{
+    // ProcessInput 한 번이 Preview → Bubble → PostProcess 전체를 돈다.
+    // 두 번 부르면 KeyboardNavigation 이 두 번 처리해 Tab 이 2칸씩 뛴다.
+    var src = PresentationSource.FromVisual(win)!;
+    InputManager.Current.ProcessInput(
+        new KeyEventArgs(Keyboard.PrimaryDevice, src, 0, Key.Tab) { RoutedEvent = Keyboard.KeyDownEvent });
+}
+```
+
+- `PreviewKeyDownEvent` 와 `KeyDownEvent` 를 **따로 두 번 보내지 말 것.** 한 번이면 된다.
+- 창은 `Show()` 로 실제로 띄워야 한다(`Left = -6000` 으로 화면 밖에 두면 사용자를 방해하지 않는다).
+  `ContentRendered` 이후 `DispatcherPriority.ApplicationIdle` 로 한 박자 미룬 뒤 검사한다.
+- 확인 결과: `RowDetailsVisibilityMode="Visible"` + `KeyboardNavigation.TabNavigation="Local"` 이면
+  Tab 이 **1행 열을 모두 지난 뒤** `RowDetails` 안으로 들어가고 다음 행으로 넘어간다.
+- `GridViewDataColumn` 에는 **`IsTabStop` 이 없다.** 읽기전용 열을 Tab 순서에서 뺄 수 없다.
+
+### `DataTemplate` 을 코드로 만들 때
+
+`FrameworkElementFactory` 로 조립하면 `"봉인된 템플릿에 있어야 합니다"` 예외가 난다.
+검증 하네스에서는 **`XamlReader.Parse`** 로 만드는 것이 실제 XAML 경로와도 같아 안전하다.
+
+```csharp
+return (DataTemplate)XamlReader.Parse(
+    "<DataTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation'>…</DataTemplate>");
+```
+
+### `Grid.RowDefinition.Height` 는 `GridLength` 를 요구한다
+
+`<sys:Double x:Key="TitleBarHeight">50</sys:Double>` 을 `Height="{StaticResource TitleBarHeight}"` 로 쓰면
+**빌드는 통과하고 실행 시 XAML 로드가 터진다**(`'50'은 'Height' 속성의 유효한 값이 아닙니다`).
+`<GridLength x:Key="TitleBarRowHeight">50</GridLength>` 를 따로 둔다.
 
 ### 팔레트/테마
 `App.xaml.cs` 생성자 순서 중요: 테마 설정 → 팔레트 → DI → `InitializeComponent()` → 폰트/팔레트 색 적용.
