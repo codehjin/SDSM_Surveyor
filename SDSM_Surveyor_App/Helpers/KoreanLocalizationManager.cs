@@ -1,4 +1,4 @@
-using Telerik.Windows.Controls;
+﻿using Telerik.Windows.Controls;
 
 namespace SDSM_Surveyor_App.Helpers;
 
@@ -9,11 +9,53 @@ namespace SDSM_Surveyor_App.Helpers;
 /// </summary>
 public sealed class KoreanLocalizationManager : LocalizationManager
 {
-    public override string GetStringOverride(string key) => key switch
+    public override string GetStringOverride(string key)
+    {
+        LogKey(key);
+        return Translate(key);
+    }
+
+    /// <summary>
+    /// Telerik 이 실제로 요청한 리소스 키를 파일로 남긴다(Debug 전용).
+    ///
+    /// 문구가 영문 그대로 남을 때 **키 이름을 추측하지 않기 위해** 둔다.
+    /// 버전마다 키가 달라 DLL 대조로는 특정되지 않는다 —
+    /// 실행 폴더의 <c>localization_keys.log</c> 를 열어 해당 문구의 키를 찾아
+    /// 아래 switch 에 추가하면 된다.
+    /// </summary>
+    /// <summary>
+    /// 로깅 자체가 살아 있는지 확인하는 표식. 앱 시작 시 App 이 한 번 부른다.
+    /// 이 줄만 있고 키가 하나도 없으면 → Telerik 이 LocalizationManager 를 아예 안 부르는 것이다.
+    /// </summary>
+    [System.Diagnostics.Conditional("DEBUG")]
+    public static void MarkStart() => LogKey("# --- 앱 시작 (아래는 Telerik 이 실제로 요청한 키) ---");
+
+    [System.Diagnostics.Conditional("DEBUG")]
+    private static void LogKey(string key)
+    {
+        try
+        {
+            if (!_seen.Add(key)) return;
+            var path = System.IO.Path.Combine(AppContext.BaseDirectory, "localization_keys.log");
+            if (_seen.Count == 1 && System.IO.File.Exists(path)) System.IO.File.Delete(path);
+            System.IO.File.AppendAllText(
+                path, key + System.Environment.NewLine);
+        }
+        catch { /* 로그 실패가 화면을 막아서는 안 된다 */ }
+    }
+
+    private static readonly HashSet<string> _seen = new(StringComparer.Ordinal);
+
+    private string Translate(string key) => key switch
     {
         // RadGridView
         "GridViewGroupPanelText"      => "열 머리글을 여기로 끌어오면 해당 열로 묶어 볼 수 있습니다",
-        "GridViewAddNewRowString"     => "여기를 클릭하면 새 행이 추가됩니다",
+        // 새 행 안내("Click here to add new item").
+        // ⚠ 키 이름이 GridViewAddNewRowString 이 아니라 **GridViewAlwaysVisibleNewRow** 다.
+        //    DLL 문자열 대조로는 못 찾았고, LogKey 로 실제 요청 키를 받아 확인했다.
+        //    문구를 새로 한글화할 때는 추측하지 말고 localization_keys.log 를 볼 것.
+        "GridViewAlwaysVisibleNewRow" => "여기에 입력하거나 위 빠른추가로 종을 추가하세요",
+        "GridViewColumnsSelectionButtonTooltip" => "열 선택",
         "GridViewNoResultsText"       => "표시할 자료가 없습니다",
         "GridViewFilterShowRowsWithValueThat" => "다음 조건의 행 표시",
         "GridViewFilterSelectAll"     => "전체 선택",

@@ -1,12 +1,15 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using SDSM_Models;
 
 namespace SDSM_Surveyor_App.Models;
 
 /// <summary>조류 관찰 1행. 관리자 <c>Bird</c> 모델의 자동계산 외 전 필드(조류는 자동계산 없음).</summary>
-public partial class BirdEntry : ObservableObject
+public partial class BirdEntry : ObservableObject, IObservationRow
 {
     [ObservableProperty] private string? _speciesKo;      // 일반명(초성검색)
+
+    /// <summary>방금 추가된 행(1.2초). 연속 입력 중 "지금 들어간 게 이거다"를 알려 준다.</summary>
+    [ObservableProperty] private bool _isJustAdded;
     [ObservableProperty] private string? _speciesEn;      // 학명(종 선택 시 자동 · 수정 가능)
     [ObservableProperty] private string? _orderKo;        // 목(자동 · 수정 가능)
     [ObservableProperty] private string? _familyKo;       // 과(자동 · 수정 가능)

@@ -28,6 +28,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     {
         _reference = reference;
         SpeciesListSource = speciesProvider.GetFishSpecies();
+        _speciesCatalogVersion = speciesProvider.Version ?? "-";
         // 종 추가는 상단 '빠른 추가' 바로 하므로 초기 빈 행을 넣지 않는다(빈 행 누적 방지).
     }
 
@@ -67,12 +68,22 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     private static int PiOrZero(string? s) => int.TryParse(s, out var n) ? n : 0;
 
     // 위 헤더 값 변경 시에도 FAI 재계산
-    partial void OnRiverChasuChanged(double? value) => Recalculate();
+    partial void OnRiverChasuChanged(double? value) { RaiseEnvironmentSummary(); Recalculate(); }
     partial void OnSurveyUnavailableReasonChanged(string? value) => Recalculate();
-    partial void OnDeCountChanged(string? value) => Recalculate();
-    partial void OnEfCountChanged(string? value) => Recalculate();
-    partial void OnLeCountChanged(string? value) => Recalculate();
-    partial void OnTuCountChanged(string? value) => Recalculate();
+    partial void OnDeCountChanged(string? value) { RaiseEnvironmentSummary(); Recalculate(); }
+    partial void OnEfCountChanged(string? value) { RaiseEnvironmentSummary(); Recalculate(); }
+    partial void OnLeCountChanged(string? value) { RaiseEnvironmentSummary(); Recalculate(); }
+    partial void OnTuCountChanged(string? value) { RaiseEnvironmentSummary(); Recalculate(); }
+
+    // 하상구성 8칸 — 합계 100 검증과 요약줄이 함께 따라간다
+    partial void OnBedrockChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnConcreteChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnMudChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnSandChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnFineGravelChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnGravelChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnSmallStoneChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnBigStoneChanged(string? value) => RaiseEnvironmentSummary();
 
     public string[] CollectionTools { get; } = { "투망/족대" };
 
@@ -108,12 +119,160 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     [ObservableProperty] private bool _noSpeciesDeclared;
     partial void OnNoSpeciesDeclaredChanged(bool value) => Recalculate();
 
-    // ── 실시간 통계(Center-Right) ──
+    // ── 접힘 상태 (README §상태 · 세션에 저장한다) ──────────────────────────
+    // 기본은 접힘이다. 조사환경은 지점당 1회만 적고, 그다음부터는 종 그리드가 20행이어야 한다.
+    [ObservableProperty] private bool _isEnvironmentExpanded;
+    [ObservableProperty] private bool _isHealthExpanded;
+
+    // ── 실시간 통계 (본문 상단 스트립 · 종전 우측 결과 레일) ──
     [ObservableProperty] private int _totalSpeciesCount;
-    [ObservableProperty] private int _totalIndividualCount;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TotalShareText))]
+    private int _totalIndividualCount;
     [ObservableProperty] private string _dominantSpecies = "-";
     [ObservableProperty] private double? _faiScore;
     [ObservableProperty] private string _faiGrade = "-";
+
+    /// <summary>우점종 점유율(%). 총 개체수가 0이면 null.</summary>
+    [ObservableProperty] private double? _dominantShare;
+
+    /// <summary>합계 행의 상대풍부도 칸. 개체가 하나도 없으면 100% 가 아니라 `·` 다(미산출).</summary>
+    public string TotalShareText => TotalIndividualCount > 0 ? "100%" : "·";
+
+    /// <summary>행이 하나도 없는가(빈 상태 안내 · README §11.4).</summary>
+    public bool HasNoRows => SpeciesEntries.Count == 0;
+
+    /// <summary>법정보호종 종수(멸종위기Ⅰ·Ⅱ급·천연기념물).</summary>
+    [ObservableProperty] private int _protectedCount;
+
+    /// <summary>생태계교란생물 종수. ⚠ 외래종 종수와 다르다(<see cref="ExoticCount"/>).</summary>
+    [ObservableProperty] private int _invasiveCount;
+
+    /// <summary>외래종 종수. FAI M1·M7 이 국내종을 셀 때 빼는 값이다.</summary>
+    [ObservableProperty] private int _exoticCount;
+
+    /// <summary>종명은 적혔는데 개체수가 비어 있는 행 수. **미입력과 0 은 다르게 저장된다.**</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasMissingCounts))]
+    [NotifyPropertyChangedFor(nameof(MissingCountText))]
+    [NotifyPropertyChangedFor(nameof(MissingCountDetail))]
+    private int _missingCountRows;
+
+    public bool HasMissingCounts => MissingCountRows > 0;
+    public string MissingCountText => MissingCountRows > 0 ? $"{MissingCountRows}행 개체수 미입력" : string.Empty;
+    public string MissingCountDetail =>
+        MissingCountRows > 0 ? $"{MissingCountRows}행 개체수 미입력 — 미입력과 0 은 다르게 저장됩니다" : string.Empty;
+
+    // ── FAI 상세 (M1~M8) ─────────────────────────────────────────────────────
+    // ⚠ 계산은 SDSM_Core 가 한다. 여기서는 **결과만 읽는다** — 관리자와 같은 코드다.
+    //    CalculateFaiDetail 은 CalculateFai 가 내부에서 쓰는 바로 그 함수다(값이 어긋날 수 없다).
+    [ObservableProperty] private FaiResult? _faiDetail;
+
+    public double M1 => FaiDetail?.M1 ?? 0;
+    public double M2 => FaiDetail?.M2 ?? 0;
+    public double M3 => FaiDetail?.M3 ?? 0;
+    public double M4 => FaiDetail?.M4 ?? 0;
+    public double M5 => FaiDetail?.M5 ?? 0;
+    public double M6 => FaiDetail?.M6 ?? 0;
+    public double M7 => FaiDetail?.M7 ?? 0;
+    public double M8 => FaiDetail?.M8 ?? 0;
+
+    /// <summary>
+    /// 낮은 항목(M1~M8). 색만으로 구분하지 않도록 **글자로도** 적는다(design.md §11).
+    /// 판정 : 0점 항목이 있으면 그것들, 없으면 6.25점 항목들, 둘 다 없으면 「없음」.
+    /// </summary>
+    public string LowMetricsText
+    {
+        get
+        {
+            if (FaiDetail is null || FaiDetail.Score is null) return "·";
+            var m = new[] { M1, M2, M3, M4, M5, M6, M7, M8 };
+            var zero = Enumerable.Range(0, 8).Where(i => m[i] <= 0).ToList();
+            var half = Enumerable.Range(0, 8).Where(i => m[i] > 0 && m[i] < 12.5).ToList();
+            var pick = zero.Count > 0 ? zero : half;
+            return pick.Count == 0 ? "없음" : string.Join(" · ", pick.Select(i => $"M{i + 1}"));
+        }
+    }
+
+    /// <summary>
+    /// M1~M8 막대 하나. 낮은 항목은 색이 다르고 <b>이름도 함께</b> 적힌다
+    /// (색만으로 구분하지 않는다 · design.md §11).
+    /// </summary>
+    /// <param name="Name">M1~M8.</param>
+    /// <param name="Score">0 · 6.25 · 12.5.</param>
+    /// <param name="IsLow">낮은 항목인지.</param>
+    /// <param name="Tooltip">그 지표가 무엇을 재는지.</param>
+    public sealed record FaiMetricBar(string Name, double Score, bool IsLow, string Tooltip);
+
+    /// <summary>M1~M8 막대. 값은 <c>SDSM_Core</c> 계산 결과를 그대로 옮긴 것이다.</summary>
+    [ObservableProperty] private IReadOnlyList<FaiMetricBar> _metricBars = Array.Empty<FaiMetricBar>();
+
+    /// <summary>M1~M8 이 각각 무엇을 재는지(툴팁 · 지침 표기).</summary>
+    private static readonly string[] MetricTooltips =
+    {
+        "M1 국내종 총 종수",
+        "M2 여울성 저서종수",
+        "M3 민감종수",
+        "M4 내성종 개체수 비율",
+        "M5 잡식종 개체수 비율",
+        "M6 충식종 개체수 비율",
+        "M7 국내종 총 개체수",
+        "M8 비정상종 개체수 비율",
+    };
+
+    /// <summary>건강성 카드 머리글 옆 캡션 — 계산 출처를 밝힌다.</summary>
+    public string HealthCaption =>
+        $"관리자 SDSM_Core 와 동일 계산 · 종목록 버전 {_speciesCatalogVersion}";
+
+    private readonly string _speciesCatalogVersion;
+
+    // ── 조사환경 요약줄 (접힘 36px) ──────────────────────────────────────────
+    // 접어도 값이 계속 보여야 한다 — 접기가 '숨기기'가 되지 않게.
+
+    /// <summary>하상구성 8칸 중 값이 들어간 칸 수. 미입력이면 `·`.</summary>
+    public string SubstrateSummary
+    {
+        get
+        {
+            var filled = new[] { Bedrock, Concrete, Mud, Sand, FineGravel, Gravel, SmallStone, BigStone }
+                         .Count(v => !string.IsNullOrWhiteSpace(v));
+            return filled == 0 ? "·" : $"{filled}칸 입력됨";
+        }
+    }
+
+    /// <summary>하상구성 합계(%). 지침상 100 이어야 한다. 전부 비면 null.</summary>
+    public double? SubstrateTotal
+    {
+        get
+        {
+            var vals = new[] { Bedrock, Concrete, Mud, Sand, FineGravel, Gravel, SmallStone, BigStone }
+                       .Select(Pd).Where(v => v is not null).Select(v => v!.Value).ToList();
+            return vals.Count == 0 ? null : vals.Sum();
+        }
+    }
+
+    /// <summary>하상구성 합계가 100 이 아니면 경고 문구, 맞으면 빈 문자열.</summary>
+    public string SubstrateWarning =>
+        SubstrateTotal is double t && Math.Abs(t - 100) > 0.01
+            ? $"하상구성 합계 {t:0.#}% — 100 이 되어야 합니다"
+            : string.Empty;
+
+    /// <summary>비정상종(DE·EF·LE·TU) 합계 개체수. FAI M8 의 분자다.</summary>
+    public int AbnormalTotal => PiOrZero(DeCount) + PiOrZero(EfCount) + PiOrZero(LeCount) + PiOrZero(TuCount);
+
+    public string AbnormalSummary => AbnormalTotal > 0 ? $"{AbnormalTotal}개체" : "·";
+
+    /// <summary>하천차수 표기. FAI M1·M2·M3·M7 의 구간표를 고르는 값이라 비면 지수가 안 나온다.</summary>
+    public string RiverChasuText => RiverChasu is double c and > 0 ? $"{c:0}차" : "·";
+
+    private void RaiseEnvironmentSummary()
+    {
+        OnPropertyChanged(nameof(SubstrateSummary));
+        OnPropertyChanged(nameof(SubstrateTotal));
+        OnPropertyChanged(nameof(SubstrateWarning));
+        OnPropertyChanged(nameof(AbnormalSummary));
+        OnPropertyChanged(nameof(RiverChasuText));
+    }
 
     // ── 상태바(Bottom) ──
 
@@ -194,22 +353,85 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         // 결측치(null)와 0 엄격 구분 : 0 초과 개체만 집계
         TotalSpeciesCount = imports.Count(x => (x.IndividualCount ?? 0) > 0);
         TotalIndividualCount = imports.Sum(x => x.IndividualCount ?? 0);
-        DominantSpecies = imports.Where(x => (x.IndividualCount ?? 0) > 0)
-                                 .OrderByDescending(x => x.IndividualCount)
-                                 .FirstOrDefault()?.SpeciesKo ?? "-";
+
+        var dominant = imports.Where(x => (x.IndividualCount ?? 0) > 0)
+                              .OrderByDescending(x => x.IndividualCount)
+                              .FirstOrDefault();
+        DominantSpecies = dominant?.SpeciesKo ?? "-";
+        DominantShare = TotalIndividualCount > 0 && dominant is not null
+            ? (double)(dominant.IndividualCount ?? 0) / TotalIndividualCount * 100.0
+            : null;
+
+        // 행 번호 · 상대풍부도(읽기전용 파생) · 태그 집계
+        //  ⚠ 여기서 건드리는 속성들은 AffectsRecalculation 에 없다 — 있으면 무한 재계산이 된다.
+        int n = 0, prot = 0, invasive = 0, exotic = 0, missing = 0;
+        foreach (var row in SpeciesEntries)
+        {
+            row.RowNumber = ++n;
+
+            row.RelativeAbundance = TotalIndividualCount > 0 && row.IndividualCount is int c && c > 0
+                ? (double)c / TotalIndividualCount * 100.0
+                : null;
+
+            var named = !string.IsNullOrWhiteSpace(row.SelectedSpecies?.SpeciesKo ?? row.SpeciesKo);
+            if (!named) continue;
+
+            // 종명은 적혔는데 개체수가 비었다 — 0 으로 치환하지 않고 건수만 알린다
+            if (row.IndividualCount is null) missing++;
+
+            if ((row.IndividualCount ?? 0) <= 0) continue;
+            if (row.IsProtected) prot++;
+            if (row.IsInvasive) invasive++;
+            if (row.IsExotic) exotic++;
+        }
+        ProtectedCount = prot;
+        InvasiveCount = invasive;
+        ExoticCount = exotic;
+        MissingCountRows = missing;
 
         // 0종 처리는 계산기가 판단한다(12_CALC_FIX §2)
         //  조사불가 → "-"  /  조사 수행 + 0종 선언 → 0·E  /  미입력 → "-"
-        int abnormal = PiOrZero(DeCount) + PiOrZero(EfCount) + PiOrZero(LeCount) + PiOrZero(TuCount);
-        var (score, grade) = EcologyCalculator.CalculateFai(
+        // ⚠ CalculateFaiDetail 은 CalculateFai 가 내부에서 호출하는 바로 그 함수다.
+        //    M1~M8 을 화면에 그리려고 결과를 더 받을 뿐, 계산식은 손대지 않았다.
+        int abnormal = AbnormalTotal;
+        var detail = EcologyCalculator.CalculateFaiDetail(
             imports, SurveyUnavailableReason, abnormalCount: abnormal,
             chasu: (int)(RiverChasu ?? 0), noSpeciesDeclared: NoSpeciesDeclared);
-        FaiScore = score;
-        FaiGrade = grade ?? "-";
+
+        FaiDetail = detail;
+        FaiScore = detail.Score;
+        FaiGrade = detail.Grade ?? "-";
+
+        RaiseHealthSummary();
+        OnPropertyChanged(nameof(HasNoRows));
 
         ExportExcelCommand.NotifyCanExecuteChanged();
         ExportBulkCommand.NotifyCanExecuteChanged();
     }
+
+    private void RaiseHealthSummary()
+    {
+        var m = new[] { M1, M2, M3, M4, M5, M6, M7, M8 };
+        var scored = FaiDetail?.Score is not null;
+        // 낮은 항목 판정은 LowMetricsText 와 같은 규칙을 쓴다(0점 우선, 없으면 6.25점).
+        var lowSet = LowMetricsText;
+        MetricBars = Enumerable.Range(0, 8)
+            .Select(i => new FaiMetricBar(
+                $"M{i + 1}",
+                scored ? m[i] : 0,
+                scored && lowSet.Contains($"M{i + 1}", StringComparison.Ordinal),
+                MetricTooltips[i]))
+            .ToList();
+
+        OnPropertyChanged(nameof(M1)); OnPropertyChanged(nameof(M2));
+        OnPropertyChanged(nameof(M3)); OnPropertyChanged(nameof(M4));
+        OnPropertyChanged(nameof(M5)); OnPropertyChanged(nameof(M6));
+        OnPropertyChanged(nameof(M7)); OnPropertyChanged(nameof(M8));
+        OnPropertyChanged(nameof(LowMetricsText));
+    }
+
+    /// <summary>빠른추가로 들어온 행을 1.2초간 강조한다(기반 클래스가 타이머를 돌린다).</summary>
+    protected override void SetJustAdded(FishSpeciesEntry row, bool value) => row.IsJustAdded = value;
 
 
     /// <summary>보고서·기록용 엑셀 내보내기(조사개황·출현종·FAI 건강성평가 3개 시트).</summary>
@@ -270,7 +492,11 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
 }
 
 // ── 임시 저장용 DTO ──
-public record FishDraftRow(string? SpeciesKo, int? IndividualCount);
+/// <summary>
+/// 세션에 저장되는 종 행. <c>Note</c> 는 나중에 붙였으므로 **선택 매개변수**로 둔다 —
+/// 옛 세션 파일(2개짜리)도 그대로 읽힌다(없으면 null).
+/// </summary>
+public record FishDraftRow(string? SpeciesKo, int? IndividualCount, string? Note = null);
 
 public sealed class FishDraft
 {
@@ -310,6 +536,9 @@ public sealed class FishDraft
     public string? Note { get; init; }
     /// <summary>출현종 없음(0종) 선언.</summary>
     public bool NoSpeciesDeclared { get; init; }
+    // 화면 접힘 상태 — 다음 실행에도 유지된다(README §상태). 옛 파일에는 없으므로 기본 false(접힘).
+    public bool IsEnvironmentExpanded { get; init; }
+    public bool IsHealthExpanded { get; init; }
     // 비정상종(개체수)
     public string? DeCount { get; init; }
     public string? EfCount { get; init; }

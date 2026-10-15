@@ -29,22 +29,50 @@
          ══════════════════════════════════════════════════════════════════════════ -->
     <Grid Margin="8">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>  <!-- ① 빠른 추가 -->
-            <RowDefinition Height="*"/>     <!-- ② 관찰 그리드(2단 행) -->
-            <RowDefinition Height="Auto"/>  <!-- ③ 상태 · 액션 -->
+            <RowDefinition Height="Auto"/>  <!-- ① 요약 스트립(36px) -->
+            <RowDefinition Height="Auto"/>  <!-- ② 빠른 추가 -->
+            <RowDefinition Height="*"/>     <!-- ③ 관찰 그리드(2단 행) -->
+            <RowDefinition Height="Auto"/>  <!-- ④ 상태 · 액션 -->
         </Grid.RowDefinitions>
 
-        <ctrl:QuickAddBar Grid.Row="0" Margin="0 0 0 8"
+        <!--═══ 요약 스트립 (36px) ═══════════════════════════════════════
+             관찰형은 결과 레일을 두지 않는다(design.md §5.2) — 레일을 두면 그리드가
+             300px 좁아져 2단 행의 1행 열이 안 들어간다. 대신 한 줄 요약을 위에 둔다.
+             ⚠ 보호종과 교란종은 의미가 반대라 색과 숫자를 분리해 적는다(§11). -->
+        <Border Grid.Row="0" Style="{StaticResource SummaryRowBorderStyle}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="양서파충류" Style="{StaticResource GroupHeaderTextStyle}"/>
+                <Border Style="{StaticResource VerticalDividerStyle}" Margin="12 0 12 0"/>
+
+                <TextBlock Style="{StaticResource SummaryValueTextStyle}">
+                    <Run Text="총"/>
+                    <Run Text="{Binding TotalSpeciesCount, Mode=OneWay}"/><Run Text="종 ·"/>
+                    <Run Text="{Binding TotalIndividualCount, Mode=OneWay, StringFormat={}{0:N0}}"/><Run Text="개체"/>
+                </TextBlock>
+
+                <Border Style="{StaticResource VerticalDividerStyle}"/>
+                <TextBlock Text="보호종" Style="{StaticResource SummaryLabelTextStyle}"/>
+                <TextBlock Text="{Binding ProtectedCount}" Margin="0 0 8 0" VerticalAlignment="Center"
+                           FontSize="{StaticResource SummaryFontSize}" FontWeight="SemiBold"
+                           Foreground="{StaticResource AccentOnSurfaceBrush}"/>
+                <TextBlock Text="교란종" Style="{StaticResource SummaryLabelTextStyle}"/>
+                <TextBlock Text="{Binding InvasiveCount}" VerticalAlignment="Center"
+                           FontSize="{StaticResource SummaryFontSize}" FontWeight="SemiBold"
+                           Foreground="{StaticResource DangerTextBrush}"/>
+            </StackPanel>
+        </Border>
+
+        <ctrl:QuickAddBar Grid.Row="1" Margin="0 8 0 8"
                           SearchWatermark="종명 초성 검색 (예: ㅊㄱㄱㄹ)"
                           CountWatermark="성체 개체수"
                           Hint="개체수는 '성체' 칸에 들어갑니다 · 나머지 관찰은 아랫줄에서 입력 · 엑셀 Ctrl+V 가능"/>
 
-        <ctrl:ObservationGrid Grid.Row="1" Rows="{Binding Entries}">
+        <ctrl:ObservationGrid Grid.Row="2" Rows="{Binding Entries}">
             <!-- ── 1행 12열 · 고정 합 1,080 + 특징 144 = 1,224 ───────────────────── -->
             <telerik:GridViewDataColumn Header="일반명" Width="156" DataMemberBinding="{Binding SpeciesKo}">
                 <telerik:GridViewDataColumn.CellEditTemplate>
                     <DataTemplate>
-                        <telerik:RadAutoCompleteBox SelectionMode="Single"
+                        <telerik:RadAutoCompleteBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" SelectionMode="Single"
                             WatermarkContent="초성 검색 (예: ㅊㄱㄱㄹ)"
                             DisplayMemberPath="SpeciesKo" TextSearchPath="SpeciesKo" TextSearchMode="Contains"
                             SelectedItem="{Binding SelectedSpecies, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -90,22 +118,22 @@
                             <TextBlock Text="╰▸ 관찰" Width="66" Style="{StaticResource RowDetailsTagStyle}"/>
 
                             <TextBlock Text="성체" Style="{StaticResource RowDetailsLabelStyle}"/>
-                            <telerik:RadWatermarkTextBox Width="72" Margin="0 0 20 0" WatermarkContent="·"
+                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="72" Margin="0 0 20 0" WatermarkContent="·"
                                                          Text="{Binding Trace1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="유생" Style="{StaticResource RowDetailsLabelStyle}"/>
-                            <telerik:RadWatermarkTextBox Width="72" Margin="0 0 20 0" WatermarkContent="·"
+                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="72" Margin="0 0 20 0" WatermarkContent="·"
                                                          Text="{Binding Trace2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="알" Style="{StaticResource RowDetailsLabelStyle}"/>
-                            <telerik:RadWatermarkTextBox Width="72" Margin="0 0 20 0" WatermarkContent="·"
+                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="72" Margin="0 0 20 0" WatermarkContent="·"
                                                          Text="{Binding Trace3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="울음소리" Style="{StaticResource RowDetailsLabelStyle}"/>
-                            <telerik:RadWatermarkTextBox Width="72" Margin="0 0 20 0" WatermarkContent="·"
+                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="72" Margin="0 0 20 0" WatermarkContent="·"
                                                          Text="{Binding Trace4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="로드킬" Style="{StaticResource RowDetailsLabelStyle}"/>
-                            <telerik:RadWatermarkTextBox Width="72" Margin="0 0 20 0" WatermarkContent="·"
+                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="72" Margin="0 0 20 0" WatermarkContent="·"
                                                          Text="{Binding Trace5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="기타" Style="{StaticResource RowDetailsLabelStyle}"/>
-                            <telerik:RadWatermarkTextBox Width="72" WatermarkContent="·"
+                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="72" WatermarkContent="·"
                                                          Text="{Binding Trace6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                         </StackPanel>
                     </Border>
@@ -114,7 +142,23 @@
         </ctrl:ObservationGrid>
 
         <!-- ③ 상태 · 액션 바 -->
-        <ctrl:TaxonStatusBar Grid.Row="2" Margin="0 8 0 0">
+        <!-- 빈 상태 (README §11.4) -->
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    IsHitTestVisible="False" Margin="0 40 0 0"
+                    Visibility="{Binding HasNoRows, Converter={StaticResource BoolToVisibility}}">
+            <icon:PackIconMaterial Kind="PlusBoxOutline" Width="28" Height="28"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{StaticResource TertiaryForegroundBrush}"/>
+            <TextBlock Text="위 빠른추가로 종을 추가하세요" Margin="0 10 0 0"
+                       HorizontalAlignment="Center"
+                       Foreground="{StaticResource TertiaryForegroundBrush}"/>
+            <TextBlock Text="초성으로 종명을 찾고 수량을 넣은 뒤 Enter · 엑셀에서 Ctrl+V 로 여러 줄도 됩니다"
+                       Margin="0 4 0 0" HorizontalAlignment="Center"
+                       Style="{StaticResource CaptionTextStyle}"
+                       Foreground="{StaticResource TertiaryForegroundBrush}"/>
+        </StackPanel>
+
+        <ctrl:TaxonStatusBar Grid.Row="3" Margin="0 8 0 0">
             <ctrl:TaxonStatusBar.Summary>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="{Binding TotalSpeciesCount, StringFormat=총 {0}종}" FontWeight="SemiBold"
@@ -158,15 +202,14 @@
                             <TextBlock Text="일괄입력용" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
-                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="{StaticResource ActionButtonPadding}"
-                                       Background="{StaticResource PrimaryActionBackBrush}"
-                                       Foreground="{StaticResource PrimaryActionForeBrush}"
+                    <Button Command="{Binding ExportExcelCommand}" Padding="{StaticResource ActionButtonPadding}"
+                                       Style="{StaticResource PrimaryActionButtonStyle}"
                                        ToolTipService.ToolTip="보고서·기록용 · 조사개황/출현종/출현종요약 시트">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="보고서 엑셀" Margin="4 0 0 0"/>
                         </StackPanel>
-                    </telerik:RadButton>
+                    </Button>
                 </StackPanel>
             </ctrl:TaxonStatusBar.Actions>
         </ctrl:TaxonStatusBar>

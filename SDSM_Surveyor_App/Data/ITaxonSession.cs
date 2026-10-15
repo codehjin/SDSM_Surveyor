@@ -14,6 +14,13 @@ public interface ITaxonSession
     /// <summary>입력된 자료가 있는지(자료함 목록의 '입력 분류군' 판단).</summary>
     bool HasData { get; }
 
+    /// <summary>
+    /// 입력된 자료의 분량. 캡션 바 분류군 재선택 팝오버의 「n종 입력됨」에 쓴다.
+    /// 종 입력형·관찰형은 종 행 수, 폼형은 값이 들어간 항목 수다
+    /// (단위 문구는 <c>TaxonCatalog</c> 의 <c>CountUnit</c> 이 정한다).
+    /// </summary>
+    int EntryCount { get; }
+
     /// <summary>현재 화면 상태를 JSON 직렬화 가능한 스냅샷으로.</summary>
     object CaptureState();
 

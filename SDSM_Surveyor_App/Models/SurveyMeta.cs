@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SDSM_Models;
@@ -17,11 +17,24 @@ namespace SDSM_Surveyor_App.Models;
 public partial class SurveyMeta : ObservableObject, ISingletonService
 {
     /// <summary>DI 생성자. 7개 분류군이 이 인스턴스 하나를 공유한다(조사개황은 세션당 1벌).</summary>
-    public SurveyMeta(ISiteListProvider sites) => UseSiteList(sites);
+    public SurveyMeta(ISiteListProvider sites, SurveyPins pins)
+    {
+        Pins = pins;
+        UseSiteList(sites);
 
+        // 앱을 켜서 빈 야장이 처음 만들어지는 순간이다 — 고정(압정)된 칸을 여기서 채운다.
+        // 세션 복원은 항상 이보다 나중이라 저장된 세션이 정상적으로 덮어쓴다.
+        BeginBulkApply();
+        try { Pins.Attach(this); }
+        finally { EndBulkApply(); }
+    }
+
+    /// <summary>조사개황 값 고정(압정) 6개. 화면이 <c>Pins.Project.IsOn</c> 식으로 본다.</summary>
+    public SurveyPins Pins { get; }
 
     private ISiteListProvider? _sites;
     private bool _applyingSite;   // 지점 자동 채움 중 재진입 방지
+    private int _bulkDepth;       // 세션 복원·고정값 주입 중 압정 갱신 억제(중첩 가능)
 
     [ObservableProperty] private string? _project;                        // 대분류(방류하천/생태현황) — 파일명·구분(SiteDivision)
     [ObservableProperty] private string? _surveyYear;                     // 연도
@@ -89,6 +102,7 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
 
         RefreshSiteOptions();
         RaiseSummary();
+        CapturePin(nameof(Project), value);
     }
 
     /// <summary>대분류를 고르기 전에는 지점 드롭다운을 쓸 수 없다(§8-2).</summary>
@@ -162,6 +176,35 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
         RaiseSummary();
     }
 
+    // ── 값 고정(압정) 연결 ────────────────────────────────────────────────────
+    // 사람이 친 값과 프로그램이 넣은 값을 구분해야 한다. 구분하지 않으면
+    // 세션을 불러오는 순간 옛 세션의 조사일·조사자가 고정값을 덮어쓴다.
+    // `_applyingSite`(지점 자동 채움 재진입 방지)와 같은 관례다.
+
+    /// <summary>
+    /// 세션 복원·고정값 주입처럼 프로그램이 여러 칸을 한꺼번에 넣는 구간의 시작.
+    /// bool 이 아니라 카운터다 — 구간이 겹쳐도 안쪽이 바깥 구간을 조기에 풀지 않는다.
+    /// </summary>
+    public void BeginBulkApply() => _bulkDepth++;
+
+    /// <summary>
+    /// 대량 적용 구간의 끝. 구간이 끝나는 순간 압정 안내를 다시 계산한다 —
+    /// 세션을 불러오면 야장 값이 고정값과 어긋나는데, 그 구간에서는 <c>Capture</c> 가
+    /// 억제되어 있어 아무도 띠를 갱신해 주지 않는다.
+    /// </summary>
+    public void EndBulkApply()
+    {
+        if (_bulkDepth > 0) _bulkDepth--;
+        if (_bulkDepth == 0) Pins.RefreshNotice();
+    }
+
+    /// <summary>사람이 그 칸을 고쳤을 때만 고정값을 갱신한다.</summary>
+    private void CapturePin(string key, object? value)
+    {
+        if (_bulkDepth > 0) return;
+        Pins.Capture(key, value);
+    }
+
     // ── 접힌 조사개황 요약줄 (06_DESIGN_REBUILD §5-1-5) ─────────────────────
     // 조사개황을 접어도 **무엇을 고르고 있는지**가 항상 보여야 한다.
     // 대분류를 바꿔 지점·하천·좌표가 비워지는 것이 눈에 보여야 자료가 조용히 섞이지 않았음을
@@ -189,22 +232,92 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
         }
     }
 
+    // ── 조사개황 요약 카드(48px)의 칸별 값 (README §2.3) ────────────────────
+    // 접힌 상태에서도 「지점 │ 날짜 │ 좌표 │ 조사자·날씨」가 계속 보인다.
+    // 미입력은 전부 `·` 다 — null 과 0/빈값을 눈으로 구분하기 위한 규칙(CLAUDE.md §4).
+
+    /// <summary>조사일 — `2026-05-14`. 미입력이면 `·`.</summary>
+    public string SurveyDateText => SurveyDate is DateTime d ? d.ToString("yyyy-MM-dd") : "·";
+
+    /// <summary>좌표 — `36.8123, 127.0451`. 한쪽이라도 비면 `·`.</summary>
+    public string CoordinateText =>
+        string.IsNullOrWhiteSpace(Lat) || string.IsNullOrWhiteSpace(Lng) ? "·" : $"{Lat}, {Lng}";
+
+    /// <summary>조사자 · 날씨 — 둘 다 비면 `·`.</summary>
+    public string SurveyorWeatherText
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(Surveyor)) parts.Add(Surveyor!);
+            if (!string.IsNullOrWhiteSpace(Weather)) parts.Add(Weather!);
+            return parts.Count == 0 ? "·" : string.Join(" · ", parts);
+        }
+    }
+
+    /// <summary>캡션 바 세션 요약 — `방류하천 · 곡교천1 (St.1) · 2026반기1차`.</summary>
+    public string ShellSessionSummary
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (HasProject) parts.Add(Project!);
+            if (SiteDisplay.Length > 0) parts.Add(SiteDisplay);
+            if (!string.IsNullOrWhiteSpace(YearChsu)) parts.Add(YearChsu);
+            return parts.Count == 0 ? "조사개황 미입력" : string.Join(" · ", parts);
+        }
+    }
+
     private void RaiseSummary()
     {
         OnPropertyChanged(nameof(HasProject));
         OnPropertyChanged(nameof(ProjectText));
         OnPropertyChanged(nameof(OverviewSummary));
+        OnPropertyChanged(nameof(ShellSessionSummary));
+        OnPropertyChanged(nameof(SurveyDateText));
     }
 
-    partial void OnYearChsuChanged(string value) => RaiseSummary();
-    partial void OnSurveyDateChanged(DateTime? value) => RaiseSummary();
+    partial void OnYearChsuChanged(string value)
+    {
+        RaiseSummary();
+        CapturePin(nameof(YearChsu), value);
+    }
+
+    partial void OnSurveyDateChanged(DateTime? value)
+    {
+        RaiseSummary();
+        CapturePin(nameof(SurveyDate), value);
+    }
+
+    partial void OnSurveyorChanged(string? value)
+    {
+        OnPropertyChanged(nameof(SurveyorWeatherText));
+        CapturePin(nameof(Surveyor), value);
+    }
+
+    partial void OnWeatherChanged(string? value)
+    {
+        OnPropertyChanged(nameof(SurveyorWeatherText));
+        CapturePin(nameof(Weather), value);
+    }
+
+    partial void OnSurveyAgencyChanged(string? value) => CapturePin(nameof(SurveyAgency), value);
 
     /// <summary>좌표가 있어 지도를 열 수 있는지.</summary>
     public bool HasMap => Coordinate.MapUrl(
         Coordinate.ToDecimal(Lat), Coordinate.ToDecimal(Lng)) is not null;
 
-    partial void OnLatChanged(string? value) => OnPropertyChanged(nameof(HasMap));
-    partial void OnLngChanged(string? value) => OnPropertyChanged(nameof(HasMap));
+    partial void OnLatChanged(string? value)
+    {
+        OnPropertyChanged(nameof(HasMap));
+        OnPropertyChanged(nameof(CoordinateText));
+    }
+
+    partial void OnLngChanged(string? value)
+    {
+        OnPropertyChanged(nameof(HasMap));
+        OnPropertyChanged(nameof(CoordinateText));
+    }
 
     /// <summary>좌표를 기본 브라우저 지도에서 연다.</summary>
     [RelayCommand]

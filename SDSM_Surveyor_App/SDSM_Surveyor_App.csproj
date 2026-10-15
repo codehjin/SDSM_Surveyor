@@ -9,6 +9,9 @@
     <RootNamespace>SDSM_Surveyor_App</RootNamespace>
     <AssemblyName>SDSM_Surveyor_App</AssemblyName>
     <Version>0.1.0</Version>
+    <!-- Telerik·MahApps 의 다국어 위성 리소스 46개 폴더를 빼서 배포본을 가볍게 한다.
+         조사자앱은 한국어 전용이다. -->
+    <SatelliteResourceLanguages>ko;en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,6 +40,22 @@
   </Target>
 
   <ItemGroup>
+    <!-- Pretendard (SIL OFL 1.1 · 브랜드 자산 아님 · design.md §4).
+         현장 PC 에 설치돼 있지 않아도 같게 렌더링되도록 배포 패키지에 포함한다.
+         ⚠ 반드시 Resource 여야 pack:// URI 로 읽힌다 — Content 로 두면 폰트로 로드되지 않는다.
+         라이선스 원문은 같은 폴더의 OFL.txt (재배포 시 동봉 의무). -->
+    <None Remove="Assets\Fonts\*.ttf" />
+    <Resource Include="Assets\Fonts\Pretendard-Regular.ttf" />
+    <Resource Include="Assets\Fonts\Pretendard-SemiBold.ttf" />
+    <Resource Include="Assets\Fonts\Pretendard-Bold.ttf" />
+    <!-- ⚠ 재배포 의무 : SIL OFL 1.1 원문을 배포본에 함께 넣는다. Resource 가 아니라
+         파일로 나가야 한다(사람이 열어 볼 문서다). -->
+    <None Update="Assets\Fonts\OFL.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- 기준자료(관리자 DB에서 내보낸 종별 범위) 번들 -->
     <Content Include="reference.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -47,6 +66,22 @@
     </Content>
     <!-- 조사지점 마스터(제출 엑셀 조사지점 시트에서 생성). AppData\SDSM_Surveyor\sites.json으로 교체 가능 -->
     <Content Include="sites.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- 지점 지도 시드(maps.json + png). 첫 실행에 AppData\SDSM_Surveyor\maps\ 로 복사된다.
+         그 뒤로는 앱 데이터 쪽만 고친다 — 조사자가 [교체]·[삭제]로 직접 관리하는 자료라
+         설치 폴더를 건드리면 안 된다. -->
+    <Content Include="maps\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- 테스트 배포본 전용 : 자료함 예시 세션.
+       기본 빌드에는 들어가지 않는다 — 실제 배포본에 예시 자료가 섞이면 안 된다.
+       테스트본을 만들 때만 켠다 :  dotnet publish -p:IncludeTestData=true
+       앱은 자료함이 **비어 있을 때만** 이 폴더를 복사한다(SessionStore.SeedTestDataIfEmptyAsync). -->
+  <ItemGroup Condition="'$(IncludeTestData)' == 'true'">
+    <Content Include="sessions_seed\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

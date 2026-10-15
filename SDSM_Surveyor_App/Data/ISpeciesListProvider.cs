@@ -5,6 +5,12 @@ namespace SDSM_Surveyor_App.Data;
 /// <summary>종 목록(초성 자동완성/검증 기준) 제공자.</summary>
 public interface ISpeciesListProvider
 {
+    /// <summary>
+    /// 종목록 카탈로그 버전(species.json 의 <c>Version</c>). 화면에 계산 근거로 표기한다 —
+    /// 지수가 관리자와 일치하려면 종목록 버전이 같아야 하기 때문이다(CLAUDE.md §4).
+    /// </summary>
+    string? Version { get; }
+
     /// <summary>어류 공식 종목록.</summary>
     List<FishSpeciesList> GetFishSpecies();
 

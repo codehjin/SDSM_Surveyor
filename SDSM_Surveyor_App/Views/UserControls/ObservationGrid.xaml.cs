@@ -30,7 +30,12 @@ public partial class ObservationGrid : UserControl
         InitializeComponent();
         Columns.CollectionChanged += OnColumnsChanged;
         Loaded += (_, _) => SyncColumns();
-        DataContextChanged += (_, e) => _host = e.NewValue as IQuickAddHost;
+        DataContextChanged += (_, e) =>
+        {
+            if (e.OldValue is IQuickAddHost old) old.EndGridEdit = null;   // 죽은 그리드를 겨누지 않게
+            _host = e.NewValue as IQuickAddHost;
+            if (_host is not null) _host.EndGridEdit = () => Grid.CancelEdit();
+        };
     }
 
     /// <summary>
@@ -80,11 +85,28 @@ public partial class ObservationGrid : UserControl
     }
 
     /// <summary>
+    /// 누른 행을 VM 에 알려 둔다. [행 삭제] 버튼과 우클릭 메뉴가 이 값을 쓴다.
+    /// 우클릭은 Telerik 이 선택을 옮기지 않으므로 여기서 직접 잡는다.
+    ///
+    /// ⚠ 행을 못 찾았으면 <b>반드시 null 로 덮는다</b>. 머리글·빈 곳을 눌렀을 때 직전 값이 남으면
+    ///   [행 삭제]가 화면에 보이지도 않는 행을 조용히 지운다(<see cref="Helpers.GridRowPicker"/>).
+    /// </summary>
+    private void Grid_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (_host is null) return;
+        _host.LastTouchedRow = Helpers.GridRowPicker.Resolve(e.OriginalSource);
+    }
+
+    /// <summary>
     /// Ctrl+V : 엑셀 여러 줄을 VM 이 직접 파싱해 행으로 추가한다.
     /// RadGridView 기본 붙여넣기는 커스텀 편집기 컬럼과 충돌해 한 칸에 뭉친다(90_TECH_NOTES §2).
     /// </summary>
     private void Grid_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        // 키보드로 셀을 옮기면 '마지막으로 누른 행' 은 더 이상 지금 보고 있는 행이 아니다.
+        // 옛 행을 겨눈 채로 두는 대신 [행 삭제]를 끄고, 다시 눌러 고르게 한다.
+        if (_host is not null && IsNavigationKey(e.Key)) _host.LastTouchedRow = null;
+
         if (e.Key != Key.V || (Keyboard.Modifiers & ModifierKeys.Control) != ModifierKeys.Control) return;
         if (_host is null || !Clipboard.ContainsText()) return;
 
@@ -96,4 +118,9 @@ public partial class ObservationGrid : UserControl
         Dispatcher.BeginInvoke(new Action(() => host.PasteRows(text)), DispatcherPriority.Background);
         e.Handled = true;
     }
+
+    /// <summary>셀 이동 키. 이 키를 누르면 삭제 대상이 어긋나므로 값을 비운다.</summary>
+    internal static bool IsNavigationKey(Key k) =>
+        k is Key.Up or Key.Down or Key.Left or Key.Right or Key.Tab
+          or Key.PageUp or Key.PageDown or Key.Home or Key.End or Key.Enter;
 }

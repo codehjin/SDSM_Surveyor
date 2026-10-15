@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
                     xmlns:conv="clr-namespace:SDSM_Surveyor_App.Converters"
@@ -6,13 +6,25 @@
 
     <!--=========== 컨버터 ===========-->
     <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+    <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
+    <conv:TaxonToVisibilityConverter x:Key="TaxonToVisibility"/>
+    <conv:TaxonToBoolConverter x:Key="TaxonToBool"/>
+    <conv:EmptyToDotConverter x:Key="EmptyToDot"/>
+    <conv:IsEmptyConverter x:Key="IsEmpty"/>
+    <conv:ResourceKeyToBrushConverter x:Key="KeyToBrush"/>
+    <conv:MetricToBarHeightConverter x:Key="MetricToBarHeight"/>
+    <conv:PinnedBackgroundConverter x:Key="PinnedBack"/>
 
     <!-- design.md §2·§4 : 폰트 · 치수 · 타이포 · 레이아웃 토큰
          ※ Colors.xaml 이후에 병합되어야 함(셸 브러시 참조) -->
 
     <!--=========== 폰트 ===========-->
-    <!-- SamsungOne은 라이선스 대상이라 사용하지 않음. 시스템 한글 고딕 사용. -->
-    <FontFamily x:Key="DefaultFontFamily">Malgun Gothic</FontFamily>
+    <!-- SamsungOne·One UI 는 라이선스 대상이라 사용하지 않는다.
+         Pretendard 는 SIL OFL 1.1 오픈폰트라 브랜드 자산이 아니며 라이선스 원칙과 무관하다(design.md §4).
+         맑은 고딕(2009)은 14.5px 에서 획이 뭉쳐 "최신성" 체감을 가장 먼저 깎았다.
+         ⚠ 폰트가 없는 PC 를 대비해 맑은 고딕을 폴백으로 남긴다 — 이 항목을 지우지 말 것.
+         ⚠ 번들 3종(Regular 400 · SemiBold 600 · Bold 700)만 있으므로 그 외 굵기는 합성된다. -->
+    <FontFamily x:Key="DefaultFontFamily">pack://application:,,,/SDSM_Surveyor_App;component/Assets/Fonts/#Pretendard, Malgun Gothic</FontFamily>
     <sys:Double x:Key="DefaultFontSize">14.5</sys:Double>
     <sys:Double x:Key="PageTitleFontSize">26</sys:Double>
     <sys:Double x:Key="SectionTitleFontSize">19</sys:Double>
@@ -35,6 +47,37 @@
     <Thickness x:Key="StatusBarPadding">12 8</Thickness>
     <Thickness x:Key="FieldMargin">0 0 12 12</Thickness>
 
+    <!-- ⚠ **StaticResource 는 같은 사전 안에서 '앞에 정의된 것'만 찾는다.**
+         뒤에 정의된 키를 앞에서 참조하면 조용히 DependencyProperty.UnsetValue 가 들어가고,
+         "'{DependencyProperty.UnsetValue}'은(는) 'BorderThickness' 속성의 유효한 값이 아닙니다"
+         라는 예외가 **레이아웃 측정 단계에서** 터진다 — XAML 로드 시점이 아니라서 원인 찾기가 어렵다.
+         그래서 형태·치수 토큰은 이 파일 맨 앞(스타일 정의보다 위)에 모아 둔다. -->
+    <!--=========== 형태 토큰 (design.md §2.7) ===========-->
+    <!-- ⚠ 같은 값이라도 쓰는 속성의 형식이 다르면 리소스를 따로 둬야 한다.
+         BorderThickness 는 Thickness 를, StrokeThickness·Width 는 Double 을 요구한다 —
+         형식이 어긋나면 XAML 로드가 런타임에 터진다. -->
+    <Thickness x:Key="BorderThin">1</Thickness>
+    <Thickness x:Key="BorderFocusRing">2</Thickness>
+    <sys:Double x:Key="BorderThinWidth">1</sys:Double>
+    <sys:Double x:Key="FocusRingThickness">2</sys:Double>
+    <CornerRadius x:Key="CornerRadiusSm">4</CornerRadius>
+    <CornerRadius x:Key="CornerRadiusMd">8</CornerRadius>
+    <CornerRadius x:Key="CornerRadiusFocusInset">2</CornerRadius>  <!-- 채워진 단추 안쪽 포커스 링(바깥 4 − 들여쓰기 3) -->
+    <!-- ⚠ **WPF 에서 pill 을 만들 때 CornerRadius 를 999 로 주면 안 된다.**
+         CSS `border-radius:999px` 는 비율로 클램프해 스타디움(사각형 + 좌우 반원)이 되지만,
+         WPF Border 는 가로·세로 반지름을 **따로** min(radius, width/2)·min(radius, height/2) 로
+         자른다. 그래서 200×32 상자에 999 를 주면 rx=100·ry=16 인 **납작한 타원**이 된다.
+         반드시 '높이의 절반'을 명시한다. -->
+    <CornerRadius x:Key="TaxonChipCornerRadius">16</CornerRadius>      <!-- 높이 32 -->
+    <CornerRadius x:Key="ShellPillCornerRadius">15</CornerRadius>      <!-- 높이 30 -->
+    <CornerRadius x:Key="BadgeCornerRadius">10</CornerRadius>          <!-- 높이 20 -->
+    <CornerRadius x:Key="JustAddedChipCornerRadius">12</CornerRadius>  <!-- 높이 24 -->
+    <CornerRadius x:Key="GradeBadgeSmallCornerRadius">11</CornerRadius><!-- 높이 22 -->
+    <!-- 색점(원형) : 지름의 절반. 색점은 정보를 전달하는 그래픽이라 Opacity 를 낮추지 않는다(§3.3). -->
+    <CornerRadius x:Key="TaxonDotRadius">4.5</CornerRadius>
+    <CornerRadius x:Key="TaxonTileDotRadius">5.5</CornerRadius>
+    <CornerRadius x:Key="AppMarkRadius">4</CornerRadius>
+
     <!--=========== 치수 ===========-->
     <!-- ⚠ DefaultHeight 40 → 36 (§5-4 · 승인 §5-7 결정 3).
          760 높이 노트북에서 폼 4칸당 16 px 를 번다. -->
@@ -43,7 +86,6 @@
     <sys:Double x:Key="TitleBarHeight">50</sys:Double>
     <!-- Grid.RowDefinition.Height 는 GridLength 를 요구한다 — Double 을 넣으면 XAML 로드가 터진다. -->
     <GridLength x:Key="TitleBarRowHeight">50</GridLength>
-    <sys:Double x:Key="TaxonTabHeight">44</sys:Double>
     <sys:Double x:Key="ContentXSmallMaxWidth">1240</sys:Double>
 
     <!-- 폼 입력 폭 4단 규격 (§5-2-1). 92·100·112·130·150·200·220 이 뒤섞이던 것을 정리한다. -->
@@ -63,25 +105,30 @@
     <!-- 관찰형 2단 행 : 윗줄 34 + 아랫줄 30 -->
     <sys:Double x:Key="GridRow2LineHeight">30</sys:Double>
 
-    <!--=========== 결과 레일 (§5-2-1) ===========-->
-    <!-- 320 고정을 버린다. 1280 에서 그리드를 과하게 누르고 넓은 화면에서는 낭비였다. -->
-    <sys:Double x:Key="RailMinWidth">280</sys:Double>
-    <sys:Double x:Key="RailMaxWidth">360</sys:Double>
-
     <!--=========== 타이포그래피 ===========-->
+    <!-- ⚠ WPF 는 LineHeight 와 LineStackingStrategy 를 **함께** 줘야 행간이 먹는다(design.md §4.1).
+         한글은 자소 밀도가 높아 대비가 충분해도 행간이 좁으면 읽히지 않는다(KRDS 본문 150% 기준).
+         그리드 셀은 행 높이 34 가 이미 1.45배를 확보하므로 지정하지 않는다. -->
     <Style x:Key="BodyTextStyle" TargetType="TextBlock">
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+        <Setter Property="LineHeight" Value="21"/>
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
     </Style>
 
+    <!-- 26 / 34 (1.31) / 자간 -0.3px ≈ -12 (1/1000 em) -->
     <Style x:Key="PageTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
         <Setter Property="FontSize" Value="{StaticResource PageTitleFontSize}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="LineHeight" Value="34"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
     </Style>
 
+    <!-- 19 / 26 (1.37) -->
     <Style x:Key="SectionTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
         <Setter Property="FontSize" Value="{StaticResource SectionTitleFontSize}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="LineHeight" Value="26"/>
     </Style>
 
     <!-- 카드 내부 소제목 -->
@@ -91,18 +138,26 @@
     </Style>
 
     <!-- 폼 라벨 -->
+    <!-- 15 / 21 (1.40) · 라벨↔입력 간격은 SpaceXs(4) -->
+    <!-- ⚠ 라벨도 흰 배경에서 회색으로 읽히면 안 된다. 본문색을 쓰고,
+         '라벨'이라는 것은 크기·위치가 알려 준다(색으로 낮출 일이 아니다). -->
     <Style x:Key="FormLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource FormLabelFontSize}"/>
-        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
-        <Setter Property="Margin" Value="0 0 0 2"/>
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+        <Setter Property="Margin" Value="0 0 0 4"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="21"/>
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
     </Style>
 
     <!-- 보조 설명 -->
+    <!-- 12 / 18 (1.50) · 자간 -0.1px ≈ -8 -->
     <Style x:Key="CaptionTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource CaptionFontSize}"/>
         <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="18"/>
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
     </Style>
 
     <!-- 핵심 수치(지수·점수) -->
@@ -121,11 +176,14 @@
 
     <!--=========== 레이아웃 ===========-->
     <!-- 섹션 카드 -->
+    <!-- 시안 : background #fff · border 1px rgba(0,0,0,.12) · radius 8.
+         ⚠ 카드 테두리에 입력칸용 PrimaryBorderBrush(.45)를 쓰면 카드가 '회색 상자'로 읽힌다.
+            카드 경계는 장식이라 3:1 이 면제된다(§3.7) — 입력 요소 경계와 다른 토큰을 쓴다. -->
     <Style x:Key="CardBorderStyle" TargetType="Border">
-        <Setter Property="Background" Value="{telerik:Windows11Resource ResourceKey=SecondaryBackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{telerik:Windows11Resource ResourceKey=CornerRadius}"/>
+        <Setter Property="Background" Value="{StaticResource CardBackBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThin}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMd}"/>
         <Setter Property="Padding" Value="{StaticResource CardPadding}"/>
     </Style>
 
@@ -197,8 +255,8 @@
     <SolidColorBrush x:Key="FieldLabelBackgroundBrush" Color="#FFF1F2F4"/>
     <SolidColorBrush x:Key="FieldLabelForegroundBrush" Color="#FF3C4351"/>
     <SolidColorBrush x:Key="GroupLabelBackgroundBrush" Color="#FFE9EBEE"/>
-    <SolidColorBrush x:Key="FormLineBrush" Color="#FFDCDFE4"/>
-    <SolidColorBrush x:Key="RequiredMarkBrush" Color="#FFE02B2B"/>
+    <SolidColorBrush x:Key="FormLineBrush" Color="#FF7C838E"/>
+    <SolidColorBrush x:Key="RequiredMarkBrush" Color="#FFC01818"/>
 
     <!-- 좌측 라벨 칸 -->
     <Style x:Key="FieldLabelBorderStyle" TargetType="Border">
@@ -235,50 +293,10 @@
         <Setter Property="Foreground" Value="{StaticResource FieldLabelForegroundBrush}"/>
     </Style>
 
-    <!--=========== 분류군 탭 (관리자 통계 화면과 동일 형식) ===========-->
-    <!-- Tag에 분류군 브러시를 지정하면 표시등 색으로 사용됨 -->
-    <Style x:Key="TaxonTabStyle" TargetType="RadioButton">
-        <Setter Property="Height" Value="{StaticResource TaxonTabHeight}"/>
-        <Setter Property="FontSize" Value="15"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="IsTabStop" Value="True"/>
-        <Setter Property="Foreground" Value="#FF5B6472"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="RadioButton">
-                    <Border x:Name="bd" Margin="0 0 3 0"
-                            Background="#FFE9EBEE"
-                            BorderBrush="{StaticResource FormLineBrush}"
-                            BorderThickness="1 1 1 1"
-                            CornerRadius="4 4 0 0">
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Border x:Name="dot" Width="9" Height="9" CornerRadius="4.5"
-                                    Margin="0 0 9 0" VerticalAlignment="Center" Opacity="0.4"
-                                    Background="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"/>
-                            <ContentPresenter VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bd" Property="Background" Value="#FFF3F4F6"/>
-                        </Trigger>
-                        <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="bd" Property="Background" Value="#FFFFFFFF"/>
-                            <Setter TargetName="bd" Property="BorderThickness" Value="1 3 1 0"/>
-                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AppAccentBrush}"/>
-                            <Setter TargetName="dot" Property="Opacity" Value="1"/>
-                            <Setter Property="Foreground" Value="#FF1E232E"/>
-                            <Setter Property="FontWeight" Value="SemiBold"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- ※ StyleManager 테마 사용 중이므로 RadTabItem에 Style을 통째로 지정하지 않는다
-         (테마 템플릿이 벗겨짐). 분류군 탭은 위 RadioButton 기반 세그먼트 탭을 사용한다. -->
+    <!-- ⛔ 분류군 탭(`TaxonTabStyle`·`TaxonTabHeight`)은 삭제했다(2026-08-30).
+         단일 분류군 모드에서 상단 탭 행 44px 이 사라졌고, 재선택은 캡션 바 분류군 칩이 한다(design.md §5.0).
+         ※ StyleManager 테마 사용 중이므로 RadTabItem 에 Style 을 통째로 지정하지 않는다
+           (테마 템플릿이 벗겨짐) — 되살릴 일이 있어도 RadioButton 기반으로 짠다. -->
 
     <!--=========== 폼 필드 (06_DESIGN_REBUILD §5-3) ===========-->
     <!-- 라벨(위) + 입력(아래) 한 칸. 폭은 FieldXs/Sm/Md/Lg 4단 규격에서 고른다.
@@ -330,39 +348,37 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
+    <!-- 글자색은 뱃지 배경의 명도에 따라 갈린다(§3-7 대비 계약).
+         어두운 A·E 는 흰 글자, 밝은 B·C·D·미평가는 검은 글자라야 4.5:1 을 넘긴다.
+         ⚠ 이 스타일에는 FontSize 가 없다 — 주변 폰트(DefaultFontSize 14.5)를 상속하므로
+            '큰 텍스트 3:1' 이 아니라 '일반 텍스트 4.5:1' 기준이 적용된다. -->
     <Style x:Key="GradeBadgeTextStyle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="B">
+                <Setter Property="Foreground" Value="{StaticResource GradeBadgeDarkForeBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="C">
+                <Setter Property="Foreground" Value="{StaticResource GradeBadgeDarkForeBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="D">
+                <Setter Property="Foreground" Value="{StaticResource GradeBadgeDarkForeBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="-">
+                <Setter Property="Foreground" Value="{StaticResource GradeBadgeDarkForeBrush}"/>
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
-    <!--=========== 결과 레일 (§5-1-3) ===========-->
-    <!-- 결과가 '값'인 유형(종 입력형·폼형)에만 둔다.
-         관찰형은 레일을 두지 않는다 — 그리드가 300px 더 좁아지면 22열이 안 들어간다. -->
-    <Style x:Key="RailBorderStyle" TargetType="Border" BasedOn="{StaticResource CardBorderStyle}">
-        <Setter Property="Margin" Value="8 0 0 0"/>
-    </Style>
-
-    <Style x:Key="RailRowStyle" TargetType="Grid">
-        <Setter Property="Margin" Value="0 4"/>
-    </Style>
-
+    <!--=========== 상태바 라벨 ===========-->
+    <!-- ⛔ 결과 레일(§5-1-3)은 4단계에서 걷어냈다 — 지수·총계는 본문 상단 CollapsibleSummary 로 올라갔다.
+         이 스타일만 TaxonStatusBar 가 계속 쓰므로 남긴다(키 이름은 참조처 호환을 위해 유지). -->
     <Style x:Key="RailLabelStyle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-    </Style>
-
-    <Style x:Key="RailValueStyle" TargetType="TextBlock">
-        <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
-    </Style>
-
-    <Style x:Key="RailDividerStyle" TargetType="Border">
-        <Setter Property="Height" Value="1"/>
-        <Setter Property="Margin" Value="0 10"/>
-        <Setter Property="Background" Value="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"/>
     </Style>
 
     <!--=========== 관찰형 2단 행 아랫줄 (§5-2-2) ===========-->
@@ -388,17 +404,26 @@
     <!-- 관찰형 그리드 행 : 보호종 = 강조색 · 생태계교란생물 = 경고색.
          **의미가 반대이므로 색을 구분한다.** 툴팁으로 근거를 함께 보여 색만으로 구분하지 않는다.
          종전에는 조류·포유류·양서파충류 XAML 에 같은 내용이 세 벌 있었다. -->
+    <!-- ⚠ 종전에는 보호종 행 글자를 AccentBrush(#0381FE)로 칠했다.
+         14.5px 텍스트에서 **3.77:1 로 대비 미달**이다(§3.7 — 그 색은 비텍스트 전용).
+         색 대신 **좌측 3px 바 + 굵기**로 표시하고, 근거는 툴팁이 말한다.
+         보호종(강조색)과 교란종(위험색)은 의미가 반대이므로 바 색을 분리한다. -->
     <Style x:Key="ObservationRowStyle" TargetType="telerik:GridViewRow">
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsProtected}" Value="True">
-                <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=AccentBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource AppAccentStrongBrush}"/>
+                <Setter Property="BorderThickness" Value="3 0 0 0"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
                 <Setter Property="ToolTip" Value="{Binding ProtectionText}"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding IsInvasive}" Value="True">
-                <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=ValidationBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource DangerTextBrush}"/>
+                <Setter Property="BorderThickness" Value="3 0 0 0"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
                 <Setter Property="ToolTip" Value="{Binding ProtectionText}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsJustAdded}" Value="True">
+                <Setter Property="Background" Value="{StaticResource AccentSurfaceBrush}"/>
             </DataTrigger>
         </Style.Triggers>
     </Style>
@@ -409,11 +434,698 @@
     <!--=========== 버튼 계층 (§5-3) ===========-->
     <!-- ⚠ RadButton 에 Style 을 통째로 지정하지 않는다. 사용처에서 아래 브러시를 개별 속성으로 준다.
          위험 버튼(빈 행 정리)은 주요 버튼과 멀리 떨어뜨려 가장 왼쪽에 둔다. -->
-    <SolidColorBrush x:Key="PrimaryActionBackBrush" Color="{StaticResource AppAccentColor}"/>
+    <SolidColorBrush x:Key="PrimaryActionBackBrush" Color="{StaticResource AppAccentStrongColor}"/>
     <SolidColorBrush x:Key="PrimaryActionForeBrush" Color="#FFFFFFFF"/>
-    <SolidColorBrush x:Key="DangerActionForeBrush" Color="{StaticResource MaxColor}"/>
+    <SolidColorBrush x:Key="DangerActionForeBrush" Color="{StaticResource DangerTextColor}"/>
+
+    <!--=========== 주요 버튼 (채운 강조색) ===========-->
+    <!-- ⚠ **RadButton 에 Background/Foreground 를 직접 주지 않는다.**
+         Telerik 은 마우스오버·눌림·비활성에서 VisualState 로 배경을 자기 색으로 덮어쓰는데
+         우리가 준 흰 글자는 그대로 남는다 → 흰 배경에 흰 글자, 즉 **버튼이 비어 보인다.**
+         상태를 우리가 다 쥐어야 하므로 순수 WPF Button + 자체 템플릿으로 만든다
+         (design.md §1.1 — 테마가 우리 Style 보다 아래에서 이기는 곳). -->
+    <Style x:Key="PrimaryActionButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="{StaticResource InputHeight}"/>
+        <Setter Property="Padding" Value="16 0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="{StaticResource PrimaryActionBackBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource PrimaryActionForeBrush}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}"
+                                CornerRadius="{StaticResource CornerRadiusSm}"
+                                TextElement.Foreground="{TemplateBinding Foreground}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- 포커스 링 : **강조색 위에 강조색을 그리면 안 된다.**
+                             종전에는 IsKeyboardFocused 에서 BorderBrush 를 AppAccent 로 바꿨는데
+                             단추 배경이 AppAccentStrong 이라 대비 1.24:1 — 링이 사실상 안 보였다.
+                             글자와 같은 흰색을 안쪽으로 3px 들여 그린다(배경 대비 4.73:1).
+                             ⚠ 바깥 테두리로 그리면 흰 카드 위에서 다시 사라진다. 반드시 안쪽이다. -->
+                        <Border x:Name="focus" Margin="3" Visibility="Collapsed"
+                                CornerRadius="{StaticResource CornerRadiusFocusInset}"
+                                BorderBrush="{StaticResource PrimaryActionForeBrush}"
+                                BorderThickness="{StaticResource BorderFocusRing}"
+                                SnapsToDevicePixels="True"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource PrimaryActionHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource PrimaryActionPressedBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="focus" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <!-- 비활성 : 배경과 글자를 **함께** 바꾼다. 한쪽만 바꾸면 글자가 사라진다. -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource DisabledBackBrush}"/>
+                            <Setter TargetName="bd" Property="TextElement.Foreground" Value="{StaticResource DisabledForeBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource DisabledForeBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <Thickness x:Key="ActionButtonPadding">12 4</Thickness>
     <Thickness x:Key="ActionButtonMargin">0 0 8 0</Thickness>
+
+    <!--============================================================================
+         단일 분류군 모드 리디자인 (README §화면 / design.md §2·§3·§11)
+         · 상단 분류군 탭 행(44px)을 표시하지 않고, 재선택은 캡션 바 칩에서 한다
+         · 우측 결과 레일을 걷어내고 지수/총계를 본문 상단 가로 스트립으로 올린다
+         · 조사환경·건강성을 36px 한 줄 요약으로 접는다
+         ⚠ 아래는 전부 순수 WPF 요소(Border·TextBlock·Button·ToggleButton·RadioButton)용이다.
+           Telerik 컨트롤에는 Style 을 통째로 지정하지 않는다(90_TECH_NOTES §2 — 테마가 벗겨진다).
+        ============================================================================-->
+
+
+    <!--=========== 치수 ===========-->
+    <sys:Double x:Key="SummaryRowHeight">36</sys:Double>      <!-- 접힘 요약줄 -->
+    <sys:Double x:Key="MetaCardHeight">48</sys:Double>        <!-- 조사개황 요약 카드 -->
+    <sys:Double x:Key="QuickAddBarHeight">56</sys:Double>     <!-- 빠른추가 바 -->
+    <sys:Double x:Key="GridTotalRowHeight">36</sys:Double>    <!-- 그리드 하단 합계 행 -->
+    <sys:Double x:Key="TaxonTileHeight">96</sys:Double>       <!-- 첫 실행 분류군 타일 -->
+    <sys:Double x:Key="TaxonPickerCardWidth">840</sys:Double> <!-- 첫 실행 카드 -->
+    <sys:Double x:Key="TaxonChipHeight">32</sys:Double>       <!-- 캡션 바 분류군 칩 -->
+    <sys:Double x:Key="TaxonPopupWidth">300</sys:Double>      <!-- 재선택 팝오버 -->
+    <sys:Double x:Key="PopupItemHeight">36</sys:Double>
+    <sys:Double x:Key="ShellPillHeight">30</sys:Double>       <!-- 자료함 · 대기 -->
+    <sys:Double x:Key="SmallButtonHeight">28</sys:Double>     <!-- 지도 · 펼치기 -->
+    <sys:Double x:Key="TaxonDotSize">9</sys:Double>
+    <sys:Double x:Key="TaxonTileDotSize">11</sys:Double>
+    <sys:Double x:Key="AppMarkSize">18</sys:Double>
+    <sys:Double x:Key="RowAccentBarWidth">3</sys:Double>      <!-- 보호종·교란종 좌측 바 -->
+    <sys:Double x:Key="DividerHeight">18</sys:Double>
+    <sys:Double x:Key="MetricBarMaxHeight">34</sys:Double>    <!-- M1~M8 막대 -->
+    <sys:Double x:Key="MetricBarWidth">14</sys:Double>
+    <sys:Double x:Key="HealthLeftWidth">360</sys:Double>      <!-- 건강성 카드 좌측 -->
+    <sys:Double x:Key="BadgeHeight">20</sys:Double>
+    <sys:Double x:Key="JustAddedChipHeight">24</sys:Double>
+    <sys:Double x:Key="GradeBadgeSmallHeight">22</sys:Double>
+    <sys:Double x:Key="SearchBoxWidth">340</sys:Double>       <!-- 빠른추가 종명 검색 -->
+    <sys:Double x:Key="SearchIconSize">14</sys:Double>
+
+    <!--=========== 여백 (Thickness) ===========-->
+    <Thickness x:Key="SummaryRowPadding">16 0</Thickness>
+    <Thickness x:Key="PillPadding">12 0</Thickness>
+    <Thickness x:Key="PopupItemPadding">8 0</Thickness>
+    <Thickness x:Key="PopupCardPadding">8</Thickness>
+    <Thickness x:Key="BadgePadding">7 1</Thickness>
+    <Thickness x:Key="WarnBoxPadding">8 12</Thickness>
+    <Thickness x:Key="SmallButtonPadding">10 0</Thickness>
+    <Thickness x:Key="LinkPadding">4 2</Thickness>
+    <Thickness x:Key="JustAddedChipPadding">10 3</Thickness>
+    <Thickness x:Key="CardPaddingLarge">32</Thickness>        <!-- 첫 실행 카드(Space2Xl) -->
+    <!-- 선택 시 테두리가 1 → 2 로 굵어진 만큼 안쪽 여백을 1 줄여 글자가 밀리지 않게 한다 -->
+    <Thickness x:Key="CardPaddingInset">15</Thickness>
+
+    <!--=========== 글자 크기 (README 확정값) ===========-->
+    <sys:Double x:Key="SummaryFontSize">13.5</sys:Double>
+    <sys:Double x:Key="LinkFontSize">13</sys:Double>
+    <sys:Double x:Key="ChipCaptionFontSize">12.5</sys:Double>
+
+    <!--=========== 포커스 표시 (design.md §11.1) ===========-->
+    <!-- 2px 강조색 링. **어떤 사유로도 제거하지 않는다.**
+         커스텀 템플릿 컨트롤은 아래 스타일을 FocusVisualStyle 로 쓰거나
+         템플릿 안에서 IsKeyboardFocused 트리거로 직접 그린다.
+         Telerik 컨트롤은 Windows11 테마의 기본 포커스 표시를 쓴다
+         (App.xaml.cs 가 AccentColor 를 AppAccentColor 로 맞춰 둔다). -->
+    <Style x:Key="AccentFocusVisualStyle">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="-2" StrokeThickness="{StaticResource FocusRingThickness}"
+                               Stroke="{StaticResource AppAccentBrush}"
+                               RadiusX="4" RadiusY="4" SnapsToDevicePixels="True"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--=========== 첫 실행 : 담당 분류군 타일 ===========-->
+    <!-- 96px · 상단 색점 11 · 하단 분류군명 19 SemiBold + 유형설명 12(#666).
+         선택 = 2px 강조 테두리 + AccentSurfaceSoft 배경.
+         RadioButton 이라 방향키로도 고를 수 있고 Tab 순서에 남는다. -->
+    <Style x:Key="TaxonTileStyle" TargetType="RadioButton">
+        <Setter Property="Height" Value="{StaticResource TaxonTileHeight}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource AccentFocusVisualStyle}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="bd" Padding="{StaticResource CardPadding}"
+                            CornerRadius="{StaticResource CornerRadiusMd}"
+                            Background="{StaticResource CardBackBrush}"
+                            BorderBrush="{StaticResource CardBorderBrush}"
+                            BorderThickness="{StaticResource BorderThin}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background"
+                                    Value="{StaticResource AccentSurfaceSoftBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="bd" Property="BorderThickness" Value="{StaticResource BorderFocusRing}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AppAccentBrush}"/>
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource AccentSurfaceSoftBrush}"/>
+                            <Setter TargetName="bd" Property="Padding" Value="{StaticResource CardPaddingInset}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 8번째 칸 : 점선 안내(선택 불가) -->
+    <Style x:Key="TaxonTileHintBorderStyle" TargetType="Border">
+        <Setter Property="Height" Value="{StaticResource TaxonTileHeight}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMd}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThin}"/>
+        <Setter Property="Padding" Value="{StaticResource CardPadding}"/>
+    </Style>
+
+    <!--=========== 캡션 바 : 분류군 칩 (종전 '야외 모드' 버튼 자리) ===========-->
+    <!-- 높이 32 · pill · 좌우 패딩 12. 열려 있으면 2px 강조 테두리 + ShellChipBack 배경.
+         ⚠ 안의 색점은 *OnShellBrush 를 쓴다 — 기본 7색은 딥네이비 위에서 3:1 에 못 미친다(§3.7). -->
+    <Style x:Key="TaxonChipToggleStyle" TargetType="ToggleButton">
+        <Setter Property="Height" Value="{StaticResource TaxonChipHeight}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="bd" Padding="{StaticResource PillPadding}"
+                            CornerRadius="{StaticResource TaxonChipCornerRadius}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{StaticResource ShellPillBorderBrush}"
+                            BorderThickness="{StaticResource BorderThin}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource ShellChipBackBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource ShellChipBackBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AppAccentBrush}"/>
+                            <Setter TargetName="bd" Property="BorderThickness" Value="{StaticResource BorderFocusRing}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AppAccentBrush}"/>
+                            <Setter TargetName="bd" Property="BorderThickness" Value="{StaticResource BorderFocusRing}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--=========== 캡션 바 : 자료함 · 대기 pill 버튼 ===========-->
+    <Style x:Key="ShellPillButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="{StaticResource ShellPillHeight}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource ShellTitleForegroundBrush}"/>
+        <Setter Property="FontSize" Value="{StaticResource ChipCaptionFontSize}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="bd" Padding="{StaticResource PillPadding}"
+                            CornerRadius="{StaticResource ShellPillCornerRadius}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{StaticResource ShellPillBorderBrush}"
+                            BorderThickness="{StaticResource BorderThin}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource ShellChipBackBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AppAccentBrush}"/>
+                            <Setter TargetName="bd" Property="BorderThickness" Value="{StaticResource BorderFocusRing}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--=========== 분류군 재선택 팝오버 ===========-->
+    <!-- 폭 300 · 패딩 8 · 코너 8 · 그림자 E2. 팝업이므로 그림자를 허용한다(design.md §2.8). -->
+    <Style x:Key="PopupCardBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="{StaticResource TaxonPopupWidth}"/>
+        <Setter Property="Padding" Value="{StaticResource PopupCardPadding}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMd}"/>
+        <Setter Property="Background" Value="{StaticResource CardBackBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThin}"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="4" Direction="270" Opacity="0.12"
+                                  Color="{StaticResource ElevationShadowColor}"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 팝오버 항목 : 높이 36 · 코너 6. 현재 분류군은 AccentSurface 배경 + AccentOnSurface 글자 + SemiBold -->
+    <Style x:Key="PopupItemButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="{StaticResource PopupItemHeight}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="bd" Padding="{StaticResource PopupItemPadding}"
+                            CornerRadius="{StaticResource CornerRadiusSm}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="Transparent"
+                            BorderThickness="{StaticResource BorderFocusRing}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource ReadOnlyBackBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AppAccentBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--=========== 접힘 요약줄 (조사환경 · 건강성) ===========-->
+    <!-- 36px 한 줄. 접혀 있어도 값을 계속 보여 준다 — 접기가 '숨기기'가 되지 않게 한다. -->
+    <Style x:Key="SummaryRowBorderStyle" TargetType="Border" BasedOn="{StaticResource CardBorderStyle}">
+        <Setter Property="Height" Value="{StaticResource SummaryRowHeight}"/>
+        <Setter Property="Padding" Value="{StaticResource SummaryRowPadding}"/>
+    </Style>
+
+    <Style x:Key="SummaryLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource SummaryFontSize}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{StaticResource TertiaryForegroundBrush}"/>
+        <Setter Property="Margin" Value="0 0 4 0"/>
+    </Style>
+
+    <Style x:Key="SummaryValueTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource SummaryFontSize}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+        <Setter Property="Margin" Value="0 0 12 0"/>
+    </Style>
+
+    <!-- 1px 세로 구분선. 시안의 `│` 문자 대신 Border 로 그린다(README §2.3). -->
+    <Style x:Key="VerticalDividerStyle" TargetType="Border">
+        <Setter Property="Width" Value="{StaticResource BorderThinWidth}"/>
+        <Setter Property="Height" Value="{StaticResource DividerHeight}"/>
+        <Setter Property="Margin" Value="0 0 12 0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{StaticResource CardDividerBrush}"/>
+    </Style>
+
+    <Style x:Key="ShellVerticalDividerStyle" TargetType="Border" BasedOn="{StaticResource VerticalDividerStyle}">
+        <Setter Property="Background" Value="{StaticResource ShellDividerBrush}"/>
+        <Setter Property="Margin" Value="0"/>
+    </Style>
+
+    <!-- 가로 구분선(카드 안 액션 행 위) -->
+    <Style x:Key="HorizontalDividerStyle" TargetType="Border">
+        <Setter Property="Height" Value="{StaticResource BorderThinWidth}"/>
+        <Setter Property="Background" Value="{StaticResource CardDividerBrush}"/>
+    </Style>
+
+    <!--=========== 접기 / 펼치기 링크 ===========-->
+    <Style x:Key="LinkButtonStyle" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource AccentOnSurfaceBrush}"/>
+        <Setter Property="FontSize" Value="{StaticResource LinkFontSize}"/>
+        <Setter Property="Padding" Value="{StaticResource LinkPadding}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="bd" Background="{TemplateBinding Background}"
+                            Padding="{TemplateBinding Padding}"
+                            CornerRadius="{StaticResource CornerRadiusSm}"
+                            BorderBrush="Transparent"
+                            BorderThickness="{StaticResource BorderFocusRing}">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource AccentSurfaceSoftBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AppAccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{StaticResource DisabledForeBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--=========== 작은 외곽선 버튼 (지도 · 펼치기 · 28px) ===========-->
+    <Style x:Key="SmallOutlineButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="{StaticResource SmallButtonHeight}"/>
+        <!-- 템플릿이 Padding 을 TemplateBinding 으로 받는다. 화면에서 로컬 Padding 을 주면 실제로 먹는다. -->
+        <Setter Property="Padding" Value="{StaticResource SmallButtonPadding}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+        <Setter Property="FontSize" Value="{StaticResource LinkFontSize}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="bd" Padding="{TemplateBinding Padding}"
+                            CornerRadius="{StaticResource CornerRadiusSm}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
+                            BorderThickness="{StaticResource BorderThin}" SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource ReadOnlyBackBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AppAccentBrush}"/>
+                            <Setter TargetName="bd" Property="BorderThickness" Value="{StaticResource BorderFocusRing}"/>
+                        </Trigger>
+                        <!-- 비활성(아직 쓸 수 없다)과 읽기전용(값은 유효하다)은 회색을 달리한다(§3.5)
+                             ⚠ 사용처가 로컬 Foreground 를 주면([행 삭제]의 위험색) 로컬 값이 아래 세터를 이긴다.
+                                bd 의 TextElement.Foreground 로도 덮어야 글자가 실제로 회색이 된다
+                                (PrimaryActionButtonStyle 이 같은 함정을 이미 이렇게 피한다). -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource DisabledBackBrush}"/>
+                            <Setter TargetName="bd" Property="TextElement.Foreground" Value="{StaticResource DisabledForeBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource DisabledForeBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--=========== 뱃지 (보호종 · 교란종) ===========-->
+    <!-- ⚠ 보호종은 강조색, 교란종/유해야생동물은 위험색 — **의미가 반대이므로 색을 분리한다**
+         (design.md §11). 색만으로 구분하지 않도록 문구도 함께 다르다. -->
+    <Style x:Key="TagBadgeBorderStyle" TargetType="Border">
+        <Setter Property="Height" Value="{StaticResource BadgeHeight}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource BadgeCornerRadius}"/>
+        <Setter Property="Padding" Value="{StaticResource BadgePadding}"/>
+        <Setter Property="Margin" Value="6 0 0 0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="ProtectedBadgeBorderStyle" TargetType="Border" BasedOn="{StaticResource TagBadgeBorderStyle}">
+        <Setter Property="Background" Value="{StaticResource AccentSurfaceBrush}"/>
+    </Style>
+
+    <Style x:Key="ProtectedBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource CaptionFontSize}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{StaticResource AccentOnSurfaceBrush}"/>
+    </Style>
+
+    <Style x:Key="InvasiveBadgeBorderStyle" TargetType="Border" BasedOn="{StaticResource TagBadgeBorderStyle}">
+        <Setter Property="Background" Value="{StaticResource DangerSurfaceBrush}"/>
+    </Style>
+
+    <Style x:Key="InvasiveBadgeTextStyle" TargetType="TextBlock" BasedOn="{StaticResource ProtectedBadgeTextStyle}">
+        <Setter Property="Foreground" Value="{StaticResource DangerOnSurfaceBrush}"/>
+    </Style>
+
+    <!-- 외래종 : 중립 회색. 위험색(교란종)·강조색(보호종)과 섞이지 않게 세 번째 톤을 쓴다.
+         외래종은 FAI 계산에 쓰이는 사실 표기일 뿐 '나쁨' 경고가 아니다. -->
+    <Style x:Key="NeutralBadgeBorderStyle" TargetType="Border" BasedOn="{StaticResource TagBadgeBorderStyle}">
+        <Setter Property="Background" Value="{StaticResource ReadOnlyBackBrush}"/>
+        <Setter Property="BorderBrush" Value="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThin}"/>
+    </Style>
+
+    <Style x:Key="NeutralBadgeTextStyle" TargetType="TextBlock" BasedOn="{StaticResource ProtectedBadgeTextStyle}">
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
+    </Style>
+
+    <!--=========== 그리드 보조 텍스트 ===========-->
+    <!-- 행 번호 : #666 (시안 1차본 #999 는 2.85:1 로 미달이었다 · README 대비 교정 이력) -->
+    <Style x:Key="GridIndexTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource TertiaryForegroundBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+    </Style>
+
+    <!-- 자동상속 값(길드 등). ⚠ 이것도 **자료**다 — 라벨이 아니다.
+         종전에는 '조사자가 친 값이 아니라는 표시'로 한 단계 옅게 뒀는데,
+         흰 배경에서 값 전체가 회색으로 읽혀 오히려 안 보였다. 본문색으로 되돌린다.
+         자동상속이라는 사실은 열 머리글과 툴팁이 알려 준다(색으로 알릴 일이 아니다). -->
+    <Style x:Key="GridInheritedTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- 수치 열 : 자릿수가 흔들리지 않게 tabular numerals -->
+    <Style x:Key="GridNumberTextStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+    </Style>
+
+    <!-- 학명 : 이탤릭 · 자동 상속되지만 잠기지 않는다 -->
+    <Style x:Key="GridScientificNameTextStyle" TargetType="TextBlock" BasedOn="{StaticResource GridInheritedTextStyle}">
+        <Setter Property="FontStyle" Value="Italic"/>
+    </Style>
+
+    <!--=========== 그리드 하단 합계 행 ===========-->
+    <!-- 36px 고정. 스크롤과 무관하게 항상 보인다. -->
+    <Style x:Key="GridTotalRowBorderStyle" TargetType="Border">
+        <Setter Property="Height" Value="{StaticResource GridTotalRowHeight}"/>
+        <Setter Property="Background" Value="{StaticResource ReadOnlyBackBrush}"/>
+        <Setter Property="BorderBrush" Value="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0 1 0 0"/>
+    </Style>
+
+    <Style x:Key="GridTotalTextStyle" TargetType="TextBlock">
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+    </Style>
+
+    <!--=========== 경고 박스 (건강성 카드) ===========-->
+    <Style x:Key="WarnBoxBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource DangerSurfaceSoftBrush}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusMd}"/>
+        <Setter Property="Padding" Value="{StaticResource WarnBoxPadding}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="WarnBoxTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource LinkFontSize}"/>
+        <Setter Property="Foreground" Value="{StaticResource DangerOnSurfaceBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="19"/>
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!--=========== 방금 추가 칩 (1.2초) ===========-->
+    <Style x:Key="JustAddedChipBorderStyle" TargetType="Border">
+        <Setter Property="Height" Value="{StaticResource JustAddedChipHeight}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource JustAddedChipCornerRadius}"/>
+        <Setter Property="Padding" Value="{StaticResource JustAddedChipPadding}"/>
+        <Setter Property="Background" Value="{StaticResource AccentSurfaceBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="JustAddedChipTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource ChipCaptionFontSize}"/>
+        <Setter Property="Foreground" Value="{StaticResource AccentOnSurfaceBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!--=========== 셰브런 (접기/펼치기 · 칩) ===========-->
+    <!-- 아이콘 팩에 없는 Kind 를 쓰면 XAML 런타임 예외가 난다(design.md §9).
+         단순한 모양이라 Path 로 직접 그린다 — DLL 대조가 필요 없다. -->
+    <Geometry x:Key="ChevronDownGeometry">M 0,0 L 4.5,4.5 L 9,0</Geometry>
+
+    <Style x:Key="ChevronPathStyle" TargetType="Path">
+        <Setter Property="Data" Value="{StaticResource ChevronDownGeometry}"/>
+        <Setter Property="StrokeThickness" Value="1.6"/>
+        <Setter Property="StrokeStartLineCap" Value="Round"/>
+        <Setter Property="StrokeEndLineCap" Value="Round"/>
+        <Setter Property="StrokeLineJoin" Value="Round"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="6 0 0 0"/>
+        <Setter Property="Stroke" Value="{StaticResource AccentOnSurfaceBrush}"/>
+    </Style>
+
+    <!--=========== 지도 마커 라벨 ===========-->
+    <!-- 위성사진 위에 글자를 얹으므로 반투명 진한 배경 + 흰 글자로 고정한다.
+         배경 사진이 밝을지 어두울지 알 수 없어 테마색을 쓸 수 없다. -->
+    <Style x:Key="MapMarkerLabelStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource MapLabelBackBrush}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSm}"/>
+        <Setter Property="Padding" Value="6 2"/>
+    </Style>
+
+    <Style x:Key="MapMarkerTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource CaptionFontSize}"/>
+        <Setter Property="Foreground" Value="{StaticResource PrimaryActionForeBrush}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <!--=========== 값 고정 안내 띠 ===========-->
+    <!-- 경고가 아니라 안내다 — 붉은 WarnBox 와 색을 나눈다. 아이콘(압정)을 함께 쓴다. -->
+    <Style x:Key="PinnedNoticeBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource PinnedInputBackBrush}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSm}"/>
+        <Setter Property="Padding" Value="{StaticResource WarnBoxPadding}"/>
+    </Style>
+
+    <Style x:Key="PinnedNoticeTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource LinkFontSize}"/>
+        <Setter Property="Foreground" Value="{StaticResource PinnedNoticeForeBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="19"/>
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!--=========== 압정 토글 (조사개황 값 고정 · 20px) ===========-->
+    <!-- 라벨 오른쪽에 붙는 아이콘 전용 토글. 테두리를 두지 않는다 —
+         라벨 줄에 사각형이 6개 생기면 폼이 산만해진다.
+         켜짐/꺼짐은 **아이콘 모양**(채운 압정 / 외곽선 압정)으로 구분한다(§11 색만으로 구분 금지). -->
+    <Style x:Key="PinToggleButtonStyle" TargetType="ToggleButton">
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TertiaryForegroundBrush}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="bd" CornerRadius="{StaticResource CornerRadiusSm}"
+                            Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource ReadOnlyBackBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource AccentSurfaceBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--=========== 작은 외곽선 토글 (조사개황 접기/펼치기 · 28px) ===========-->
+    <!-- ⚠ 대분류를 고르기 전에는 접을 수 없다(design.md §5.1) — IsEnabled 를 HasProject 에 묶는다.
+         비활성 회색(DisabledBack)은 읽기전용 회색(ReadOnlyBack)과 다르다(§3.5). -->
+    <Style x:Key="SmallOutlineToggleButtonStyle" TargetType="ToggleButton">
+        <Setter Property="Height" Value="{StaticResource SmallButtonHeight}"/>
+        <!-- 짝인 SmallOutlineButtonStyle 과 같이 로컬 Padding 이 먹게 한다. -->
+        <Setter Property="Padding" Value="{StaticResource SmallButtonPadding}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+        <Setter Property="FontSize" Value="{StaticResource LinkFontSize}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="bd" Padding="{TemplateBinding Padding}"
+                            CornerRadius="{StaticResource CornerRadiusSm}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"
+                            BorderThickness="{StaticResource BorderThin}" SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource ReadOnlyBackBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AppAccentBrush}"/>
+                            <Setter TargetName="bd" Property="BorderThickness" Value="{StaticResource BorderFocusRing}"/>
+                        </Trigger>
+                        <!-- 버튼 쪽과 같은 함정을 미리 막는다 — 사용처가 로컬 Foreground 를 주면
+                             아래 Foreground 세터가 지므로 bd 의 TextElement.Foreground 로도 덮는다. -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource DisabledBackBrush}"/>
+                            <Setter TargetName="bd" Property="TextElement.Foreground" Value="{StaticResource DisabledForeBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource DisabledForeBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--=========== 빠른추가 종명 검색창 (시안 실측) ===========-->
+    <!-- 340×36 · 코너 4 · 강조색 테두리 + 돋보기 아이콘.
+         이 앱에서 가장 많이 쓰는 입력칸이라 시안이 유일하게 강조색 테두리를 준 자리다.
+         ⚠ 상시 2px 은 §2.7("2px 이상 테두리를 쓰지 않는다")과 부딪히고,
+            §11.1 은 2px 을 **포커스 표시**로 예약해 둔다.
+            그래서 평상시 1px 강조색 · 포커스 시 2px 로 간다 —
+            파란 테두리와 돋보기는 평상시에도 그대로 보인다.
+         ⚠ 안의 RadComboBox 에는 Style 을 주지 않는다. BorderThickness 0 만 개별 속성으로 끈다
+            (90_TECH_NOTES §2 — Style 을 통째로 주면 테마 템플릿이 벗겨진다). -->
+    <Style x:Key="SearchBoxBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="{StaticResource SearchBoxWidth}"/>
+        <Setter Property="Height" Value="{StaticResource InputHeight}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSm}"/>
+        <Setter Property="Background" Value="{StaticResource CardBackBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource AppAccentBrush}"/>
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThin}"/>
+        <!-- 테두리가 1 → 2 로 굵어진 만큼 안쪽 여백을 1 줄여 글자가 밀리지 않게 한다 -->
+        <Setter Property="Padding" Value="1"/>
+        <Style.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="BorderThickness" Value="{StaticResource BorderFocusRing}"/>
+                <Setter Property="Padding" Value="0"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 
 </ResourceDictionary>

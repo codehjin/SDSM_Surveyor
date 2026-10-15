@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using SDSM_Surveyor_App.Data;
 
 namespace SDSM_Surveyor_App.ViewModels;
@@ -12,12 +12,16 @@ public partial class HabitatWaterEdgeEntryViewModel : ITaxonSession
 {
     string ITaxonSession.Key => TaxonKey;
 
+    /// <summary>평가 15칸(10항목 · 좌우안 분리). HasData 와 EntryCount 가 같은 기준을 보도록 한 곳에 둔다.</summary>
+    private object?[] EvaluatedItems => new object?[]
+    {
+        S1, B2L, B2R, S3, S4, B5L, B5R, B6L, B6R, S7, S8, B9L, B9R, B10L, B10R
+    };
+
     bool ITaxonSession.HasData =>
-        S1 is not null || B2L is not null || B2R is not null || S3 is not null || S4 is not null ||
-        B5L is not null || B5R is not null || B6L is not null || B6R is not null ||
-        S7 is not null || S8 is not null || B9L is not null || B9R is not null ||
-        B10L is not null || B10R is not null ||
-        !string.IsNullOrWhiteSpace(SurveyUnavailableReason);
+        EvaluatedItems.Any(v => v is not null) || !string.IsNullOrWhiteSpace(SurveyUnavailableReason);
+
+    int ITaxonSession.EntryCount => EvaluatedItems.Count(v => v is not null);
 
     object ITaxonSession.CaptureState() => new HabitatWaterEdgeDraft
     {
@@ -25,7 +29,8 @@ public partial class HabitatWaterEdgeEntryViewModel : ITaxonSession
         S1 = S1?.Score, B2L = B2L?.Score, B2R = B2R?.Score, S3 = S3?.Score, S4 = S4?.Score,
         B5L = B5L?.Score, B5R = B5R?.Score, B6L = B6L?.Score, B6R = B6R?.Score,
         S7 = S7?.Score, S8 = S8?.Score, B9L = B9L?.Score, B9R = B9R?.Score,
-        B10L = B10L?.Score, B10R = B10R?.Score
+        B10L = B10L?.Score, B10R = B10R?.Score,
+        IsResultExpanded = IsResultExpanded, IsNoteExpanded = IsNoteExpanded
     };
 
     void ITaxonSession.RestoreState(JsonElement json)
@@ -46,6 +51,8 @@ public partial class HabitatWaterEdgeEntryViewModel : ITaxonSession
         S8   = Pick(Opt8,  d.S8);
         B9L  = Pick(Opt9,  d.B9L);   B9R  = Pick(Opt9,  d.B9R);
         B10L = Pick(Opt10, d.B10L);  B10R = Pick(Opt10, d.B10R);
+
+        IsResultExpanded = d.IsResultExpanded; IsNoteExpanded = d.IsNoteExpanded;
     }
 
     void ITaxonSession.ClearData()
@@ -78,4 +85,8 @@ public sealed class HabitatWaterEdgeDraft
     public double? B9R { get; init; }
     public double? B10L { get; init; }
     public double? B10R { get; init; }
+
+    // 접힘 상태 — 다음 실행에도 유지된다(README §상태). 자료가 아니므로 HasData 에는 넣지 않는다.
+    public bool IsResultExpanded { get; init; }
+    public bool IsNoteExpanded { get; init; }
 }

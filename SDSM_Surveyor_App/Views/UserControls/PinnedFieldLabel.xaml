@@ -1,0 +1,39 @@
+<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.PinnedFieldLabel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d"
+             x:Name="Root">
+
+    <!-- 조사개황 칸 라벨 + 압정 토글.
+         6개 칸(대분류·연도차수·조사일·날씨·조사자·조사기관)에만 붙인다.
+         켜짐/꺼짐은 아이콘 모양으로 구분한다 — 채운 압정(Pin) / 외곽선 압정(PinOutline).
+         ⚠ Pin·PinOutline Kind 는 MahApps.Metro.IconPacks.Material.dll 대조 확인함(design.md §9). -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Column="0" Text="{Binding Text, ElementName=Root}"
+                   Style="{StaticResource FormLabelStyle}"/>
+
+        <ToggleButton Grid.Column="1" VerticalAlignment="Top" Margin="4 0 0 0"
+                      Style="{StaticResource PinToggleButtonStyle}"
+                      IsChecked="{Binding Pin.IsOn, ElementName=Root, Mode=TwoWay}"
+                      ToolTipService.ToolTip="{Binding Pin.ToolTipText, ElementName=Root}"
+                      AutomationProperties.Name="{Binding Text, ElementName=Root, StringFormat={}{0} 값 고정}">
+            <Grid>
+                <icon:PackIconMaterial Kind="PinOutline" Width="13" Height="13"
+                                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                                       Visibility="{Binding Pin.IsOn, ElementName=Root, Converter={StaticResource InverseBoolToVisibility}}"/>
+                <icon:PackIconMaterial Kind="Pin" Width="13" Height="13"
+                                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                                       Foreground="{StaticResource AccentOnSurfaceBrush}"
+                                       Visibility="{Binding Pin.IsOn, ElementName=Root, Converter={StaticResource BoolToVisibility}}"/>
+            </Grid>
+        </ToggleButton>
+    </Grid>
+</UserControl>

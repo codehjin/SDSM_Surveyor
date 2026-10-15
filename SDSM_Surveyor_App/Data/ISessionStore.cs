@@ -24,4 +24,10 @@ public interface ISessionStore
 
     /// <summary>구버전 `drafts\{분류군}.json` 이 있으면 세션 하나로 편입한다(최초 1회). 편입 건수 반환.</summary>
     Task<int> MigrateLegacyDraftsAsync();
+
+    /// <summary>
+    /// 자료함이 비어 있고 실행폴더에 <c>sessions_seed\</c> 가 있으면 예시 세션을 채운다. 채운 건수 반환.
+    /// 테스트 배포본에만 그 폴더가 들어간다(<c>-p:IncludeTestData=true</c>).
+    /// </summary>
+    Task<int> SeedTestDataIfEmptyAsync();
 }

@@ -82,6 +82,13 @@ public partial class QuickAddBar : UserControl
     private void FocusLater(IInputElement target) =>
         Dispatcher.BeginInvoke(new Action(() => target.Focus()), DispatcherPriority.Input);
 
+    // 종목록 팝업 열기. 호스트를 넘겨 더블클릭한 종이 이 화면 야장으로 들어가게 한다.
+    private void SpeciesCatalog_Click(object sender, RoutedEventArgs e)
+    {
+        if (_host is null) return;
+        new Views.Windows.SpeciesCatalogWindow(_host) { Owner = Window.GetWindow(this) }.ShowDialog();
+    }
+
     // 수량 칸에서 Enter → 행 추가
     private void CountBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {

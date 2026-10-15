@@ -5,9 +5,12 @@ namespace SDSM_Surveyor_App.Models;
 
 /// <summary>양서파충류 관찰 1행. 관리자 <c>AmphibianReptile</c> 모델과 1:1(자동계산 없음).
 /// 흔적 6종은 관리자와 동일하게 <b>체크(bool)가 아니라 개체수/횟수(int?)</b> 이다.</summary>
-public partial class AmphibianReptileEntry : ObservableObject
+public partial class AmphibianReptileEntry : ObservableObject, IObservationRow
 {
     [ObservableProperty] private string? _speciesKo;        // 일반명(초성검색)
+
+    /// <summary>방금 추가된 행(1.2초). 연속 입력 중 "지금 들어간 게 이거다"를 알려 준다.</summary>
+    [ObservableProperty] private bool _isJustAdded;
     [ObservableProperty] private string? _speciesEn;        // 학명(종 선택 시 자동 · 수정 가능)
     [ObservableProperty] private string? _orderKo;          // 목(자동 · 수정 가능)
     [ObservableProperty] private string? _familyKo;         // 과(자동 · 수정 가능)

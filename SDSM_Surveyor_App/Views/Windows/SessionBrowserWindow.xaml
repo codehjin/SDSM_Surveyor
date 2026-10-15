@@ -38,7 +38,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <telerik:RadWatermarkTextBox WatermarkContent="지점·하천·연도차수·사업장 검색"
+            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" WatermarkContent="지점·하천·연도차수·사업장 검색"
                                          Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}"/>
             <telerik:RadButton Grid.Column="2" Command="{Binding RefreshCommand}" Padding="12 4">
                 <StackPanel Orientation="Horizontal">
@@ -83,7 +83,7 @@
                                Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Margin="0 0 0 4"/>
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <telerik:RadComboBox ItemsSource="{Binding SiteOptions}"
+                        <telerik:RadComboBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" ItemsSource="{Binding SiteOptions}"
                                              SelectedItem="{Binding CopyTargetSite, Mode=TwoWay}"
                                              DisplayMemberPath="DisplayLong"
                                              IsEditable="True" IsFilteringEnabled="True"
@@ -99,7 +99,7 @@
                                Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Margin="0 0 0 4"/>
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <telerik:RadWatermarkTextBox WatermarkContent="새 연도차수 (예: 2026반기2차)"
+                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" WatermarkContent="새 연도차수 (예: 2026반기2차)"
                                                      Text="{Binding NewYearChsu, UpdateSourceTrigger=PropertyChanged}"/>
                         <telerik:RadButton Grid.Column="1" Margin="8 0 0 0" Padding="12 4"
                                            Content="차수 복제" Command="{Binding CopyFromPreviousCommand}"/>

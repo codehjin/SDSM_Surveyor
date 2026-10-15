@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using SDSM_Models;
 using System.Text.Json;
 using SDSM_Surveyor_App.InjectableServices;
@@ -100,7 +100,12 @@ public sealed class SessionService : ISessionService, ISingletonService
         foreach (var t in Taxa)
         {
             t.ClearData();                                    // 이전 세션 잔상 제거
-            if (session.Taxa.TryGetValue(t.Key, out var json)) t.RestoreState(json);
+            if (!session.Taxa.TryGetValue(t.Key, out var json)) continue;
+
+            // ⚠ 값 타입이 어긋난 세션 파일 하나가 앱을 통째로 죽이지 않게 한다
+            //    (손으로 고친 json · 옛 판 파일). 그 분류군만 비워 두고 나머지는 살린다.
+            try { t.RestoreState(json); }
+            catch { t.ClearData(); }
         }
 
         CurrentSessionId = session.SessionId;
@@ -141,6 +146,8 @@ public sealed class SessionService : ISessionService, ISingletonService
     }
 
     public Task<int> MigrateLegacyDraftsAsync() => _store.MigrateLegacyDraftsAsync();
+
+    public Task<int> SeedTestDataIfEmptyAsync() => _store.SeedTestDataIfEmptyAsync();
 
     /// <summary>확인이 필요한 항목 수 — 자료함 목록의 '경고' 열.</summary>
     private int CountWarnings()

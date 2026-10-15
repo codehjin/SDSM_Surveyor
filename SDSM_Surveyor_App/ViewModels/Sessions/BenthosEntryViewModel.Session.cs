@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using SDSM_Surveyor_App.Data;
 using SDSM_Surveyor_App.Models;
 
@@ -13,6 +13,9 @@ public partial class BenthosEntryViewModel : ITaxonSession
         SpeciesEntries.Any(r => !string.IsNullOrWhiteSpace(r.SelectedSpecies?.SpeciesKo ?? r.SpeciesKo))
         || NoSpeciesDeclared
         || !string.IsNullOrWhiteSpace(SurveyUnavailableReason);
+
+    int ITaxonSession.EntryCount =>
+        SpeciesEntries.Count(r => !string.IsNullOrWhiteSpace(r.SelectedSpecies?.SpeciesKo ?? r.SpeciesKo));
 
     /// <summary>화면 상태 → DTO.</summary>
     public BenthosDraft ToDraft() => new()
@@ -32,8 +35,9 @@ public partial class BenthosEntryViewModel : ITaxonSession
         FlowState = FlowState, Transparency = Transparency, Smell = Smell,
         SurveyUnavailableReason = SurveyUnavailableReason, Note = Note,
         NoSpeciesDeclared = NoSpeciesDeclared,
+        IsEnvironmentExpanded = IsEnvironmentExpanded, IsHealthExpanded = IsHealthExpanded,
         Rows = SpeciesEntries.Select(r => new BenthosDraftRow(r.SelectedSpecies?.SpeciesKo ?? r.SpeciesKo,
-                                                              r.IndividualCount)).ToList()
+                                                              r.IndividualCount, r.Note)).ToList()
     };
 
     object ITaxonSession.CaptureState() => ToDraft();
@@ -54,12 +58,13 @@ public partial class BenthosEntryViewModel : ITaxonSession
         FlowState = d.FlowState; Transparency = d.Transparency; Smell = d.Smell;
         SurveyUnavailableReason = d.SurveyUnavailableReason; Note = d.Note;
         NoSpeciesDeclared = d.NoSpeciesDeclared;
+        IsEnvironmentExpanded = d.IsEnvironmentExpanded; IsHealthExpanded = d.IsHealthExpanded;
 
         SpeciesEntries.Clear();
         foreach (var r in d.Rows)
         {
             if (string.IsNullOrWhiteSpace(r.SpeciesKo)) continue;
-            var e = new BenthosSpeciesEntry();
+            var e = new BenthosSpeciesEntry { Note = r.Note };
             var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == r.SpeciesKo);
             if (match is not null) e.SelectedSpecies = match;   // 오탁치·지표가중치 자동 연결
             else e.SpeciesKo = r.SpeciesKo;

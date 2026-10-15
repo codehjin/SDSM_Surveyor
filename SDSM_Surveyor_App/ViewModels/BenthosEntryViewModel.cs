@@ -29,6 +29,7 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     {
         _reference = reference;
         SpeciesListSource = speciesProvider.GetBenthosSpecies();
+        _speciesCatalogVersion = speciesProvider.Version ?? "-";
         // 종 추가는 상단 '빠른 추가' 바로 하므로 초기 빈 행을 넣지 않는다(빈 행 누적 방지).
     }
 
@@ -95,9 +96,93 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
 
 
     // ── 실시간 통계·지수 ──
+    // ── 접힘 상태 (세션 저장 · 기본 접힘) ────────────────────────────────
+    [ObservableProperty] private bool _isEnvironmentExpanded;
+    [ObservableProperty] private bool _isHealthExpanded;
+
     [ObservableProperty] private int _totalSpeciesCount;
-    [ObservableProperty] private double _totalIndividualCount;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TotalShareText))]
+    private double _totalIndividualCount;
+
     [ObservableProperty] private string _dominantSpecies = "-";
+    [ObservableProperty] private double? _dominantShare;
+
+    /// <summary>합계 행의 상대풍부도 칸. 개체가 없으면 100% 가 아니라 `·`(미산출).</summary>
+    public string TotalShareText => TotalIndividualCount > 0 ? "100%" : "·";
+
+    /// <summary>행이 하나도 없는가(빈 상태 안내 · README §11.4).</summary>
+    public bool HasNoRows => SpeciesEntries.Count == 0;
+
+    [ObservableProperty] private int _protectedCount;
+    [ObservableProperty] private int _endemicCount;
+
+    /// <summary>종명은 적혔는데 개체수가 비어 있는 행 수. **미입력과 0 은 다르게 저장된다.**</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasMissingCounts))]
+    [NotifyPropertyChangedFor(nameof(MissingCountText))]
+    [NotifyPropertyChangedFor(nameof(MissingCountDetail))]
+    private int _missingCountRows;
+
+    public bool HasMissingCounts => MissingCountRows > 0;
+    public string MissingCountText => MissingCountRows > 0 ? $"{MissingCountRows}행 개체수 미입력" : string.Empty;
+    public string MissingCountDetail =>
+        MissingCountRows > 0 ? $"{MissingCountRows}행 개체수 미입력 — 미입력과 0 은 다르게 저장됩니다" : string.Empty;
+
+    /// <summary>건강성 카드 머리글 옆 캡션 — 계산 출처를 밝힌다.</summary>
+    public string HealthCaption =>
+        $"관리자 SDSM_Core 와 동일 계산 · 종목록 버전 {_speciesCatalogVersion}";
+
+    private readonly string _speciesCatalogVersion;
+
+    // ── 조사환경 요약줄 ──────────────────────────────────────────────────
+    /// <summary>하상구성 8칸 중 값이 들어간 칸 수.</summary>
+    public string SubstrateSummary
+    {
+        get
+        {
+            var filled = new[] { Bedrock, Concrete, Mud, Sand, FineGravel, Gravel, SmallStone, BigStone }
+                         .Count(v => !string.IsNullOrWhiteSpace(v));
+            return filled == 0 ? "·" : $"{filled}칸 입력됨";
+        }
+    }
+
+    /// <summary>정량 채집기 4종 중 사용한 것.</summary>
+    public string GearSummary
+    {
+        get
+        {
+            var used = new List<string>();
+            if (!string.IsNullOrWhiteSpace(Surbernet30)) used.Add("Surber 30");
+            if (!string.IsNullOrWhiteSpace(Surbernet50)) used.Add("Surber 50");
+            if (!string.IsNullOrWhiteSpace(Dredge)) used.Add("드렛지");
+            if (!string.IsNullOrWhiteSpace(Ekman)) used.Add("에크만");
+            return used.Count == 0 ? "·" : string.Join(" · ", used);
+        }
+    }
+
+    private void RaiseEnvironmentSummary()
+    {
+        OnPropertyChanged(nameof(SubstrateSummary));
+        OnPropertyChanged(nameof(GearSummary));
+    }
+
+    partial void OnBedrockChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnConcreteChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnMudChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnSandChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnFineGravelChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnGravelChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnSmallStoneChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnBigStoneChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnSurbernet30Changed(string? value) => RaiseEnvironmentSummary();
+    partial void OnSurbernet50Changed(string? value) => RaiseEnvironmentSummary();
+    partial void OnDredgeChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnEkmanChanged(string? value) => RaiseEnvironmentSummary();
+
+    /// <summary>빠른추가로 들어온 행을 1.2초간 강조한다(기반 클래스가 타이머를 돌린다).</summary>
+    protected override void SetJustAdded(BenthosSpeciesEntry row, bool value) => row.IsJustAdded = value;
     // 자료 0건일 때는 null → 화면에 "-" 로 표시(0.000/1.000 오해 방지)
     [ObservableProperty] private double? _indexDI;
     [ObservableProperty] private double? _indexH;
@@ -219,6 +304,31 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
             IndexJ  = Math.Round(BenthosCalculator.GetJ(imports),  3, MidpointRounding.AwayFromZero);
         }
 
+        var dominant = imports.Where(x => (x.IndividualCount ?? 0) > 0)
+                              .OrderByDescending(x => x.IndividualCount).FirstOrDefault();
+        DominantShare = TotalIndividualCount > 0 && dominant is not null
+            ? (dominant.IndividualCount ?? 0) / TotalIndividualCount * 100.0 : null;
+
+        // 행 번호 · 상대풍부도 · 태그 집계
+        // ⚠ 여기서 건드리는 속성은 AffectsRecalculation 에 없어야 한다(무한 재계산 방지).
+        int n = 0, prot = 0, endemic = 0, missing = 0;
+        foreach (var row in SpeciesEntries)
+        {
+            row.RowNumber = ++n;
+            row.RelativeAbundance = TotalIndividualCount > 0 && row.IndividualCount is double c && c > 0
+                ? c / TotalIndividualCount * 100.0 : null;
+
+            if (string.IsNullOrWhiteSpace(row.SelectedSpecies?.SpeciesKo ?? row.SpeciesKo)) continue;
+            if (row.IndividualCount is null) missing++;
+            if ((row.IndividualCount ?? 0) <= 0) continue;
+            if (row.IsProtected) prot++;
+            if (row.IsEndemic) endemic++;
+        }
+        ProtectedCount = prot;
+        EndemicCount = endemic;
+        MissingCountRows = missing;
+        OnPropertyChanged(nameof(HasNoRows));
+
         // 0종 처리는 계산기가 판단한다(12_CALC_FIX §2-3)
         //  조사불가 → "-"  /  조사 수행 + 0종 선언 → 0·E  /  미입력 → "-"
         var (bmi, bmiGrade) = BenthosCalculator.GetBMI(imports, SurveyUnavailableReason, NoSpeciesDeclared);
@@ -286,7 +396,8 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
 }
 
 // ── 임시 저장용 DTO ──
-public record BenthosDraftRow(string? SpeciesKo, double? IndividualCount);
+/// <summary>세션에 저장되는 종 행. <c>Note</c> 는 선택 매개변수라 옛 세션 파일도 그대로 읽힌다.</summary>
+public record BenthosDraftRow(string? SpeciesKo, double? IndividualCount, string? Note = null);
 
 public sealed class BenthosDraft
 {
@@ -341,6 +452,9 @@ public sealed class BenthosDraft
     public string? Note { get; init; }
     /// <summary>출현종 없음(0종) 선언.</summary>
     public bool NoSpeciesDeclared { get; init; }
+    // 화면 접힘 상태 — 다음 실행에도 유지된다. 옛 파일에는 없으므로 기본 false(접힘).
+    public bool IsEnvironmentExpanded { get; init; }
+    public bool IsHealthExpanded { get; init; }
     // 종 목록
     public List<BenthosDraftRow> Rows { get; init; } = new();
 }

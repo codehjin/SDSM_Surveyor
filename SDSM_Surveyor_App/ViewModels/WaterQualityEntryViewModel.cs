@@ -51,6 +51,23 @@ public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISing
     [ObservableProperty] private string? _flowSec;           // 초당유량 (m3/sec)
     [ObservableProperty] private string? _flowDay;           // 일당유량 (m3/day)
 
+    // ⚠ 추가 항목 14칸에도 알림을 건다 — 종전에는 추가항목만 입력한 회차에서
+    //    내보내기 단추가 잠긴 채였다(CanExport 는 추가항목까지 보는데 알림이 없었다).
+    partial void OnTNChanged(string? value) => RaiseExtras();
+    partial void OnECChanged(string? value) => RaiseExtras();
+    partial void OnClChanged(string? value) => RaiseExtras();
+    partial void OnSO42Changed(string? value) => RaiseExtras();
+    partial void OnCuChanged(string? value) => RaiseExtras();
+    partial void OnZnChanged(string? value) => RaiseExtras();
+    partial void OnCrChanged(string? value) => RaiseExtras();
+    partial void OnTurbidityChanged(string? value) => RaiseExtras();
+    partial void OnChlaChanged(string? value) => RaiseExtras();
+    partial void OnWaterTemperatureChanged(string? value) => RaiseExtras();
+    partial void OnWaterDepthChanged(string? value) => RaiseExtras();
+    partial void OnFlowVelocityChanged(string? value) => RaiseExtras();
+    partial void OnFlowSecChanged(string? value) => RaiseExtras();
+    partial void OnFlowDayChanged(string? value) => RaiseExtras();
+
     partial void OnPHChanged(string? value) => RaiseGrades();
     partial void OnBodChanged(string? value) => RaiseGrades();
     partial void OnCodChanged(string? value) => RaiseGrades();
@@ -73,6 +90,7 @@ public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISing
         OnPropertyChanged(nameof(EColiGradeText));
         OnPropertyChanged(nameof(UnfilledGradeCount));
         OnPropertyChanged(nameof(UnfilledGradeText));
+        OnPropertyChanged(nameof(HasUnfilledGrades));
         ExportExcelCommand.NotifyCanExecuteChanged();
         ExportBulkCommand.NotifyCanExecuteChanged();
     }
@@ -98,9 +116,54 @@ public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISing
         SsGradeText, DoGradeText, TpGradeText, EColiGradeText,
     }.Count(g => g == "-");
 
-    /// <summary>레일 하단 안내 문구.</summary>
+    /// <summary>요약줄·상태바 안내 문구.</summary>
     public string UnfilledGradeText =>
         UnfilledGradeCount == 0 ? "등급 8종 모두 산정됨" : $"미입력 {UnfilledGradeCount}항목";
+
+    /// <summary>등급 8종 중 빈 항목이 있는가(요약줄 경고 아이콘).</summary>
+    public bool HasUnfilledGrades => UnfilledGradeCount > 0;
+
+    /// <summary>펼친 카드 머리글 옆 캡션 — 계산 출처를 밝힌다.</summary>
+    public string GradeCaption =>
+        "관리자 SDSM_Core 와 동일 계산 · 하천 생활환경기준(1a~6) · 생태독성(TU)은 등급 산정 대상이 아닙니다";
+
+
+    // ── 접힘 상태 (세션 저장 · 기본 접힘) ────────────────────────────────
+    // ⚠ 접힘은 숨기기가 아니다 — 접힌 36px 줄이 등급 8종을 계속 보여 준다.
+    [ObservableProperty] private bool _isGradeExpanded;
+    [ObservableProperty] private bool _isExtraExpanded;
+
+
+    // ── 추가 항목 요약 (등급 산정 대상이 아닌 확장 측정값 14칸) ──────────
+    private string?[] ExtraValues => new[]
+    {
+        TN, EC, Cl, SO42, Cu, Zn, Cr, Turbidity, Chla,
+        WaterTemperature, WaterDepth, FlowVelocity, FlowSec, FlowDay
+    };
+
+    /// <summary>추가 항목 14칸 중 값이 들어간 칸 수. **0 을 적은 것은 미입력이 아니다.**</summary>
+    public int ExtraFilledCount => ExtraValues.Count(v => !string.IsNullOrWhiteSpace(v));
+
+    public string ExtraSummaryText => $"14칸 중 {ExtraFilledCount}칸 입력";
+
+    /// <summary>접힌 줄에 값을 그대로 보이는 현장 측정 3종(측정하면 늘 적는 값).</summary>
+    public string FieldMeasureSummary
+    {
+        get
+        {
+            static string V(string? s) => string.IsNullOrWhiteSpace(s) ? "·" : s!;
+            return $"수온 {V(WaterTemperature)} · 수심 {V(WaterDepth)} · 유속 {V(FlowVelocity)}";
+        }
+    }
+
+    private void RaiseExtras()
+    {
+        OnPropertyChanged(nameof(ExtraFilledCount));
+        OnPropertyChanged(nameof(ExtraSummaryText));
+        OnPropertyChanged(nameof(FieldMeasureSummary));
+        ExportExcelCommand.NotifyCanExecuteChanged();
+        ExportBulkCommand.NotifyCanExecuteChanged();
+    }
 
 
     /// <summary>보고서·기록용 엑셀 내보내기(주력).</summary>

@@ -1,10 +1,11 @@
-﻿using System.Collections.Specialized;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SDSM_Core.Helpers;
 using SDSM_Surveyor_App.Data;
 using SDSM_Surveyor_App.Models;
+using System.Windows.Threading;
 using Telerik.Windows.Data;
 
 namespace SDSM_Surveyor_App.ViewModels.Base;
@@ -87,12 +88,160 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
     {
         if (QuickSpecies is null) return;   // 목록에서 종을 선택해야 추가(오타 방지)
 
-        Rows.Add(CreateRow(QuickSpecies, QuickCount));
+        var label = $"{SpeciesKoOf(QuickSpecies)} {QuickCount}".Trim();
+        var row = CreateRow(QuickSpecies, QuickCount);
+        Rows.Add(row);
+        MarkJustAdded(row, label);
 
         QuickSpecies = null;
         QuickCount = null;
         QuickSearch = null;   // 콤보 텍스트 비움 + 목록 원복
         QuickAddCompleted?.Invoke(this, EventArgs.Empty);
+    }
+
+    // ── 종목록 팝업에서 넣기 ──────────────────────────────────────────────────
+
+    /// <summary>
+    /// 종목록 팝업(<c>SpeciesCatalogWindow</c>)에서 고른 종을 야장에 넣는다.
+    /// 개체수는 <b>비워 둔다</b> — 결측(null)과 실측 0 을 구분해야 한다(CLAUDE.md §4).
+    /// 이미 있는 종이면 행을 새로 만들지 않고 그 행을 '방금 추가' 로 표시한다.
+    /// </summary>
+    public void AddFromCatalog(object species)
+    {
+        if (species is not TSpecies s) return;
+
+        var ko = SpeciesKoOf(s)?.Trim();
+        var existing = string.IsNullOrEmpty(ko)
+            ? null
+            : Rows.FirstOrDefault(r => string.Equals(RowSpeciesKo(r)?.Trim(), ko, StringComparison.Ordinal));
+
+        if (existing is not null)
+        {
+            MarkJustAdded(existing, $"{ko} · 이미 있음");
+            return;
+        }
+
+        var row = CreateRow(s, null);
+        Rows.Add(row);
+        MarkJustAdded(row, ko ?? string.Empty);
+    }
+
+    // ── 행 삭제 ────────────────────────────────────────────────────────────────
+    // 종목록에서 개체수 없이 넣은 뒤 같은 종을 수동으로 또 넣으면 중복이 생긴다.
+    // 그때 지울 수단이 필요하다 — 빠른추가 바의 [행 삭제] 와 그리드 우클릭이 같은 명령을 쓴다.
+
+    /// <summary>마지막으로 누른 행(그리드 코드비하인드가 넣는다). 삭제 대상이다.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(DeleteRowCommand))]
+    private object? _lastTouchedRow;
+
+    /// <summary>
+    /// 삭제 확인 대화상자. 화면이 바꿔 끼울 수 있다(<c>SessionBrowserViewModel.ConfirmDelete</c> 와 같은 방식).
+    /// 비워 두면 <see cref="DefaultConfirmDelete"/> 가 쓰인다 — <b>확인 없이 지우는 경로는 없다</b>.
+    /// 인자는 지울 행의 종명(비어 있으면 안내 문구).
+    /// </summary>
+    public Func<string, bool>? ConfirmDeleteRow { get; set; }
+
+    /// <summary>
+    /// 행을 지우기 직전에 그리드 편집을 끝낸다(코드비하인드가 채운다).
+    /// 붙여넣기 경로가 <c>CancelEdit()</c> 를 부르는 것과 같은 이유다 —
+    /// 셀 편집(인서트 행 포함)이 열린 채로 원본 컬렉션을 건드리면 Telerik 이 예외를 던진다.
+    /// </summary>
+    public Action? EndGridEdit { get; set; }
+
+    // 인서트 행(맨 아래 새 행)의 DataContext 도 TEntry 일 수 있다. 아직 Rows 에 없으므로
+    // Contains 로 걸러야 한다 — 편집 중인 인서트 행을 지우려 들면 그리드가 예외를 던진다.
+    private bool CanDeleteRow() => LastTouchedRow is TEntry row && Rows.Contains(row);
+
+    /// <summary>마지막으로 누른 행을 지운다. 되돌릴 수 없으므로 먼저 확인을 받는다.</summary>
+    [RelayCommand(CanExecute = nameof(CanDeleteRow))]
+    private void DeleteRow()
+    {
+        if (LastTouchedRow is not TEntry row || !Rows.Contains(row))
+        {
+            LastTouchedRow = null;
+            return;
+        }
+
+        // ⚠ 종명만 보여 주면 이 기능의 본래 용도(같은 종이 두 줄 있을 때)를 확인해 줄 수 없다.
+        //    화면 '#' 열과 같은 1-기준 번호를 함께 붙인다.
+        var ko = RowSpeciesKo(row)?.Trim();
+        var no = Rows.IndexOf(row) + 1;
+        var label = string.IsNullOrEmpty(ko) ? $"{no}번 행 (종명 없음)" : $"{no}번 행 · {ko}";
+
+        var confirm = ConfirmDeleteRow ?? DefaultConfirmDelete;
+        if (!confirm(label)) return;
+
+        EndGridEdit?.Invoke();
+        Rows.Remove(row);
+        LastTouchedRow = null;
+    }
+
+    // ⚠ 기본 버튼을 [취소]로 둔다. 이 앱은 Enter 로 행을 추가하는 흐름이라
+    //    습관적인 Enter 한 번이 되돌릴 수 없는 삭제가 되면 안 된다.
+    private static bool DefaultConfirmDelete(string label) =>
+        System.Windows.MessageBox.Show(
+            $"「{label}」 을(를) 지울까요?\n\n되돌릴 수 없습니다.",
+            "행 삭제",
+            System.Windows.MessageBoxButton.OKCancel,
+            System.Windows.MessageBoxImage.Warning,
+            System.Windows.MessageBoxResult.Cancel) == System.Windows.MessageBoxResult.OK;
+
+    // 행 모델 5종(FishSpeciesEntry·BenthosSpeciesEntry·BirdEntry·MammalEntry·AmphibianReptileEntry)이
+    // 모두 `SpeciesKo` 를 갖지만 공통 인터페이스가 없다(IObservationRow 는 관찰형 3종뿐).
+    // 파생 5곳에 추상 멤버를 새로 강요하는 대신 여기서 한 번만 읽는다 — 타입당 1회 캐시다.
+    private static readonly Dictionary<Type, System.Reflection.PropertyInfo?> KoProps = new();
+
+    private static string? RowSpeciesKo(TEntry row)
+    {
+        var t = row.GetType();
+        if (!KoProps.TryGetValue(t, out var p))
+        {
+            p = t.GetProperty("SpeciesKo");
+            KoProps[t] = p;
+        }
+        return p?.GetValue(row) as string;
+    }
+
+    // ── 방금 추가 강조 (1.2초) ────────────────────────────────────────────────
+    // 연속 입력 중 "지금 들어간 게 이거다"를 알려 준다. 그리드 행 애니메이션은 끄고
+    // (design.md §2.9 — 행이 밀려 내려가면 입력이 막힌다) 배경 강조로만 표시한다.
+
+    private const double JustAddedSeconds = 1.2;
+    private DispatcherTimer? _justAddedTimer;
+    private TEntry? _justAddedRow;
+
+    /// <summary>빠른추가 바 우측 칩 문구(`밀어 41`). 비어 있으면 칩이 숨는다.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasLastAdded))]
+    private string? _lastAddedLabel;
+
+    public bool HasLastAdded => !string.IsNullOrWhiteSpace(LastAddedLabel);
+
+    /// <summary>파생 클래스가 행의 '방금 추가' 플래그를 켠다(행 모델마다 속성이 다르다).</summary>
+    protected virtual void SetJustAdded(TEntry row, bool value) { }
+
+    private void MarkJustAdded(TEntry row, string label)
+    {
+        if (_justAddedRow is not null) SetJustAdded(_justAddedRow, false);
+
+        _justAddedRow = row;
+        SetJustAdded(row, true);
+        LastAddedLabel = label;
+
+        _justAddedTimer ??= new DispatcherTimer { Interval = TimeSpan.FromSeconds(JustAddedSeconds) };
+        _justAddedTimer.Tick -= OnJustAddedElapsed;
+        _justAddedTimer.Tick += OnJustAddedElapsed;
+        _justAddedTimer.Stop();
+        _justAddedTimer.Start();
+    }
+
+    private void OnJustAddedElapsed(object? sender, EventArgs e)
+    {
+        _justAddedTimer?.Stop();
+        if (_justAddedRow is not null) SetJustAdded(_justAddedRow, false);
+        _justAddedRow = null;
+        LastAddedLabel = null;
     }
 
     /// <summary>국명·개체수가 모두 빈 행 제거(붙여넣기·오클릭으로 생긴 빈 행 정리).</summary>
@@ -157,6 +306,11 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
             foreach (TEntry r in e.OldItems) r.PropertyChanged -= OnRowChanged;
         if (e.NewItems is not null)
             foreach (TEntry r in e.NewItems) r.PropertyChanged += OnRowChanged;
+
+        // 세션을 바꾸거나 행이 빠지면 '마지막으로 누른 행'은 더 이상 화면에 없다.
+        // 남겨 두면 [행 삭제]가 켜진 채로 엉뚱한 행을 겨눈다.
+        if (LastTouchedRow is TEntry touched && !Rows.Contains(touched)) LastTouchedRow = null;
+        else if (e.Action == NotifyCollectionChangedAction.Reset) LastTouchedRow = null;
 
         Recalculate();
     }

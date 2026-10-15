@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using SDSM_Surveyor_App.Data;
 using SDSM_Surveyor_App.Models;
 
@@ -14,6 +14,9 @@ public partial class FishEntryViewModel : ITaxonSession
         || NoSpeciesDeclared
         || !string.IsNullOrWhiteSpace(SurveyUnavailableReason);
 
+    int ITaxonSession.EntryCount =>
+        SpeciesEntries.Count(r => !string.IsNullOrWhiteSpace(r.SelectedSpecies?.SpeciesKo ?? r.SpeciesKo));
+
     /// <summary>화면 상태 → DTO. 임시저장과 같은 값을 쓰므로 두 곳이 어긋나지 않는다.</summary>
     public FishDraft ToDraft() => new()
     {
@@ -28,9 +31,10 @@ public partial class FishEntryViewModel : ITaxonSession
         HabitatRiverType = HabitatRiverType, HabitatFlowState = HabitatFlowState,
         SurveyUnavailableReason = SurveyUnavailableReason, Note = Note,
         NoSpeciesDeclared = NoSpeciesDeclared,
+        IsEnvironmentExpanded = IsEnvironmentExpanded, IsHealthExpanded = IsHealthExpanded,
         DeCount = DeCount, EfCount = EfCount, LeCount = LeCount, TuCount = TuCount,
         Rows = SpeciesEntries.Select(r => new FishDraftRow(r.SelectedSpecies?.SpeciesKo ?? r.SpeciesKo,
-                                                           r.IndividualCount)).ToList()
+                                                           r.IndividualCount, r.Note)).ToList()
     };
 
     object ITaxonSession.CaptureState() => ToDraft();
@@ -47,6 +51,7 @@ public partial class FishEntryViewModel : ITaxonSession
         HabitatRiverType = d.HabitatRiverType; HabitatFlowState = d.HabitatFlowState;
         SurveyUnavailableReason = d.SurveyUnavailableReason; Note = d.Note;
         NoSpeciesDeclared = d.NoSpeciesDeclared;
+        IsEnvironmentExpanded = d.IsEnvironmentExpanded; IsHealthExpanded = d.IsHealthExpanded;
         DeCount = d.DeCount; EfCount = d.EfCount; LeCount = d.LeCount; TuCount = d.TuCount;
 
         SpeciesEntries.Clear();
@@ -59,6 +64,7 @@ public partial class FishEntryViewModel : ITaxonSession
             if (match is not null) e.SelectedSpecies = match;
             else e.SpeciesKo = r.SpeciesKo;
             e.IndividualCount = r.IndividualCount;
+            e.Note = r.Note;
             SpeciesEntries.Add(e);
         }
     }
@@ -73,5 +79,6 @@ public partial class FishEntryViewModel : ITaxonSession
         SurveyUnavailableReason = Note = null;
         NoSpeciesDeclared = false;
         DeCount = EfCount = LeCount = TuCount = null;
+        // 접힘 상태는 화면 설정이지 입력 자료가 아니다 — 지점을 옮겨도 그대로 둔다.
     }
 }

@@ -66,6 +66,11 @@ public sealed class SurveyMetaSnapshot
     /// <summary>스냅샷을 화면 조사개황에 되돌린다.</summary>
     public void ApplyTo(SurveyMeta m)
     {
+        // ⚠ 대량 적용으로 감싼다. 감싸지 않으면 여기서 세팅되는 6개 값이
+        //    '사람이 고쳤다' 로 오인되어 저장된 옛 세션 값이 고정값을 덮어쓴다.
+        m.BeginBulkApply();
+        try
+        {
         m.Project = Project;                 // 대분류가 먼저여야 지점 목록이 그 대분류로 걸러진다
         m.SurveyYear = SurveyYear;
         m.YearChsu = YearChsu ?? string.Empty;   // 화면 값은 non-null 문자열
@@ -89,6 +94,8 @@ public sealed class SurveyMetaSnapshot
             m.Lat = Lat;
             m.Lng = Lng;
         }
+        }
+        finally { m.EndBulkApply(); }
     }
 }
 

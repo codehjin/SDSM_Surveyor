@@ -41,7 +41,7 @@
                 <TextBlock Text="교환소 폴더" Style="{StaticResource FormLabelStyle}"/>
                 <Grid Margin="0 4 0 0">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                    <telerik:RadWatermarkTextBox WatermarkContent="예: D:\공유\SDSM_교환소 또는 클라우드 동기 폴더"
+                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" WatermarkContent="예: D:\공유\SDSM_교환소 또는 클라우드 동기 폴더"
                                                  Text="{Binding ExchangeFolder, UpdateSourceTrigger=PropertyChanged}"/>
                     <telerik:RadButton Grid.Column="1" Margin="8 0 0 0" Padding="12 4" Click="Browse_Click">
                         <StackPanel Orientation="Horizontal">

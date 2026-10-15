@@ -81,6 +81,52 @@ public sealed class SessionStore : ISessionStore, ISingletonService
         return saved;
     }
 
+    /// <summary>
+    /// 자료함이 <b>비어 있을 때만</b> 실행폴더의 <c>sessions_seed\</c> 를 복사한다.
+    ///
+    /// 왜 '비어 있을 때만' 인가 — 조사자 PC 에는 실제 야장이 들어 있다. 배포본을 새로 깔았다고
+    /// 예시 자료가 끼어들면 그 사람 자료와 섞인다. 한 건이라도 있으면 아무것도 하지 않는다.
+    ///
+    /// ⚠ 시드 폴더는 <b>테스트 배포본에만</b> 들어간다(csproj 의 IncludeTestData).
+    ///   실제 배포본에는 폴더 자체가 없으므로 이 메서드는 조용히 0 을 돌려준다.
+    /// </summary>
+    public async Task<int> SeedTestDataIfEmptyAsync()
+    {
+        try
+        {
+            var seed = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sessions_seed");
+            if (!Directory.Exists(seed)) return 0;
+
+            // 세션 파일이 하나라도 있으면 손대지 않는다(index.json 은 목록일 뿐이라 세지 않는다).
+            var existing = Directory.GetFiles(Root, "*.json")
+                .Any(f => !Path.GetFileName(f).Equals("index.json", StringComparison.OrdinalIgnoreCase));
+            if (existing) return 0;
+
+            // ⚠ index.json 을 **맨 뒤에** 덮어쓴다.
+            //    세션을 다 지워도 index.json 파일은 남는다(DeleteAsync). 그 상태에서 먼저 만나
+            //    overwrite:false 로 예외가 나면, 이미 복사한 세션은 남고 목록만 옛것이 되어
+            //    자료함이 빈 것처럼 보인다. 여기는 '세션 0건' 을 확인한 뒤라 덮어써도 안전하다.
+            var n = 0;
+            var files = Directory.EnumerateFiles(seed, "*.json")
+                .OrderBy(f => Path.GetFileName(f).Equals("index.json", StringComparison.OrdinalIgnoreCase));
+
+            foreach (var src in files)
+            {
+                var dst = Path.Combine(Root, Path.GetFileName(src));
+                File.Copy(src, dst, overwrite: true);
+                if (!Path.GetFileName(src).Equals("index.json", StringComparison.OrdinalIgnoreCase)) n++;
+            }
+
+            await Task.CompletedTask;
+            return n;
+        }
+        catch
+        {
+            // 예시 자료를 못 넣어도 조사를 막지 않는다.
+            return 0;
+        }
+    }
+
     public async Task<int> MigrateLegacyDraftsAsync()
     {
         var drafts = Path.Combine(

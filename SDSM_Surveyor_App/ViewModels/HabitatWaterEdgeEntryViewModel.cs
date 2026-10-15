@@ -95,6 +95,43 @@ public partial class HabitatWaterEdgeEntryViewModel : TaxonEntryViewModelBase, I
     public string ScoreText => Compute().score?.ToString("N1") ?? "-";
     public string GradeText => Compute().grade ?? "-";
 
+
+    // ── 접힘 상태 (세션 저장 · 기본 접힘) ────────────────────────────────
+    // ⚠ 접힘은 숨기기가 아니다 — 접힌 36px 줄이 평가점수·등급·선택 현황을 계속 보여 준다.
+    [ObservableProperty] private bool _isResultExpanded;
+    [ObservableProperty] private bool _isNoteExpanded;
+
+    /// <summary>특이사항 접힘 줄에 보일 요약.</summary>
+    public string NoteSummaryText
+    {
+        get
+        {
+            static string V(string? s) => string.IsNullOrWhiteSpace(s) ? "·" : s!;
+            return $"조사불가시 {V(SurveyUnavailableReason)}   |   비고 {V(Note)}";
+        }
+    }
+
+    /// <summary>조사불가(접근불가)로 등급 산정에서 빠지는가.</summary>
+    public bool IsSurveyUnavailable => Compute().grade == "-";
+
+    partial void OnNoteChanged(string? value) => OnPropertyChanged(nameof(NoteSummaryText));
+
+
+    // ── 항목별 유효 점수(좌/우안은 평균) — 각 행 오른쪽에 표시한다 ────────
+    // ⚠ 미선택은 `·`, 0점은 `0` 이다. **0점은 미평가가 아니다**(_excel_formula_audit §5-5).
+    private static string Fmt(double? v) => v is double d ? d.ToString("0.#") : "·";
+
+    public string Sc1  => Fmt(S1?.Score);
+    public string Sc2  => Fmt(Avg(B2L, B2R));
+    public string Sc3  => Fmt(S3?.Score);
+    public string Sc4  => Fmt(S4?.Score);
+    public string Sc5  => Fmt(Avg(B5L, B5R));
+    public string Sc6  => Fmt(Avg(B6L, B6R));
+    public string Sc7  => Fmt(S7?.Score);
+    public string Sc8  => Fmt(S8?.Score);
+    public string Sc9  => Fmt(Avg(B9L, B9R));
+    public string Sc10 => Fmt(Avg(B10L, B10R));
+
     // ── HRI 레일 (06_DESIGN_REBUILD §5-2-4) ───────────────────────────
     // 합계 → 점수 → 등급 순서로 계산 과정을 보여준다.
     // ⚠ **미평가(`-`)와 0점·E등급은 다르다**(_excel_formula_audit §5-5).
@@ -131,6 +168,9 @@ public partial class HabitatWaterEdgeEntryViewModel : TaxonEntryViewModelBase, I
         OnPropertyChanged(nameof(SelectedCountText));
         OnPropertyChanged(nameof(HasScore));
         OnPropertyChanged(nameof(EvaluationStateText));
+        OnPropertyChanged(nameof(IsSurveyUnavailable));
+        OnPropertyChanged(nameof(NoteSummaryText));
+        for (int i = 1; i <= 10; i++) OnPropertyChanged($"Sc{i}");
         ExportExcelCommand.NotifyCanExecuteChanged();
         ExportBulkCommand.NotifyCanExecuteChanged();
     }

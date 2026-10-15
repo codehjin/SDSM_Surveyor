@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using SDSM_Surveyor_App.Data;
 
 namespace SDSM_Surveyor_App.ViewModels;
@@ -8,12 +8,17 @@ public partial class WaterQualityEntryViewModel : ITaxonSession
 {
     string ITaxonSession.Key => TaxonKey;
 
-    bool ITaxonSession.HasData => new[]
+    /// <summary>측정 항목 23종. HasData 와 EntryCount 가 같은 기준을 보도록 한 곳에 둔다.</summary>
+    private string?[] MeasuredValues => new[]
     {
         PH, Bod, Cod, Toc, Ss, Dox, Tp, EColi, Ecotoxicity,
         TN, EC, Cl, SO42, Cu, Zn, Cr, Turbidity, Chla,
         WaterTemperature, WaterDepth, FlowVelocity, FlowSec, FlowDay
-    }.Any(v => !string.IsNullOrWhiteSpace(v));
+    };
+
+    bool ITaxonSession.HasData => MeasuredValues.Any(v => !string.IsNullOrWhiteSpace(v));
+
+    int ITaxonSession.EntryCount => MeasuredValues.Count(v => !string.IsNullOrWhiteSpace(v));
 
     object ITaxonSession.CaptureState() => new WaterQualityDraft
     {
@@ -22,7 +27,8 @@ public partial class WaterQualityEntryViewModel : ITaxonSession
         TN = TN, EC = EC, Cl = Cl, SO42 = SO42, Cu = Cu, Zn = Zn, Cr = Cr,
         Turbidity = Turbidity, Chla = Chla,
         WaterTemperature = WaterTemperature, WaterDepth = WaterDepth,
-        FlowVelocity = FlowVelocity, FlowSec = FlowSec, FlowDay = FlowDay
+        FlowVelocity = FlowVelocity, FlowSec = FlowSec, FlowDay = FlowDay,
+        IsGradeExpanded = IsGradeExpanded, IsExtraExpanded = IsExtraExpanded
     };
 
     void ITaxonSession.RestoreState(JsonElement json)
@@ -36,6 +42,7 @@ public partial class WaterQualityEntryViewModel : ITaxonSession
         Turbidity = d.Turbidity; Chla = d.Chla;
         WaterTemperature = d.WaterTemperature; WaterDepth = d.WaterDepth;
         FlowVelocity = d.FlowVelocity; FlowSec = d.FlowSec; FlowDay = d.FlowDay;
+        IsGradeExpanded = d.IsGradeExpanded; IsExtraExpanded = d.IsExtraExpanded;
     }
 
     void ITaxonSession.ClearData()
@@ -72,4 +79,8 @@ public sealed class WaterQualityDraft
     public string? FlowVelocity { get; init; }
     public string? FlowSec { get; init; }
     public string? FlowDay { get; init; }
+
+    // 접힘 상태 — 다음 실행에도 유지된다(README §상태). 자료가 아니므로 HasData 에는 넣지 않는다.
+    public bool IsGradeExpanded { get; init; }
+    public bool IsExtraExpanded { get; init; }
 }

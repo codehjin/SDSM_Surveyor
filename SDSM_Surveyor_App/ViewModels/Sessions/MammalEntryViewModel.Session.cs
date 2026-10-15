@@ -11,6 +11,8 @@ public partial class MammalEntryViewModel : ITaxonSession
 
     bool ITaxonSession.HasData => Entries.Any(e => !string.IsNullOrWhiteSpace(e.SpeciesKo));
 
+    int ITaxonSession.EntryCount => Entries.Count(e => !string.IsNullOrWhiteSpace(e.SpeciesKo));
+
     object ITaxonSession.CaptureState() => new MammalDraft { Rows = Entries.ToList() };
 
     void ITaxonSession.RestoreState(JsonElement json)

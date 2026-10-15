@@ -7,178 +7,122 @@
              xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:ctrl="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
              xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="1360" d:DesignHeight="740"
+             mc:Ignorable="d" d:DesignWidth="1224" d:DesignHeight="700"
              d:DataContext="{d:DesignInstance vm:HabitatWaterEdgeEntryViewModel}">
 
     <UserControl.Resources>
-        <Style x:Key="HwCaption" TargetType="TextBlock" BasedOn="{StaticResource FormLabelStyle}"/>
         <Style x:Key="HwItemLabel" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
         <Style x:Key="HwBankTag" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TertiaryForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0 0 4 0"/>
         </Style>
+        <Style x:Key="HwRow" TargetType="Grid">
+            <Setter Property="Margin" Value="0 4"/>
+        </Style>
+        <!-- 항목별 유효 점수(좌/우안은 평균). 미선택 `·` 와 0점을 눈으로 가른다. -->
+        <Style x:Key="HwScore" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentOnSurfaceBrush}"/>
+        </Style>
     </UserControl.Resources>
 
-    <Grid Margin="8">
+    <!-- 서식·수변환경 (폼 입력형) — 단일 분류군 모드 골격 (README §2 · design.md §5.0)
+         조사개황은 셸이 소유한다(design.md §5.1) — 여기에는 서식수변 고유 입력만 둔다.
+
+         ⚠ 우측 HRI 레일은 없앴다. 계산 과정(합계 → 평가점수 → 등급)이 본문 상단
+            접이식 줄로 올라오고, 그 폭이 평가항목 행의 '항목별 점수' 칸으로 간다.
+         ⚠ 미평가(`·`)와 0점·E등급은 다르다(_excel_formula_audit §5-5).
+            10개를 전부 0점으로 골랐으면 그것은 평가한 것이다.
+         ⚠ 점수·등급은 SDSM_Core/Ecology 가 계산한다. 여기서는 결과만 그린다. -->
+
+    <Grid Margin="0 0 0 12">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>   <!-- ① 평가 결과 (접이식) -->
+            <RowDefinition Height="Auto"/>   <!-- ② 특이사항   (접이식) -->
+            <RowDefinition Height="*"/>      <!-- ③ 평가 항목 10 -->
+            <RowDefinition Height="Auto"/>   <!-- ④ 상태 · 액션 -->
         </Grid.RowDefinitions>
 
-        <!-- ① 서식수변 고유 입력 (조사개황은 셸이 소유 · §5-1-4)
-             2칸뿐이라 접기 토글을 두지 않는다 — 접을 이유가 없는 카드에 토글만 남으면 군더더기다. -->
-        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
-                    <Border Style="{StaticResource GroupHeaderBarStyle}"/>
-                    <TextBlock Text="특이사항" Style="{StaticResource GroupHeaderTextStyle}"/>
-                    <TextBlock Margin="12 0 0 0" VerticalAlignment="Center" Style="{StaticResource CaptionTextStyle}"
-                               Text="조사불가 사유는 등급 산정에 쓰이므로 공통 조사개황이 아니라 여기 둔다"/>
+        <!--═══ ① 서식·수변환경 평가 (종전 우측 HRI 레일) ═══════════════════-->
+        <ctrl:CollapsibleSummary Grid.Row="0" Title="서식·수변환경 평가"
+                                 Caption="[별표5] 기준 · 좌/우안 항목은 자동 평균 · A≥80 · B≥60 · C≥40 · D≥20 · E"
+                                 IsExpanded="{Binding IsResultExpanded, Mode=TwoWay}">
+            <ctrl:CollapsibleSummary.SummarySlot>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="HRI" Style="{StaticResource SummaryLabelTextStyle}"/>
+                    <TextBlock Text="{Binding ScoreText}" VerticalAlignment="Center" Margin="0 0 8 0"
+                               FontSize="15" FontWeight="Bold"
+                               Foreground="{StaticResource AccentOnSurfaceBrush}"/>
+
+                    <!-- 등급 뱃지 : 글자(A~E)가 항상 함께 나온다 -->
+                    <Border Margin="0 0 12 0">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource GradeBadgeBorderStyle}">
+                                <Setter Property="Height" Value="{StaticResource GradeBadgeSmallHeight}"/>
+                                <Setter Property="MinWidth" Value="28"/>
+                                <Setter Property="CornerRadius" Value="{StaticResource GradeBadgeSmallCornerRadius}"/>
+                                <Setter Property="Padding" Value="9 0"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding GradeText}" Value="A">
+                                        <Setter Property="Background" Value="{StaticResource GradeABrush}"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding GradeText}" Value="B">
+                                        <Setter Property="Background" Value="{StaticResource GradeBBrush}"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding GradeText}" Value="C">
+                                        <Setter Property="Background" Value="{StaticResource GradeCBrush}"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding GradeText}" Value="D">
+                                        <Setter Property="Background" Value="{StaticResource GradeDBrush}"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding GradeText}" Value="E">
+                                        <Setter Property="Background" Value="{StaticResource GradeEBrush}"/></DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding GradeText}" FontSize="13"
+                                   Style="{StaticResource GradeBadgeTextStyle}"/>
+                    </Border>
+
+                    <Border Style="{StaticResource VerticalDividerStyle}"/>
+                    <TextBlock Text="선택" Style="{StaticResource SummaryLabelTextStyle}"/>
+                    <TextBlock Text="{Binding SelectedCountText}" Style="{StaticResource SummaryValueTextStyle}"/>
+
+                    <Border Style="{StaticResource VerticalDividerStyle}"/>
+                    <TextBlock Text="항목 합계" Style="{StaticResource SummaryLabelTextStyle}"/>
+                    <TextBlock Text="{Binding TotalText}" Style="{StaticResource SummaryValueTextStyle}"/>
+
+                    <Border Style="{StaticResource VerticalDividerStyle}"/>
+                    <TextBlock Text="{Binding EvaluationStateText}" Style="{StaticResource SummaryValueTextStyle}"/>
+
+                    <!-- 조사불가(접근불가)는 등급 산정 대상이 아니다 — 접힌 줄에서도 알린다 -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                Visibility="{Binding IsSurveyUnavailable, Converter={StaticResource BoolToVisibility}}">
+                        <icon:PackIconMaterial Kind="AlertCircleOutline" Width="13" Height="13"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource DangerOnSurfaceBrush}"/>
+                        <TextBlock Text="등급 산정 제외" Margin="4 0 0 0" VerticalAlignment="Center"
+                                   FontSize="{StaticResource SummaryFontSize}"
+                                   Foreground="{StaticResource DangerOnSurfaceBrush}"/>
+                    </StackPanel>
                 </StackPanel>
-                <WrapPanel>
-                    <StackPanel Style="{StaticResource FormFieldMdStyle}">
-                        <TextBlock Text="조사불가시" Style="{StaticResource FormLabelStyle}"/>
-                        <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
-                                                     WatermarkContent="접근불가"
-                                                     Text="{Binding SurveyUnavailableReason, UpdateSourceTrigger=PropertyChanged}"
-                                                     ToolTipService.ToolTip="서식수변의 조사불가 사유는 '접근불가' 하나뿐이다(어류 FAI 는 4종)."/>
-                    </StackPanel>
-                    <StackPanel Style="{StaticResource FormFieldLgStyle}">
-                        <TextBlock Text="비고" Style="{StaticResource FormLabelStyle}"/>
-                        <telerik:RadWatermarkTextBox Height="{StaticResource InputHeight}"
-                                                     Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                </WrapPanel>
-            </StackPanel>
-        </Border>
+            </ctrl:CollapsibleSummary.SummarySlot>
 
-        <!-- ② 좌: 평가 항목 10개 / 우: HRI 레일 -->
-        <Grid Grid.Row="1" Margin="0 8 0 0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="*" MinWidth="{StaticResource RailMinWidth}" MaxWidth="{StaticResource RailMaxWidth}"/>
-            </Grid.ColumnDefinitions>
+            <ctrl:CollapsibleSummary.ExpandedSlot>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
-                <Border Padding="12" Style="{StaticResource CardBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="평가 항목 ([별표5] 점수 선택 · 좌/우안 항목은 자동 평균)" FontWeight="SemiBold" Margin="0 0 0 8"
-                                   Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
-
-                        <Grid Margin="0 4">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="1. 자연적 종횡사주" Style="{StaticResource HwItemLabel}"/>
-                            <telerik:RadComboBox Grid.Column="1" Width="230" HorizontalAlignment="Left"
-                                ItemsSource="{Binding Opt1}" DisplayMemberPath="Display" SelectedItem="{Binding S1, Mode=TwoWay}"/>
-                        </Grid>
-                        <Grid Margin="0 4">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="2. 하도 자연성 (좌/우안)" Style="{StaticResource HwItemLabel}"/>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
-                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt2}" DisplayMemberPath="Display" SelectedItem="{Binding B2L, Mode=TwoWay}"/>
-                                <TextBlock Text="우" Margin="8 0 4 0" Style="{StaticResource HwBankTag}"/>
-                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt2}" DisplayMemberPath="Display" SelectedItem="{Binding B2R, Mode=TwoWay}"/>
-                            </StackPanel>
-                        </Grid>
-                        <Grid Margin="0 4">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="3. 유속 다양성" Style="{StaticResource HwItemLabel}"/>
-                            <telerik:RadComboBox Grid.Column="1" Width="230" HorizontalAlignment="Left"
-                                ItemsSource="{Binding Opt3}" DisplayMemberPath="Display" SelectedItem="{Binding S3, Mode=TwoWay}"/>
-                        </Grid>
-                        <Grid Margin="0 4">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="4. 하천변 폭" Style="{StaticResource HwItemLabel}"/>
-                            <telerik:RadComboBox Grid.Column="1" Width="230" HorizontalAlignment="Left"
-                                ItemsSource="{Binding Opt4}" DisplayMemberPath="Display" SelectedItem="{Binding S4, Mode=TwoWay}"/>
-                        </Grid>
-                        <Grid Margin="0 4">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="5. 저수로 하안공 (좌/우안)" Style="{StaticResource HwItemLabel}"/>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
-                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt5}" DisplayMemberPath="Display" SelectedItem="{Binding B5L, Mode=TwoWay}"/>
-                                <TextBlock Text="우" Margin="8 0 4 0" Style="{StaticResource HwBankTag}"/>
-                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt5}" DisplayMemberPath="Display" SelectedItem="{Binding B5R, Mode=TwoWay}"/>
-                            </StackPanel>
-                        </Grid>
-                        <Grid Margin="0 4">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="6. 제방하안 재료 (좌/우안)" Style="{StaticResource HwItemLabel}"/>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
-                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt6}" DisplayMemberPath="Display" SelectedItem="{Binding B6L, Mode=TwoWay}"/>
-                                <TextBlock Text="우" Margin="8 0 4 0" Style="{StaticResource HwBankTag}"/>
-                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt6}" DisplayMemberPath="Display" SelectedItem="{Binding B6R, Mode=TwoWay}"/>
-                            </StackPanel>
-                        </Grid>
-                        <Grid Margin="0 4">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="7. 저질 상태" Style="{StaticResource HwItemLabel}"/>
-                            <telerik:RadComboBox Grid.Column="1" Width="230" HorizontalAlignment="Left"
-                                ItemsSource="{Binding Opt7}" DisplayMemberPath="Display" SelectedItem="{Binding S7, Mode=TwoWay}"/>
-                        </Grid>
-                        <Grid Margin="0 4">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="8. 횡구조물" Style="{StaticResource HwItemLabel}"/>
-                            <telerik:RadComboBox Grid.Column="1" Width="230" HorizontalAlignment="Left"
-                                ItemsSource="{Binding Opt8}" DisplayMemberPath="Display" SelectedItem="{Binding S8, Mode=TwoWay}"/>
-                        </Grid>
-                        <Grid Margin="0 4">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="9. 제외지 토지 이용 (좌/우안)" Style="{StaticResource HwItemLabel}"/>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
-                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt9}" DisplayMemberPath="Display" SelectedItem="{Binding B9L, Mode=TwoWay}"/>
-                                <TextBlock Text="우" Margin="8 0 4 0" Style="{StaticResource HwBankTag}"/>
-                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt9}" DisplayMemberPath="Display" SelectedItem="{Binding B9R, Mode=TwoWay}"/>
-                            </StackPanel>
-                        </Grid>
-                        <Grid Margin="0 4">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="230"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="10. 제내지 토지 이용 (좌/우안)" Style="{StaticResource HwItemLabel}"/>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
-                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt10}" DisplayMemberPath="Display" SelectedItem="{Binding B10L, Mode=TwoWay}"/>
-                                <TextBlock Text="우" Margin="8 0 4 0" Style="{StaticResource HwBankTag}"/>
-                                <telerik:RadComboBox Width="210" ItemsSource="{Binding Opt10}" DisplayMemberPath="Display" SelectedItem="{Binding B10R, Mode=TwoWay}"/>
-                            </StackPanel>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-            </ScrollViewer>
-
-            <!-- ③ HRI 레일 : 합계 → 점수 → 등급 순으로 계산 과정을 보여준다(§5-2-4) -->
-            <ctrl:ResultRail Grid.Column="1" Header="서식·수변환경 평가 (HRI)">
-                <ctrl:ResultRail.Body>
-                    <StackPanel>
-                        <Grid Style="{StaticResource RailRowStyle}">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="선택 현황" Style="{StaticResource RailLabelStyle}"/>
-                            <TextBlock Grid.Column="1" Text="{Binding SelectedCountText}" Style="{StaticResource RailValueStyle}"/>
-                        </Grid>
-                        <Grid Style="{StaticResource RailRowStyle}">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="① 항목 합계" Style="{StaticResource RailLabelStyle}"/>
-                            <TextBlock Grid.Column="1" Text="{Binding TotalText}" Style="{StaticResource RailValueStyle}"/>
-                        </Grid>
-                        <Grid Style="{StaticResource RailRowStyle}">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBlock Text="② 평가점수 (합÷2)" Style="{StaticResource RailLabelStyle}"/>
-                            <TextBlock Grid.Column="1" Text="{Binding ScoreText}" Style="{StaticResource RailValueStyle}"/>
-                        </Grid>
-
-                        <Border Style="{StaticResource RailDividerStyle}"/>
-
-                        <TextBlock Text="③ 평가등급" Style="{StaticResource RailValueStyle}"/>
-                        <StackPanel Orientation="Horizontal" Margin="0 4 0 0" VerticalAlignment="Center">
+                    <!--── 좌 : 평가점수 + 등급 ──────────────────────────────-->
+                    <StackPanel Grid.Column="0" Width="{StaticResource HealthLeftWidth}">
+                        <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding ScoreText}" Style="{StaticResource ValueTextStyle}"/>
                             <Border Margin="12 0 0 0">
                                 <Border.Style>
@@ -199,30 +143,284 @@
                                 </Border.Style>
                                 <TextBlock Text="{Binding GradeText}" Style="{StaticResource GradeBadgeTextStyle}"/>
                             </Border>
+                            <TextBlock Text="서식·수변환경" Margin="12 0 0 0" VerticalAlignment="Bottom"
+                                       Style="{StaticResource CaptionTextStyle}"/>
                         </StackPanel>
 
-                        <Border Style="{StaticResource RailDividerStyle}"/>
-
-                        <!-- ⚠ 미평가(`-`)와 0점·E등급은 다르다(_excel_formula_audit §5-5).
-                             10개를 전부 0점으로 골랐으면 그것은 평가한 것이다. -->
-                        <TextBlock Text="{Binding EvaluationStateText}" TextWrapping="Wrap"
-                                   Style="{StaticResource RailValueStyle}"/>
                         <TextBlock Margin="0 8 0 0" Style="{StaticResource CaptionTextStyle}"
                                    Text="[별표5] 기준 · A≥80 · B≥60 · C≥40 · D≥20 · E"/>
-                        <TextBlock Margin="0 4 0 0" Style="{StaticResource CaptionTextStyle}"
-                                   Text="10개를 전부 0점으로 골라도 미평가가 아닙니다 — 0 · E 로 산정됩니다."/>
-                        <TextBlock Margin="0 4 0 0" Style="{StaticResource CaptionTextStyle}"
-                                   Text="조사불가 사유는 '접근불가' 하나뿐입니다(어류 FAI 와 다릅니다)."/>
                     </StackPanel>
-                </ctrl:ResultRail.Body>
-            </ctrl:ResultRail>
-        </Grid>
 
-        <!-- ④ 상태 · 액션 바 (7개 화면 공유) -->
-        <ctrl:TaxonStatusBar Grid.Row="2" Margin="0 8 0 0">
+                    <Border Grid.Column="1" Style="{StaticResource VerticalDividerStyle}"
+                            Height="Auto" VerticalAlignment="Stretch" Margin="20 0"/>
+
+                    <!--── 중 : 계산 과정 ①→②→③ ────────────────────────────-->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel Margin="0 0 24 0">
+                            <TextBlock Text="선택 현황" Style="{StaticResource CaptionTextStyle}"/>
+                            <TextBlock Text="{Binding SelectedCountText}" Style="{StaticResource SectionTitleTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Margin="0 0 24 0">
+                            <TextBlock Text="① 항목 합계" Style="{StaticResource CaptionTextStyle}"/>
+                            <TextBlock Text="{Binding TotalText}" Style="{StaticResource SectionTitleTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel Margin="0 0 24 0">
+                            <TextBlock Text="② 평가점수 (합÷2)" Style="{StaticResource CaptionTextStyle}"/>
+                            <TextBlock Text="{Binding ScoreText}" Style="{StaticResource SectionTitleTextStyle}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="③ 평가 상태" Style="{StaticResource CaptionTextStyle}"/>
+                            <TextBlock Text="{Binding EvaluationStateText}" Style="{StaticResource SectionTitleTextStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!--── 우 : 판정 안내 ────────────────────────────────────-->
+                    <Border Grid.Column="3" Style="{StaticResource WarnBoxBorderStyle}" MaxWidth="300"
+                            Visibility="{Binding IsSurveyUnavailable, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Orientation="Horizontal">
+                            <icon:PackIconMaterial Kind="AlertCircleOutline" Width="14" Height="14"
+                                                   VerticalAlignment="Top" Margin="0 2 6 0"
+                                                   Foreground="{StaticResource DangerOnSurfaceBrush}"/>
+                            <TextBlock Style="{StaticResource WarnBoxTextStyle}"
+                                       Text="조사불가(접근불가)로 등급 산정에서 빠집니다. 서식수변의 조사불가 사유는 '접근불가' 하나뿐입니다(어류 FAI 는 4종)."/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </ctrl:CollapsibleSummary.ExpandedSlot>
+        </ctrl:CollapsibleSummary>
+
+        <!--═══ ② 특이사항 (조사불가 사유는 등급 산정에 쓰인다) ═══════════════
+             공통 조사개황이 아니라 여기 둔다 — 2칸이지만 등급을 좌우하므로 요약줄에 값을 남긴다. -->
+        <ctrl:CollapsibleSummary Grid.Row="1" Margin="0 8 0 0" Title="특이사항"
+                                 Caption="조사불가 사유는 등급 산정에 쓰이므로 공통 조사개황이 아니라 여기 둡니다"
+                                 IsExpanded="{Binding IsNoteExpanded, Mode=TwoWay}">
+            <ctrl:CollapsibleSummary.SummarySlot>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="조사불가시" Style="{StaticResource SummaryLabelTextStyle}"/>
+                    <TextBlock Text="{Binding SurveyUnavailableReason, Converter={StaticResource EmptyToDot}}"
+                               Style="{StaticResource SummaryValueTextStyle}"/>
+                    <Border Style="{StaticResource VerticalDividerStyle}"/>
+                    <TextBlock Text="비고" Style="{StaticResource SummaryLabelTextStyle}"/>
+                    <TextBlock Text="{Binding Note, Converter={StaticResource EmptyToDot}}"
+                               TextTrimming="CharacterEllipsis" MaxWidth="520"
+                               Style="{StaticResource SummaryValueTextStyle}"/>
+                </StackPanel>
+            </ctrl:CollapsibleSummary.SummarySlot>
+
+            <ctrl:CollapsibleSummary.ExpandedSlot>
+                <WrapPanel>
+                    <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                        <TextBlock Text="조사불가시" Style="{StaticResource FormLabelStyle}"/>
+                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                     WatermarkContent="접근불가"
+                                                     Text="{Binding SurveyUnavailableReason, UpdateSourceTrigger=PropertyChanged}"
+                                                     ToolTipService.ToolTip="서식수변의 조사불가 사유는 '접근불가' 하나뿐이다(어류 FAI 는 4종)."/>
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource FormFieldLgStyle}">
+                        <TextBlock Text="비고" Style="{StaticResource FormLabelStyle}"/>
+                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                     Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </WrapPanel>
+            </ctrl:CollapsibleSummary.ExpandedSlot>
+        </ctrl:CollapsibleSummary>
+
+        <!--═══ ③ 평가 항목 10 ([별표5] 점수 선택) ═══════════════════════════
+             레일이 사라져 얻은 폭은 행 오른쪽 '항목 점수' 칸으로 간다 —
+             좌/우안 평균이 얼마로 잡혔는지 그 자리에서 보인다. -->
+        <ScrollViewer Grid.Row="2" Margin="0 8 0 0" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 4">
+                        <Border Style="{StaticResource GroupHeaderBarStyle}"/>
+                        <TextBlock Text="평가 항목" Style="{StaticResource GroupHeaderTextStyle}"/>
+                    </StackPanel>
+                    <TextBlock Text="[별표5] 점수를 고릅니다 · 좌/우안 항목은 자동 평균 · 오른쪽 숫자가 그 항목의 유효 점수입니다"
+                               Margin="12 0 0 12" Style="{StaticResource CaptionTextStyle}"/>
+
+                    <!-- 머리글 : 점수 칸이 무엇인지 한 번만 밝힌다 -->
+                    <Grid Margin="0 0 0 4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="72"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="항목" Style="{StaticResource CaptionTextStyle}"/>
+                        <TextBlock Grid.Column="1" Text="[별표5] 선택" Style="{StaticResource CaptionTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="항목 점수" HorizontalAlignment="Right"
+                                   Style="{StaticResource CaptionTextStyle}"/>
+                    </Grid>
+                    <Border Style="{StaticResource HorizontalDividerStyle}"/>
+
+                    <Grid Style="{StaticResource HwRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="72"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="1. 자연적 종횡사주" Style="{StaticResource HwItemLabel}"/>
+                        <telerik:RadComboBox Grid.Column="1" Width="280" HorizontalAlignment="Left"
+                            BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                            ItemsSource="{Binding Opt1}" DisplayMemberPath="Display" SelectedItem="{Binding S1, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="3" Text="{Binding Sc1}" Style="{StaticResource HwScore}"/>
+                    </Grid>
+
+                    <Grid Style="{StaticResource HwRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="72"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="2. 하도 자연성" Style="{StaticResource HwItemLabel}"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
+                            <telerik:RadComboBox Width="280" BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                                ItemsSource="{Binding Opt2}" DisplayMemberPath="Display" SelectedItem="{Binding B2L, Mode=TwoWay}"/>
+                            <TextBlock Text="우" Margin="12 0 4 0" Style="{StaticResource HwBankTag}"/>
+                            <telerik:RadComboBox Width="280" BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                                ItemsSource="{Binding Opt2}" DisplayMemberPath="Display" SelectedItem="{Binding B2R, Mode=TwoWay}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="3" Text="{Binding Sc2}" Style="{StaticResource HwScore}"/>
+                    </Grid>
+
+                    <Grid Style="{StaticResource HwRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="72"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="3. 유속 다양성" Style="{StaticResource HwItemLabel}"/>
+                        <telerik:RadComboBox Grid.Column="1" Width="280" HorizontalAlignment="Left"
+                            BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                            ItemsSource="{Binding Opt3}" DisplayMemberPath="Display" SelectedItem="{Binding S3, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="3" Text="{Binding Sc3}" Style="{StaticResource HwScore}"/>
+                    </Grid>
+
+                    <Grid Style="{StaticResource HwRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="72"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="4. 하천변 폭" Style="{StaticResource HwItemLabel}"/>
+                        <telerik:RadComboBox Grid.Column="1" Width="280" HorizontalAlignment="Left"
+                            BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                            ItemsSource="{Binding Opt4}" DisplayMemberPath="Display" SelectedItem="{Binding S4, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="3" Text="{Binding Sc4}" Style="{StaticResource HwScore}"/>
+                    </Grid>
+
+                    <Grid Style="{StaticResource HwRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="72"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="5. 저수로 하안공" Style="{StaticResource HwItemLabel}"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
+                            <telerik:RadComboBox Width="280" BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                                ItemsSource="{Binding Opt5}" DisplayMemberPath="Display" SelectedItem="{Binding B5L, Mode=TwoWay}"/>
+                            <TextBlock Text="우" Margin="12 0 4 0" Style="{StaticResource HwBankTag}"/>
+                            <telerik:RadComboBox Width="280" BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                                ItemsSource="{Binding Opt5}" DisplayMemberPath="Display" SelectedItem="{Binding B5R, Mode=TwoWay}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="3" Text="{Binding Sc5}" Style="{StaticResource HwScore}"/>
+                    </Grid>
+
+                    <Grid Style="{StaticResource HwRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="72"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="6. 제방하안 재료" Style="{StaticResource HwItemLabel}"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
+                            <telerik:RadComboBox Width="280" BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                                ItemsSource="{Binding Opt6}" DisplayMemberPath="Display" SelectedItem="{Binding B6L, Mode=TwoWay}"/>
+                            <TextBlock Text="우" Margin="12 0 4 0" Style="{StaticResource HwBankTag}"/>
+                            <telerik:RadComboBox Width="280" BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                                ItemsSource="{Binding Opt6}" DisplayMemberPath="Display" SelectedItem="{Binding B6R, Mode=TwoWay}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="3" Text="{Binding Sc6}" Style="{StaticResource HwScore}"/>
+                    </Grid>
+
+                    <Grid Style="{StaticResource HwRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="72"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="7. 저질 상태" Style="{StaticResource HwItemLabel}"/>
+                        <telerik:RadComboBox Grid.Column="1" Width="280" HorizontalAlignment="Left"
+                            BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                            ItemsSource="{Binding Opt7}" DisplayMemberPath="Display" SelectedItem="{Binding S7, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="3" Text="{Binding Sc7}" Style="{StaticResource HwScore}"/>
+                    </Grid>
+
+                    <Grid Style="{StaticResource HwRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="72"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="8. 횡구조물" Style="{StaticResource HwItemLabel}"/>
+                        <telerik:RadComboBox Grid.Column="1" Width="280" HorizontalAlignment="Left"
+                            BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                            ItemsSource="{Binding Opt8}" DisplayMemberPath="Display" SelectedItem="{Binding S8, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="3" Text="{Binding Sc8}" Style="{StaticResource HwScore}"/>
+                    </Grid>
+
+                    <Grid Style="{StaticResource HwRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="72"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="9. 제외지 토지 이용" Style="{StaticResource HwItemLabel}"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
+                            <telerik:RadComboBox Width="280" BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                                ItemsSource="{Binding Opt9}" DisplayMemberPath="Display" SelectedItem="{Binding B9L, Mode=TwoWay}"/>
+                            <TextBlock Text="우" Margin="12 0 4 0" Style="{StaticResource HwBankTag}"/>
+                            <telerik:RadComboBox Width="280" BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                                ItemsSource="{Binding Opt9}" DisplayMemberPath="Display" SelectedItem="{Binding B9R, Mode=TwoWay}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="3" Text="{Binding Sc9}" Style="{StaticResource HwScore}"/>
+                    </Grid>
+
+                    <Grid Style="{StaticResource HwRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="230"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="72"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="10. 제내지 토지 이용" Style="{StaticResource HwItemLabel}"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock Text="좌" Style="{StaticResource HwBankTag}"/>
+                            <telerik:RadComboBox Width="280" BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                                ItemsSource="{Binding Opt10}" DisplayMemberPath="Display" SelectedItem="{Binding B10L, Mode=TwoWay}"/>
+                            <TextBlock Text="우" Margin="12 0 4 0" Style="{StaticResource HwBankTag}"/>
+                            <telerik:RadComboBox Width="280" BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
+                                ItemsSource="{Binding Opt10}" DisplayMemberPath="Display" SelectedItem="{Binding B10R, Mode=TwoWay}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="3" Text="{Binding Sc10}" Style="{StaticResource HwScore}"/>
+                    </Grid>
+
+                    <Border Style="{StaticResource HorizontalDividerStyle}" Margin="0 8 0 8"/>
+                    <TextBlock Style="{StaticResource CaptionTextStyle}"
+                               Text="`·` 는 미선택입니다. 10개를 전부 0점으로 골라도 미평가가 아닙니다 — 0 · E 로 산정됩니다."/>
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+
+        <!--═══ ④ 상태 · 액션 ═══════════════════════════════════════════-->
+        <ctrl:TaxonStatusBar Grid.Row="3" Margin="0 8 0 0">
             <ctrl:TaxonStatusBar.Summary>
-                <TextBlock Text="{Binding SelectedCountText}" FontWeight="SemiBold" VerticalAlignment="Center"
-                           Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SelectedCountText}" FontWeight="SemiBold" VerticalAlignment="Center"
+                               Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+                    <Border Style="{StaticResource VerticalDividerStyle}" Margin="12 0 12 0"/>
+                    <TextBlock VerticalAlignment="Center"
+                               Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}">
+                        <Run Text="HRI"/>
+                        <Run Text="{Binding ScoreText, Mode=OneWay}" FontWeight="SemiBold"/>
+                        <Run Text="·"/>
+                        <Run Text="{Binding GradeText, Mode=OneWay}" FontWeight="SemiBold"/>
+                    </TextBlock>
+                </StackPanel>
             </ctrl:TaxonStatusBar.Summary>
             <ctrl:TaxonStatusBar.Actions>
                 <StackPanel Orientation="Horizontal">
@@ -241,15 +439,14 @@
                             <TextBlock Text="일괄입력용" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
-                    <telerik:RadButton Command="{Binding ExportExcelCommand}" Padding="{StaticResource ActionButtonPadding}"
-                                       Background="{StaticResource PrimaryActionBackBrush}"
-                                       Foreground="{StaticResource PrimaryActionForeBrush}"
+                    <Button Command="{Binding ExportExcelCommand}" Padding="{StaticResource ActionButtonPadding}"
+                                       Style="{StaticResource PrimaryActionButtonStyle}"
                                        ToolTipService.ToolTip="보고서·기록용 · 조사개황/평가항목/건강성평가(HRI) 시트">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="보고서 엑셀" Margin="4 0 0 0"/>
                         </StackPanel>
-                    </telerik:RadButton>
+                    </Button>
                 </StackPanel>
             </ctrl:TaxonStatusBar.Actions>
         </ctrl:TaxonStatusBar>

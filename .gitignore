@@ -1,4 +1,4 @@
-# 빌드 산출물
+﻿# 빌드 산출물
 [Bb]in/
 [Oo]bj/
 .vs/
@@ -12,3 +12,17 @@
 # 대용량 참고자료
 *.xlsx
 !docs/**/*.xlsx
+
+# python 도구 캐시
+__pycache__/
+*.pyc
+
+# 게시 임시 폴더(단독 실행형이라 250MB+)
+tools/_publish_test/
+tools/_publish_release/
+
+# local leftovers
+tools/_build.log
+_to_delete/
+docs/_backup_*/
+docs/_maps_seed_old/

@@ -1,0 +1,286 @@
+{
+  "SessionId": "방류하천_2025분기1차_오산천6",
+  "CreatedAt": "2026-09-07T09:45:18",
+  "UpdatedAt": "2026-09-07T10:00:12",
+  "Meta": {
+    "Project": "방류하천",
+    "SurveyYear": "2025",
+    "YearChsu": "2025분기1차",
+    "SurveyDate": "2025-04-28T00:00:00",
+    "MajorRegion": "한강",
+    "MiddleRegion": "안성천",
+    "River": "오산천",
+    "RiverType": "평지형",
+    "Workplace": "기흥",
+    "Site": "오산천6",
+    "Lat": "37.185467",
+    "Lng": "127.083933",
+    "Weather": "맑음",
+    "SurveyAgency": "㈜생태조사단",
+    "Surveyor": "임성호, 정현철, 정제연"
+  },
+  "Taxa": {
+    "Fish": {
+      "SurveyYear": "2025",
+      "YearChsu": "2025분기1차",
+      "SurveyDate": "2025-04-28T00:00:00",
+      "MajorRegion": "한강",
+      "MiddleRegion": "안성천",
+      "River": "오산천",
+      "RiverType": "평지형",
+      "Site": "오산천6",
+      "Lat": "37.185467",
+      "Lng": "127.083933",
+      "Weather": "맑음",
+      "SurveyAgency": "㈜생태조사단",
+      "Surveyor": "임성호, 정현철, 정제연",
+      "CollectionTime": "50",
+      "CollectionTool": "투망/족대",
+      "CollectionFlowState": "흐름,소",
+      "RiverChasu": 4.0,
+      "Bedrock": "0",
+      "Concrete": "5",
+      "Mud": "5",
+      "Sand": "40",
+      "FineGravel": "25",
+      "Gravel": "15",
+      "SmallStone": "7",
+      "BigStone": "3",
+      "HabitatRiverType": "평지형,댐/보/교각",
+      "HabitatFlowState": "보통",
+      "SurveyUnavailableReason": null,
+      "Note": null,
+      "NoSpeciesDeclared": false,
+      "IsEnvironmentExpanded": false,
+      "IsHealthExpanded": true,
+      "DeCount": null,
+      "EfCount": null,
+      "LeCount": null,
+      "TuCount": null,
+      "Rows": [
+        {
+          "SpeciesKo": "피라미",
+          "IndividualCount": 84,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "붕어",
+          "IndividualCount": 11,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "잉어",
+          "IndividualCount": 4,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "밀어",
+          "IndividualCount": 9,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "참붕어",
+          "IndividualCount": 7,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "돌고기",
+          "IndividualCount": 3,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "블루길",
+          "IndividualCount": 6,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "배스",
+          "IndividualCount": 2,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "미꾸리",
+          "IndividualCount": 2,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "줄몰개",
+          "IndividualCount": 5,
+          "Note": null
+        }
+      ]
+    },
+    "Benthos": {
+      "SurveyYear": "2025",
+      "YearChsu": "2025분기1차",
+      "SurveyDate": "2025-04-28T00:00:00",
+      "MajorRegion": "한강",
+      "MiddleRegion": "안성천",
+      "River": "오산천",
+      "RiverType": "평지형",
+      "Site": "오산천6",
+      "Lat": "37.185467",
+      "Lng": "127.083933",
+      "Weather": "맑음",
+      "SurveyAgency": "㈜생태조사단",
+      "Surveyor": "임성호, 정현철, 정제연",
+      "Surbernet30": null,
+      "Surbernet50": null,
+      "Dredge": "3",
+      "Ekman": null,
+      "Watershed": "상업지역, 공업지역",
+      "PollutionSource": null,
+      "CanopyCover": "없음",
+      "Floodplain": "도로,산책로",
+      "LeveeLeft": "자연형, 콘크리트",
+      "LeveeRight": "자연형, 콘크리트",
+      "Bedrock": null,
+      "Concrete": null,
+      "Mud": null,
+      "Sand": "40",
+      "FineGravel": "25",
+      "Gravel": "15",
+      "SmallStone": "10",
+      "BigStone": "10",
+      "HabitatRiverType": "평지형",
+      "RiverWidth": "100",
+      "WaterWidth": "22.1",
+      "AverageDepth": "30.7",
+      "AverageVelocity": "32.2",
+      "AirTemperature": "24",
+      "WaterTemperature": "21.1",
+      "FlowState": "여울,흐름,소",
+      "Transparency": "3",
+      "Smell": "1",
+      "SurveyUnavailableReason": null,
+      "Note": null,
+      "NoSpeciesDeclared": false,
+      "IsEnvironmentExpanded": false,
+      "IsHealthExpanded": true,
+      "Rows": [
+        {
+          "SpeciesKo": "꼬마줄날도래",
+          "IndividualCount": 212.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "물벌레류(연갑강)",
+          "IndividualCount": 189.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "플라나리아류",
+          "IndividualCount": 163.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "깔따구류 spp.(red type 아닌것)",
+          "IndividualCount": 134.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "깔따구류 spp.(red type)",
+          "IndividualCount": 100.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "흰점줄날도래",
+          "IndividualCount": 86.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "실지렁이",
+          "IndividualCount": 75.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "개똥하루살이",
+          "IndividualCount": 38.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "줄날도래",
+          "IndividualCount": 34.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "등에모기류",
+          "IndividualCount": 34.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "왼돌이물달팽이",
+          "IndividualCount": 23.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "돌거머리",
+          "IndividualCount": 23.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "재첩",
+          "IndividualCount": 15.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "물달팽이",
+          "IndividualCount": 12.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "수정또아리물달팽이",
+          "IndividualCount": 12.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "조개넙적거머리",
+          "IndividualCount": 8.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "입술하루살이",
+          "IndividualCount": 8.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "애날도래류",
+          "IndividualCount": 8.0,
+          "Note": null
+        },
+        {
+          "SpeciesKo": "별날도래류",
+          "IndividualCount": 8.0,
+          "Note": null
+        }
+      ]
+    },
+    "WaterQuality": {
+      "PH": "7.3",
+      "Bod": "3.4",
+      "Cod": "8.1",
+      "Toc": "6.2",
+      "Ss": "9.7",
+      "Dox": "8.6",
+      "Tp": "0.131",
+      "EColi": "420",
+      "Ecotoxicity": null,
+      "TN": "6.9",
+      "EC": "1580",
+      "Cl": null,
+      "SO42": null,
+      "Cu": null,
+      "Zn": null,
+      "Cr": null,
+      "Turbidity": "18.2",
+      "Chla": null,
+      "WaterTemperature": "21.1",
+      "WaterDepth": "0.31",
+      "FlowVelocity": "32.2",
+      "FlowSec": "2.21",
+      "FlowDay": "191",
+      "IsGradeExpanded": true,
+      "IsExtraExpanded": true
+    }
+  }
+}

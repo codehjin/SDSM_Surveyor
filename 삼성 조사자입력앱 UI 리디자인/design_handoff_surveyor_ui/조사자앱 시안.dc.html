@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+body{margin:0;background:#f0eee9;font-family:"Pretendard Variable",Pretendard,system-ui,sans-serif}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}
+.dv-card{max-width:100%;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}
+.dv-opt:target .dv-oid{background:#2a78d6;color:#fff}
+.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)}
+a{color:#0072DE}a:hover{color:#0381FE}
+</style></helmet>
+
+<section class="dv-turn" id="t3">
+<div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">단일 분류군 모드 — <a class="dv-oid" href="#2a">2a</a> 확정 골격 · 삼성 DS 모니터링 야장 · 1440×860</span></div>
+
+<div style="max-width:1060px;margin:0 0 26px;padding:18px 20px;background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:8px;font:14.5px/1.55 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#333;display:flex;flex-direction:column;gap:10px">
+<div style="font:600 15px/1.3 inherit;color:#111">반영 사항</div>
+<div style="display:grid;grid-template-columns:130px 1fr;gap:8px 16px;font-size:13.5px;color:#444">
+<div style="color:#777">분류군 탭 제거</div><div>첫 실행에서 담당 분류군을 고르면(<a class="dv-oid" href="#3c">3c</a>) 탭 행 44px 이 사라집니다. 재선택은 캡션 바의 <b>분류군 칩</b>에서 — 종전 ‘야외 모드’ 자리입니다. 야외 모드는 삭제했습니다(사무실 PC 입력 대체 앱).</div>
+<div style="color:#777">접기 = 행 확보</div><div>조사환경·건강성을 한 줄 요약으로 접으면 <b>국명·학명 그리드가 20행</b>까지 보입니다(<a class="dv-oid" href="#3a">3a</a>). 펼치면 12행(<a class="dv-oid" href="#3b">3b</a>). 접힘 상태에서도 요약줄이 값을 계속 보여주므로 접었다는 이유로 정보를 잃지 않습니다. 접힘 상태는 세션에 저장됩니다.</div>
+<div style="color:#777">종이 야장 대체</div><div>1행 = 야장 한 줄. 국명 200px·학명 1fr 을 최우선 확보하고 파생값(상대풍부도·합계)은 읽기전용 회색으로 뒤에 둡니다.</div>
+<div style="color:#777">명칭·서체</div><div>한글명 <b>삼성 DS 모니터링 야장</b>만 표기(영문 미표기), 서체 Pretendard 확정.</div>
+</div>
+</div>
+
+<div class="dv-opts">
+
+<div class="dv-opt" id="3a"><div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>기본(접힘) — 그리드 20행 · 분류군 재선택 메뉴 열린 상태</div>
+<div class="dv-card" style="width:1440px">
+<div style="width:1440px;height:860px;background:#F7F8FA;display:flex;flex-direction:column;font:14.5px/1.45 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#1b1b1b;overflow:hidden;position:relative">
+  <div style="height:50px;flex:none;background:#1E232E;display:flex;align-items:center;padding:0 0 0 20px;gap:14px">
+    <div style="width:18px;height:18px;border-radius:4px;background:#0381FE"></div>
+    <div style="font:600 14.5px/1.2 inherit;color:#F2F4F8;letter-spacing:-.2px">삼성 DS 모니터링 야장</div>
+    <div style="font-size:12px;color:#94A9D5">v1.5.0</div>
+    <div style="width:1px;height:18px;background:#3B4457"></div>
+    <div style="height:32px;padding:0 12px;display:flex;align-items:center;gap:8px;border:1px solid #0381FE;border-radius:999px;background:#28313F"><span style="width:9px;height:9px;border-radius:50%;background:#3FD0E8"></span><span style="font:600 13.5px/1.2 inherit;color:#F2F4F8">어류</span><span style="font-size:12.5px;color:#94A9D5">담당 분류군 · 변경 ⌄</span></div>
+    <div style="font-size:13px;color:#D6DEEE">방류하천 · 곡교천1 (St.1) · 2026반기1차</div>
+    <div style="flex:1"></div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">🗂 자료함</div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">☁ 대기 12</div>
+    <div style="display:flex;height:50px;margin-left:8px"><div style="width:46px;display:grid;place-items:center;color:#94A9D5">—</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">▢</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">✕</div></div>
+  </div>
+
+  <div style="position:absolute;top:54px;left:236px;width:300px;background:#fff;border:1px solid rgba(0,0,0,.14);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.12);padding:8px;z-index:5;display:flex;flex-direction:column;gap:2px">
+    <div style="padding:8px 10px 6px;font-size:12px;color:#666">담당 분류군 변경 — 입력 중인 자료는 유지됩니다</div>
+    <div style="height:36px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:6px;background:#E4F0FF;color:#0057A8;font-weight:600"><span style="width:9px;height:9px;border-radius:50%;background:#008296"></span>어류<span style="flex:1"></span><span style="font-size:12px">8종 입력됨</span></div>
+    <div style="height:36px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:6px"><span style="width:9px;height:9px;border-radius:50%;background:#651FFF"></span>저서동물<span style="flex:1"></span><span style="font-size:12px;color:#777">14종</span></div>
+    <div style="height:36px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:6px"><span style="width:9px;height:9px;border-radius:50%;background:#7B7A1C"></span>조류<span style="flex:1"></span><span style="font-size:12px;color:#777">21종</span></div>
+    <div style="height:36px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:6px"><span style="width:9px;height:9px;border-radius:50%;background:#AA6700"></span>포유류<span style="flex:1"></span><span style="font-size:12px;color:#777">3종</span></div>
+    <div style="height:36px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:6px"><span style="width:9px;height:9px;border-radius:50%;background:#CC33FF"></span>양서파충류<span style="flex:1"></span><span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="height:36px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:6px"><span style="width:9px;height:9px;border-radius:50%;background:#2979FF"></span>수질<span style="flex:1"></span><span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="height:36px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:6px"><span style="width:9px;height:9px;border-radius:50%;background:#37474F"></span>서식수변<span style="flex:1"></span><span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="height:1px;background:rgba(0,0,0,.08);margin:6px 0"></div>
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 10px 8px;font-size:12.5px;color:#444"><span style="width:14px;height:14px;border:1px solid rgba(0,0,0,.45);border-radius:3px;display:grid;place-items:center;color:#0072DE;font-size:11px">✓</span>다음 실행에도 이 분류군으로 시작</div>
+  </div>
+
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:12px 12px 8px">
+    <div style="flex:none;height:48px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:12px;padding:0 16px">
+      <div style="font:600 14.5px/1.2 inherit">조사개황</div>
+      <div style="width:1px;height:20px;background:rgba(0,0,0,.1)"></div>
+      <div>곡교천1 <span style="color:#666">(St.1)</span></div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div>2026-05-14</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div style="color:#0072DE">36.8123, 127.0451</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div style="color:#666">조사자 3인 · 흐림</div>
+      <div style="flex:1"></div>
+      <div style="height:28px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13px">지도</div>
+      <div style="height:28px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13px">펼치기 ⌄</div>
+    </div>
+
+    <div style="flex:none;height:36px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:10px;padding:0 16px;font-size:13.5px">
+      <span style="font-weight:600;font-size:14.5px">조사환경</span>
+      <span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">하천형태</span><span>Aa-Bb 이행형</span>
+      <span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">유폭</span><span>12.4 m</span>
+      <span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">수심</span><span style="color:#666">·</span>
+      <span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">흐름</span><span>보통</span>
+      <span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">채집도구</span><span>투망·족대</span>
+      <span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">하상구성</span><span>8종 입력됨</span>
+      <span style="flex:1"></span>
+      <span style="color:#0072DE">펼치기 ⌄</span>
+    </div>
+
+    <div style="flex:none;height:36px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:10px;padding:0 16px;font-size:13.5px">
+      <span style="font-weight:600;font-size:14.5px">건강성</span>
+      <span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">FAI</span><span style="font-weight:700;color:#0072DE;font-size:15px">68.8</span>
+      <span style="padding:1px 9px;border-radius:999px;background:#0381FE;color:#000;font:600 13px/1.5 inherit">B</span>
+      <span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">낮은 항목</span><span>M4 · M8</span>
+      <span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">총</span><span><b>8</b>종 · <b>328</b>개체</span>
+      <span style="color:rgba(0,0,0,.15)">│</span><span style="color:#0072DE">보호종 1</span><span style="color:#C5330A">교란종 1</span>
+      <span style="color:rgba(0,0,0,.15)">│</span><span style="color:#992700">⚠ 7행 개체수 미입력</span>
+      <span style="flex:1"></span>
+      <span style="color:#0072DE">펼치기 ⌄</span>
+    </div>
+
+    <div style="flex:none;height:56px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 16px">
+      <div style="font:600 14.5px/1.2 inherit;margin-right:4px">빠른추가</div>
+      <div style="width:340px;height:36px;border:2px solid #0381FE;border-radius:4px;display:flex;align-items:center;padding:0 10px;gap:6px"><span style="color:#0072DE">🔍</span><span>ㅋㅈㄴ</span><span style="width:1px;height:16px;background:#0381FE"></span><span style="color:#666">초성으로 종명 검색</span></div>
+      <div style="width:96px;height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;color:#666">개체수</div>
+      <div style="height:36px;padding:0 16px;background:#0072DE;color:#fff;border-radius:4px;display:grid;place-items:center;font-weight:600">추가 ⏎</div>
+      <div style="width:1px;height:22px;background:rgba(0,0,0,.1);margin:0 4px"></div>
+      <div style="font-size:12px;color:#666">Enter 추가 후 검색창 복귀 · Ctrl+V 엑셀 다중 행 · F2 편집</div>
+      <div style="flex:1"></div>
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;background:#E4F0FF;color:#0057A8;font-size:12.5px">방금 추가 · 밀어 41</div>
+    </div>
+
+    <div style="flex:1;min-height:0;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="height:34px;flex:none;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;border-bottom:1px solid rgba(0,0,0,.14);font:600 14.5px/1.2 inherit;color:#333"><div>#</div><div>국명</div><div>학명</div><div style="text-align:right">개체수</div><div>내성도 길드</div><div style="text-align:right">오탁치</div><div style="text-align:right">상대풍부도</div><div>비고</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px"><div style="color:#666">1</div><div>참갈겨니</div><div style="font-style:italic;color:#555">Zacco koreanus</div><div style="text-align:right;font-variant-numeric:tabular-nums">128</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.4</div><div style="text-align:right;color:#555">39.0%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">2</div><div>피라미</div><div style="font-style:italic;color:#555">Zacco platypus</div><div style="text-align:right;font-variant-numeric:tabular-nums">86</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.1</div><div style="text-align:right;color:#555">26.2%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;box-shadow:inset 3px 0 0 #0072DE"><div style="color:#666">3</div><div style="font-weight:600;color:#0072DE">가는돌고기 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#E4F0FF;color:#0057A8">멸종위기Ⅱ</span></div><div style="font-style:italic;color:#555">Pseudopungtungia tenuicorpa</div><div style="text-align:right;font-variant-numeric:tabular-nums">4</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.0</div><div style="text-align:right;color:#555">1.2%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">4</div><div>돌고기</div><div style="font-style:italic;color:#555">Pungtungia herzi</div><div style="text-align:right;font-variant-numeric:tabular-nums">31</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="text-align:right;color:#555">9.5%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;box-shadow:inset 3px 0 0 #C5330A"><div style="color:#666">5</div><div style="font-weight:600;color:#C5330A">배스 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#FDE7DF;color:#992700">⚠ 교란종</span></div><div style="font-style:italic;color:#555">Micropterus salmoides</div><div style="text-align:right;font-variant-numeric:tabular-nums">7</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.3</div><div style="text-align:right;color:#555">2.1%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">6</div><div>붕어</div><div style="font-style:italic;color:#555">Carassius auratus</div><div style="text-align:right;font-variant-numeric:tabular-nums">12</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.0</div><div style="text-align:right;color:#555">3.7%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px"><div style="color:#666">7</div><div>버들치</div><div style="font-style:italic;color:#555">Rhynchocypris oxycephalus</div><div style="text-align:right"><span style="display:inline-block;border:2px solid #0381FE;border-radius:4px;padding:1px 7px;font-variant-numeric:tabular-nums">19</span></div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.6</div><div style="text-align:right;color:#555">5.8%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#E4F0FF"><div style="color:#0057A8">8</div><div>밀어</div><div style="font-style:italic;color:#555">Rhinogobius brunneus</div><div style="text-align:right;font-variant-numeric:tabular-nums">41</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="text-align:right;color:#555">12.5%</div><div style="color:#0057A8;font-size:13px">방금 추가</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">9</div><div>모래무지</div><div style="font-style:italic;color:#555">Pseudogobio esocinus</div><div style="text-align:right;font-variant-numeric:tabular-nums">5</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.2</div><div style="text-align:right;color:#555">1.5%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px"><div style="color:#666">10</div><div>참종개</div><div style="font-style:italic;color:#555">Iksookimia koreensis</div><div style="text-align:right;font-variant-numeric:tabular-nums">3</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.5</div><div style="text-align:right;color:#555">0.9%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">11</div><div>얼룩동사리</div><div style="font-style:italic;color:#555">Odontobutis interrupta</div><div style="text-align:right;font-variant-numeric:tabular-nums">2</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="text-align:right;color:#555">0.6%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px"><div style="color:#666">12</div><div>대륙송사리</div><div style="font-style:italic;color:#555">Oryzias sinensis</div><div style="text-align:right;font-variant-numeric:tabular-nums">9</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">2.8</div><div style="text-align:right;color:#555">2.7%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">13</div><div>미꾸리</div><div style="font-style:italic;color:#555">Misgurnus anguillicaudatus</div><div style="text-align:right;font-variant-numeric:tabular-nums">4</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.1</div><div style="text-align:right;color:#555">1.2%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px"><div style="color:#666">14</div><div>줄납자루</div><div style="font-style:italic;color:#555">Acheilognathus yamatsutae</div><div style="text-align:right;font-variant-numeric:tabular-nums">6</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.8</div><div style="text-align:right;color:#555">1.8%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">15</div><div>몰개</div><div style="font-style:italic;color:#555">Squalidus japonicus coreanus</div><div style="text-align:right;font-variant-numeric:tabular-nums">8</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.4</div><div style="text-align:right;color:#555">2.4%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px"><div style="color:#666">16</div><div>긴몰개</div><div style="font-style:italic;color:#555">Squalidus gracilis majimae</div><div style="text-align:right;font-variant-numeric:tabular-nums">3</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.3</div><div style="text-align:right;color:#555">0.9%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">17</div><div>돌마자</div><div style="font-style:italic;color:#555">Microphysogobio yaluensis</div><div style="text-align:right;font-variant-numeric:tabular-nums">11</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="text-align:right;color:#555">3.3%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px"><div style="color:#666">18</div><div>쌀미꾸리</div><div style="font-style:italic;color:#555">Lefua costata</div><div style="text-align:right;font-variant-numeric:tabular-nums">2</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.5</div><div style="text-align:right;color:#555">0.6%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">19</div><div>블루길</div><div style="font-style:italic;color:#555">Lepomis macrochirus</div><div style="text-align:right;font-variant-numeric:tabular-nums">1</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.4</div><div style="text-align:right;color:#555">0.3%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 1fr;align-items:center;padding:0 16px;color:#666">+<span style="padding-left:8px">여기에 입력하거나 위 빠른추가로 종을 추가하세요</span></div>
+      <div style="flex:1"></div>
+      <div style="height:36px;flex:none;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;border-top:1px solid rgba(0,0,0,.14);background:#F7F8FA;font-weight:600"><div></div><div>합계 19종</div><div></div><div style="text-align:right;font-variant-numeric:tabular-nums">382</div><div></div><div></div><div style="text-align:right">100%</div><div></div></div>
+    </div>
+  </div>
+
+  <div style="height:48px;flex:none;background:#fff;border-top:1px solid rgba(0,0,0,.12);display:flex;align-items:center;padding:0 12px;gap:8px">
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;color:#C5330A;font-size:13.5px">빈 행 정리</div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:16px;font-size:13.5px;color:#333"><div style="display:flex;align-items:center;gap:6px;color:#C5330A">⚠ 저장 안 된 변경 3건</div><div style="color:#444">🗎 14:32 저장됨</div></div>
+    <div style="width:16px"></div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">임시 저장</div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">일괄입력 엑셀</div>
+    <div style="height:32px;padding:0 14px;display:grid;place-items:center;background:#0072DE;color:#fff;border-radius:4px;font:600 13.5px/1.2 inherit">보고서 엑셀</div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="3b"><div class="dv-olabel"><a class="dv-oid" href="#3b">3b</a>펼침 — 조사환경 + 건강성 열림 · 그리드 12행</div>
+<div class="dv-card" style="width:1440px">
+<div style="width:1440px;height:860px;background:#F7F8FA;display:flex;flex-direction:column;font:14.5px/1.45 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#1b1b1b;overflow:hidden">
+  <div style="height:50px;flex:none;background:#1E232E;display:flex;align-items:center;padding:0 0 0 20px;gap:14px">
+    <div style="width:18px;height:18px;border-radius:4px;background:#0381FE"></div>
+    <div style="font:600 14.5px/1.2 inherit;color:#F2F4F8;letter-spacing:-.2px">삼성 DS 모니터링 야장</div>
+    <div style="font-size:12px;color:#94A9D5">v1.5.0</div>
+    <div style="width:1px;height:18px;background:#3B4457"></div>
+    <div style="height:32px;padding:0 12px;display:flex;align-items:center;gap:8px;border:1px solid #4A5464;border-radius:999px"><span style="width:9px;height:9px;border-radius:50%;background:#3FD0E8"></span><span style="font:600 13.5px/1.2 inherit;color:#F2F4F8">어류</span><span style="font-size:12.5px;color:#94A9D5">담당 분류군 · 변경 ⌄</span></div>
+    <div style="font-size:13px;color:#D6DEEE">방류하천 · 곡교천1 (St.1) · 2026반기1차</div>
+    <div style="flex:1"></div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">🗂 자료함</div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">☁ 대기 12</div>
+    <div style="display:flex;height:50px;margin-left:8px"><div style="width:46px;display:grid;place-items:center;color:#94A9D5">—</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">▢</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">✕</div></div>
+  </div>
+
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:12px 12px 8px">
+    <div style="flex:none;height:48px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:12px;padding:0 16px">
+      <div style="font:600 14.5px/1.2 inherit">조사개황</div>
+      <div style="width:1px;height:20px;background:rgba(0,0,0,.1)"></div>
+      <div>곡교천1 <span style="color:#666">(St.1)</span></div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div>2026-05-14</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div style="color:#0072DE">36.8123, 127.0451</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div style="color:#666">조사자 3인 · 흐림</div>
+      <div style="flex:1"></div>
+      <div style="height:28px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13px">지도</div>
+      <div style="height:28px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13px">펼치기 ⌄</div>
+    </div>
+
+    <div style="flex:none;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px"><div style="font:600 15px/1.4 inherit">조사환경</div><div style="flex:1"></div><div style="font-size:13px;color:#0072DE">접기 ⌃</div></div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px">
+        <div style="display:flex;flex-direction:column;gap:4px;width:176px"><div style="font:15px/1.4 inherit;color:#444">하천형태</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;justify-content:space-between"><span>Aa-Bb 이행형</span><span style="color:#666">⌄</span></div></div>
+        <div style="display:flex;flex-direction:column;gap:4px;width:128px"><div style="font:15px/1.4 inherit;color:#444">흐름상태</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;justify-content:space-between"><span>보통</span><span style="color:#666">⌄</span></div></div>
+        <div style="display:flex;flex-direction:column;gap:4px;width:128px"><div style="font:15px/1.4 inherit;color:#444">채집도구</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;justify-content:space-between"><span>투망·족대</span><span style="color:#666">⌄</span></div></div>
+        <div style="display:flex;flex-direction:column;gap:4px;width:96px"><div style="font:15px/1.4 inherit;color:#444">유폭(m)</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px">12.4</div></div>
+        <div style="display:flex;flex-direction:column;gap:4px;width:96px"><div style="font:15px/1.4 inherit;color:#444">수심(cm)</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;color:#444">·</div></div>
+        <div style="display:flex;flex-direction:column;gap:4px;width:176px"><div style="font:15px/1.4 inherit;color:#444">조사불가 사유</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;justify-content:space-between;background:#F1F2F4;color:#9AA0A8"><span>해당 없음</span><span>⌄</span></div></div>
+        <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:264px"><div style="font:15px/1.4 inherit;color:#444">하상구성 (%) — 합계 100</div><div style="height:36px;display:flex;gap:4px">
+          <div style="flex:1;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:13px"><span style="color:#666">B</span><span>10</span></div>
+          <div style="flex:1;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:13px"><span style="color:#666">C</span><span>25</span></div>
+          <div style="flex:1;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:13px"><span style="color:#666">P</span><span>30</span></div>
+          <div style="flex:1;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:13px"><span style="color:#666">G</span><span>20</span></div>
+          <div style="flex:1;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:13px"><span style="color:#666">S</span><span>15</span></div>
+          <div style="flex:1;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:13px;color:#666"><span style="color:#666">M</span><span>·</span></div>
+        </div></div>
+      </div>
+    </div>
+
+    <div style="flex:none;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:8px"><div style="font:600 15px/1.4 inherit">건강성</div><div style="font-size:12px;color:#666">관리자 <code>SDSM_Core</code> 와 동일 계산 · 종목록 버전 2026.05</div><div style="flex:1"></div><div style="font-size:13px;color:#0072DE">접기 ⌃</div></div>
+      <div style="display:flex;gap:12px;align-items:stretch">
+        <div style="width:360px;flex:none;display:flex;align-items:center;gap:18px">
+          <div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:12px;color:#666">FAI 어류 건강성</div><div style="display:flex;align-items:baseline;gap:10px"><div style="font:700 30px/1 inherit;color:#0381FE;letter-spacing:-.5px">68.8</div><div style="padding:2px 11px;border-radius:999px;background:#0381FE;color:#000;font:600 14.5px/1.4 inherit">B</div></div></div>
+          <div style="width:1px;height:44px;background:rgba(0,0,0,.08)"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+            <div style="display:flex;gap:4px;align-items:flex-end;height:34px"><div style="flex:1;height:75%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:50%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:100%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:33%;background:#F9A825;border-radius:2px 2px 0 0"></div><div style="flex:1;height:66%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:100%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:58%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:25%;background:#F9A825;border-radius:2px 2px 0 0"></div></div>
+            <div style="font-size:12px;color:#666">M1~M8 · 낮은 항목 <b>M4 · M8</b></div>
+          </div>
+        </div>
+        <div style="width:1px;background:rgba(0,0,0,.08)"></div>
+        <div style="flex:1;display:flex;align-items:center;gap:32px">
+          <div><div style="font-size:12px;color:#666">총 종수</div><div style="font:700 30px/1.1 inherit;letter-spacing:-.5px">19</div></div>
+          <div><div style="font-size:12px;color:#666">총 개체수</div><div style="font:700 30px/1.1 inherit;letter-spacing:-.5px">382</div></div>
+          <div><div style="font-size:12px;color:#666">우점종</div><div style="font:600 19px/1.5 inherit">참갈겨니 <span style="font-size:13px;color:#666">33.5%</span></div></div>
+          <div><div style="font-size:12px;color:#666">보호종</div><div style="display:flex;align-items:baseline;gap:6px"><span style="font:700 30px/1.1 inherit;color:#0072DE">1</span><span style="font-size:13px;color:#666">가는돌고기</span></div></div>
+          <div><div style="font-size:12px;color:#666">교란종</div><div style="display:flex;align-items:baseline;gap:6px"><span style="font:700 30px/1.1 inherit;color:#C5330A">2</span><span style="font-size:13px;color:#666">배스·블루길</span></div></div>
+          <div style="flex:1"></div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:#FDF3EE;color:#992700;font-size:13px;max-width:220px;line-height:1.5">⚠ 7행 개체수 미입력 — 미입력과 0 은 다르게 저장됩니다</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:none;height:56px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 16px">
+      <div style="font:600 14.5px/1.2 inherit;margin-right:4px">빠른추가</div>
+      <div style="width:340px;height:36px;border:2px solid #0381FE;border-radius:4px;display:flex;align-items:center;padding:0 10px;gap:6px"><span style="color:#0072DE">🔍</span><span>ㅋㅈㄴ</span><span style="width:1px;height:16px;background:#0381FE"></span><span style="color:#666">초성으로 종명 검색</span></div>
+      <div style="width:96px;height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;color:#666">개체수</div>
+      <div style="height:36px;padding:0 16px;background:#0072DE;color:#fff;border-radius:4px;display:grid;place-items:center;font-weight:600">추가 ⏎</div>
+      <div style="width:1px;height:22px;background:rgba(0,0,0,.1);margin:0 4px"></div>
+      <div style="font-size:12px;color:#666">Enter 추가 후 검색창 복귀 · Ctrl+V 엑셀 다중 행 · F2 편집</div>
+      <div style="flex:1"></div>
+      <div style="font-size:12px;color:#666">접으면 그리드가 8행 늘어납니다</div>
+    </div>
+
+    <div style="flex:1;min-height:0;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="height:34px;flex:none;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;border-bottom:1px solid rgba(0,0,0,.14);font:600 14.5px/1.2 inherit;color:#333"><div>#</div><div>국명</div><div>학명</div><div style="text-align:right">개체수</div><div>내성도 길드</div><div style="text-align:right">오탁치</div><div style="text-align:right">상대풍부도</div><div>비고</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px"><div style="color:#666">1</div><div>참갈겨니</div><div style="font-style:italic;color:#555">Zacco koreanus</div><div style="text-align:right;font-variant-numeric:tabular-nums">128</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.4</div><div style="text-align:right;color:#555">33.5%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">2</div><div>피라미</div><div style="font-style:italic;color:#555">Zacco platypus</div><div style="text-align:right;font-variant-numeric:tabular-nums">86</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.1</div><div style="text-align:right;color:#555">22.5%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;box-shadow:inset 3px 0 0 #0072DE"><div style="color:#666">3</div><div style="font-weight:600;color:#0072DE">가는돌고기 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#E4F0FF;color:#0057A8">멸종위기Ⅱ</span></div><div style="font-style:italic;color:#555">Pseudopungtungia tenuicorpa</div><div style="text-align:right;font-variant-numeric:tabular-nums">4</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.0</div><div style="text-align:right;color:#555">1.0%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">4</div><div>돌고기</div><div style="font-style:italic;color:#555">Pungtungia herzi</div><div style="text-align:right;font-variant-numeric:tabular-nums">31</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="text-align:right;color:#555">8.1%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;box-shadow:inset 3px 0 0 #C5330A"><div style="color:#666">5</div><div style="font-weight:600;color:#C5330A">배스 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#FDE7DF;color:#992700">⚠ 교란종</span></div><div style="font-style:italic;color:#555">Micropterus salmoides</div><div style="text-align:right;font-variant-numeric:tabular-nums">7</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.3</div><div style="text-align:right;color:#555">1.8%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">6</div><div>붕어</div><div style="font-style:italic;color:#555">Carassius auratus</div><div style="text-align:right;font-variant-numeric:tabular-nums">12</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.0</div><div style="text-align:right;color:#555">3.1%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px"><div style="color:#666">7</div><div>버들치</div><div style="font-style:italic;color:#555">Rhynchocypris oxycephalus</div><div style="text-align:right"><span style="display:inline-block;border:2px solid #0381FE;border-radius:4px;padding:1px 7px;font-variant-numeric:tabular-nums">19</span></div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.6</div><div style="text-align:right;color:#555">5.0%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">8</div><div>밀어</div><div style="font-style:italic;color:#555">Rhinogobius brunneus</div><div style="text-align:right;font-variant-numeric:tabular-nums">41</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="text-align:right;color:#555">10.7%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px"><div style="color:#666">9</div><div>모래무지</div><div style="font-style:italic;color:#555">Pseudogobio esocinus</div><div style="text-align:right;font-variant-numeric:tabular-nums">5</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.2</div><div style="text-align:right;color:#555">1.3%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">10</div><div>참종개</div><div style="font-style:italic;color:#555">Iksookimia koreensis</div><div style="text-align:right;font-variant-numeric:tabular-nums">3</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.5</div><div style="text-align:right;color:#555">0.8%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px"><div style="color:#666">11</div><div>얼룩동사리</div><div style="font-style:italic;color:#555">Odontobutis interrupta</div><div style="text-align:right;font-variant-numeric:tabular-nums">2</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="text-align:right;color:#555">0.5%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:40px 1fr;align-items:center;padding:0 16px;color:#666">+<span style="padding-left:8px">여기에 입력하거나 위 빠른추가로 종을 추가하세요</span></div>
+      <div style="flex:1"></div>
+      <div style="height:36px;flex:none;display:grid;grid-template-columns:40px 220px 1fr 96px 128px 88px 96px 200px;align-items:center;padding:0 16px;border-top:1px solid rgba(0,0,0,.14);background:#F7F8FA;font-weight:600"><div></div><div>합계 19종</div><div></div><div style="text-align:right;font-variant-numeric:tabular-nums">382</div><div></div><div></div><div style="text-align:right">100%</div><div></div></div>
+    </div>
+  </div>
+
+  <div style="height:48px;flex:none;background:#fff;border-top:1px solid rgba(0,0,0,.12);display:flex;align-items:center;padding:0 12px;gap:8px">
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;color:#C5330A;font-size:13.5px">빈 행 정리</div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:16px;font-size:13.5px;color:#333"><div style="display:flex;align-items:center;gap:6px;color:#C5330A">⚠ 저장 안 된 변경 3건</div><div style="color:#444">🗎 14:32 저장됨</div></div>
+    <div style="width:16px"></div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">임시 저장</div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">일괄입력 엑셀</div>
+    <div style="height:32px;padding:0 14px;display:grid;place-items:center;background:#0072DE;color:#fff;border-radius:4px;font:600 13.5px/1.2 inherit">보고서 엑셀</div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="3c"><div class="dv-olabel"><a class="dv-oid" href="#3c">3c</a>첫 실행 — 담당 분류군 선택 (이후 탭 행이 사라집니다)</div>
+<div class="dv-card" style="width:1440px">
+<div style="width:1440px;height:860px;background:#F7F8FA;display:flex;flex-direction:column;font:14.5px/1.45 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#1b1b1b;overflow:hidden">
+  <div style="height:50px;flex:none;background:#1E232E;display:flex;align-items:center;padding:0 0 0 20px;gap:14px">
+    <div style="width:18px;height:18px;border-radius:4px;background:#0381FE"></div>
+    <div style="font:600 14.5px/1.2 inherit;color:#F2F4F8;letter-spacing:-.2px">삼성 DS 모니터링 야장</div>
+    <div style="font-size:12px;color:#94A9D5">v1.5.0</div>
+    <div style="flex:1"></div>
+    <div style="display:flex;height:50px"><div style="width:46px;display:grid;place-items:center;color:#94A9D5">—</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">▢</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">✕</div></div>
+  </div>
+
+  <div style="flex:1;min-height:0;display:grid;place-items:center;padding:32px">
+    <div style="width:840px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:32px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="font:600 26px/1.31 inherit;letter-spacing:-.3px">담당 분류군을 고르세요</div>
+        <div style="font-size:14.5px;color:#555;line-height:1.45">고른 분류군의 야장만 열립니다. 상단 분류군 탭은 표시되지 않고, 필요하면 캡션 바에서 언제든 바꿀 수 있습니다.</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div style="height:96px;border:2px solid #0381FE;border-radius:8px;background:#F5FAFF;padding:16px;display:flex;flex-direction:column;justify-content:space-between"><span style="width:11px;height:11px;border-radius:50%;background:#008296"></span><div><div style="font:600 19px/1.37 inherit">어류</div><div style="font-size:12px;color:#666">종 입력형 · FAI</div></div></div>
+        <div style="height:96px;border:1px solid rgba(0,0,0,.16);border-radius:8px;padding:16px;display:flex;flex-direction:column;justify-content:space-between"><span style="width:11px;height:11px;border-radius:50%;background:#651FFF"></span><div><div style="font:600 19px/1.37 inherit">저서동물</div><div style="font-size:12px;color:#666">종 입력형 · BMI</div></div></div>
+        <div style="height:96px;border:1px solid rgba(0,0,0,.16);border-radius:8px;padding:16px;display:flex;flex-direction:column;justify-content:space-between"><span style="width:11px;height:11px;border-radius:50%;background:#7B7A1C"></span><div><div style="font:600 19px/1.37 inherit">조류</div><div style="font-size:12px;color:#666">관찰형 · 2단 행</div></div></div>
+        <div style="height:96px;border:1px solid rgba(0,0,0,.16);border-radius:8px;padding:16px;display:flex;flex-direction:column;justify-content:space-between"><span style="width:11px;height:11px;border-radius:50%;background:#AA6700"></span><div><div style="font:600 19px/1.37 inherit">포유류</div><div style="font-size:12px;color:#666">관찰형 · 흔적 12칸</div></div></div>
+        <div style="height:96px;border:1px solid rgba(0,0,0,.16);border-radius:8px;padding:16px;display:flex;flex-direction:column;justify-content:space-between"><span style="width:11px;height:11px;border-radius:50%;background:#CC33FF"></span><div><div style="font:600 19px/1.37 inherit">양서파충류</div><div style="font-size:12px;color:#666">관찰형 · 2단 행</div></div></div>
+        <div style="height:96px;border:1px solid rgba(0,0,0,.16);border-radius:8px;padding:16px;display:flex;flex-direction:column;justify-content:space-between"><span style="width:11px;height:11px;border-radius:50%;background:#2979FF"></span><div><div style="font:600 19px/1.37 inherit">수질</div><div style="font-size:12px;color:#666">폼형 · 항목별 등급</div></div></div>
+        <div style="height:96px;border:1px solid rgba(0,0,0,.16);border-radius:8px;padding:16px;display:flex;flex-direction:column;justify-content:space-between"><span style="width:11px;height:11px;border-radius:50%;background:#37474F"></span><div><div style="font:600 19px/1.37 inherit">서식수변</div><div style="font-size:12px;color:#666">폼형 · 10항목 평가</div></div></div>
+        <div style="height:96px;border:1px dashed rgba(0,0,0,.2);border-radius:8px;padding:16px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#666;text-align:center;line-height:1.5">여러 분류군을 맡았다면<br>나중에 바꿀 수 있습니다</div>
+      </div>
+
+      <div style="height:1px;background:rgba(0,0,0,.08)"></div>
+
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:14.5px;color:#333"><span style="width:16px;height:16px;border:1px solid rgba(0,0,0,.45);border-radius:3px;display:grid;place-items:center;color:#0072DE;font-size:12px">✓</span>다음 실행에도 어류로 시작</div>
+        <div style="flex:1"></div>
+        <div style="height:36px;padding:0 14px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:14.5px">자료함에서 이어하기</div>
+        <div style="height:36px;padding:0 20px;display:grid;place-items:center;background:#0072DE;color:#fff;border-radius:4px;font:600 14.5px/1.2 inherit">어류 야장 열기</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">다음 시도: “<a class="dv-oid" href="#3a">3a</a> 로 확정, 저서동물 화면도 같은 방식으로” · “접기 상태를 기억하는 대신 항상 접힌 채 시작” · “<a class="dv-oid" href="#3c">3c</a> 를 지점·차수 선택까지 한 화면에” · “수질·서식수변 폼형 그리기”</p>
+</section>
+
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">하이브리드 확정안 — <a class="dv-oid" href="#1a">1a</a> 공간 + <a class="dv-oid" href="#1c">1c</a> 지수 스트립 · 노트북 1440×860 전용</span></div>
+
+<div style="max-width:1060px;margin:0 0 26px;padding:18px 20px;background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:8px;font:14.5px/1.55 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#333;display:flex;flex-direction:column;gap:10px">
+<div style="font:600 15px/1.3 inherit;color:#111">이번 라운드에서 바꾼 것 (사유: “사무실 화면에서 구형” + “입력 속도”)</div>
+<div style="display:grid;grid-template-columns:130px 1fr;gap:8px 16px;font-size:13.5px;color:#444">
+<div style="color:#777">우측 레일 제거</div><div>지수를 <b>상단 가로 스트립</b>으로 올렸습니다. 본문이 320px 넓어져 <b>학명·길드·비고가 뭉개지지 않고</b>, 관찰형에서 레일 유무로 골격이 갈리던 문제도 사라집니다(§5.2 재편 — 셸 재편 허용 답변 반영).</div>
+<div style="color:#777">구형 인상 4요소</div><div>① 서체 → Pretendard ② 회색 위 회색 → 표 머리글 무채색 제거·1px 하단선만 ③ 탭의 <code>4 4 0 0</code> 각진 파일탭 → 라운드 세그먼트 ④ 여백 불균일 → §2.1 6단계로 통일. 그림자는 플로팅 바를 <b>쓰지 않음</b>(§2.8 E0 유지).</div>
+<div style="color:#777">입력 속도</div><div>빠른추가 바를 <b>화면 최상단 고정</b>(스크롤 무관), 방금 추가된 행은 1.2초 강조, 그리드 하단에 <b>상시 합계 행</b>. 키보드 경로는 §11 그대로.</div>
+<div style="color:#777">서체 비교</div><div><a class="dv-oid" href="#2a">2a</a>=Pretendard / <a class="dv-oid" href="#2b">2b</a>=맑은 고딕, 그 외 완전히 동일합니다. ⚠ 맑은 고딕은 Windows 전용이라 이 미리보기(비-Windows 렌더링)에서는 대체 서체로 보일 수 있습니다 — <b>실기기 확인이 필요합니다.</b></div>
+</div>
+</div>
+
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a"><div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>하이브리드 · 어류 · <b>Pretendard</b></div>
+<div class="dv-card" style="width:1440px">
+<div style="width:1440px;height:860px;background:#F7F8FA;display:flex;flex-direction:column;font:14.5px/1.45 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#1b1b1b;overflow:hidden">
+  <div style="height:50px;flex:none;background:#1E232E;display:flex;align-items:center;padding:0 0 0 20px;gap:14px">
+    <div style="width:18px;height:18px;border-radius:4px;background:#0381FE"></div>
+    <div style="font:600 14.5px/1.2 inherit;color:#F2F4F8;letter-spacing:-.2px">SDSM 조사자</div>
+    <div style="font-size:12px;color:#94A9D5">v1.5.0</div>
+    <div style="width:1px;height:18px;background:#3B4457"></div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#D6DEEE"><span style="width:9px;height:9px;border-radius:50%;background:#008296"></span>방류하천 · 곡교천1 (St.1) · 2026반기1차</div>
+    <div style="flex:1"></div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">☀ 야외 모드</div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">🗂 자료함</div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">☁ 대기 12</div>
+    <div style="display:flex;height:50px;margin-left:8px"><div style="width:46px;display:grid;place-items:center;color:#94A9D5">—</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">▢</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">✕</div></div>
+  </div>
+
+  <div style="height:44px;flex:none;background:#fff;border-bottom:1px solid rgba(0,0,0,.1);display:flex;align-items:center;padding:0 12px;gap:6px">
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;background:#E4F0FF;color:#0057A8;font-weight:600"><span style="width:9px;height:9px;border-radius:50%;background:#008296"></span>어류 <span style="font-size:12px;color:#0072DE">8</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#651FFF"></span>저서동물 <span style="font-size:12px;color:#777">14</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#7B7A1C"></span>조류 <span style="font-size:12px;color:#777">21</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#AA6700"></span>포유류 <span style="font-size:12px;color:#777">3</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#CC33FF"></span>양서파충류 <span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#2979FF"></span>수질 <span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#37474F"></span>서식수변 <span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#666">세션 진행<div style="width:96px;height:6px;border-radius:3px;background:#EDEEF1"><div style="width:57%;height:6px;border-radius:3px;background:#0381FE"></div></div>4 / 7</div>
+  </div>
+
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:12px 12px 8px">
+    <div style="flex:none;height:48px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:12px;padding:0 16px">
+      <div style="font:600 14.5px/1.2 inherit">조사개황</div>
+      <div style="width:1px;height:20px;background:rgba(0,0,0,.1)"></div>
+      <div>곡교천1 <span style="color:#666">(St.1)</span></div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div>2026-05-14</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div style="color:#0072DE">36.8123, 127.0451</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div style="color:#666">조사자 3인 · 흐림</div>
+      <div style="flex:1"></div>
+      <div style="font-size:13px;color:#666">하천형태 Aa-Bb · 유폭 12.4m · 투망·족대</div>
+      <div style="height:28px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13px">지도</div>
+      <div style="height:28px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13px">펼치기 ⌄</div>
+    </div>
+
+    <div style="flex:none;display:flex;gap:12px">
+      <div style="width:392px;flex:none;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:18px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="font-size:12px;color:#666">FAI 어류 건강성</div>
+          <div style="display:flex;align-items:baseline;gap:10px"><div style="font:700 30px/1 inherit;color:#0381FE;letter-spacing:-.5px">68.8</div><div style="padding:2px 11px;border-radius:999px;background:#0381FE;color:#000;font:600 14.5px/1.4 inherit">B</div></div>
+        </div>
+        <div style="width:1px;height:44px;background:rgba(0,0,0,.08)"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;gap:4px;align-items:flex-end;height:34px">
+            <div style="flex:1;height:75%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:50%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:100%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:33%;background:#F9A825;border-radius:2px 2px 0 0"></div><div style="flex:1;height:66%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:100%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:58%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:25%;background:#F9A825;border-radius:2px 2px 0 0"></div>
+          </div>
+          <div style="font-size:12px;color:#666">M1~M8 · 낮은 항목 <b>M4 · M8</b></div>
+        </div>
+      </div>
+      <div style="flex:1;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:32px">
+        <div><div style="font-size:12px;color:#666">총 종수</div><div style="font:700 30px/1.1 inherit;letter-spacing:-.5px">8</div></div>
+        <div><div style="font-size:12px;color:#666">총 개체수</div><div style="font:700 30px/1.1 inherit;letter-spacing:-.5px">328</div></div>
+        <div><div style="font-size:12px;color:#666">우점종</div><div style="font:600 19px/1.5 inherit">참갈겨니 <span style="font-size:13px;color:#666">39.0%</span></div></div>
+        <div style="width:1px;height:44px;background:rgba(0,0,0,.08)"></div>
+        <div><div style="font-size:12px;color:#666">보호종</div><div style="display:flex;align-items:baseline;gap:6px"><span style="font:700 30px/1.1 inherit;color:#0072DE">1</span><span style="font-size:13px;color:#666">가는돌고기</span></div></div>
+        <div><div style="font-size:12px;color:#666">교란종</div><div style="display:flex;align-items:baseline;gap:6px"><span style="font:700 30px/1.1 inherit;color:#C5330A">1</span><span style="font-size:13px;color:#666">배스</span></div></div>
+        <div style="flex:1"></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:#FDF3EE;color:#992700;font-size:13px;max-width:236px;line-height:1.5">⚠ 7행 개체수 미입력 — 미입력과 0 은 다르게 저장됩니다</div>
+      </div>
+    </div>
+
+    <div style="flex:none;height:56px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 16px">
+      <div style="font:600 14.5px/1.2 inherit;margin-right:4px">빠른추가</div>
+      <div style="width:340px;height:36px;border:2px solid #0381FE;border-radius:4px;display:flex;align-items:center;padding:0 10px;gap:6px"><span style="color:#0072DE">🔍</span><span>ㅋㅈㄴ</span><span style="width:1px;height:16px;background:#0381FE"></span><span style="color:#666">초성으로 종명 검색</span></div>
+      <div style="width:96px;height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;color:#666">개체수</div>
+      <div style="height:36px;padding:0 16px;background:#0072DE;color:#fff;border-radius:4px;display:grid;place-items:center;font-weight:600">추가 ⏎</div>
+      <div style="width:1px;height:22px;background:rgba(0,0,0,.1);margin:0 4px"></div>
+      <div style="font-size:12px;color:#666;line-height:1.5">Enter 추가 후 검색창 복귀 · Ctrl+V 엑셀 다중 행 · F2 편집 · Enter 아래 행</div>
+      <div style="flex:1"></div>
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;background:#E4F0FF;color:#0057A8;font-size:12.5px">방금 추가 · 밀어 41</div>
+    </div>
+
+    <div style="flex:1;min-height:0;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="height:34px;flex:none;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;border-bottom:1px solid rgba(0,0,0,.14);font:600 14.5px/1.2 inherit;color:#333"><div>#</div><div>국명</div><div>학명</div><div style="text-align:right">개체수</div><div>내성도 길드</div><div style="text-align:right">오탁치</div><div style="text-align:right">상대풍부도</div><div>비고</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px"><div style="color:#666">1</div><div>참갈겨니</div><div style="font-style:italic;color:#555">Zacco koreanus</div><div style="text-align:right;font-variant-numeric:tabular-nums">128</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.4</div><div style="text-align:right;color:#555">39.0%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">2</div><div>피라미</div><div style="font-style:italic;color:#555">Zacco platypus</div><div style="text-align:right;font-variant-numeric:tabular-nums">86</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.1</div><div style="text-align:right;color:#555">26.2%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;box-shadow:inset 3px 0 0 #0072DE"><div style="color:#666">3</div><div style="font-weight:600;color:#0072DE">가는돌고기 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#E4F0FF;color:#0057A8">멸종위기Ⅱ</span></div><div style="font-style:italic;color:#555">Pseudopungtungia tenuicorpa</div><div style="text-align:right;font-variant-numeric:tabular-nums">4</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.0</div><div style="text-align:right;color:#555">1.2%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">4</div><div>돌고기</div><div style="font-style:italic;color:#555">Pungtungia herzi</div><div style="text-align:right;font-variant-numeric:tabular-nums">31</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="text-align:right;color:#555">9.5%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;box-shadow:inset 3px 0 0 #C5330A"><div style="color:#666">5</div><div style="font-weight:600;color:#C5330A">배스 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#FDE7DF;color:#992700">⚠ 교란종</span></div><div style="font-style:italic;color:#555">Micropterus salmoides</div><div style="text-align:right;font-variant-numeric:tabular-nums">7</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.3</div><div style="text-align:right;color:#555">2.1%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">6</div><div>붕어</div><div style="font-style:italic;color:#555">Carassius auratus</div><div style="text-align:right;font-variant-numeric:tabular-nums">12</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.0</div><div style="text-align:right;color:#555">3.7%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px"><div style="color:#666">7</div><div>버들치</div><div style="font-style:italic;color:#555">Rhynchocypris oxycephalus</div><div style="text-align:right"><span style="display:inline-block;border:2px solid #0381FE;border-radius:4px;padding:1px 7px;font-variant-numeric:tabular-nums">19</span></div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.6</div><div style="text-align:right;color:#555">5.8%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;background:#E4F0FF"><div style="color:#0057A8">8</div><div>밀어</div><div style="font-style:italic;color:#555">Rhinogobius brunneus</div><div style="text-align:right;font-variant-numeric:tabular-nums">41</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="text-align:right;color:#555">12.5%</div><div style="color:#0057A8;font-size:13px">방금 추가</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 1fr;align-items:center;padding:0 16px;color:#666">+<span style="padding-left:8px">여기에 입력하거나 위 빠른추가로 종을 추가하세요</span></div>
+      <div style="flex:1"></div>
+      <div style="height:36px;flex:none;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;border-top:1px solid rgba(0,0,0,.14);background:#F7F8FA;font-weight:600"><div></div><div>합계 8종</div><div></div><div style="text-align:right;font-variant-numeric:tabular-nums">328</div><div></div><div></div><div style="text-align:right">100%</div><div></div></div>
+    </div>
+  </div>
+
+  <div style="height:48px;flex:none;background:#fff;border-top:1px solid rgba(0,0,0,.12);display:flex;align-items:center;padding:0 12px;gap:8px">
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;color:#C5330A;font-size:13.5px">빈 행 정리</div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:16px;font-size:13.5px;color:#333">
+      <div style="display:flex;align-items:center;gap:6px;color:#C5330A">⚠ 저장 안 된 변경 3건</div>
+      <div style="display:flex;align-items:center;gap:6px;color:#444">🗎 14:32 저장됨</div>
+    </div>
+    <div style="width:16px"></div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">임시 저장</div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">일괄입력 엑셀</div>
+    <div style="height:32px;padding:0 14px;display:grid;place-items:center;background:#0072DE;color:#fff;border-radius:4px;font:600 13.5px/1.2 inherit">보고서 엑셀</div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="2b"><div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>동일 화면 · <b>맑은 고딕</b>(현행 서체) — 서체만 다름</div>
+<div class="dv-card" style="width:1440px">
+<div style="width:1440px;height:860px;background:#F7F8FA;display:flex;flex-direction:column;font:14.5px/1.45 'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;color:#1b1b1b;overflow:hidden">
+  <div style="height:50px;flex:none;background:#1E232E;display:flex;align-items:center;padding:0 0 0 20px;gap:14px">
+    <div style="width:18px;height:18px;border-radius:4px;background:#0381FE"></div>
+    <div style="font:600 14.5px/1.2 inherit;color:#F2F4F8">SDSM 조사자</div>
+    <div style="font-size:12px;color:#94A9D5">v1.5.0</div>
+    <div style="width:1px;height:18px;background:#3B4457"></div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#D6DEEE"><span style="width:9px;height:9px;border-radius:50%;background:#008296"></span>방류하천 · 곡교천1 (St.1) · 2026반기1차</div>
+    <div style="flex:1"></div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">☀ 야외 모드</div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">🗂 자료함</div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">☁ 대기 12</div>
+    <div style="display:flex;height:50px;margin-left:8px"><div style="width:46px;display:grid;place-items:center;color:#94A9D5">—</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">▢</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">✕</div></div>
+  </div>
+
+  <div style="height:44px;flex:none;background:#fff;border-bottom:1px solid rgba(0,0,0,.1);display:flex;align-items:center;padding:0 12px;gap:6px">
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;background:#E4F0FF;color:#0057A8;font-weight:600"><span style="width:9px;height:9px;border-radius:50%;background:#008296"></span>어류 <span style="font-size:12px;color:#0072DE">8</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#651FFF"></span>저서동물 <span style="font-size:12px;color:#777">14</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#7B7A1C"></span>조류 <span style="font-size:12px;color:#777">21</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#AA6700"></span>포유류 <span style="font-size:12px;color:#777">3</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#CC33FF"></span>양서파충류 <span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#2979FF"></span>수질 <span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#37474F"></span>서식수변 <span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#666">세션 진행<div style="width:96px;height:6px;border-radius:3px;background:#EDEEF1"><div style="width:57%;height:6px;border-radius:3px;background:#0381FE"></div></div>4 / 7</div>
+  </div>
+
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:12px 12px 8px">
+    <div style="flex:none;height:48px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:12px;padding:0 16px">
+      <div style="font:600 14.5px/1.2 inherit">조사개황</div>
+      <div style="width:1px;height:20px;background:rgba(0,0,0,.1)"></div>
+      <div>곡교천1 <span style="color:#666">(St.1)</span></div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div>2026-05-14</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div style="color:#0072DE">36.8123, 127.0451</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div style="color:#666">조사자 3인 · 흐림</div>
+      <div style="flex:1"></div>
+      <div style="font-size:13px;color:#666">하천형태 Aa-Bb · 유폭 12.4m · 투망·족대</div>
+      <div style="height:28px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13px">지도</div>
+      <div style="height:28px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13px">펼치기 ⌄</div>
+    </div>
+
+    <div style="flex:none;display:flex;gap:12px">
+      <div style="width:392px;flex:none;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:18px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="font-size:12px;color:#666">FAI 어류 건강성</div>
+          <div style="display:flex;align-items:baseline;gap:10px"><div style="font:700 30px/1 inherit;color:#0381FE">68.8</div><div style="padding:2px 11px;border-radius:999px;background:#0381FE;color:#000;font:600 14.5px/1.4 inherit">B</div></div>
+        </div>
+        <div style="width:1px;height:44px;background:rgba(0,0,0,.08)"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;gap:4px;align-items:flex-end;height:34px">
+            <div style="flex:1;height:75%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:50%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:100%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:33%;background:#F9A825;border-radius:2px 2px 0 0"></div><div style="flex:1;height:66%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:100%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:58%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:25%;background:#F9A825;border-radius:2px 2px 0 0"></div>
+          </div>
+          <div style="font-size:12px;color:#666">M1~M8 · 낮은 항목 <b>M4 · M8</b></div>
+        </div>
+      </div>
+      <div style="flex:1;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:32px">
+        <div><div style="font-size:12px;color:#666">총 종수</div><div style="font:700 30px/1.1 inherit">8</div></div>
+        <div><div style="font-size:12px;color:#666">총 개체수</div><div style="font:700 30px/1.1 inherit">328</div></div>
+        <div><div style="font-size:12px;color:#666">우점종</div><div style="font:600 19px/1.5 inherit">참갈겨니 <span style="font-size:13px;color:#666">39.0%</span></div></div>
+        <div style="width:1px;height:44px;background:rgba(0,0,0,.08)"></div>
+        <div><div style="font-size:12px;color:#666">보호종</div><div style="display:flex;align-items:baseline;gap:6px"><span style="font:700 30px/1.1 inherit;color:#0072DE">1</span><span style="font-size:13px;color:#666">가는돌고기</span></div></div>
+        <div><div style="font-size:12px;color:#666">교란종</div><div style="display:flex;align-items:baseline;gap:6px"><span style="font:700 30px/1.1 inherit;color:#C5330A">1</span><span style="font-size:13px;color:#666">배스</span></div></div>
+        <div style="flex:1"></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;background:#FDF3EE;color:#992700;font-size:13px;max-width:236px;line-height:1.5">⚠ 7행 개체수 미입력 — 미입력과 0 은 다르게 저장됩니다</div>
+      </div>
+    </div>
+
+    <div style="flex:none;height:56px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 16px">
+      <div style="font:600 14.5px/1.2 inherit;margin-right:4px">빠른추가</div>
+      <div style="width:340px;height:36px;border:2px solid #0381FE;border-radius:4px;display:flex;align-items:center;padding:0 10px;gap:6px"><span style="color:#0072DE">🔍</span><span>ㅋㅈㄴ</span><span style="width:1px;height:16px;background:#0381FE"></span><span style="color:#666">초성으로 종명 검색</span></div>
+      <div style="width:96px;height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;color:#666">개체수</div>
+      <div style="height:36px;padding:0 16px;background:#0072DE;color:#fff;border-radius:4px;display:grid;place-items:center;font-weight:600">추가 ⏎</div>
+      <div style="width:1px;height:22px;background:rgba(0,0,0,.1);margin:0 4px"></div>
+      <div style="font-size:12px;color:#666;line-height:1.5">Enter 추가 후 검색창 복귀 · Ctrl+V 엑셀 다중 행 · F2 편집 · Enter 아래 행</div>
+      <div style="flex:1"></div>
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;background:#E4F0FF;color:#0057A8;font-size:12.5px">방금 추가 · 밀어 41</div>
+    </div>
+
+    <div style="flex:1;min-height:0;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="height:34px;flex:none;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;border-bottom:1px solid rgba(0,0,0,.14);font:600 14.5px/1.2 inherit;color:#333"><div>#</div><div>국명</div><div>학명</div><div style="text-align:right">개체수</div><div>내성도 길드</div><div style="text-align:right">오탁치</div><div style="text-align:right">상대풍부도</div><div>비고</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px"><div style="color:#666">1</div><div>참갈겨니</div><div style="font-style:italic;color:#555">Zacco koreanus</div><div style="text-align:right">128</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.4</div><div style="text-align:right;color:#555">39.0%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">2</div><div>피라미</div><div style="font-style:italic;color:#555">Zacco platypus</div><div style="text-align:right">86</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.1</div><div style="text-align:right;color:#555">26.2%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;box-shadow:inset 3px 0 0 #0072DE"><div style="color:#666">3</div><div style="font-weight:600;color:#0072DE">가는돌고기 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#E4F0FF;color:#0057A8">멸종위기Ⅱ</span></div><div style="font-style:italic;color:#555">Pseudopungtungia tenuicorpa</div><div style="text-align:right">4</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.0</div><div style="text-align:right;color:#555">1.2%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">4</div><div>돌고기</div><div style="font-style:italic;color:#555">Pungtungia herzi</div><div style="text-align:right">31</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="text-align:right;color:#555">9.5%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;box-shadow:inset 3px 0 0 #C5330A"><div style="color:#666">5</div><div style="font-weight:600;color:#C5330A">배스 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#FDE7DF;color:#992700">⚠ 교란종</span></div><div style="font-style:italic;color:#555">Micropterus salmoides</div><div style="text-align:right">7</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.3</div><div style="text-align:right;color:#555">2.1%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">6</div><div>붕어</div><div style="font-style:italic;color:#555">Carassius auratus</div><div style="text-align:right">12</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.0</div><div style="text-align:right;color:#555">3.7%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px"><div style="color:#666">7</div><div>버들치</div><div style="font-style:italic;color:#555">Rhynchocypris oxycephalus</div><div style="text-align:right"><span style="display:inline-block;border:2px solid #0381FE;border-radius:4px;padding:1px 7px">19</span></div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.6</div><div style="text-align:right;color:#555">5.8%</div><div style="color:#444">·</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;background:#E4F0FF"><div style="color:#0057A8">8</div><div>밀어</div><div style="font-style:italic;color:#555">Rhinogobius brunneus</div><div style="text-align:right">41</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="text-align:right;color:#555">12.5%</div><div style="color:#0057A8;font-size:13px">방금 추가</div></div>
+      <div style="height:34px;display:grid;grid-template-columns:44px 1fr;align-items:center;padding:0 16px;color:#666">+<span style="padding-left:8px">여기에 입력하거나 위 빠른추가로 종을 추가하세요</span></div>
+      <div style="flex:1"></div>
+      <div style="height:36px;flex:none;display:grid;grid-template-columns:44px 200px 1fr 96px 128px 96px 96px 1fr;align-items:center;padding:0 16px;border-top:1px solid rgba(0,0,0,.14);background:#F7F8FA;font-weight:600"><div></div><div>합계 8종</div><div></div><div style="text-align:right">328</div><div></div><div></div><div style="text-align:right">100%</div><div></div></div>
+    </div>
+  </div>
+
+  <div style="height:48px;flex:none;background:#fff;border-top:1px solid rgba(0,0,0,.12);display:flex;align-items:center;padding:0 12px;gap:8px">
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;color:#C5330A;font-size:13.5px">빈 행 정리</div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:16px;font-size:13.5px;color:#333"><div style="display:flex;align-items:center;gap:6px;color:#C5330A">⚠ 저장 안 된 변경 3건</div><div style="color:#444">🗎 14:32 저장됨</div></div>
+    <div style="width:16px"></div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">임시 저장</div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">일괄입력 엑셀</div>
+    <div style="height:32px;padding:0 14px;display:grid;place-items:center;background:#0072DE;color:#fff;border-radius:4px;font:600 13.5px/1.2 inherit">보고서 엑셀</div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="2c"><div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>같은 골격 · <b>조류 관찰형 2단 행</b> — 레일 없음, 1행 고정폭 합 992px</div>
+<div class="dv-card" style="width:1440px">
+<div style="width:1440px;height:860px;background:#F7F8FA;display:flex;flex-direction:column;font:14.5px/1.45 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#1b1b1b;overflow:hidden">
+  <div style="height:50px;flex:none;background:#1E232E;display:flex;align-items:center;padding:0 0 0 20px;gap:14px">
+    <div style="width:18px;height:18px;border-radius:4px;background:#0381FE"></div>
+    <div style="font:600 14.5px/1.2 inherit;color:#F2F4F8">SDSM 조사자</div>
+    <div style="font-size:12px;color:#94A9D5">v1.5.0</div>
+    <div style="width:1px;height:18px;background:#3B4457"></div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#D6DEEE"><span style="width:9px;height:9px;border-radius:50%;background:#7B7A1C"></span>방류하천 · 곡교천1 (St.1) · 2026반기1차</div>
+    <div style="flex:1"></div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">☀ 야외 모드</div>
+    <div style="height:30px;padding:0 12px;display:flex;align-items:center;gap:7px;border:1px solid #4A5464;border-radius:999px;font-size:12.5px;color:#D6DEEE">🗂 자료함</div>
+    <div style="display:flex;height:50px;margin-left:8px"><div style="width:46px;display:grid;place-items:center;color:#94A9D5">—</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">▢</div><div style="width:46px;display:grid;place-items:center;color:#94A9D5">✕</div></div>
+  </div>
+
+  <div style="height:44px;flex:none;background:#fff;border-bottom:1px solid rgba(0,0,0,.1);display:flex;align-items:center;padding:0 12px;gap:6px">
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#008296"></span>어류 <span style="font-size:12px;color:#777">8</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#651FFF"></span>저서동물 <span style="font-size:12px;color:#777">14</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;background:#F2F2E6;color:#4A4910;font-weight:600"><span style="width:9px;height:9px;border-radius:50%;background:#7B7A1C"></span>조류 <span style="font-size:12px;color:#5F5E15">21</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#AA6700"></span>포유류 <span style="font-size:12px;color:#777">3</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#CC33FF"></span>양서파충류 <span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#2979FF"></span>수질 <span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="height:32px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:999px;color:#333"><span style="width:9px;height:9px;border-radius:50%;background:#37474F"></span>서식수변 <span style="font-size:12px;color:#9AA0A8">·</span></div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#666">세션 진행<div style="width:96px;height:6px;border-radius:3px;background:#EDEEF1"><div style="width:57%;height:6px;border-radius:3px;background:#0381FE"></div></div>4 / 7</div>
+  </div>
+
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:12px 12px 8px">
+    <div style="flex:none;height:48px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:12px;padding:0 16px">
+      <div style="font:600 14.5px/1.2 inherit">조사개황</div>
+      <div style="width:1px;height:20px;background:rgba(0,0,0,.1)"></div>
+      <div>곡교천1 <span style="color:#666">(St.1)</span></div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div>2026-05-14 05:40~08:20</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div style="color:#666">조사자 2인 · 맑음 · 풍속 1.2m/s</div>
+      <div style="flex:1"></div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;padding:4px 10px;border-radius:999px;background:#F7F8FA;color:#444">ⓘ 관리자 조류 자료에는 대권역·중권역이 없습니다</div>
+      <div style="height:28px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13px">펼치기 ⌄</div>
+    </div>
+
+    <div style="flex:none;height:56px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 16px">
+      <div style="font:600 14.5px/1.2 inherit;margin-right:4px">빠른추가</div>
+      <div style="width:340px;height:36px;border:2px solid #0381FE;border-radius:4px;display:flex;align-items:center;padding:0 10px;gap:6px"><span style="color:#0072DE">🔍</span><span>ㄱㄹㄱ</span><span style="width:1px;height:16px;background:#0381FE"></span><span style="color:#666">국가생물종목록 기준</span></div>
+      <div style="width:96px;height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;color:#666">개체수</div>
+      <div style="height:36px;padding:0 16px;background:#0072DE;color:#fff;border-radius:4px;display:grid;place-items:center;font-weight:600">추가 ⏎</div>
+      <div style="width:1px;height:22px;background:rgba(0,0,0,.1);margin:0 4px"></div>
+      <div style="font-size:12px;color:#666;line-height:1.5">학명·목·과는 자동 입력되며 <b>잠기지 않습니다</b> — 덮어쓸 수 있습니다</div>
+      <div style="flex:1"></div>
+      <div style="font-size:12px;color:#666">Tab: 1행 전체 → 2행 → 다음 행</div>
+    </div>
+
+    <div style="flex:1;min-height:0;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="height:34px;flex:none;display:grid;grid-template-columns:40px 168px 200px 104px 104px 72px 72px 132px 1fr;align-items:center;padding:0 16px;border-bottom:1px solid rgba(0,0,0,.14);font:600 14.5px/1.2 inherit;color:#333">
+        <div>#</div><div>국명</div><div>학명</div><div>목</div><div>과</div><div style="text-align:right">개체수</div><div style="text-align:right">합계</div><div>좌표</div><div>특징 · 특이사항</div>
+      </div>
+
+      <div style="border-bottom:1px solid rgba(0,0,0,.08)">
+        <div style="height:34px;display:grid;grid-template-columns:40px 168px 200px 104px 104px 72px 72px 132px 1fr;align-items:center;padding:0 16px"><div style="color:#666">1</div><div>흰뺨검둥오리</div><div style="font-style:italic;color:#555">Anas zonorhyncha</div><div style="color:#555">기러기목</div><div style="color:#555">오리과</div><div style="text-align:right;font-variant-numeric:tabular-nums">24</div><div style="text-align:right;color:#666;background:#F7F8FA;height:34px;line-height:34px;padding-right:6px">24</div><div style="color:#555;font-size:13px">36.812 127.045</div><div style="color:#444">·</div></div>
+        <div style="height:30px;display:grid;grid-template-columns:40px 1fr;align-items:center;padding:0 16px;background:#F5F6F8;font-size:13px">
+          <div style="color:#bbb">↳</div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="color:#666">도래유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">텃새</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">대항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">수면성</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">세부항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">개방수면</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">서식유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">하천</span></div>
+        </div>
+      </div>
+
+      <div style="border-bottom:1px solid rgba(0,0,0,.08)">
+        <div style="height:34px;display:grid;grid-template-columns:40px 168px 200px 104px 104px 72px 72px 132px 1fr;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">2</div><div>쇠백로</div><div style="font-style:italic;color:#555">Egretta garzetta</div><div style="color:#555">사다새목</div><div style="color:#555">백로과</div><div style="text-align:right;font-variant-numeric:tabular-nums">6</div><div style="text-align:right;color:#666;background:#F1F2F4;height:34px;line-height:34px;padding-right:6px">6</div><div style="color:#555;font-size:13px">36.813 127.046</div><div style="color:#444">·</div></div>
+        <div style="height:30px;display:grid;grid-template-columns:40px 1fr;align-items:center;padding:0 16px;background:#F5F6F8;font-size:13px"><div style="color:#bbb">↳</div><div style="display:flex;align-items:center;gap:10px"><span style="color:#666">도래유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">여름철새</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">대항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">수변성</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">세부항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">얕은수변</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">서식유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">하천</span></div></div>
+      </div>
+
+      <div style="border-bottom:1px solid rgba(0,0,0,.08);box-shadow:inset 3px 0 0 #0072DE">
+        <div style="height:34px;display:grid;grid-template-columns:40px 168px 200px 104px 104px 72px 72px 132px 1fr;align-items:center;padding:0 16px"><div style="color:#666">3</div><div style="font-weight:600;color:#0072DE">흰꼬리수리 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#E4F0FF;color:#0057A8">멸종위기Ⅰ</span></div><div style="font-style:italic;color:#555">Haliaeetus albicilla</div><div style="color:#555">매목</div><div style="color:#555">수리과</div><div style="text-align:right;font-variant-numeric:tabular-nums">1</div><div style="text-align:right;color:#666;background:#F7F8FA;height:34px;line-height:34px;padding-right:6px">1</div><div style="color:#555;font-size:13px">36.815 127.049</div><div style="color:#555">상공 선회 1회</div></div>
+        <div style="height:30px;display:grid;grid-template-columns:40px 1fr;align-items:center;padding:0 16px;background:#F5F6F8;font-size:13px"><div style="color:#bbb">↳</div><div style="display:flex;align-items:center;gap:10px"><span style="color:#666">도래유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">겨울철새</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">대항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">산림성</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">세부항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16);color:#666">·</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">서식유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">하천</span></div></div>
+      </div>
+
+      <div style="border-bottom:1px solid rgba(0,0,0,.08)">
+        <div style="height:34px;display:grid;grid-template-columns:40px 168px 200px 104px 104px 72px 72px 132px 1fr;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">4</div><div>참새</div><div style="font-style:italic;color:#555">Passer montanus</div><div style="color:#555">참새목</div><div style="color:#555">참새과</div><div style="text-align:right"><span style="display:inline-block;border:2px solid #0381FE;border-radius:4px;padding:1px 7px;font-variant-numeric:tabular-nums">38</span></div><div style="text-align:right;color:#666;background:#F1F2F4;height:34px;line-height:34px;padding-right:6px">38</div><div style="color:#555;font-size:13px">36.812 127.044</div><div style="color:#444">·</div></div>
+        <div style="height:30px;display:grid;grid-template-columns:40px 1fr;align-items:center;padding:0 16px;background:#F5F6F8;font-size:13px"><div style="color:#bbb">↳</div><div style="display:flex;align-items:center;gap:10px"><span style="color:#666">도래유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">텃새</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">대항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">인가주변</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">세부항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">경작지</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">서식유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">농경지</span></div></div>
+      </div>
+
+      <div style="border-bottom:1px solid rgba(0,0,0,.08);box-shadow:inset 3px 0 0 #C5330A">
+        <div style="height:34px;display:grid;grid-template-columns:40px 168px 200px 104px 104px 72px 72px 132px 1fr;align-items:center;padding:0 16px"><div style="color:#666">5</div><div style="font-weight:600;color:#C5330A">집비둘기 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#FDE7DF;color:#992700">⚠ 유해야생동물</span></div><div style="font-style:italic;color:#555">Columba livia</div><div style="color:#555">비둘기목</div><div style="color:#555">비둘기과</div><div style="text-align:right;font-variant-numeric:tabular-nums">2</div><div style="text-align:right;color:#666;background:#F7F8FA;height:34px;line-height:34px;padding-right:6px">2</div><div style="color:#555;font-size:13px">36.814 127.047</div><div style="color:#555">전선 정지</div></div>
+        <div style="height:30px;display:grid;grid-template-columns:40px 1fr;align-items:center;padding:0 16px;background:#F5F6F8;font-size:13px"><div style="color:#bbb">↳</div><div style="display:flex;align-items:center;gap:10px"><span style="color:#666">도래유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">미확인</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">대항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">인가주변</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">세부항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">시가지</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">서식유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">기타</span></div></div>
+      </div>
+
+      <div style="border-bottom:1px solid rgba(0,0,0,.08)">
+        <div style="height:34px;display:grid;grid-template-columns:40px 168px 200px 104px 104px 72px 72px 132px 1fr;align-items:center;padding:0 16px;background:#FAFBFC"><div style="color:#666">6</div><div>물총새</div><div style="font-style:italic;color:#555">Alcedo atthis</div><div style="color:#555">파랑새목</div><div style="color:#555">물총새과</div><div style="text-align:right;font-variant-numeric:tabular-nums">3</div><div style="text-align:right;color:#666;background:#F1F2F4;height:34px;line-height:34px;padding-right:6px">3</div><div style="color:#555;font-size:13px">36.813 127.045</div><div style="color:#444">·</div></div>
+        <div style="height:30px;display:grid;grid-template-columns:40px 1fr;align-items:center;padding:0 16px;background:#F5F6F8;font-size:13px"><div style="color:#bbb">↳</div><div style="display:flex;align-items:center;gap:10px"><span style="color:#666">도래유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">여름철새</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">대항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">수변성</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">세부항목</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">호안</span><span style="color:rgba(0,0,0,.15)">│</span><span style="color:#666">서식유형</span><span style="padding:2px 8px;border-radius:4px;background:#fff;border:1px solid rgba(0,0,0,.16)">하천</span></div></div>
+      </div>
+
+      <div style="height:34px;display:grid;grid-template-columns:40px 1fr;align-items:center;padding:0 16px;color:#666">+<span style="padding-left:8px">여기에 입력하면 새 행이 추가됩니다 (2행이 함께 생깁니다)</span></div>
+      <div style="flex:1"></div>
+      <div style="height:36px;flex:none;display:grid;grid-template-columns:40px 168px 200px 104px 104px 72px 72px 132px 1fr;align-items:center;padding:0 16px;border-top:1px solid rgba(0,0,0,.14);background:#F7F8FA;font-weight:600"><div></div><div>합계 6종</div><div></div><div></div><div></div><div style="text-align:right;font-variant-numeric:tabular-nums">74</div><div></div><div></div><div style="font-weight:400;font-size:13px;color:#666">보호종 1 · 유해야생동물 1 · 좌표 미입력 0건</div></div>
+    </div>
+  </div>
+
+  <div style="height:48px;flex:none;background:#fff;border-top:1px solid rgba(0,0,0,.12);display:flex;align-items:center;padding:0 12px;gap:8px">
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;color:#C5330A;font-size:13.5px">빈 행 정리</div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:16px;font-size:13.5px;color:#333"><div>총 <b>6</b>종 · <b>74</b>개체</div><div style="color:#444">🗎 14:41 저장됨</div></div>
+    <div style="width:16px"></div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">임시 저장</div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">일괄입력 엑셀</div>
+    <div style="height:32px;padding:0 14px;display:grid;place-items:center;background:#0072DE;color:#fff;border-radius:4px;font:600 13.5px/1.2 inherit">보고서 엑셀</div>
+  </div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">다음 시도: “<a class="dv-oid" href="#2a">2a</a> 로 확정, 수질·서식수변 폼형도 그려줘” · “<a class="dv-oid" href="#2c">2c</a> 2행을 칩 대신 드롭다운으로” · “<a class="dv-oid" href="#2a">2a</a> 조사개황 펼친 상태 + 대분류 격리 경고” · “탭을 더 절제된 형태로”</p>
+</section>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">조사자 앱 · 어류(패턴 A 종입력형) 화면 시안 3종 — 1440×860</span></div>
+
+<div style="max-width:1060px;margin:0 0 26px;padding:18px 20px;background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:8px;font:14.5px/1.55 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#333;display:flex;flex-direction:column;gap:12px">
+<div style="font:600 15px/1.3 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#111">전제 · 근거 (확인 부탁드립니다)</div>
+<div style="display:grid;grid-template-columns:110px 1fr;gap:8px 16px;font-size:13.5px;color:#444">
+<div style="color:#777">기준 문서</div><div><code>design.md</code> 토큰 전부 준수 — 간격 6단계, 입력 36, 탭 44, 행 34, 본문 최대폭 1240, 코너 4/8, 그림자 없음. 열 폭·대비 규칙도 그대로.</div>
+<div style="color:#777">브랜드</div><div>삼성 로고·브랜드 남색·SamsungOne / One UI 서체는 <b>사용하지 않음</b>. "삼성다움"은 제품 UI 계열 파랑(<code>#0381FE</code>), 절제된 여백, 카드형 정보 구조, 접근성 준수로만 표현.</div>
+<div style="color:#777">서체</div><div>세 시안 모두 <b>Pretendard</b>(SIL OFL, 브랜드 자산 아님)로 그렸습니다. 맑은 고딕 14.5px의 뭉침이 "구형 인상"의 1차 원인이라 판단 — <code>design.md</code> §4 검토 항목의 실물 확인용입니다.</div>
+<div style="color:#777">화면</div><div>7개 분류군 중 <b>어류</b> 1개만 그렸습니다. 방향이 정해지면 패턴 B(관찰형 2단 행)·C(폼형)로 확장합니다.</div>
+<div style="color:#777">최신성</div><div>구형 인상의 원인을 ① 서체 ② 2px+ 테두리·그라디언트 ③ 회색 위 회색(정보 위계 없음) ④ 여백 불균일로 봤고, 세 시안은 이 넷을 서로 다른 강도로 걷어냅니다.</div>
+</div>
+</div>
+
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a"><div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>정통 계승형 — 현행 골격 유지, 서체·대비·여백만 정제 (가장 안전, 개발량 최소)</div>
+<div class="dv-card" style="width:1440px">
+<div style="width:1440px;height:860px;background:#F7F8FA;display:flex;flex-direction:column;font:14.5px/1.45 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#1b1b1b;overflow:hidden">
+  <div style="height:50px;flex:none;background:#1E232E;display:flex;align-items:center;padding:0 0 0 20px;gap:14px">
+    <div style="width:18px;height:18px;border-radius:4px;background:#0381FE"></div>
+    <div style="font:600 14.5px/1.2 inherit;color:#F2F4F8;letter-spacing:-.2px">SDSM 조사자</div>
+    <div style="font:12px/1.5 inherit;color:#94A9D5">v1.4.2</div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:8px;padding:0 20px;font:12px/1.5 inherit;color:#94A9D5">
+      <span style="width:7px;height:7px;border-radius:50%;background:#2E7D32"></span>오프라인 저장 중
+    </div>
+    <div style="display:flex;height:50px">
+      <div style="width:46px;display:grid;place-items:center;color:#94A9D5">—</div>
+      <div style="width:46px;display:grid;place-items:center;color:#94A9D5">▢</div>
+      <div style="width:46px;display:grid;place-items:center;color:#94A9D5">✕</div>
+    </div>
+  </div>
+
+  <div style="height:44px;flex:none;background:#E9EBEE;display:flex;align-items:stretch;padding:0 12px;gap:2px">
+    <div style="display:flex;align-items:center;gap:8px;padding:0 18px;background:#fff;border-top:3px solid #0381FE;font-weight:600"><span style="width:9px;height:9px;border-radius:50%;background:#008296"></span>어류</div>
+    <div style="display:flex;align-items:center;gap:8px;padding:0 18px;color:#444"><span style="width:9px;height:9px;border-radius:50%;background:#651FFF"></span>저서동물</div>
+    <div style="display:flex;align-items:center;gap:8px;padding:0 18px;color:#444"><span style="width:9px;height:9px;border-radius:50%;background:#7B7A1C"></span>조류</div>
+    <div style="display:flex;align-items:center;gap:8px;padding:0 18px;color:#444"><span style="width:9px;height:9px;border-radius:50%;background:#AA6700"></span>포유류</div>
+    <div style="display:flex;align-items:center;gap:8px;padding:0 18px;color:#444"><span style="width:9px;height:9px;border-radius:50%;background:#CC33FF"></span>양서파충류</div>
+    <div style="display:flex;align-items:center;gap:8px;padding:0 18px;color:#444"><span style="width:9px;height:9px;border-radius:50%;background:#2979FF"></span>수질</div>
+    <div style="display:flex;align-items:center;gap:8px;padding:0 18px;color:#444"><span style="width:9px;height:9px;border-radius:50%;background:#37474F"></span>서식수변</div>
+  </div>
+
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:16px;padding:12px 12px 8px">
+    <div style="flex:none;height:48px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:12px;padding:0 16px">
+      <div style="font:600 14.5px/1.2 inherit">조사개황</div>
+      <div style="width:1px;height:20px;background:rgba(0,0,0,.1)"></div>
+      <div style="display:flex;align-items:center;gap:8px;color:#444"><span style="width:9px;height:9px;border-radius:50%;background:#008296"></span>방류하천</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div>곡교천1 <span style="color:#666">(St.1)</span></div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div>2026반기1차</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div>05-14</div>
+      <div style="color:rgba(0,0,0,.2)">│</div><div style="color:#0072DE">36.8123, 127.0451</div>
+      <div style="flex:1"></div>
+      <div style="height:28px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13px;color:#333">지도</div>
+      <div style="height:28px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13px;color:#333">펼치기 ⌄</div>
+    </div>
+
+    <div style="flex:1;min-height:0;display:flex;gap:16px">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px">
+        <div style="flex:none;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font:600 15px/1.3 inherit">조사환경</div>
+            <div style="font-size:12px;color:#666">하천형태 · 하상구성 8종 · 흐름상태 · 채집도구</div>
+            <div style="flex:1"></div><div style="font-size:13px;color:#0072DE">접기 ⌃</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:4px;width:176px"><div style="font:15px/1.4 inherit;color:#444">하천형태</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;justify-content:space-between"><span>Aa-Bb 이행형</span><span style="color:#666">⌄</span></div></div>
+            <div style="display:flex;flex-direction:column;gap:4px;width:128px"><div style="font:15px/1.4 inherit;color:#444">흐름상태</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;justify-content:space-between"><span>보통</span><span style="color:#666">⌄</span></div></div>
+            <div style="display:flex;flex-direction:column;gap:4px;width:128px"><div style="font:15px/1.4 inherit;color:#444">채집도구</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;justify-content:space-between"><span>투망·족대</span><span style="color:#666">⌄</span></div></div>
+            <div style="display:flex;flex-direction:column;gap:4px;width:96px"><div style="font:15px/1.4 inherit;color:#444">유폭(m)</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px">12.4</div></div>
+            <div style="display:flex;flex-direction:column;gap:4px;width:96px"><div style="font:15px/1.4 inherit;color:#444">수심(cm)</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;color:#444">·</div></div>
+            <div style="display:flex;flex-direction:column;gap:4px;width:176px"><div style="font:15px/1.4 inherit;color:#444">조사불가 사유</div><div style="height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;justify-content:space-between;background:#F1F2F4;color:#9AA0A8"><span>해당 없음</span><span>⌄</span></div></div>
+          </div>
+        </div>
+
+        <div style="flex:none;height:56px;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 16px">
+          <div style="font:600 14.5px/1.2 inherit;margin-right:4px">빠른추가</div>
+          <div style="width:300px;height:36px;border:2px solid #0381FE;border-radius:4px;display:flex;align-items:center;padding:0 10px;gap:6px"><span>ㅋㅈㄴ</span><span style="width:1px;height:16px;background:#0381FE"></span><span style="color:#666">초성으로 종명 검색</span></div>
+          <div style="width:96px;height:36px;border:1px solid rgba(0,0,0,.45);border-radius:4px;display:flex;align-items:center;padding:0 10px;color:#666">개체수</div>
+          <div style="height:36px;padding:0 16px;background:#0072DE;color:#fff;border-radius:4px;display:grid;place-items:center;font-weight:600">추가</div>
+          <div style="font-size:12px;color:#666">Enter 로 추가하면 검색창으로 돌아옵니다 · Ctrl+V 로 엑셀 여러 행 붙여넣기</div>
+        </div>
+
+        <div style="flex:1;min-height:0;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+          <div style="height:34px;flex:none;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 12px;border-bottom:1px solid rgba(0,0,0,.12);font:600 14.5px/1.2 inherit;color:#333;background:#F1F2F4">
+            <div>#</div><div>국명</div><div>학명</div><div style="text-align:right">개체수</div><div>내성도 길드</div><div style="text-align:right">오탁치</div><div>비고</div>
+          </div>
+          <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 12px;border-bottom:1px solid rgba(0,0,0,.05)"><div style="color:#666">1</div><div>참갈겨니</div><div style="font-style:italic;color:#444">Zacco koreanus</div><div style="text-align:right">128</div><div style="color:#444">민감종</div><div style="text-align:right">1.4</div><div style="color:#444">·</div></div>
+          <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 12px;border-bottom:1px solid rgba(0,0,0,.05);background:#FAFBFC"><div style="color:#666">2</div><div>피라미</div><div style="font-style:italic;color:#444">Zacco platypus</div><div style="text-align:right">86</div><div style="color:#444">보통종</div><div style="text-align:right">2.1</div><div style="color:#444">·</div></div>
+          <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 12px;border-bottom:1px solid rgba(0,0,0,.05)"><div style="color:#666">3</div><div style="font-weight:600;color:#0072DE">가는돌고기 <span style="font-size:12px;padding:1px 6px;border:1px solid #0072DE;border-radius:4px">멸종위기Ⅱ</span></div><div style="font-style:italic;color:#444">Pseudopungtungia tenuicorpa</div><div style="text-align:right">4</div><div style="color:#444">민감종</div><div style="text-align:right">1.0</div><div style="color:#444">·</div></div>
+          <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 12px;border-bottom:1px solid rgba(0,0,0,.05);background:#FAFBFC"><div style="color:#666">4</div><div>돌고기</div><div style="font-style:italic;color:#444">Pungtungia herzi</div><div style="text-align:right">31</div><div style="color:#444">보통종</div><div style="text-align:right">2.0</div><div style="color:#444">·</div></div>
+          <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 12px;border-bottom:1px solid rgba(0,0,0,.05)"><div style="color:#666">5</div><div style="font-weight:600;color:#C5330A">배스 <span style="font-size:12px;padding:1px 6px;border:1px solid #C5330A;border-radius:4px">⚠ 교란종</span></div><div style="font-style:italic;color:#444">Micropterus salmoides</div><div style="text-align:right">7</div><div style="color:#444">내성종</div><div style="text-align:right">3.3</div><div style="color:#444">·</div></div>
+          <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 12px;border-bottom:1px solid rgba(0,0,0,.05);background:#FAFBFC"><div style="color:#666">6</div><div>붕어</div><div style="font-style:italic;color:#444">Carassius auratus</div><div style="text-align:right">12</div><div style="color:#444">내성종</div><div style="text-align:right">3.0</div><div style="color:#444">·</div></div>
+          <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 12px;border-bottom:1px solid rgba(0,0,0,.05)"><div style="color:#666">7</div><div>버들치</div><div style="font-style:italic;color:#444">Rhynchocypris oxycephalus</div><div style="text-align:right;border:2px solid #0381FE;border-radius:4px;height:26px;line-height:22px;padding:0 6px">19</div><div style="color:#444">민감종</div><div style="text-align:right">1.6</div><div style="color:#444">·</div></div>
+          <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 12px;border-bottom:1px solid rgba(0,0,0,.05);background:#FAFBFC"><div style="color:#666">8</div><div>밀어</div><div style="font-style:italic;color:#444">Rhinogobius brunneus</div><div style="text-align:right">41</div><div style="color:#444">보통종</div><div style="text-align:right">2.0</div><div style="color:#444">·</div></div>
+          <div style="height:34px;display:grid;grid-template-columns:44px 1fr;align-items:center;padding:0 12px;color:#666">+<span style="padding-left:8px">여기에 입력하면 새 행이 추가됩니다</span></div>
+        </div>
+      </div>
+
+      <div style="flex:none;width:320px;display:flex;flex-direction:column;gap:12px">
+        <div style="background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:12px">
+          <div style="font:600 15px/1.4 inherit;color:#0072DE">FAI 어류 건강성</div>
+          <div style="display:flex;align-items:flex-end;gap:12px">
+            <div style="font:700 30px/1 inherit;color:#0381FE;letter-spacing:-.5px">68.8</div>
+            <div style="padding:3px 12px;border-radius:999px;background:#0381FE;color:#000;font:600 14.5px/1.4 inherit">B 등급</div>
+          </div>
+          <div style="font-size:12px;color:#666;line-height:1.5">M1~M8 메트릭 합산 · 관리자 <code>SDSM_Core</code> 와 동일 계산</div>
+          <div style="height:1px;background:rgba(0,0,0,.08)"></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:8px"><div style="width:26px;font-size:12px;color:#666">M1</div><div style="flex:1;height:6px;background:#EDEEF1;border-radius:3px"><div style="width:75%;height:6px;background:#0381FE;border-radius:3px"></div></div><div style="width:26px;text-align:right;font-size:13px">9.0</div></div>
+            <div style="display:flex;align-items:center;gap:8px"><div style="width:26px;font-size:12px;color:#666">M2</div><div style="flex:1;height:6px;background:#EDEEF1;border-radius:3px"><div style="width:50%;height:6px;background:#0381FE;border-radius:3px"></div></div><div style="width:26px;text-align:right;font-size:13px">6.0</div></div>
+            <div style="display:flex;align-items:center;gap:8px"><div style="width:26px;font-size:12px;color:#666">M3</div><div style="flex:1;height:6px;background:#EDEEF1;border-radius:3px"><div style="width:100%;height:6px;background:#0381FE;border-radius:3px"></div></div><div style="width:26px;text-align:right;font-size:13px">12.0</div></div>
+            <div style="display:flex;align-items:center;gap:8px"><div style="width:26px;font-size:12px;color:#666">M4</div><div style="flex:1;height:6px;background:#EDEEF1;border-radius:3px"><div style="width:33%;height:6px;background:#0381FE;border-radius:3px"></div></div><div style="width:26px;text-align:right;font-size:13px">4.0</div></div>
+            <div style="display:flex;align-items:center;gap:8px"><div style="width:26px;font-size:12px;color:#666">M5</div><div style="flex:1;height:6px;background:#EDEEF1;border-radius:3px"><div style="width:66%;height:6px;background:#0381FE;border-radius:3px"></div></div><div style="width:26px;text-align:right;font-size:13px">8.0</div></div>
+            <div style="display:flex;align-items:center;gap:8px"><div style="width:26px;font-size:12px;color:#666">M6</div><div style="flex:1;height:6px;background:#EDEEF1;border-radius:3px"><div style="width:100%;height:6px;background:#0381FE;border-radius:3px"></div></div><div style="width:26px;text-align:right;font-size:13px">12.0</div></div>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:8px">
+          <div style="font:600 15px/1.4 inherit">확인 필요</div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#C5330A"><span>⚠</span><div>7행 개체수가 비어 있습니다 — 미입력(<code>·</code>)과 실측 0 은 다르게 저장됩니다</div></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#444"><span style="color:#0072DE">ⓘ</span><div>교란종 1종(배스) 포함 — 지수 계산에서 제외되지 않습니다</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:48px;flex:none;background:#fff;border-top:1px solid rgba(0,0,0,.12);display:flex;align-items:center;padding:0 12px;gap:8px">
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;color:#C5330A;font-size:13.5px">빈 행 정리</div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:16px;font-size:13.5px;color:#333">
+      <div>총 <b>8</b>종 · <b>328</b>개체</div>
+      <div style="display:flex;align-items:center;gap:6px;color:#C5330A">⚠ 저장 안 된 변경 3건</div>
+      <div style="display:flex;align-items:center;gap:6px;color:#444">🗎 14:32 저장됨</div>
+    </div>
+    <div style="width:16px"></div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">임시 저장</div>
+    <div style="height:32px;padding:0 12px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.28);border-radius:4px;font-size:13.5px">일괄입력 엑셀</div>
+    <div style="height:32px;padding:0 14px;display:grid;place-items:center;background:#0072DE;color:#fff;border-radius:4px;font:600 13.5px/1.2 inherit">보고서 엑셀</div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>현장(야외) 모드 — 같은 골격, 대비 7:1 · 터치 44px · 다크 표면 (§2.6/§11.2 실물화)</div>
+<div class="dv-card" style="width:1440px">
+<div style="width:1440px;height:860px;background:#171B21;display:flex;flex-direction:column;font:15px/1.45 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#F2F4F8;overflow:hidden">
+  <div style="height:50px;flex:none;background:#0F1216;display:flex;align-items:center;padding:0 0 0 20px;gap:14px;border-bottom:1px solid #343B47">
+    <div style="width:18px;height:18px;border-radius:4px;background:#3E91FF"></div>
+    <div style="font:600 15px/1.2 inherit">SDSM 조사자</div>
+    <div style="font-size:12.5px;color:#AEB7C4">현장 모드 · 곡교천1</div>
+    <div style="flex:1"></div>
+    <div style="height:34px;display:flex;align-items:center;gap:8px;padding:0 14px;border:1px solid #3E91FF;border-radius:999px;font:600 13.5px/1.2 inherit;color:#9CC4FF">☀ 야외 + 터치 ON</div>
+    <div style="display:flex;height:50px;margin-left:12px"><div style="width:48px;display:grid;place-items:center;color:#AEB7C4">—</div><div style="width:48px;display:grid;place-items:center;color:#AEB7C4">▢</div><div style="width:48px;display:grid;place-items:center;color:#AEB7C4">✕</div></div>
+  </div>
+
+  <div style="height:52px;flex:none;background:#1E242D;display:flex;align-items:stretch;padding:0 12px;gap:4px;border-bottom:1px solid #343B47">
+    <div style="display:flex;align-items:center;gap:9px;padding:0 20px;background:#2B333E;border-top:3px solid #3E91FF;font-weight:600"><span style="width:11px;height:11px;border-radius:50%;background:#3FD0E8"></span>어류</div>
+    <div style="display:flex;align-items:center;gap:9px;padding:0 20px;color:#D3D9E2"><span style="width:11px;height:11px;border-radius:50%;background:#A98BFF"></span>저서동물</div>
+    <div style="display:flex;align-items:center;gap:9px;padding:0 20px;color:#D3D9E2"><span style="width:11px;height:11px;border-radius:50%;background:#CFCE5E"></span>조류</div>
+    <div style="display:flex;align-items:center;gap:9px;padding:0 20px;color:#D3D9E2"><span style="width:11px;height:11px;border-radius:50%;background:#E5A44B"></span>포유류</div>
+    <div style="display:flex;align-items:center;gap:9px;padding:0 20px;color:#D3D9E2"><span style="width:11px;height:11px;border-radius:50%;background:#E29CFF"></span>양서파충류</div>
+    <div style="display:flex;align-items:center;gap:9px;padding:0 20px;color:#D3D9E2"><span style="width:11px;height:11px;border-radius:50%;background:#6FA8FF"></span>수질</div>
+    <div style="display:flex;align-items:center;gap:9px;padding:0 20px;color:#D3D9E2"><span style="width:11px;height:11px;border-radius:50%;background:#9FB0BB"></span>서식수변</div>
+  </div>
+
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:16px;padding:12px">
+    <div style="flex:none;height:56px;background:#232A33;border:1px solid #3E4756;border-radius:8px;display:flex;align-items:center;gap:12px;padding:0 16px">
+      <div style="display:flex;align-items:center;gap:8px;font-weight:600"><span style="width:11px;height:11px;border-radius:50%;background:#3FD0E8"></span>방류하천</div>
+      <div style="color:#5B6675">│</div><div>곡교천1 <span style="color:#AEB7C4">(St.1)</span></div>
+      <div style="color:#5B6675">│</div><div>2026반기1차</div>
+      <div style="color:#5B6675">│</div><div>05-14</div>
+      <div style="flex:1"></div>
+      <div style="height:44px;padding:0 18px;display:grid;place-items:center;border:1.5px solid #6E7787;border-radius:4px;color:#F2F4F8">지도</div>
+      <div style="height:44px;padding:0 18px;display:grid;place-items:center;border:1.5px solid #6E7787;border-radius:4px;color:#F2F4F8">펼치기 ⌄</div>
+    </div>
+
+    <div style="flex:1;min-height:0;display:flex;gap:16px">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px">
+        <div style="flex:none;background:#232A33;border:1px solid #3E4756;border-radius:8px;padding:16px;display:flex;align-items:center;gap:12px">
+          <div style="font-weight:600;white-space:nowrap">빠른추가</div>
+          <div style="width:340px;height:44px;border:2px solid #3E91FF;border-radius:4px;display:flex;align-items:center;padding:0 12px;gap:8px;background:#1B2129"><span>ㅋㅈㄴ</span><span style="width:2px;height:18px;background:#3E91FF"></span><span style="color:#AEB7C4">초성 검색</span></div>
+          <div style="width:112px;height:44px;border:1.5px solid #6E7787;border-radius:4px;display:flex;align-items:center;padding:0 12px;color:#AEB7C4;background:#1B2129">개체수</div>
+          <div style="height:44px;padding:0 22px;background:#3E91FF;color:#0B0E12;border-radius:4px;display:grid;place-items:center;font-weight:700">추가</div>
+          <div style="font-size:13px;color:#AEB7C4">장갑 착용 상태를 전제로 타깃 44px · 간격 8px</div>
+        </div>
+
+        <div style="flex:1;min-height:0;background:#232A33;border:1px solid #3E4756;border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+          <div style="height:44px;flex:none;display:grid;grid-template-columns:52px 1fr 1fr 112px 140px 1fr;align-items:center;padding:0 14px;border-bottom:1.5px solid #4A5464;font-weight:600;color:#F2F4F8;background:#1B2129"><div>#</div><div>국명</div><div>학명</div><div style="text-align:right">개체수</div><div>내성도 길드</div><div>비고</div></div>
+          <div style="height:44px;display:grid;grid-template-columns:52px 1fr 1fr 112px 140px 1fr;align-items:center;padding:0 14px;border-bottom:1px solid #2E353F"><div style="color:#AEB7C4">1</div><div>참갈겨니</div><div style="font-style:italic;color:#D3D9E2">Zacco koreanus</div><div style="text-align:right;font-weight:600">128</div><div style="color:#D3D9E2">민감종</div><div style="color:#8B95A3">·</div></div>
+          <div style="height:44px;display:grid;grid-template-columns:52px 1fr 1fr 112px 140px 1fr;align-items:center;padding:0 14px;border-bottom:1px solid #2E353F;background:#262E38"><div style="color:#AEB7C4">2</div><div>피라미</div><div style="font-style:italic;color:#D3D9E2">Zacco platypus</div><div style="text-align:right;font-weight:600">86</div><div style="color:#D3D9E2">보통종</div><div style="color:#8B95A3">·</div></div>
+          <div style="height:44px;display:grid;grid-template-columns:52px 1fr 1fr 112px 140px 1fr;align-items:center;padding:0 14px;border-bottom:1px solid #2E353F"><div style="color:#AEB7C4">3</div><div style="font-weight:700;color:#9CC4FF">가는돌고기 <span style="font-size:12.5px;padding:2px 7px;border:1.5px solid #9CC4FF;border-radius:4px">멸종위기Ⅱ</span></div><div style="font-style:italic;color:#D3D9E2">P. tenuicorpa</div><div style="text-align:right;font-weight:600">4</div><div style="color:#D3D9E2">민감종</div><div style="color:#8B95A3">·</div></div>
+          <div style="height:44px;display:grid;grid-template-columns:52px 1fr 1fr 112px 140px 1fr;align-items:center;padding:0 14px;border-bottom:1px solid #2E353F;background:#262E38"><div style="color:#AEB7C4">4</div><div style="font-weight:700;color:#FF99A4">배스 <span style="font-size:12.5px;padding:2px 7px;border:1.5px solid #FF99A4;border-radius:4px">⚠ 교란종</span></div><div style="font-style:italic;color:#D3D9E2">M. salmoides</div><div style="text-align:right;font-weight:600">7</div><div style="color:#D3D9E2">내성종</div><div style="color:#8B95A3">·</div></div>
+          <div style="height:44px;display:grid;grid-template-columns:52px 1fr 1fr 112px 140px 1fr;align-items:center;padding:0 14px;border-bottom:1px solid #2E353F"><div style="color:#AEB7C4">5</div><div>버들치</div><div style="font-style:italic;color:#D3D9E2">R. oxycephalus</div><div style="text-align:right"><span style="display:inline-block;border:2px solid #3E91FF;border-radius:4px;padding:2px 8px;font-weight:600">19</span></div><div style="color:#D3D9E2">민감종</div><div style="color:#8B95A3">·</div></div>
+          <div style="height:44px;display:grid;grid-template-columns:52px 1fr 1fr 112px 140px 1fr;align-items:center;padding:0 14px;border-bottom:1px solid #2E353F;background:#262E38"><div style="color:#AEB7C4">6</div><div>밀어</div><div style="font-style:italic;color:#D3D9E2">R. brunneus</div><div style="text-align:right;font-weight:600">41</div><div style="color:#D3D9E2">보통종</div><div style="color:#8B95A3">·</div></div>
+          <div style="height:44px;display:grid;grid-template-columns:52px 1fr;align-items:center;padding:0 14px;color:#8B95A3">+<span style="padding-left:8px">여기에 입력하면 새 행이 추가됩니다</span></div>
+        </div>
+      </div>
+
+      <div style="flex:none;width:340px;display:flex;flex-direction:column;gap:12px">
+        <div style="background:#232A33;border:1px solid #3E4756;border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div style="font-weight:600;color:#9CC4FF">FAI 어류 건강성</div>
+          <div style="display:flex;align-items:flex-end;gap:12px"><div style="font:700 44px/1 inherit;color:#6FA8FF;letter-spacing:-1px">68.8</div><div style="padding:4px 14px;border-radius:999px;background:#6FA8FF;color:#0B0E12;font:700 16px/1.3 inherit">B</div></div>
+          <div style="display:flex;gap:6px">
+            <div style="flex:1;height:8px;border-radius:4px;background:#6DD58C"></div>
+            <div style="flex:1;height:8px;border-radius:4px;background:#6FA8FF;outline:2px solid #F2F4F8;outline-offset:2px"></div>
+            <div style="flex:1;height:8px;border-radius:4px;background:#F2C744"></div>
+            <div style="flex:1;height:8px;border-radius:4px;background:#FFAA5C"></div>
+            <div style="flex:1;height:8px;border-radius:4px;background:#FF99A4"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#AEB7C4"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span></div>
+        </div>
+        <div style="background:#232A33;border:1px solid #3E4756;border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px">
+          <div style="font-weight:600">확인 필요 2건</div>
+          <div style="display:flex;gap:8px;font-size:13.5px;color:#FF99A4"><span>⚠</span><div>5행 개체수 미입력 — 미입력과 0 은 다르게 저장됩니다</div></div>
+          <div style="display:flex;gap:8px;font-size:13.5px;color:#D3D9E2"><span style="color:#6FA8FF">ⓘ</span><div>교란종 1종 포함</div></div>
+        </div>
+        <div style="background:#1B2129;border:1px solid #3E4756;border-radius:8px;padding:16px;font-size:13px;color:#AEB7C4;line-height:1.55">본문 배경을 순백에서 낮추고 얇은 선을 1.5px 로 올렸습니다. 주광 아래 1px 선은 사라집니다(§2.6).</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:60px;flex:none;background:#0F1216;border-top:1px solid #343B47;display:flex;align-items:center;padding:0 12px;gap:10px">
+    <div style="height:44px;padding:0 16px;display:grid;place-items:center;border:1.5px solid #6E7787;border-radius:4px;color:#FF99A4">빈 행 정리</div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:18px"><div>총 <b>6</b>종 · <b>285</b>개체</div><div style="color:#FF99A4">⚠ 저장 안 된 변경 3건</div><div style="color:#D3D9E2">🗎 14:32 저장됨</div></div>
+    <div style="width:16px"></div>
+    <div style="height:44px;padding:0 18px;display:grid;place-items:center;border:1.5px solid #6E7787;border-radius:4px">임시 저장</div>
+    <div style="height:44px;padding:0 18px;display:grid;place-items:center;border:1.5px solid #6E7787;border-radius:4px">일괄입력 엑셀</div>
+    <div style="height:44px;padding:0 22px;display:grid;place-items:center;background:#3E91FF;color:#0B0E12;border-radius:4px;font-weight:700">보고서 엑셀</div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>재편형 — 좌측 분류군 레일 + 진행률, 지수는 상단 요약 스트립, 액션은 플로팅 바 (개발량 큼)</div>
+<div class="dv-card" style="width:1440px">
+<div style="width:1440px;height:860px;background:#F4F5F7;display:flex;font:14.5px/1.45 'Pretendard Variable',Pretendard,system-ui,sans-serif;color:#15181D;overflow:hidden">
+  <div style="width:216px;flex:none;background:#1E232E;display:flex;flex-direction:column;padding:0 0 12px">
+    <div style="height:50px;display:flex;align-items:center;gap:12px;padding:0 20px"><div style="width:16px;height:16px;border-radius:4px;background:#0381FE"></div><div style="font:600 14.5px/1.2 inherit;color:#F2F4F8">SDSM 조사자</div></div>
+    <div style="margin:8px 12px 16px;padding:12px;border-radius:8px;background:#2A3140;display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:12px;color:#94A9D5">이번 세션</div>
+      <div style="font:600 14.5px/1.3 inherit;color:#F2F4F8">곡교천1 · 2026반기1차</div>
+      <div style="height:6px;border-radius:3px;background:#3B4457"><div style="width:57%;height:6px;border-radius:3px;background:#0381FE"></div></div>
+      <div style="font-size:12px;color:#94A9D5">7개 분류군 중 4개 입력됨</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px;padding:0 12px">
+      <div style="height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;background:#fff;color:#15181D;font-weight:600"><span style="width:9px;height:9px;border-radius:50%;background:#008296"></span>어류<span style="flex:1"></span><span style="font-size:12px;color:#0072DE">8종</span></div>
+      <div style="height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;color:#D6DEEE"><span style="width:9px;height:9px;border-radius:50%;background:#651FFF"></span>저서동물<span style="flex:1"></span><span style="font-size:12px;color:#94A9D5">14종</span></div>
+      <div style="height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;color:#D6DEEE"><span style="width:9px;height:9px;border-radius:50%;background:#7B7A1C"></span>조류<span style="flex:1"></span><span style="font-size:12px;color:#94A9D5">21종</span></div>
+      <div style="height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;color:#D6DEEE"><span style="width:9px;height:9px;border-radius:50%;background:#AA6700"></span>포유류<span style="flex:1"></span><span style="font-size:12px;color:#94A9D5">3종</span></div>
+      <div style="height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;color:#94A9D5"><span style="width:9px;height:9px;border-radius:50%;background:#CC33FF"></span>양서파충류<span style="flex:1"></span><span style="font-size:12px">·</span></div>
+      <div style="height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;color:#94A9D5"><span style="width:9px;height:9px;border-radius:50%;background:#2979FF"></span>수질<span style="flex:1"></span><span style="font-size:12px">·</span></div>
+      <div style="height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;color:#94A9D5"><span style="width:9px;height:9px;border-radius:50%;background:#37474F"></span>서식수변<span style="flex:1"></span><span style="font-size:12px">·</span></div>
+    </div>
+    <div style="flex:1"></div>
+    <div style="padding:0 12px;display:flex;flex-direction:column;gap:2px">
+      <div style="height:40px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;color:#D6DEEE">🗂 자료함</div>
+      <div style="height:40px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;color:#D6DEEE">☁ 동기화 <span style="margin-left:auto;font-size:12px;padding:1px 7px;border-radius:999px;background:#C5330A;color:#fff">12</span></div>
+    </div>
+  </div>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <div style="height:50px;flex:none;display:flex;align-items:center;padding:0 24px;gap:12px;background:#fff;border-bottom:1px solid rgba(0,0,0,.08)">
+      <div style="font-size:12px;color:#666">방류하천 · 곡교천1 (St.1) · 2026-05-14</div>
+      <div style="flex:1"></div>
+      <div style="height:32px;padding:0 12px;display:grid;place-items:center;border-radius:999px;border:1px solid rgba(0,0,0,.2);font-size:13px">조사개황 편집</div>
+      <div style="height:32px;padding:0 12px;display:grid;place-items:center;border-radius:999px;border:1px solid rgba(0,0,0,.2);font-size:13px">☀ 야외 모드</div>
+      <div style="display:flex;gap:2px;margin-left:8px;color:#666"><div style="width:34px;height:32px;display:grid;place-items:center">—</div><div style="width:34px;height:32px;display:grid;place-items:center">▢</div><div style="width:34px;height:32px;display:grid;place-items:center">✕</div></div>
+    </div>
+
+    <div style="flex:1;min-height:0;overflow:hidden;padding:20px 24px 0;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:flex-end;gap:16px">
+        <div style="font:600 26px/1.3 inherit;letter-spacing:-.3px">어류</div>
+        <div style="font-size:12px;color:#666;padding-bottom:6px">패턴 A · 종 입력형 · 관리자와 동일 계산</div>
+      </div>
+
+      <div style="flex:none;display:flex;gap:12px">
+        <div style="flex:1.4;background:#fff;border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:20px;border:1px solid rgba(0,0,0,.06)">
+          <div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:12px;color:#666">FAI</div><div style="display:flex;align-items:baseline;gap:10px"><div style="font:700 30px/1 inherit;color:#0381FE;letter-spacing:-.5px">68.8</div><div style="padding:2px 10px;border-radius:999px;background:#0381FE;color:#000;font:600 14.5px/1.4 inherit">B</div></div></div>
+          <div style="width:1px;height:44px;background:rgba(0,0,0,.08)"></div>
+          <div style="flex:1;display:flex;gap:5px;align-items:flex-end;height:44px">
+            <div style="flex:1;height:75%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:50%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:100%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:33%;background:#B9DAFF;border-radius:2px 2px 0 0"></div><div style="flex:1;height:66%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:100%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:58%;background:#0381FE;border-radius:2px 2px 0 0"></div><div style="flex:1;height:25%;background:#B9DAFF;border-radius:2px 2px 0 0"></div>
+          </div>
+          <div style="font-size:12px;color:#666;width:88px;line-height:1.5">M1~M8<br>낮은 항목 2개</div>
+        </div>
+        <div style="flex:1;background:#fff;border-radius:12px;padding:16px 20px;border:1px solid rgba(0,0,0,.06);display:flex;align-items:center;gap:24px">
+          <div><div style="font-size:12px;color:#666">총 종수</div><div style="font:700 30px/1.1 inherit;letter-spacing:-.5px">8</div></div>
+          <div><div style="font-size:12px;color:#666">총 개체수</div><div style="font:700 30px/1.1 inherit;letter-spacing:-.5px">328</div></div>
+          <div><div style="font-size:12px;color:#666">보호종 / 교란종</div><div style="display:flex;align-items:baseline;gap:6px"><span style="font:700 30px/1.1 inherit;color:#0072DE">1</span><span style="color:#666">/</span><span style="font:700 30px/1.1 inherit;color:#C5330A">1</span></div></div>
+        </div>
+      </div>
+
+      <div style="flex:none;background:#fff;border-radius:12px;border:1px solid rgba(0,0,0,.06);padding:14px 20px;display:flex;align-items:center;gap:10px">
+        <div style="flex:1;height:44px;border-radius:999px;background:#F1F3F6;border:2px solid #0381FE;display:flex;align-items:center;padding:0 18px;gap:10px"><span style="color:#0072DE">🔍</span><span>ㅋㅈㄴ</span><span style="width:1px;height:18px;background:#0381FE"></span><span style="color:#666">초성으로 종명 검색 — 목록에 없으면 경고만 뜹니다</span></div>
+        <div style="width:104px;height:44px;border-radius:999px;background:#F1F3F6;border:1px solid rgba(0,0,0,.18);display:flex;align-items:center;padding:0 16px;color:#666">개체수</div>
+        <div style="height:44px;padding:0 22px;border-radius:999px;background:#0072DE;color:#fff;display:grid;place-items:center;font-weight:600">추가 ⏎</div>
+      </div>
+
+      <div style="flex:1;min-height:0;background:#fff;border-radius:12px;border:1px solid rgba(0,0,0,.06);overflow:hidden;display:flex;flex-direction:column">
+        <div style="height:34px;flex:none;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 20px;font-size:12px;color:#666;border-bottom:1px solid rgba(0,0,0,.08)"><div>#</div><div>국명</div><div>학명</div><div style="text-align:right">개체수</div><div>내성도 길드</div><div style="text-align:right">오탁치</div><div>비고</div></div>
+        <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 20px"><div style="color:#666">1</div><div>참갈겨니</div><div style="font-style:italic;color:#555">Zacco koreanus</div><div style="text-align:right;font-variant-numeric:tabular-nums">128</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.4</div><div style="color:#444">·</div></div>
+        <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 20px;background:#FAFBFC"><div style="color:#666">2</div><div>피라미</div><div style="font-style:italic;color:#555">Zacco platypus</div><div style="text-align:right;font-variant-numeric:tabular-nums">86</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.1</div><div style="color:#444">·</div></div>
+        <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 20px;border-left:3px solid #0072DE"><div style="color:#666">3</div><div style="font-weight:600;color:#0072DE">가는돌고기 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#E4F0FF;color:#0057A8">멸종위기Ⅱ</span></div><div style="font-style:italic;color:#555">Pseudopungtungia tenuicorpa</div><div style="text-align:right;font-variant-numeric:tabular-nums">4</div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.0</div><div style="color:#444">·</div></div>
+        <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 20px;background:#FAFBFC"><div style="color:#666">4</div><div>돌고기</div><div style="font-style:italic;color:#555">Pungtungia herzi</div><div style="text-align:right;font-variant-numeric:tabular-nums">31</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="color:#444">·</div></div>
+        <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 20px;border-left:3px solid #C5330A"><div style="color:#666">5</div><div style="font-weight:600;color:#C5330A">배스 <span style="font-size:12px;padding:1px 6px;border-radius:999px;background:#FDE7DF;color:#992700">⚠ 교란종</span></div><div style="font-style:italic;color:#555">Micropterus salmoides</div><div style="text-align:right;font-variant-numeric:tabular-nums">7</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.3</div><div style="color:#444">·</div></div>
+        <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 20px;background:#FAFBFC"><div style="color:#666">6</div><div>붕어</div><div style="font-style:italic;color:#555">Carassius auratus</div><div style="text-align:right;font-variant-numeric:tabular-nums">12</div><div style="color:#555">내성종</div><div style="text-align:right;color:#555">3.0</div><div style="color:#444">·</div></div>
+        <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 20px"><div style="color:#666">7</div><div>버들치</div><div style="font-style:italic;color:#555">Rhynchocypris oxycephalus</div><div style="text-align:right"><span style="display:inline-block;border:2px solid #0381FE;border-radius:4px;padding:1px 7px">19</span></div><div style="color:#555">민감종</div><div style="text-align:right;color:#555">1.6</div><div style="color:#444">·</div></div>
+        <div style="height:34px;display:grid;grid-template-columns:44px 1fr 1fr 96px 128px 96px 1fr;align-items:center;padding:0 20px;background:#FAFBFC"><div style="color:#666">8</div><div>밀어</div><div style="font-style:italic;color:#555">Rhinogobius brunneus</div><div style="text-align:right;font-variant-numeric:tabular-nums">41</div><div style="color:#555">보통종</div><div style="text-align:right;color:#555">2.0</div><div style="color:#444">·</div></div>
+        <div style="height:34px;display:grid;grid-template-columns:44px 1fr;align-items:center;padding:0 20px;color:#666">+<span style="padding-left:8px">여기에 입력하면 새 행이 추가됩니다</span></div>
+        <div style="flex:1"></div>
+        <div style="height:38px;flex:none;display:flex;align-items:center;gap:14px;padding:0 20px;background:#F7F8FA;border-top:1px solid rgba(0,0,0,.06);font-size:13px;color:#444">
+          <span style="color:#C5330A">⚠ 7행 개체수 미입력</span><span style="color:rgba(0,0,0,.15)">│</span><span>미입력(<code>·</code>)과 실측 0 은 다르게 저장됩니다</span><span style="flex:1"></span><span style="color:#666">Ctrl+V 로 엑셀 여러 행 붙여넣기</span>
+        </div>
+      </div>
+
+      <div style="flex:none;height:64px;display:flex;align-items:center;justify-content:center">
+        <div style="height:52px;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.12);display:flex;align-items:center;padding:0 10px 0 20px;gap:14px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13.5px;color:#C5330A">⚠ 저장 안 된 변경 3건</div>
+          <div style="width:1px;height:22px;background:rgba(0,0,0,.1)"></div>
+          <div style="font-size:13.5px;color:#444">🗎 14:32 저장됨</div>
+          <div style="width:1px;height:22px;background:rgba(0,0,0,.1)"></div>
+          <div style="height:36px;padding:0 14px;display:grid;place-items:center;border-radius:999px;font-size:13.5px;color:#C5330A">빈 행 정리</div>
+          <div style="height:36px;padding:0 14px;display:grid;place-items:center;border-radius:999px;border:1px solid rgba(0,0,0,.2);font-size:13.5px">임시 저장</div>
+          <div style="height:36px;padding:0 14px;display:grid;place-items:center;border-radius:999px;border:1px solid rgba(0,0,0,.2);font-size:13.5px">일괄입력 엑셀</div>
+          <div style="height:36px;padding:0 18px;display:grid;place-items:center;border-radius:999px;background:#0072DE;color:#fff;font:600 13.5px/1.2 inherit">보고서 엑셀</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">다음 시도: “<a class="dv-oid" href="#1a">1a</a> 골격에 <a class="dv-oid" href="#1c">1c</a> 의 상단 지수 스트립만 얹어줘” · “<a class="dv-oid" href="#1c">1c</a> 로 관찰형(조류 2단 행) 화면도 그려줘” · “<a class="dv-oid" href="#1b">1b</a> 를 태블릿 세로 화면으로” · “더 과감한 방향 3개 더”</p>
+</section>
+</x-dc>
+</body>
+</html>

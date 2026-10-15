@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Win32;
 using SDSM_Surveyor_App.Models;
@@ -31,8 +32,51 @@ internal static class ReportExporterBase
         };
         if (dlg.ShowDialog() != true) return null;
 
-        write(dlg.FileName);
+        // 같은 이름 파일이 엑셀에 열려 있으면 FileStream 이 IOException 을 던진다.
+        // 잡지 않으면 입력 중이던 야장째로 앱이 종료된다.
+        try
+        {
+            write(dlg.FileName);
+        }
+        catch (IOException ex)
+        {
+            // 파일 잠김뿐 아니라 경로 없음(USB 분리 등)도 IOException 파생이다 — 원인을 함께 보여 준다.
+            System.Windows.MessageBox.Show(
+                "저장하지 못했습니다. 같은 이름 파일이 엑셀에 열려 있는지, 저장 위치가 살아 있는지 확인해 주세요."
+                + $"\n\n{ex.Message}",
+                "저장 실패", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            return null;
+        }
+
+        OfferToOpenFolder(dlg.FileName);
         return dlg.FileName;
+    }
+
+    /// <summary>
+    /// 저장한 뒤 그 폴더를 열지 묻는다. 현장에서 파일을 어디에 뒀는지 놓치는 일이 잦다.
+    /// 탐색기를 <c>/select</c> 로 열면 저장한 파일이 선택된 채로 뜬다.
+    /// </summary>
+    private static void OfferToOpenFolder(string path)
+    {
+        // 제목이 이미 '저장 완료'다. 본문에서 또 "저장했습니다" 라고 하면
+        // 화면 아래 알림 띠(NotifyMessage)까지 세 번 같은 말을 하게 된다.
+        var answer = System.Windows.MessageBox.Show(
+            $"{path}\n\n저장한 폴더를 열까요?",
+            "저장 완료",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Information);
+
+        if (answer != System.Windows.MessageBoxResult.Yes) return;
+
+        try
+        {
+            // 따옴표 안에 경로를 넣어야 공백·한글 폴더에서도 열린다.
+            Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true });
+        }
+        catch
+        {
+            // 탐색기를 못 열어도 저장은 이미 끝났다 — 조사를 막지 않는다.
+        }
     }
 
     /// <summary>

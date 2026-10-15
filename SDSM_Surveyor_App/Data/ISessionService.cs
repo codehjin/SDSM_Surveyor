@@ -30,4 +30,7 @@ public interface ISessionService
 
     /// <summary>구버전 임시저장 파일을 세션으로 편입(최초 1회).</summary>
     Task<int> MigrateLegacyDraftsAsync();
+
+    /// <summary>자료함이 비어 있으면 테스트 배포본의 예시 세션을 채운다. 채운 건수 반환.</summary>
+    Task<int> SeedTestDataIfEmptyAsync();
 }

@@ -27,4 +27,29 @@ public interface IQuickAddHost
     /// RadGridView 기본 붙여넣기는 커스텀 편집기 컬럼과 충돌해 한 칸에 뭉친다(90_TECH_NOTES §2).
     /// </summary>
     void PasteRows(string clipboard);
+
+    /// <summary>
+    /// 종목록 팝업에서 고른 종을 야장에 넣는다(개체수는 비운다).
+    /// 이미 있는 종이면 새 행을 만들지 않고 그 행을 '방금 추가' 로 표시한다.
+    ///
+    /// 종 타입이 분류군마다 달라(<c>FishSpeciesList</c>·<c>BenthosSpeciesList</c>·<c>ObservedSpecies</c>)
+    /// 비제네릭 <c>object</c> 로 받는다 — 받는 쪽에서 타입을 확인한다.
+    /// </summary>
+    void AddFromCatalog(object species);
+
+    /// <summary>
+    /// 마지막으로 누른 행. 그리드가 클릭·우클릭 때 넣어 준다.
+    /// 삭제 버튼과 우클릭 메뉴가 이 값을 지운다.
+    /// </summary>
+    object? LastTouchedRow { get; set; }
+
+    /// <summary><see cref="LastTouchedRow"/> 를 지우는 명령(빠른추가 바 버튼·우클릭 메뉴가 쓴다).</summary>
+    IRelayCommand DeleteRowCommand { get; }
+
+    /// <summary>
+    /// 행을 지우기 직전에 그리드 편집을 끝내는 훅(그리드 코드비하인드가 채운다).
+    /// 셀 편집이 열린 채로 원본 컬렉션을 건드리면 Telerik 이 예외를 던진다 —
+    /// 붙여넣기 경로가 <c>CancelEdit()</c> 를 부르는 것과 같은 이유다.
+    /// </summary>
+    Action? EndGridEdit { get; set; }
 }

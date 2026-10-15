@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!--
@@ -16,6 +16,16 @@
     <Color x:Key="AppAccentStrongColor">#FF0072DE</Color>
     <SolidColorBrush x:Key="AppAccentStrongBrush" Color="{StaticResource AppAccentStrongColor}"/>
 
+    <!-- 주요 버튼(채운 강조색)의 상태별 색.
+         ⚠ Telerik RadButton 에 Background 를 직접 주면 **마우스오버·눌림·비활성에서
+            테마가 배경을 자기 색으로 덮어쓴다.** 흰 글자만 남아 글자가 사라진다.
+            그래서 주요 버튼은 순수 WPF Button + 자체 템플릿으로 만들고 여기서 상태색을 준다. -->
+    <Color x:Key="PrimaryActionHoverColor">#FF0060BE</Color>
+    <SolidColorBrush x:Key="PrimaryActionHoverBrush" Color="{StaticResource PrimaryActionHoverColor}"/>
+
+    <Color x:Key="PrimaryActionPressedColor">#FF00509E</Color>
+    <SolidColorBrush x:Key="PrimaryActionPressedBrush" Color="{StaticResource PrimaryActionPressedColor}"/>
+
     <!-- 다크 모드 강조 -->
     <Color x:Key="AppAccentDarkColor">#FF3E91FF</Color>
     <SolidColorBrush x:Key="AppAccentDarkBrush" Color="{StaticResource AppAccentDarkColor}"/>
@@ -31,7 +41,7 @@
     <SolidColorBrush x:Key="ShellSelectedBrush" Color="{StaticResource ShellSelectedColor}"/>
 
     <!-- 네이비 위 보조 텍스트 -->
-    <Color x:Key="ShellForegroundColor">#FF869DCF</Color>
+    <Color x:Key="ShellForegroundColor">#FF94A9D5</Color>
     <SolidColorBrush x:Key="ShellForegroundBrush" Color="{StaticResource ShellForegroundColor}"/>
 
     <!-- 네이비 위 제목 텍스트 -->
@@ -39,16 +49,16 @@
     <SolidColorBrush x:Key="ShellTitleForegroundBrush" Color="{StaticResource ShellTitleForegroundColor}"/>
 
     <!--=========== 분류군 식별색 — 관리자와 동일 ===========-->
-    <Color x:Key="FishColor">#FF00B8D4</Color>
+    <Color x:Key="FishColor">#FF008296</Color>
     <SolidColorBrush x:Key="FishBrush" Color="{StaticResource FishColor}"/>
 
     <Color x:Key="BenthosColor">#FF651FFF</Color>
     <SolidColorBrush x:Key="BenthosBrush" Color="{StaticResource BenthosColor}"/>
 
-    <Color x:Key="BirdColor">#FF9E9D24</Color>
+    <Color x:Key="BirdColor">#FF7B7A1C</Color>
     <SolidColorBrush x:Key="BirdBrush" Color="{StaticResource BirdColor}"/>
 
-    <Color x:Key="MammalColor">#FFFE9900</Color>
+    <Color x:Key="MammalColor">#FFAA6700</Color>
     <SolidColorBrush x:Key="MammalBrush" Color="{StaticResource MammalColor}"/>
 
     <Color x:Key="AmphibianReptileColor">#FFCC33FF</Color>
@@ -64,10 +74,10 @@
     <Color x:Key="MaxColor">#FFF25022</Color>
     <SolidColorBrush x:Key="MaxBrush" Color="{StaticResource MaxColor}"/>
 
-    <Color x:Key="AvgColor">#FF8EC441</Color>
+    <Color x:Key="AvgColor">#FF5F8C1F</Color>
     <SolidColorBrush x:Key="AvgBrush" Color="{StaticResource AvgColor}"/>
 
-    <Color x:Key="MinColor">#FF5B9BD5</Color>
+    <Color x:Key="MinColor">#FF2E6FB7</Color>
     <SolidColorBrush x:Key="MinBrush" Color="{StaticResource MinColor}"/>
 
     <!--=========== 등급 뱃지 (06_DESIGN_REBUILD §5-4) ===========-->
@@ -87,9 +97,17 @@
     <Color x:Key="GradeEColor">#FFC62828</Color>
     <SolidColorBrush x:Key="GradeEBrush" Color="{StaticResource GradeEColor}"/>
 
+    <!-- 밝은 등급색(B·C·D·미평가) 위 글자. 흰 글자는 대비 4.5:1 을 못 넘긴다(§3-7). -->
+    <Color x:Key="GradeBadgeDarkForeColor">#FF000000</Color>
+    <SolidColorBrush x:Key="GradeBadgeDarkForeBrush" Color="{StaticResource GradeBadgeDarkForeColor}"/>
+
     <!-- 미평가(`-`) — 0점·E등급과 반드시 달라 보여야 한다(_excel_formula_audit §5-5) -->
     <Color x:Key="GradeNoneColor">#FF9AA0A8</Color>
     <SolidColorBrush x:Key="GradeNoneBrush" Color="{StaticResource GradeNoneColor}"/>
+
+    <!-- 위험 액션 글자. MaxColor(#F25022)는 차트용 3:1 색이라 텍스트 4.5:1 에 미달한다(§3-7). -->
+    <Color x:Key="DangerTextColor">#FFC5330A</Color>
+    <SolidColorBrush x:Key="DangerTextBrush" Color="{StaticResource DangerTextColor}"/>
 
     <!--=========== 표 · 행 ===========-->
     <Color x:Key="RowAltColor">#FFFAFBFC</Color>
@@ -117,5 +135,158 @@
 
     <Color x:Key="DisabledForeColor">#FF9AA0A8</Color>
     <SolidColorBrush x:Key="DisabledForeBrush" Color="{StaticResource DisabledForeColor}"/>
+
+    <!--=========== 강조 표면 (README 신규 토큰 · design.md §3.7 대비 계약 통과분) ===========-->
+    <!-- 선택 칩 · 방금 추가된 행 · 보호종 뱃지의 배경. 배경 채움이므로 대비 면제. -->
+    <Color x:Key="AccentSurfaceColor">#FFE4F0FF</Color>
+    <SolidColorBrush x:Key="AccentSurfaceBrush" Color="{StaticResource AccentSurfaceColor}"/>
+
+    <!-- 선택된 분류군 타일 배경(첫 실행 화면). AccentSurface 보다 한 단계 옅다. -->
+    <Color x:Key="AccentSurfaceSoftColor">#FFF5FAFF</Color>
+    <SolidColorBrush x:Key="AccentSurfaceSoftBrush" Color="{StaticResource AccentSurfaceSoftColor}"/>
+
+    <!-- 위 두 배경 위에 얹는 글자·아이콘. AccentStrong(#0072DE)은 #E4F0FF 위에서 3.9:1 로 미달한다. -->
+    <Color x:Key="AccentOnSurfaceColor">#FF0057A8</Color>
+    <SolidColorBrush x:Key="AccentOnSurfaceBrush" Color="{StaticResource AccentOnSurfaceColor}"/>
+
+    <!--=========== 위험 표면 ===========-->
+    <!-- ⚠ 보호종(강조색)과 교란종(위험색)은 의미가 반대다 — 색을 절대 섞지 않는다(design.md §11). -->
+    <Color x:Key="DangerSurfaceColor">#FFFDE7DF</Color>
+    <SolidColorBrush x:Key="DangerSurfaceBrush" Color="{StaticResource DangerSurfaceColor}"/>
+
+    <Color x:Key="DangerSurfaceSoftColor">#FFFDF3EE</Color>
+    <SolidColorBrush x:Key="DangerSurfaceSoftBrush" Color="{StaticResource DangerSurfaceSoftColor}"/>
+
+    <Color x:Key="DangerOnSurfaceColor">#FF992700</Color>
+    <SolidColorBrush x:Key="DangerOnSurfaceBrush" Color="{StaticResource DangerOnSurfaceColor}"/>
+
+    <!--=========== 3차 보조 텍스트 ===========-->
+    <!-- 그리드 행 번호 · 워터마크 · 타일 유형설명. 흰 배경 5.74:1.
+         ⚠ 시안 1차본의 #999(2.85:1) · #8a8a8a(3.5:1) 로 되돌아가지 말 것(README 대비 교정 이력).
+         미입력 표시 `·` 는 null ≠ 0 을 뜻하는 의미 있는 문자이므로 이보다 진한
+         SecondaryForegroundBrush(합성 #444 · 9.74:1)를 쓴다. -->
+    <Color x:Key="TertiaryForegroundColor">#FF666666</Color>
+    <SolidColorBrush x:Key="TertiaryForegroundBrush" Color="{StaticResource TertiaryForegroundColor}"/>
+
+    <!--=========== 셸 칩 ===========-->
+    <!-- 캡션 바 분류군 칩이 열려 있을 때의 배경(딥네이비보다 한 단계 밝다). 배경 채움 — 면제. -->
+    <Color x:Key="ShellChipBackColor">#FF28313F</Color>
+    <SolidColorBrush x:Key="ShellChipBackBrush" Color="{StaticResource ShellChipBackColor}"/>
+
+    <!-- 캡션 바 구분선 · pill 테두리 (셸 배경 위 장식선 — 면제) -->
+    <Color x:Key="ShellDividerColor">#FF3B4457</Color>
+    <SolidColorBrush x:Key="ShellDividerBrush" Color="{StaticResource ShellDividerColor}"/>
+
+    <Color x:Key="ShellPillBorderColor">#FF646E7E</Color>
+    <SolidColorBrush x:Key="ShellPillBorderBrush" Color="{StaticResource ShellPillBorderColor}"/>
+
+    <!-- 캡션 바 세션 요약 텍스트 (셸 배경 위 11.9:1) -->
+    <Color x:Key="ShellMutedForegroundColor">#FFD6DEEE</Color>
+    <SolidColorBrush x:Key="ShellMutedForegroundBrush" Color="{StaticResource ShellMutedForegroundColor}"/>
+
+    <!--=========== 분류군 색점 — 셸(딥네이비) 위 변형 ===========-->
+    <!-- design.md §3.8 이 예고한 *Dark 계열의 셸 버전이다.
+         §3.3 의 기본 7색은 흰 배경 기준으로 보정된 값이라 캡션 바(#1E232E)와
+         칩 열림 배경(#28313F) 위에서는 1.36~3.95:1 로 무너진다(서식수변 1.36 · 저서동물 1.99).
+         색점은 정보를 전달하는 그래픽이므로 3:1 을 넘겨야 한다(§3.7).
+         명도만 올리고 색상·채도는 그대로라 두 앱의 분류군 인지 일관성은 유지된다.
+         밝기는 시안이 직접 제시한 어류 값(#3FD0E8 · 칩 배경 7.12:1)에 맞췄다 —
+         9px 색점은 3:1 을 겨우 넘기는 정도로는 네이비 위에서 읽히지 않는다.
+         ⚠ 흰 배경(팝오버·타일·본문)에서는 반드시 기본 7색을 쓴다. -->
+    <Color x:Key="FishOnShellColor">#FF3FD0E8</Color>
+    <SolidColorBrush x:Key="FishOnShellBrush" Color="{StaticResource FishOnShellColor}"/>
+
+    <Color x:Key="BenthosOnShellColor">#FFBDA0FF</Color>
+    <SolidColorBrush x:Key="BenthosOnShellBrush" Color="{StaticResource BenthosOnShellColor}"/>
+
+    <Color x:Key="BirdOnShellColor">#FFB6B529</Color>
+    <SolidColorBrush x:Key="BirdOnShellBrush" Color="{StaticResource BirdOnShellColor}"/>
+
+    <Color x:Key="MammalOnShellColor">#FFFC9800</Color>
+    <SolidColorBrush x:Key="MammalOnShellBrush" Color="{StaticResource MammalOnShellColor}"/>
+
+    <Color x:Key="AmphibianReptileOnShellColor">#FFE38FFF</Color>
+    <SolidColorBrush x:Key="AmphibianReptileOnShellBrush" Color="{StaticResource AmphibianReptileOnShellColor}"/>
+
+    <Color x:Key="HabitatWaterEdgeOnShellColor">#FF9FB3BC</Color>
+    <SolidColorBrush x:Key="HabitatWaterEdgeOnShellBrush" Color="{StaticResource HabitatWaterEdgeOnShellColor}"/>
+
+    <Color x:Key="WaterQualityOnShellColor">#FF82B1FF</Color>
+    <SolidColorBrush x:Key="WaterQualityOnShellBrush" Color="{StaticResource WaterQualityOnShellColor}"/>
+
+    <!-- 엘리베이션 그림자 색(design.md §2.8 E1~E3). 불투명도는 사용처에서 준다.
+         ⚠ 카드·버튼·그리드에는 그림자를 넣지 않는다 — 팝업·다이얼로그 전용이다. -->
+    <Color x:Key="ElevationShadowColor">#FF000000</Color>
+
+    <!--=========== 면(surface) — 시안 실측값 (2026-08-30) ===========-->
+    <!-- 종전에는 카드 배경을 Windows11 테마의 SecondaryBackgroundBrush 로,
+         카드 테두리를 입력칸용 PrimaryBorderBrush(rgba 0,0,0,.45 → 합성 #8C8C8C)로 썼다.
+         그 결과 카드가 '회색 상자'로 읽혔다. 시안은 **흰 카드 + 아주 옅은 테두리**다. -->
+
+    <!-- 본문 바닥. 카드(흰색)를 이 위에 띄운다. 순백 배경은 눈부시다(design.md §2.6). -->
+    <Color x:Key="PageBackColor">#FFF7F8FA</Color>
+    <SolidColorBrush x:Key="PageBackBrush" Color="{StaticResource PageBackColor}"/>
+
+    <!-- 카드 면. 시안 `background:#fff`. -->
+    <Color x:Key="CardBackColor">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="CardBackBrush" Color="{StaticResource CardBackColor}"/>
+
+    <!-- 카드 테두리. 시안 `rgba(0,0,0,.12)` → 흰 배경 합성 #E0E0E0.
+         ⚠ 이것은 **장식 경계**라 3:1 이 면제된다(design.md §3.7).
+            입력칸 경계(PrimaryBorderBrush · .45 · 3.36:1)와 혼동하지 말 것 —
+            입력 요소 경계는 WCAG 1.4.11 대상이므로 이 색으로 바꾸면 안 된다. -->
+    <Color x:Key="CardBorderColor">#1F000000</Color>
+    <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource CardBorderColor}"/>
+
+    <!-- 카드 안 세로 구분선. 시안 `rgba(0,0,0,.10~.20)`. 장식 — 면제. -->
+    <Color x:Key="CardDividerColor">#26000000</Color>
+    <SolidColorBrush x:Key="CardDividerBrush" Color="{StaticResource CardDividerColor}"/>
+
+    <!--=========== Telerik Windows11 팔레트 주입값 (App.xaml.cs 가 읽는다) ===========-->
+    <!-- 종전에는 이 값들이 App.xaml.cs 에 hex 문자열로 박혀 있었고,
+         tools/contrast_audit.py 는 같은 값을 또 한 번 베껴 두고 "동기화할 것"이라고만 적어 뒀다.
+         두 곳이 어긋나면 감사는 통과하는데 화면은 미달인 상태가 된다.
+         **여기 한 곳에만 두고 양쪽이 이 파일을 읽는다.** -->
+
+    <!-- 본문 글자. 테마 기본값은 회색기가 돌아 흰 배경에서 흐리게 읽힌다.
+         시안 본문색(#1b1b1b)으로 못박는다. 흰 배경 15.9:1. -->
+    <Color x:Key="ThemePrimaryForegroundColor">#FF1B1B1B</Color>
+
+    <!-- 폼 라벨·캡션 등 보조 글자. 합성 #444 · 9.74:1. 미입력 `·` 도 이 색을 쓴다. -->
+    <Color x:Key="ThemeSecondaryForegroundColor">#BB000000</Color>
+
+    <!-- 입력 요소 테두리(4면 동일). WCAG 1.4.11 대상이라 3:1 이상이어야 한다.
+         ⚠ Windows11 테마 기본은 아래쪽만 진한 '밑줄형'이라 4면이 달라 보인다.
+            네 방향 모두 이 색으로 통일한다 — 아래 Secondary/Tertiary/Main 도 같은 값을 준다.
+         합성 #737373 · 4.68:1 (종전 #72000000 은 #8C8C8C · 3.36:1 로 흐렸다). -->
+    <Color x:Key="ThemeInputBorderColor">#8C000000</Color>
+
+    <!-- 선택 표시 **배경**. 테두리로 쓰면 1.26:1 로 미달한다(design.md §1). -->
+    <Color x:Key="ThemeSelectedColor">#FFE5E5E5</Color>
+
+    <!-- 입력칸에 **직접** 거는 테두리·배경.
+         ⚠ Windows11 테마의 입력칸은 팔레트의 테두리색을 쓰지 않는다 —
+            연한 회색으로 채우고 아래쪽만 살짝 진하게 그리는 '채움형(WinUI filled)'이다.
+            그래서 팔레트만 바꿔서는 4면 균일한 테두리가 나오지 않는다.
+            Style 을 통째로 주면 테마 템플릿이 벗겨지므로(90_TECH_NOTES §2),
+            사용처에서 BorderBrush·BorderThickness·Background 를 **개별 속성**으로 준다. -->
+    <SolidColorBrush x:Key="InputBorderBrush" Color="{StaticResource ThemeInputBorderColor}"/>
+    <SolidColorBrush x:Key="InputBackBrush" Color="{StaticResource CardBackColor}"/>
+
+    <!-- 값 고정(압정) — 고정된 칸과 안내 띠.
+         색만으로 구분하지 않는다(§11) : 칸에는 채워진 압정 아이콘이 함께 붙고,
+         안내 띠에는 압정 아이콘 + 문구가 함께 나간다. -->
+    <Color x:Key="PinnedInputBackColor">#FFFFF7E6</Color>
+    <SolidColorBrush x:Key="PinnedInputBackBrush" Color="{StaticResource PinnedInputBackColor}"/>
+    <Color x:Key="PinnedNoticeForeColor">#FF6B4A00</Color>
+    <SolidColorBrush x:Key="PinnedNoticeForeBrush" Color="{StaticResource PinnedNoticeForeColor}"/>
+
+    <!-- 지도 마커 : 위성사진 위에 얹히므로 흰 테두리로 항상 떨어져 보이게 한다. -->
+    <Color x:Key="MarkerFillColor">#FFE53935</Color>
+    <SolidColorBrush x:Key="MarkerFillBrush" Color="{StaticResource MarkerFillColor}"/>
+    <Color x:Key="MarkerStrokeColor">#FFFFFFFF</Color>
+    <SolidColorBrush x:Key="MarkerStrokeBrush" Color="{StaticResource MarkerStrokeColor}"/>
+    <Color x:Key="MapLabelBackColor">#E6202632</Color>
+    <SolidColorBrush x:Key="MapLabelBackBrush" Color="{StaticResource MapLabelBackColor}"/>
 
 </ResourceDictionary>

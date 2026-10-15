@@ -73,6 +73,19 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
     [ObservableProperty] private int _totalSpeciesCount;
     [ObservableProperty] private int _totalIndividualCount;
 
+    // ── 본문 상단 요약 스트립 (관찰형은 결과 레일을 두지 않는다 · design.md §5.2) ──
+    /// <summary>법정보호종 종수(멸종위기·천연기념물).</summary>
+    [ObservableProperty] private int _protectedCount;
+
+    /// <summary>생태계교란생물 종수. ⚠ 보호종과 **의미가 반대**라 한 숫자로 합치지 않는다.</summary>
+    [ObservableProperty] private int _invasiveCount;
+
+    /// <summary>행이 하나도 없는가(빈 상태 안내 · README §11.4).</summary>
+    public bool HasNoRows => Entries.Count == 0;
+
+    /// <summary>빠른추가로 들어온 행을 1.2초간 강조한다(기반 클래스가 타이머를 돌린다).</summary>
+    protected override void SetJustAdded(BirdEntry row, bool value) => row.IsJustAdded = value;
+
 
     protected override void Recalculate()
     {
@@ -80,6 +93,11 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
                                    .Select(x => x.SpeciesKo).Distinct().Count();
         // 결측치(null)와 0 엄격 구분 : 미입력은 합계에서 0으로 캐스팅
         TotalIndividualCount = Entries.Sum(x => x.IndividualCount ?? 0);
+        var (prot, invasive) = ObservationSummary.Count(Entries);
+        ProtectedCount = prot;
+        InvasiveCount = invasive;
+        OnPropertyChanged(nameof(HasNoRows));
+
         ExportExcelCommand.NotifyCanExecuteChanged();
         ExportBulkCommand.NotifyCanExecuteChanged();
     }

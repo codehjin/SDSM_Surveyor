@@ -1,0 +1,214 @@
+﻿<Window x:Class="SDSM_Surveyor_App.Views.Windows.TaxonPickerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance vm:TaxonPickerViewModel}"
+        Title="삼성 DS 모니터링 야장"
+        MinWidth="920" Width="1024"
+        MinHeight="700" Height="760"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="CanResize"
+        FontFamily="{StaticResource DefaultFontFamily}"
+        FontSize="{StaticResource DefaultFontSize}"
+        Background="{StaticResource PageBackBrush}">
+
+    <!-- 첫 실행 — 담당 분류군 선택 (README §1 · 시안 3c)
+         담당자는 자기 분류군만 쓴다. 여기서 하나를 고르면 그 분류군의 야장만 열리고
+         상단 분류군 탭 행(44px)은 표시되지 않는다.
+         ⚠ 자료는 좁아지지 않는다 — 세션은 그대로 7개 분류군을 함께 담는다. -->
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome ResizeBorderThickness="8" CaptionHeight="50" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <Border>
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="Margin" Value="0"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}"
+                                 Value="Maximized">
+                        <Setter Property="Margin" Value="8"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="{StaticResource TitleBarRowHeight}"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- ── 캡션 바 ──────────────────────────────────────────────
+                 ⚠ 삼성 로고·브랜드 남색·SamsungOne 은 쓰지 않는다(design.md 라이선스 원칙).
+                    앱 마크는 강조색 사각형이고, 앱 이름은 한글만 적는다(영문명 없음). -->
+            <Border Grid.Row="0" Background="{StaticResource ShellPrimaryBrush}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal"
+                                VerticalAlignment="Center" Margin="20 0 0 0">
+                        <Border Width="{StaticResource AppMarkSize}" Height="{StaticResource AppMarkSize}"
+                                CornerRadius="{StaticResource AppMarkRadius}"
+                                Background="{StaticResource AppAccentBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Text="삼성 DS 모니터링 야장" Margin="14 0 0 0" VerticalAlignment="Center"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource ShellTitleForegroundBrush}"/>
+                        <TextBlock Text="{Binding Version, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Margin="14 0 0 0" VerticalAlignment="Center"
+                                   FontSize="{StaticResource CaptionFontSize}"
+                                   Foreground="{StaticResource ShellForegroundBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
+                        <Button Click="Minimize_Click" Style="{StaticResource CaptionButtonStyle}"
+                                WindowChrome.IsHitTestVisibleInChrome="True"
+                                AutomationProperties.Name="최소화">
+                            <icon:PackIconCodicons Kind="ChromeMinimize" Width="12" Height="12"/>
+                        </Button>
+                        <Button Click="Maximize_Click" Style="{StaticResource CaptionButtonStyle}"
+                                WindowChrome.IsHitTestVisibleInChrome="True"
+                                AutomationProperties.Name="최대화">
+                            <icon:PackIconCodicons Kind="ChromeMaximize" Width="12" Height="12"/>
+                        </Button>
+                        <Button Click="Close_Click" Style="{StaticResource CaptionCloseButtonStyle}"
+                                WindowChrome.IsHitTestVisibleInChrome="True"
+                                AutomationProperties.Name="닫기">
+                            <icon:PackIconCodicons Kind="ChromeClose" Width="12" Height="12"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ── 카드 1개를 가운데 정렬 (폭 840 · 패딩 32 · 코너 8) ────────── -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <Border Width="{StaticResource TaxonPickerCardWidth}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Margin="{StaticResource CardPaddingLarge}"
+                        Style="{StaticResource CardBorderStyle}"
+                        Padding="{StaticResource CardPaddingLarge}">
+                    <StackPanel>
+
+                        <TextBlock Text="담당 분류군을 고르세요"
+                                   Style="{StaticResource PageTitleTextStyle}"
+                                   HorizontalAlignment="Left"/>
+
+                        <TextBlock Text="{Binding Description}" Margin="0 8 0 0"
+                                   TextWrapping="Wrap"
+                                   Foreground="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"
+                                   LineHeight="21" LineStackingStrategy="BlockLineHeight"/>
+
+                        <!-- 4열 × 2행. 칸 간격 12 는 항목 Margin 으로 주고, 바깥 여백은 음수 마진으로 상쇄한다. -->
+                        <ItemsControl ItemsSource="{Binding Cells}" Margin="0 20 -12 -12"
+                                      KeyboardNavigation.TabNavigation="Local"
+                                      KeyboardNavigation.DirectionalNavigation="Cycle">
+                            <ItemsControl.Resources>
+
+                                <!-- 분류군 타일 -->
+                                <DataTemplate DataType="{x:Type vm:TaxonTileViewModel}">
+                                    <RadioButton GroupName="TaxonPick"
+                                                 Style="{StaticResource TaxonTileStyle}"
+                                                 IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                 AutomationProperties.Name="{Binding Name}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- 색점 : 정보를 전달하는 그래픽이므로 Opacity 를 낮추지 않는다(§3.3) -->
+                                            <Border Grid.Row="0" HorizontalAlignment="Left"
+                                                    Width="{StaticResource TaxonTileDotSize}"
+                                                    Height="{StaticResource TaxonTileDotSize}"
+                                                    CornerRadius="{StaticResource TaxonTileDotRadius}"
+                                                    Background="{Binding DotBrushKey, Converter={StaticResource KeyToBrush}}"/>
+
+                                            <TextBlock Grid.Row="2" Text="{Binding Name}"
+                                                       Style="{StaticResource SectionTitleTextStyle}"
+                                                       HorizontalAlignment="Left"/>
+
+                                            <TextBlock Grid.Row="3" Text="{Binding TypeCaption}"
+                                                       Style="{StaticResource CaptionTextStyle}"
+                                                       Foreground="{StaticResource TertiaryForegroundBrush}"
+                                                       HorizontalAlignment="Left"/>
+                                        </Grid>
+                                    </RadioButton>
+                                </DataTemplate>
+
+                                <!-- 8번째 칸 : 점선 안내 -->
+                                <DataTemplate DataType="{x:Type vm:TaxonHintViewModel}">
+                                    <Grid Height="{StaticResource TaxonTileHeight}">
+                                        <Rectangle RadiusX="8" RadiusY="8"
+                                                   StrokeThickness="{StaticResource BorderThinWidth}"
+                                                   StrokeDashArray="4 3"
+                                                   Stroke="{telerik:Windows11Resource ResourceKey=PrimaryBorderBrush}"/>
+                                        <TextBlock Text="{Binding Text}"
+                                                   Margin="{StaticResource CardPadding}"
+                                                   TextWrapping="Wrap" TextAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="{StaticResource LinkFontSize}"
+                                                   LineHeight="19" LineStackingStrategy="BlockLineHeight"
+                                                   Foreground="{StaticResource TertiaryForegroundBrush}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.Resources>
+
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="2" Columns="4"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="Margin" Value="0 0 12 12"/>
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                        </ItemsControl>
+
+                        <Border Style="{StaticResource HorizontalDividerStyle}" Margin="0 20 0 0"/>
+
+                        <!-- 하단 액션 행 : 좌 체크박스 · 우 보조/주요 버튼 -->
+                        <Grid Margin="0 16 0 0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <CheckBox Grid.Column="0" VerticalAlignment="Center"
+                                      IsChecked="{Binding RememberOnStartup, Mode=TwoWay}"
+                                      Content="{Binding RememberText}"/>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <telerik:RadButton Command="{Binding ContinueFromSessionsCommand}"
+                                                   Height="{StaticResource InputHeight}"
+                                                   Padding="16 0"
+                                                   Margin="{StaticResource ActionButtonMargin}"
+                                                   Content="자료함에서 이어하기"/>
+                                <Button Command="{Binding OpenCommand}"
+                                                   IsDefault="True"
+                                                   Height="{StaticResource InputHeight}"
+                                                   Padding="16 0"
+                                                   Content="{Binding OpenButtonText}"
+                                                   Style="{StaticResource PrimaryActionButtonStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</Window>

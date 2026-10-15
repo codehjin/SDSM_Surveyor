@@ -21,7 +21,13 @@ public partial class SessionBrowserWindow : Window
             $"'{e.Site} · {e.YearChsu}' 세션을 삭제할까요?\n입력한 7개 분류군 자료가 함께 지워집니다.",
             "세션 삭제", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK;
 
-        _vm.LoadCompleted += (_, _) => Close();
+        // 불러오기가 끝나면 창을 닫는다. 두 호출처가 모두 ShowDialog 라 DialogResult 를 세워도 안전하다 —
+        // 첫 실행 화면의 「자료함에서 이어하기」가 이 값으로 '세션을 실제로 열었는지'를 판단한다.
+        _vm.LoadCompleted += (_, _) =>
+        {
+            DialogResult = true;
+            Close();
+        };
 
         Loaded += async (_, _) => await _vm.RefreshAsync();
     }

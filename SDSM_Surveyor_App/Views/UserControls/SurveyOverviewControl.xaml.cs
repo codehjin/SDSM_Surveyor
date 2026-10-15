@@ -13,6 +13,11 @@ public partial class SurveyOverviewControl : UserControl
 {
     public SurveyOverviewControl() => InitializeComponent();
 
+    // 지도 팝업. 창을 여는 것은 View 의 일이다 — SurveyMeta 는 Model 이라 Window 를 모른다.
+    // 좌표가 없어도 열린다 — 지도 관리로 가는 입구가 이 버튼뿐이다(XAML 주석 참조).
+    private void Map_Click(object sender, System.Windows.RoutedEventArgs e)
+        => new Windows.MapPopupWindow { Owner = System.Windows.Window.GetWindow(this) }.ShowDialog();
+
     // 지점 콤보는 편집 가능(IsEditable)이라 조사자가 `ST1` 처럼 칠 수 있다.
     // RadComboBox 에는 TextChanged 이벤트가 없어 포커스 이탈·Enter 시점에 해석한다.
     private void SiteCombo_LostFocus(object sender, System.Windows.RoutedEventArgs e) => ResolveSite();

@@ -1,0 +1,175 @@
+<Window x:Class="SDSM_Surveyor_App.Views.Windows.MapManagerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:ctrl="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
+        xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
+        mc:Ignorable="d"
+        Title="지도 관리" Width="1120" Height="720"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="{StaticResource DefaultFontFamily}"
+        FontSize="{StaticResource DefaultFontSize}"
+        Background="{telerik:Windows11Resource ResourceKey=PrimaryBackgroundBrush}"
+        d:DataContext="{d:DesignInstance vm:MapManagerViewModel}">
+
+    <!-- 지도 관리 — 추가·교체·이름변경·삭제·최신 지정·2점 보정.
+         승인이나 잠금은 없다. 지도는 참고 자료다(부사장 확정 2026-09-09). -->
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0 0 0 12">
+            <icon:PackIconMaterial Kind="ImageMultipleOutline" Width="20" Height="20" VerticalAlignment="Center"
+                                   Foreground="{StaticResource AppAccentBrush}"/>
+            <TextBlock Text="지도 관리" Margin="8 0 0 0" VerticalAlignment="Center"
+                       Style="{StaticResource SectionTitleTextStyle}"/>
+            <TextBlock Text="지도는 참고 자료입니다. 자유롭게 추가·교체·삭제할 수 있습니다. 매년 갱신본은 메일로 받아 [추가]하면 됩니다."
+                       Margin="12 0 0 0" VerticalAlignment="Center" Style="{StaticResource CaptionTextStyle}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="520"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <telerik:RadGridView Grid.Column="0" x:Name="MapGrid"
+                                 ItemsSource="{Binding Maps}"
+                                 SelectedItem="{Binding Selected, Mode=TwoWay}"
+                                 AutoGenerateColumns="False" IsReadOnly="True"
+                                 ShowGroupPanel="False" CanUserFreezeColumns="False"
+                                 GridLinesVisibility="Horizontal"
+                                 RowIndicatorVisibility="Collapsed">
+                <telerik:RadGridView.Columns>
+                    <telerik:GridViewDataColumn Header="이름"   DataMemberBinding="{Binding Display}" Width="220"/>
+                    <telerik:GridViewDataColumn Header="크기"   DataMemberBinding="{Binding SizeText}" Width="90" TextAlignment="Right"/>
+                    <telerik:GridViewDataColumn Header="보정"   DataMemberBinding="{Binding HasCalibration}" Width="60" TextAlignment="Center"/>
+                    <telerik:GridViewDataColumn Header="최신"   DataMemberBinding="{Binding IsLatest}" Width="60" TextAlignment="Center"/>
+                    <telerik:GridViewDataColumn Header="출처"   DataMemberBinding="{Binding Source}"  Width="*"/>
+                </telerik:RadGridView.Columns>
+            </telerik:RadGridView>
+
+            <Border Grid.Column="2" BorderBrush="{StaticResource CardBorderBrush}"
+                    BorderThickness="{StaticResource BorderThin}"
+                    CornerRadius="{StaticResource CornerRadiusMd}" ClipToBounds="True">
+                <ctrl:PanZoomImage x:Name="Viewer"/>
+            </Border>
+        </Grid>
+
+        <!-- 보정 패널 -->
+        <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}" Padding="12" Margin="0 12 0 0">
+            <StackPanel>
+                <TextBlock Text="{Binding SelectedInfo}" Style="{StaticResource SubHeaderTextStyle}"/>
+                <TextBlock Text="{Binding CalibrationText}" Style="{StaticResource CaptionTextStyle}"
+                           TextWrapping="Wrap" Margin="0 2 0 8"/>
+
+                <Grid Visibility="{Binding IsCalibrating, Converter={StaticResource BoolToVisibility}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="기준점 1" VerticalAlignment="Center" Margin="0 0 8 0"
+                               Style="{StaticResource FormLabelStyle}"/>
+                    <telerik:RadWatermarkTextBox Grid.Column="1" Margin="0 0 6 0"
+                                                 BorderBrush="{StaticResource InputBorderBrush}"
+                                                 BorderThickness="{StaticResource BorderThin}"
+                                                 Background="{StaticResource InputBackBrush}"
+                                                 Height="{StaticResource InputHeight}"
+                                                 WatermarkContent="위도" Text="{Binding Lat1, UpdateSourceTrigger=PropertyChanged}"/>
+                    <telerik:RadWatermarkTextBox Grid.Column="2" Margin="0 0 16 0"
+                                                 BorderBrush="{StaticResource InputBorderBrush}"
+                                                 BorderThickness="{StaticResource BorderThin}"
+                                                 Background="{StaticResource InputBackBrush}"
+                                                 Height="{StaticResource InputHeight}"
+                                                 WatermarkContent="경도" Text="{Binding Lon1, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <TextBlock Grid.Column="3" Text="기준점 2" VerticalAlignment="Center" Margin="0 0 8 0"
+                               Style="{StaticResource FormLabelStyle}"/>
+                    <telerik:RadWatermarkTextBox Grid.Column="4" Margin="0 0 6 0"
+                                                 BorderBrush="{StaticResource InputBorderBrush}"
+                                                 BorderThickness="{StaticResource BorderThin}"
+                                                 Background="{StaticResource InputBackBrush}"
+                                                 Height="{StaticResource InputHeight}"
+                                                 WatermarkContent="위도" Text="{Binding Lat2, UpdateSourceTrigger=PropertyChanged}"/>
+                    <telerik:RadWatermarkTextBox Grid.Column="5" Margin="0 0 16 0"
+                                                 BorderBrush="{StaticResource InputBorderBrush}"
+                                                 BorderThickness="{StaticResource BorderThin}"
+                                                 Background="{StaticResource InputBackBrush}"
+                                                 Height="{StaticResource InputHeight}"
+                                                 WatermarkContent="경도" Text="{Binding Lon2, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <telerik:RadButton Content="보정 계산" Padding="12 4" Margin="0 0 8 0"
+                                           Command="{Binding ApplyCalibrateCommand}"/>
+                        <telerik:RadButton Content="보정 취소" Padding="12 4"
+                                           Command="{Binding CancelCalibrateCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="3" Margin="0 12 0 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="{Binding Message}" VerticalAlignment="Center"
+                       Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Margin="0 0 12 0"/>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <telerik:RadWatermarkTextBox Width="180" Margin="0 0 6 0"
+                                             BorderBrush="{StaticResource InputBorderBrush}"
+                                             BorderThickness="{StaticResource BorderThin}"
+                                             Background="{StaticResource InputBackBrush}"
+                                             Height="{StaticResource InputHeight}"
+                                             WatermarkContent="지도 이름"
+                                             IsEnabled="{Binding HasSelection}"
+                                             Text="{Binding Selected.Name, UpdateSourceTrigger=PropertyChanged}"/>
+                <telerik:RadButton Content="이름 저장" Padding="10 4" Margin="0 0 12 0"
+                                   Command="{Binding SaveNameCommand}" IsEnabled="{Binding HasSelection}"/>
+
+                <telerik:RadButton Content="추가" Padding="12 4" Margin="0 0 6 0" Click="Add_Click"/>
+                <telerik:RadButton Content="교체" Padding="12 4" Margin="0 0 6 0" Click="Replace_Click"
+                                   IsEnabled="{Binding HasSelection}"/>
+                <!-- 추가한 지도는 적용 권역이 비어 있어 어느 지점에도 '딱 맞는 지도'가 되지 못한다.
+                     지금 야장의 대분류·지점을 붙여 줘야 팝업이 그 지도를 1순위로 쓴다. -->
+                <telerik:RadButton Content="이 지점에 적용" Padding="12 4" Margin="0 0 6 0"
+                                   Command="{Binding ApplyToCurrentCommand}"
+                                   IsEnabled="{Binding CanApplyToCurrent}"
+                                   ToolTipService.ShowOnDisabled="True"
+                                   ToolTipService.ToolTip="지금 야장의 대분류·지점을 이 지도의 적용 대상에 넣습니다(대분류를 먼저 고르세요)"/>
+                <telerik:RadButton Content="최신으로" Padding="12 4" Margin="0 0 6 0"
+                                   Command="{Binding SetLatestCommand}" IsEnabled="{Binding HasSelection}"/>
+                <telerik:RadButton Content="보정 시작" Padding="12 4" Margin="0 0 6 0"
+                                   Command="{Binding StartCalibrateCommand}" IsEnabled="{Binding HasSelection}"/>
+                <telerik:RadButton Content="삭제" Padding="12 4" Margin="0 0 12 0" Click="Delete_Click"
+                                   IsEnabled="{Binding HasSelection}"/>
+                <telerik:RadButton Content="닫기" Padding="16 4" Click="Close_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- 지도 파일이 실제로 놓이는 폴더. 메일로 받은 새 지도를 여기에 넣으면 된다.
+             ⚠ Message 는 방금 한 일로 계속 바뀌므로 경로를 거기 실으면 금방 사라진다. -->
+        <TextBlock Grid.Row="4" Margin="0 8 0 0" Text="{Binding MapsDir, StringFormat=지도 폴더 · {0}}"
+                   Style="{StaticResource CaptionTextStyle}"
+                   Foreground="{StaticResource TertiaryForegroundBrush}"
+                   TextTrimming="CharacterEllipsis"
+                   ToolTipService.ToolTip="{Binding MapsDir}"/>
+    </Grid>
+</Window>
