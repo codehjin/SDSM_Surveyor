@@ -210,9 +210,28 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         }
     }
 
-    /// <summary>접힌 요약줄에 띄우는 조사환경 경고(채집기 + 하상구성).</summary>
+    /// <summary>
+    /// 선택지 밖 값 경고(C-4 · 예전 세션 값은 지우지 않는다). 제방은 직접 입력을 허용하므로 보지 않는다.
+    /// 식생 수피도는 코드(`1`~`3`), 투명도·냄새는 정수 `1`~`5` 가 선택지다 — `없음`·`25% 미만` 같은 예전 글자는 여기 걸린다.
+    /// </summary>
+    public string ChoiceWarning
+    {
+        get
+        {
+            static IEnumerable<string> One(string? v) => v is null ? Array.Empty<string>() : new[] { v };
+            return FormChoices.Describe(
+                ("식생 수피도", One(FormChoices.OutOfForm(CanopyCover, FormChoices.CanopyCover))),
+                ("범람원의 이용", FormChoices.OutOfForm(Floodplain, FormChoices.Floodplain)),
+                ("하천유형(서식처)", One(FormChoices.OutOfForm(HabitatRiverType, FormChoices.HabitatRiverType))),
+                ("흐름상태", FormChoices.OutOfForm(FlowState, FormChoices.FlowState)),
+                ("투명도", One(FormChoices.OutOfForm(Transparency, FormChoices.Transparency))),
+                ("냄새", One(FormChoices.OutOfForm(Smell, FormChoices.Smell))));
+        }
+    }
+
+    /// <summary>접힌 요약줄에 띄우는 조사환경 경고(채집기 + 하상구성 + 선택지 밖 값).</summary>
     public string EnvironmentWarning =>
-        string.Join(" · ", new[] { GearWarning, SubstrateWarning }.Where(s => s.Length > 0));
+        string.Join(" · ", new[] { GearWarning, SubstrateWarning, ChoiceWarning }.Where(s => s.Length > 0));
 
     private void RaiseEnvironmentSummary()
     {
@@ -221,8 +240,16 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         OnPropertyChanged(nameof(SubstrateTotal));
         OnPropertyChanged(nameof(SubstrateWarning));
         OnPropertyChanged(nameof(GearWarning));
+        OnPropertyChanged(nameof(ChoiceWarning));
         OnPropertyChanged(nameof(EnvironmentWarning));
     }
+
+    partial void OnCanopyCoverChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnFloodplainChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnHabitatRiverTypeChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnFlowStateChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnTransparencyChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnSmellChanged(string? value) => RaiseEnvironmentSummary();
 
     partial void OnBedrockChanged(string? value) => RaiseEnvironmentSummary();
     partial void OnConcreteChanged(string? value) => RaiseEnvironmentSummary();

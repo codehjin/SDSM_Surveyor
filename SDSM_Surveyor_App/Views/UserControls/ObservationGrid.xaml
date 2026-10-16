@@ -5,7 +5,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              mc:Ignorable="d" d:DesignWidth="1224" d:DesignHeight="400"
+             MinHeight="{StaticResource GridMinHeight}"
              x:Name="Root">
+    <!-- C-3 : 세 화면 공통 최소 높이(머리글 + 8줄 + 새 행). 모자라면 바깥 본문이 스크롤된다. -->
 
     <!-- ══ 관찰형 그리드 (06_DESIGN_REBUILD §5-2-2 · §5-3) ═══════════════════════
          조류 · 포유류 · 양서파충류 세 화면이 공유한다.

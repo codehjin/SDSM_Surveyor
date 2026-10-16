@@ -20,9 +20,21 @@ public partial class MainSurveyWindow : Window, ISingletonService
         // 7개 탭이 같은 인스턴스를 본다 — 어느 탭에서 지점을 골라도 나머지에 그대로 보인다.
         // ⚠ 창 DataContext 보다 **먼저** 넣는다. 순서가 반대면 그 사이 한 프레임 동안
         //    MetaCard 하위가 창 VM 을 상속받아 SurveyMeta 전용 바인딩이 전부 오류로 찍힌다.
-        MetaCard.DataContext = App.Current.Services.GetRequiredService<Models.SurveyMeta>();
+        var meta = App.Current.Services.GetRequiredService<Models.SurveyMeta>();
+        MetaCard.DataContext = meta;
 
         DataContext = App.Current.Services.GetRequiredService<MainSurveyWindowViewModel>();
+
+        // C-2 : 입력한 자료가 있는 채로 지점을 다른 등록 지점으로 바꾸면 묻는다(세션 불러오기·복사 중에는 SurveyMeta 가 묻지 않는다).
+        Func<SDSM_Models.SurveySite, bool> guard = next =>
+        {
+            if (!App.Current.Services.GetRequiredService<ISessionService>().HasInputData()) return false;
+            // 콤보 선택 처리 안에서 대화창을 띄우지 않는다 — 한 박자 뒤에 묻는다.
+            _ = Dispatcher.BeginInvoke(new Action(() => AskSiteChange(meta, next)));
+            return true;
+        };
+        meta.SiteChangeGuard = guard;
+        Closed += (_, _) => { if (meta.SiteChangeGuard == guard) meta.SiteChangeGuard = null; };
 
         StateChanged += (_, _) => HandleMaximized();
         Loaded += (_, _) => MigrateLegacyDrafts();
@@ -80,6 +92,71 @@ public partial class MainSurveyWindow : Window, ISingletonService
     // 지점 지도(최신 지도 + 현재 입력 좌표 마커)
     private void Map_Click(object sender, RoutedEventArgs e)
         => new MapPopupWindow { Owner = this }.ShowDialog();
+
+    /// <summary>
+    /// [새 지점](C-2) — 저장 확인(B-5) → 7개 분류군 입력과 지점을 비움 → 압정 칸은 그대로 → 지점 칸에 포커스.
+    /// </summary>
+    private async void NewSite_Click(object sender, RoutedEventArgs e)
+    {
+        var sessions = App.Current.Services.GetRequiredService<ISessionService>();
+        if (!await UnsavedChangesPrompt.ConfirmAsync(this, sessions,
+                "새 지점으로 시작하면 지금 화면의 입력과 지점이 비워집니다(압정으로 고정한 칸은 그대로).")) return;
+        sessions.StartNewSite(null);
+        FocusSiteBox();
+    }
+
+    /// <summary>조사개황을 펼치고 지점 칸에 포커스를 둔다.</summary>
+    private void FocusSiteBox()
+    {
+        MetaToggle.IsChecked = true;
+        _ = Dispatcher.BeginInvoke(new Action(() =>
+        {
+            var overview = FindChild<Views.UserControls.SurveyOverviewControl>(MetaCard);
+            overview?.FocusSite();
+        }), System.Windows.Threading.DispatcherPriority.Input);
+    }
+
+    private static T? FindChild<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(root); i++)
+        {
+            var c = System.Windows.Media.VisualTreeHelper.GetChild(root, i);
+            if (c is T t) return t;
+            if (FindChild<T>(c) is T deeper) return deeper;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 지점 직접 변경 확인(C-2) — 입력한 자료가 있는 채로 다른 등록 지점을 골랐다.
+    /// 기본은 [지점명만 고침(유지)] — 자료를 지우지 않는다. [새 지점으로 시작]이면 저장 확인(B-5) 뒤 입력을 비운다.
+    /// </summary>
+    private async void AskSiteChange(Models.SurveyMeta meta, SDSM_Models.SurveySite next)
+    {
+        var sessions = App.Current.Services.GetRequiredService<ISessionService>();
+        var from = string.IsNullOrWhiteSpace(meta.SiteDisplay) ? "(지점 없음)" : meta.SiteDisplay;
+        var to = meta.DisplayOf(next);
+        var pick = ChoiceDialog.Ask(this, "지점 변경",
+            $"입력한 자료가 있습니다. 지점을 「{from}」에서 「{to}」(으)로 바꿉니다.\n\n" +
+            "· 지점명만 고침 — 입력한 자료를 그대로 두고 지점 이름만 바꿉니다(다음 저장부터 새 지점 이름으로 저장됩니다).\n" +
+            "· 새 지점으로 시작 — 지금 입력을 비우고 새 지점에서 처음부터 입력합니다.",
+            new ChoiceDialog.Option("취소(바꾸지 않음)", IsCancel: true),
+            new ChoiceDialog.Option("새 지점으로 시작(입력 비움)"),
+            new ChoiceDialog.Option("지점명만 고침(유지)", IsPrimary: true));
+
+        switch (pick)
+        {
+            case 2:
+                meta.SelectedSite = next;
+                break;
+            case 1:
+                if (!await UnsavedChangesPrompt.ConfirmAsync(this, sessions, "새 지점으로 시작하면 지금 화면의 입력이 비워집니다.")) return;
+                sessions.StartNewSite(next);
+                break;
+            default:
+                return;   // 바꾸지 않는다 — 콤보는 지금 지점을 그대로 보인다
+        }
+    }
 
     /// <summary>구버전 단일 슬롯 임시저장(drafts\*.json)을 세션 하나로 편입한다(최초 1회).</summary>
     private async void MigrateLegacyDrafts()

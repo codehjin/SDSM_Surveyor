@@ -505,7 +505,7 @@ KRDS(대한민국 정부 디자인시스템)는 본문 행간 150% 이상을 요
 
 ---
 
-## 6. 공용 UserControl 5종 (2026-08-23 신설 · 2026-08-30 1종 추가)
+## 6. 공용 UserControl (2026-08-23 신설 · 2026-08-30 1종 · 2026-10-16 B-8·C-4 2종 추가)
 
 같은 것을 여러 화면이 각자 들고 있으면 한 곳만 고쳤을 때 화면끼리 어긋난다. 실제로 그랬다.
 
@@ -515,6 +515,21 @@ KRDS(대한민국 정부 디자인시스템)는 본문 행간 150% 이상을 요
 | `TaxonStatusBar` | 7 | `Summary` · `Actions` 슬롯, `WarningText` | 상태문·경고 표시·버튼 계층 배치 |
 | `ObservationGrid` | 3 | `Rows` · `Columns`(1행) · `RowDetails`(2행) | 그리드 설정 · Ctrl+V · 보호종 강조 · 2단 행 |
 | `CollapsibleSummary` | 7 | `Title` · `Caption` · `SummarySlot`(접힘 한 줄) · `ExpandedSlot` · `IsExpanded` | 36px 요약줄 ↔ 카드 껍데기 · 접기/펼치기 링크 · 180ms 페이드 |
+| `MultiChoiceBox` (B-8 · C-4) | 3 | `Options`(문자열) · `Value`(저장 문자열) · `AllowCustom` | 복수 선택 콤보 · 저장 `이름,이름`(양식 순서 · 공백 없음) · 양식 외 값 `(양식 외)` 보존+경고 · 직접 입력 글상자(`AllowCustom`) |
+| `SingleChoiceBox` (C-4) | 2 | `Options`(`FormChoice` 저장값·글자) · `Value` | 단일 선택 콤보(`1 없음` 을 보이고 `1` 저장) · 비우기 단추(null) · 양식 외 값 보존+경고 |
+
+**선택지 칸 규칙(C-4)** — 최종본 양식의 택1·복수 항목은 자유 입력칸이 아니라 위 두 컨트롤을 쓴다. 선택지 목록은 `Models\FormChoices.cs` 한 곳에만 둔다.
+예전 세션의 선택지 밖 값은 **지우지 않는다** — `(양식 외)` 로 고른 채 보이고 칸 아래·접힌 요약줄에 경고한다. 화면을 열기만 해서는 저장값이 바뀌지 않아야 한다.
+
+**화면 전체 스크롤(C-3)** — 셸 본문(조사개황 + 분류군 화면)은 바깥 `ScrollViewer` 하나로 스크롤된다.
+분류군 화면 바탕은 `Grid` 가 아니라 **`FillPanel`**(세로로 쌓고 `FillPanel.Fill` 칸 하나만 남은 높이를 받음)이다.
+채움 칸 최소 높이: 그리드 `GridMinHeight` 340(머리글 + 8행 + 새 행) · 종 입력형 그리드+합계 `SpeciesAreaMinHeight` 376 · 폼형 항목 칸 `GridMinHeight`.
+다 들어가면 스크롤이 없고, 모자라면 채움 칸이 최소 높이를 지킨 채 바깥이 스크롤된다. 채움 칸은 늘 유한한 높이를 받아 `RadGridView` 가상화가 유지된다.
+휠은 `NestedWheelScroll` — 그리드가 더 갈 수 있으면 그리드, 끝이면 바깥. 새 화면도 이 구조를 따른다(그리드 높이를 숫자로 고정하지 않는다).
+
+**확인 대화창(C-1·C-2)** — 버튼 글자가 곧 동작이어야 하는 확인은 `Views\Windows\ChoiceDialog` 를 쓴다(`ChoiceDialog.Ask(owner, 제목, 본문, Option…)`).
+`MessageBox` 의 예/아니요에 다른 뜻을 얹지 않는다. 주요(기본·Enter) 버튼은 맨 오른쪽 채운 강조색, Esc·닫기(×)는 `IsCancel` 버튼.
+예/아니요/취소가 말 그대로인 질문(B-5 "저장할까요?")은 종전처럼 `MessageBox` 다.
 
 **`CollapsibleSummary` 규칙**
 - 접힘은 **숨기기가 아니다.** 요약줄이 값을 계속 보여 줘야 접어 둔 채로도 무엇이 들어갔는지 확인된다.

@@ -25,6 +25,20 @@ public interface ISessionService
     /// <summary>지점 간 값 복사(조사개황 유지 · 지점 교체 · 종 목록 비움).</summary>
     void CopyToSite(SurveySite site);
 
+    /// <summary>
+    /// 새 지점으로 시작(C-2) — 7개 분류군 입력을 비우고, 지점(<paramref name="site"/> 가 null 이면 지점·하천·좌표·권역을 비움)을 바꾼다.
+    /// 그 밖의 조사개황(압정 6칸 포함)은 그대로. 저장 전 새 세션이 된다. 저장 확인(B-5)은 부르는 쪽이 먼저 한다.
+    /// </summary>
+    void StartNewSite(SurveySite? site);
+
+    /// <summary>7개 분류군 중 입력한 자료가 하나라도 있는가(C-2 지점 직접 변경 확인).</summary>
+    bool HasInputData();
+
+    /// <summary>
+    /// 지금 화면(조사개황·분류군 자료·열린 세션·저장 안 한 변경 기준)을 보존한 채 일을 하고 끝나면 되돌린다(C-8 일괄 출력).
+    /// </summary>
+    Task<T> PreserveScreenAsync<T>(Func<Task<T>> work);
+
     /// <summary>이전 차수 복사(종 목록까지 복제 후 연도차수 교체).</summary>
     Task<bool> CopyFromPreviousAsync(string sessionId, string newYearChsu, DateTime? newDate);
 

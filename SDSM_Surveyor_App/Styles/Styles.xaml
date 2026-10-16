@@ -104,6 +104,11 @@
     <sys:Double x:Key="GridRowHeight">34</sys:Double>
     <!-- 관찰형 2단 행 : 윗줄 34 + 아랫줄 30 -->
     <sys:Double x:Key="GridRow2LineHeight">30</sys:Double>
+    <!-- C-3 : 바깥 스크롤 안에서 그리드가 지키는 최소 높이 = 머리글 34 + 8행 × 34 + 새 행 34.
+         관찰형은 2단 행이라 같은 높이에서 4종 남짓 보인다. 폼형(수질·서식수변)의 항목 칸도 같은 값을 쓴다. -->
+    <sys:Double x:Key="GridMinHeight">340</sys:Double>
+    <!-- 종 입력형(어류·저서동물)은 그리드 아래 합계 행 36 이 같은 칸에 있다 -->
+    <sys:Double x:Key="SpeciesAreaMinHeight">376</sys:Double>
 
     <!--=========== 타이포그래피 ===========-->
     <!-- ⚠ WPF 는 LineHeight 와 LineStackingStrategy 를 **함께** 줘야 행간이 먹는다(design.md §4.1).

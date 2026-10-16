@@ -207,6 +207,55 @@ public sealed class SessionService : ISessionService, ISingletonService
     }
 
     /// <summary>
+    /// 새 지점으로 시작(C-2) — <see cref="CopyToSite"/> 와 같은 흐름에서 지점만 비운 형태(site 가 null)이거나,
+    /// 지점을 직접 바꾸면서 [새 지점으로 시작]을 고른 경우(site = 새 지점)다.
+    /// 압정 6칸을 포함한 나머지 조사개황은 그대로 둔다.
+    /// </summary>
+    public void StartNewSite(SurveySite? site)
+    {
+        foreach (var t in Taxa) t.ClearData();
+
+        _meta.ClearSite();
+        if (site is not null) _meta.SelectedSite = site;   // 지점명·하천·사업장·좌표·권역이 함께 채워진다
+        CurrentSessionId = null;       // 아직 저장되지 않은 새 세션
+        MarkClean();                   // 새 지점의 출발점(B-5)
+    }
+
+    public bool HasInputData() => Taxa.Any(t => t.HasData);
+
+    /// <summary>
+    /// 지금 화면을 그대로 보존한 채 <paramref name="work"/> 를 한다(C-8 일괄 출력).
+    /// 일괄 출력은 세션을 차례로 화면 VM 에 불러와 파일을 쓰므로(VM 이 싱글턴) 끝나면 보던 화면을 되돌려야 한다.
+    /// 보존하는 것: 조사개황 · 자료가 있는 분류군 상태 · 열린 세션 키 · '저장 안 한 변경' 기준점(B-5).
+    /// 저장 확인(B-5)은 부르는 쪽이 먼저 한다 — 여기서는 저장하지 않고 메모리에만 들고 있다.
+    /// </summary>
+    public async Task<T> PreserveScreenAsync<T>(Func<Task<T>> work)
+    {
+        var meta = SurveyMetaSnapshot.From(_meta);
+        var taxa = Taxa.Where(t => t.HasData)
+                       .ToDictionary(t => t.Key, t => JsonSerializer.SerializeToElement(t.CaptureState(), SessionJson.Options));
+        var id = CurrentSessionId;
+        var baseline = _baseline;
+        try
+        {
+            return await work();
+        }
+        finally
+        {
+            meta.ApplyTo(_meta);
+            foreach (var t in Taxa)
+            {
+                t.ClearData();
+                if (!taxa.TryGetValue(t.Key, out var json)) continue;
+                try { t.RestoreState(json); }
+                catch { t.ClearData(); }
+            }
+            CurrentSessionId = id;
+            _baseline = baseline;
+        }
+    }
+
+    /// <summary>
     /// 이전 차수 복사 — 같은 지점의 지난 회차를 종 목록까지 통째로 불러온 뒤
     /// 연도차수만 새 값으로 바꾼다(개체수만 갱신하면 되도록).
     /// </summary>

@@ -1,0 +1,35 @@
+<Window x:Class="SDSM_Surveyor_App.Views.Windows.ChoiceDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Title="확인" SizeToContent="WidthAndHeight" MinWidth="420"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+        FontFamily="{StaticResource DefaultFontFamily}"
+        FontSize="{StaticResource DefaultFontSize}"
+        Background="{telerik:Windows11Resource ResourceKey=PrimaryBackgroundBrush}">
+
+    <!-- 선택 대화창 (C-1·C-2 신설).
+         ⚠ 버튼 글자가 곧 동작이다 — MessageBox 의 예/아니요에 다른 뜻을 얹지 않는다(지시서 C-1).
+         주요(기본) 버튼은 가장 오른쪽 · 채운 강조색, 나머지는 기본 버튼(design.md §6 버튼 계층).
+         Enter = 주요 버튼, Esc·닫기(×) = 취소 몫 버튼. -->
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0 0 0 12">
+            <icon:PackIconMaterial Kind="AlertCircleOutline" Width="20" Height="20" VerticalAlignment="Center"
+                                   Foreground="{StaticResource AppAccentBrush}"/>
+            <TextBlock x:Name="Heading" Margin="8 0 0 0" VerticalAlignment="Center"
+                       Style="{StaticResource SubHeaderTextStyle}"/>
+        </StackPanel>
+
+        <TextBlock x:Name="Message" Grid.Row="1" TextWrapping="Wrap" MaxWidth="520" Margin="0 0 0 20"
+                   Style="{StaticResource BodyTextStyle}"/>
+
+        <StackPanel x:Name="Buttons" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"/>
+    </Grid>
+</Window>

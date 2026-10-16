@@ -99,6 +99,9 @@ internal sealed class NoSessionService : ISessionService
     public Task<bool> LoadAsync(string sessionId) => throw Fail();
     public Task DeleteAsync(string sessionId) => throw Fail();
     public void CopyToSite(SurveySite site) => throw Fail();
+    public void StartNewSite(SurveySite? site) => throw Fail();
+    public bool HasInputData() => false;
+    public Task<T> PreserveScreenAsync<T>(Func<Task<T>> work) => throw Fail();
     public Task<bool> CopyFromPreviousAsync(string sessionId, string newYearChsu, DateTime? newDate) => throw Fail();
     public Task<int> MigrateLegacyDraftsAsync() => throw Fail();
     public Task<int> SeedTestDataIfEmptyAsync() => throw Fail();

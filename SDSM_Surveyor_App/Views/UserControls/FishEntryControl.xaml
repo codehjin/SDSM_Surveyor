@@ -9,6 +9,7 @@
              xmlns:core="clr-namespace:SDSM_Surveyor_App.Behaviors"
              xmlns:ctrl="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
              xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
+             xmlns:m="clr-namespace:SDSM_Surveyor_App.Models"
              mc:Ignorable="d" d:DesignWidth="1224" d:DesignHeight="700"
              d:DataContext="{d:DesignInstance vm:FishEntryViewModel}">
 
@@ -20,14 +21,9 @@
             그 폭이 국명·학명 열로 간다.
          ⚠ 조사환경·건강성을 접으면 종 그리드가 12행 → 20행이 된다. 접힘 상태는 세션에 저장된다. -->
 
-    <Grid Margin="0 0 0 12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>   <!-- ① 조사환경 (접이식) -->
-            <RowDefinition Height="Auto"/>   <!-- ② 건강성   (접이식) -->
-            <RowDefinition Height="Auto"/>   <!-- ③ 빠른추가 -->
-            <RowDefinition Height="*"/>      <!-- ④ 종 그리드 + 합계 행 -->
-            <RowDefinition Height="Auto"/>   <!-- ⑤ 상태 · 액션 -->
-        </Grid.RowDefinitions>
+    <ctrl:FillPanel Margin="0 0 0 12">
+        <!-- C-3 : 바탕은 Grid 가 아니라 FillPanel 이다(나온 순서대로 쌓는다 · Grid.Row 는 보지 않는다).
+             채움 칸(FillPanel.Fill)만 남은 높이를 받고, 모자라면 최소 높이를 지킨 채 바깥 본문이 스크롤된다. -->
 
         <!--═══ ① 조사환경 ══════════════════════════════════════════════════
              수생태계 건강성 평가 지침의 어류 야장 항목을 담는다.
@@ -82,25 +78,31 @@
 
             <ctrl:CollapsibleSummary.ExpandedSlot>
                 <StackPanel>
-                    <!-- 1행 : 서식처 · 채집방법 (design.md §2.3 4단 규격) -->
+                    <!-- 1행 : 서식처 · 채집방법 (design.md §2.3 4단 규격)
+                         C-4 : 최종본 양식 정의 그대로 선택지로 바꿨다(Models\FormChoices — 이름 저장, 여러 개는 `,`).
+                               예전 세션의 양식 외 값은 지우지 않고 '(양식 외)' 로 보이며 경고한다.
+                         C-5 : 어류 채집방법 = 채집도구(복수 + 직접 입력) + 채집소요시간(분 · 정수). 횟수 칸은 없다(양식에 없음). -->
                     <WrapPanel>
                         <StackPanel Style="{StaticResource FormFieldMdStyle}">
                             <TextBlock Text="하천형태" Style="{StaticResource FormLabelStyle}"/>
-                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                         WatermarkContent="Aa-Bb 이행형 등"
-                                                         Text="{Binding HabitatRiverType, UpdateSourceTrigger=PropertyChanged}"/>
+                            <ctrl:MultiChoiceBox Options="{x:Static m:FormChoices.FishRiverForm}"
+                                                 Value="{Binding HabitatRiverType}"
+                                                 ToolTipText="양식 27행 하천형태 — 자연형 / 직강화 / 복합형 / 댐/보/교각 / 공사 (여러 개)"
+                                                 AutomationName="하천형태"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldSmStyle}">
                             <TextBlock Text="유속" Style="{StaticResource FormLabelStyle}"/>
-                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                         ToolTipService.ToolTip="양식 28행 흐름상태(유속) — 아주빠름 / 빠름 / 보통 / 느림 / 정체"
-                                                         Text="{Binding HabitatFlowState, UpdateSourceTrigger=PropertyChanged}"/>
+                            <ctrl:SingleChoiceBox Options="{x:Static m:FormChoices.FishVelocity}"
+                                                  Value="{Binding HabitatFlowState}"
+                                                  ToolTipText="양식 28행 흐름상태(유속) — 아주빠름 / 빠름 / 보통 / 느림 / 정체"
+                                                  AutomationName="유속"/>
                         </StackPanel>
-                        <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                        <StackPanel Style="{StaticResource FormFieldMdStyle}">
                             <TextBlock Text="채집도구" Style="{StaticResource FormLabelStyle}"/>
-                            <telerik:RadComboBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                 ItemsSource="{Binding CollectionTools}"
-                                                 SelectedItem="{Binding CollectionTool, Mode=TwoWay}"/>
+                            <ctrl:MultiChoiceBox Options="{x:Static m:FormChoices.FishCollectionTool}"
+                                                 Value="{Binding CollectionTool}" AllowCustom="True"
+                                                 ToolTipText="양식 15행 채집도구 — 투망/족대 · 통발, 그 밖의 도구는 아래 칸에 직접 입력 (여러 개)"
+                                                 AutomationName="채집도구"/>
                         </StackPanel>
                         <!-- 흐름상태(채집) : 양식 16행 '1 여울, 2 흐름, 3 소 (복수)'(B-8 신설).
                              종전에는 VM·세션·내보내기에는 있었는데 화면 칸이 없었다. -->
@@ -114,6 +116,7 @@
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="채집시간(분)" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="분"
+                                                         ToolTipService.ToolTip="양식 14행 채집소요시간 — 분 단위 정수"
                                                          core:IntegerInput.IsEnabled="True" Text="{Binding CollectionTime, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
@@ -446,7 +449,8 @@
              선언 열 폭(고정폭 합 940px) — design.md §7 한도 1,104px 이내.
              ⚠ RadGridView 는 폭 합이 뷰포트를 넘어도 가로 스크롤을 만들지 않고 열을 뭉갠다.
                 1280 폭에서 이 값이 유지되는지 확인할 것(§7 · 완료 조건). -->
-        <Grid Grid.Row="3" Margin="0 8 0 0">
+        <!-- C-3 : 조사환경·건강성을 펼쳐도 그리드 8행 + 합계는 남긴다(모자라면 바깥 본문이 스크롤된다) -->
+        <Grid Grid.Row="3" Margin="0 8 0 0" ctrl:FillPanel.Fill="True" MinHeight="{StaticResource SpeciesAreaMinHeight}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
@@ -810,5 +814,5 @@
                 </StackPanel>
             </ctrl:TaxonStatusBar.Actions>
         </ctrl:TaxonStatusBar>
-    </Grid>
+    </ctrl:FillPanel>
 </UserControl>

@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using SDSM_Surveyor_App.Models;
 
 namespace SDSM_Surveyor_App.Views.UserControls;
 
@@ -14,20 +16,23 @@ namespace SDSM_Surveyor_App.Views.UserControls;
 /// 예전 세션의 자유 입력 값은 `,`·`.` 로 나눠(관리자 Import 와 같은 구분자) 선택지와 맞는 것은 고른 상태로 보여 주고,
 /// 맞지 않는 것은 <b>지우지 않고</b> '(양식 외)' 항목으로 붙여 선택된 채로 둔 뒤 경고한다.
 /// 화면을 열기만 하고 아무것도 고치지 않으면 저장값을 다시 쓰지 않는다(공백·순서까지 그대로).
+///
+/// <see cref="AllowCustom"/>(C-4 · 제방·채집도구 — 양식이 "그 외 도구명"·"자유"를 허용한다):
+/// 아래 글상자에 치고 Enter 로 항목을 더한다. 선택지 밖 값은 '(직접 입력)' 으로 보이고 경고하지 않는다.
 /// </summary>
 public partial class MultiChoiceBox : UserControl
 {
     /// <summary>드롭다운 한 줄.</summary>
     public sealed class Choice
     {
-        public Choice(string name, bool isExtra) { Name = name; IsExtra = isExtra; }
+        public Choice(string name, bool isExtra, bool isCustom = false) { Name = name; IsExtra = isExtra; IsCustom = isCustom; }
         public string Name { get; }
-        /// <summary>양식 선택지에 없는 예전 값.</summary>
+        /// <summary>양식 선택지에 없는 값(예전 세션 값 · 직접 입력 값).</summary>
         public bool IsExtra { get; }
-        public string Display => IsExtra ? $"{Name} (양식 외)" : Name;
+        /// <summary>직접 입력을 허용하는 칸의 선택지 밖 값 — 경고하지 않는다.</summary>
+        public bool IsCustom { get; }
+        public string Display => IsCustom ? $"{Name} (직접 입력)" : IsExtra ? $"{Name} (양식 외)" : Name;
     }
-
-    private static readonly char[] Separators = { ',', '.' };
 
     private readonly ObservableCollection<Choice> _items = new();
     private bool _syncing;
@@ -61,6 +66,17 @@ public partial class MultiChoiceBox : UserControl
         set => SetValue(ValueProperty, value);
     }
 
+    /// <summary>선택지 밖 값을 직접 입력할 수 있는 칸인가(제방·채집도구).</summary>
+    public static readonly DependencyProperty AllowCustomProperty = DependencyProperty.Register(
+        nameof(AllowCustom), typeof(bool), typeof(MultiChoiceBox),
+        new PropertyMetadata(false, (d, _) => ((MultiChoiceBox)d).Rebuild()));
+
+    public bool AllowCustom
+    {
+        get => (bool)GetValue(AllowCustomProperty);
+        set => SetValue(AllowCustomProperty, value);
+    }
+
     /// <summary>아무것도 고르지 않았을 때 콤보에 보이는 글자.</summary>
     public static readonly DependencyProperty EmptyTextProperty = DependencyProperty.Register(
         nameof(EmptyText), typeof(string), typeof(MultiChoiceBox), new PropertyMetadata("·"));
@@ -89,14 +105,11 @@ public partial class MultiChoiceBox : UserControl
         set => SetValue(AutomationNameProperty, value);
     }
 
-    /// <summary>선택지에 없는 예전 값이 남아 있는가(화면 경고와 같은 조건).</summary>
-    public bool HasExtra => _items.Any(c => c.IsExtra && Box.SelectedItems.Contains(c));
+    /// <summary>선택지에 없는 예전 값이 남아 있는가(화면 경고와 같은 조건 · 직접 입력 칸은 늘 false).</summary>
+    public bool HasExtra => _items.Any(c => c.IsExtra && !c.IsCustom && Box.SelectedItems.Contains(c));
 
     /// <summary>저장 문자열을 항목으로 나눈다(`,`·`.` · 앞뒤 공백 제거 · 빈 항목 무시).</summary>
-    public static List<string> Split(string? value) =>
-        string.IsNullOrWhiteSpace(value)
-            ? new List<string>()
-            : value.Split(Separators).Select(t => t.Trim()).Where(t => t.Length > 0).ToList();
+    public static List<string> Split(string? value) => FormChoices.Split(value);
 
     /// <summary>저장값 → 드롭다운 항목·선택 상태.</summary>
     private void Rebuild()
@@ -111,12 +124,13 @@ public partial class MultiChoiceBox : UserControl
             _items.Clear();
             foreach (var o in options) _items.Add(new Choice(o, false));
             foreach (var t in tokens.Where(t => !options.Contains(t, StringComparer.Ordinal)).Distinct(StringComparer.Ordinal))
-                _items.Add(new Choice(t, true));
+                _items.Add(new Choice(t, true, AllowCustom));
 
             foreach (var c in _items.Where(c => tokens.Contains(c.Name, StringComparer.Ordinal)))
                 Box.SelectedItems.Add(c);
         }
         finally { _syncing = false; }
+        Custom.Visibility = AllowCustom ? Visibility.Visible : Visibility.Collapsed;
         UpdateWarning();
     }
 
@@ -124,6 +138,11 @@ public partial class MultiChoiceBox : UserControl
     private void Box_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (_syncing) return;
+        Commit();
+    }
+
+    private void Commit()
+    {
         var picked = _items.Where(c => Box.SelectedItems.Contains(c)).Select(c => c.Name).ToList();
         _syncing = true;
         try { Value = picked.Count == 0 ? null : string.Join(",", picked); }
@@ -131,9 +150,32 @@ public partial class MultiChoiceBox : UserControl
         UpdateWarning();
     }
 
+    /// <summary>직접 입력 — Enter 로 항목을 더하고 고른 상태로 둔다(이미 있으면 고르기만).</summary>
+    private void Custom_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        e.Handled = true;
+        var tokens = Split(Custom.Text);
+        if (tokens.Count == 0) return;
+
+        _syncing = true;
+        try
+        {
+            foreach (var t in tokens)
+            {
+                var c = _items.FirstOrDefault(x => x.Name == t);
+                if (c is null) { c = new Choice(t, true, true); _items.Add(c); }
+                if (!Box.SelectedItems.Contains(c)) Box.SelectedItems.Add(c);
+            }
+        }
+        finally { _syncing = false; }
+        Custom.Text = string.Empty;
+        Commit();
+    }
+
     private void UpdateWarning()
     {
-        var extras = _items.Where(c => c.IsExtra && Box.SelectedItems.Contains(c)).Select(c => c.Name).ToList();
+        var extras = _items.Where(c => c.IsExtra && !c.IsCustom && Box.SelectedItems.Contains(c)).Select(c => c.Name).ToList();
         Warn.Text = extras.Count == 0
             ? string.Empty
             : $"양식 외 값 {string.Join(",", extras)} · 지우지 않음 — 확인하세요";

@@ -16,4 +16,11 @@ public interface ISiteListProvider
 
     /// <summary>지점명·조사장소 번호(ST1·St.1·st 1)·연도별 표기로 지점을 찾는다. 못 찾으면 null.</summary>
     SurveySite? Resolve(string? input, string? project = null);
+
+    /// <summary>
+    /// St.번호 형태 입력의 후보 전부(C-7). 둘 이상이면 자동으로 고르지 않고 이 후보를 보여 준다.
+    /// St.번호 형태가 아니면 빈 목록.
+    /// </summary>
+    IReadOnlyList<SurveySite> Candidates(string? input, string? project = null) =>
+        SiteOrdering.StCandidates(ByProject(project), input);
 }

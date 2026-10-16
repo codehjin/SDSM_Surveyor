@@ -68,6 +68,106 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     /// <summary>선택된 지점. 고르면 하천·사업장·좌표가 자동으로 채워진다.</summary>
     [ObservableProperty] private SurveySite? _selectedSite;
 
+    /// <summary>
+    /// 지점 콤보 한 줄 — 지점 + 조사자 앱 표기(C-7). 공유 모델의 <c>SurveySite.Display</c> 는 St.번호를 늘 붙이므로 쓰지 않는다.
+    /// record 라 같은 지점·같은 표기면 같은 항목으로 본다(목록을 바꿔 끼워도 선택이 풀리지 않는다).
+    /// </summary>
+    public sealed record SiteChoice(SurveySite Site, string Display, string DisplayLong)
+    {
+        public override string ToString() => Display;
+    }
+
+    /// <summary>지점 콤보 항목(정렬 · 표기 규칙 적용). St.번호 후보를 보여 주는 동안은 그 후보만 담는다.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedSiteChoice))]
+    private List<SiteChoice> _siteChoices = new();
+
+    private bool _swappingChoices;
+
+    /// <summary>지점 콤보의 선택(= <see cref="SelectedSite"/>). 목록을 바꿔 끼우는 동안 들어오는 null 은 무시한다.</summary>
+    public SiteChoice? SelectedSiteChoice
+    {
+        get => SelectedSite is null ? null : SiteChoices.FirstOrDefault(c => ReferenceEquals(c.Site, SelectedSite));
+        set
+        {
+            if (_swappingChoices && value is null) return;
+            if (value is not null && TryGuardSiteChange(value.Site))
+            {
+                OnPropertyChanged(nameof(SelectedSiteChoice));   // 확인이 끝날 때까지 콤보는 지금 지점을 보인다
+                return;
+            }
+            SelectedSite = value?.Site;
+        }
+    }
+
+    /// <summary>
+    /// 지점 직접 변경 확인(C-2). 화면(창)이 붙인다 — 입력한 자료가 있어 물어야 하면 true 를 돌려주고
+    /// 확인 뒤 스스로 지점을 바꾼다(유지면 <see cref="SelectedSite"/> 대입 · 새 지점이면 <c>ISessionService.StartNewSite</c>).
+    /// null 이면 묻지 않는다(자동 검증·기준 파일 생성).
+    /// </summary>
+    public Func<SurveySite, bool>? SiteChangeGuard { get; set; }
+
+    /// <summary>
+    /// 조사자가 지점을 <b>다른</b> 등록 지점으로 바꾸려 한다 — 확인이 필요하면 확인에 넘기고 true.
+    /// 세션 불러오기·복사(대량 적용 구간)와 첫 지점 선택은 묻지 않는다.
+    /// </summary>
+    private bool TryGuardSiteChange(SurveySite next)
+    {
+        if (_bulkDepth > 0 || SiteChangeGuard is null) return false;
+        if (ReferenceEquals(next, SelectedSite)) return false;
+        if (SelectedSite is null && string.IsNullOrWhiteSpace(Site)) return false;   // 처음 고르는 지점
+        if (SelectedSite is null && string.Equals(Site?.Trim(), next.SiteName, StringComparison.Ordinal)) return false;
+        return SiteChangeGuard(next);
+    }
+
+    /// <summary>지점과 그에 딸린 값(하천·사업장·좌표·권역)을 비운다(C-2 [새 지점]). 그 밖의 조사개황은 그대로.</summary>
+    public void ClearSite()
+    {
+        SelectedSite = null;
+        Site = null;
+        River = null;
+        Workplace = null;
+        Lat = null;
+        Lng = null;
+        MajorRegion = null;
+        MiddleRegion = null;
+        if (IsShowingCandidates) SetChoices(SiteOptions, null);
+        OnPropertyChanged(nameof(SiteDisplay));
+        OnPropertyChanged(nameof(HasMap));
+        RaiseSiteFlags();
+    }
+
+    /// <summary>St.번호 입력에 후보가 여럿이라 그 후보만 보여 주는 중인가(C-7). 안내 문구가 <see cref="SiteHint"/> 에 나온다.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SiteHint))]
+    private string? _candidateHint;
+
+    public bool IsShowingCandidates => CandidateHint is not null;
+
+    /// <summary>지점 표기 — 번호를 믿을 수 있는 하천만 `곡교천1 (St.1)`(C-7 · <see cref="SiteOrdering.Display"/>).</summary>
+    public string DisplayOf(SurveySite s) => SiteOrdering.Display(s, _sites?.All ?? (IEnumerable<SurveySite>)SiteOptions);
+
+    /// <summary>지점 목록 → 콤보 항목(조사자 앱 표기). 자료함의 지점 복사 콤보도 쓴다.</summary>
+    public List<SiteChoice> ToChoices(IEnumerable<SurveySite> sites) =>
+        sites.Select(s =>
+        {
+            var d = DisplayOf(s);
+            return new SiteChoice(s, d, string.IsNullOrWhiteSpace(s.Desc) ? d : $"{d} · {s.Desc}");
+        }).ToList();
+
+    private void SetChoices(IEnumerable<SurveySite> sites, string? hint)
+    {
+        _swappingChoices = true;
+        try
+        {
+            SiteChoices = ToChoices(sites);
+            CandidateHint = hint;
+        }
+        finally { _swappingChoices = false; }
+        OnPropertyChanged(nameof(SelectedSiteChoice));
+        OnPropertyChanged(nameof(IsShowingCandidates));
+    }
+
     /// <summary>지점 마스터를 연결한다(각 분류군 VM이 생성자에서 호출).</summary>
     public void UseSiteList(ISiteListProvider provider)
     {
@@ -81,7 +181,9 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     private void RefreshSiteOptions()
     {
         if (_sites is null) return;
-        SiteOptions = _sites.ByProject(Project);
+        // C-7 : 하천(가나다) → 하천별 혼합 규칙(St.번호를 믿을 수 있으면 번호 순, 아니면 지점명 자연 정렬)
+        SiteOptions = SiteOrdering.Sort(_sites.ByProject(Project));
+        SetChoices(SiteOptions, null);
         OnPropertyChanged(nameof(IsSiteSelectable));
         OnPropertyChanged(nameof(SiteHint));
     }
@@ -99,6 +201,8 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
         Workplace = null;
         Lat = null;
         Lng = null;
+        MajorRegion = null;     // C-6 : 권역도 지점(하천)에 딸린 값이다
+        MiddleRegion = null;
 
         RefreshSiteOptions();
         RaiseSummary();
@@ -112,10 +216,13 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     public string SiteHint =>
         string.IsNullOrWhiteSpace(Project) ? "대분류를 먼저 고르세요."
         : SiteOptions.Count == 0 ? $"'{Project}' 에 등록된 지점이 없습니다. 관리자에게 지점 등록을 요청하세요."
-        : SiteDesc;
+        : CandidateHint ?? SiteDesc;
 
     partial void OnSelectedSiteChanged(SurveySite? value)
     {
+        OnPropertyChanged(nameof(SelectedSiteChoice));
+        // 후보를 보여 주던 중에 하나를 골랐다 — 전체 목록으로 되돌린다(선택은 유지된다).
+        if (value is not null && IsShowingCandidates) SetChoices(SiteOptions, null);
         if (value is null || _applyingSite) return;
         _applyingSite = true;
         try
@@ -125,6 +232,15 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
             if (!string.IsNullOrWhiteSpace(value.Workplace)) Workplace = value.Workplace;
             if (value.Lat is double la) Lat = la.ToString("0.######");
             if (value.Lng is double ln) Lng = ln.ToString("0.######");
+
+            // C-6 : 대권역·중권역은 하천 단위 고정표로 채운다(표에 없는 하천이면 비운다).
+            // ⚠ 세션 복원(대량 적용 구간)에서는 저장된 값을 그대로 둔다 — 복원은 '지점을 고른 것'이 아니다.
+            if (_bulkDepth == 0)
+            {
+                var region = RegionTable.Find(value.River);
+                MajorRegion = region?.Major;
+                MiddleRegion = region?.Middle;
+            }
             OnPropertyChanged(nameof(SiteDisplay));
             OnPropertyChanged(nameof(HasMap));
             RaiseSiteFlags();
@@ -143,14 +259,33 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
         if (_applyingSite) return;
 
         var hit = _sites.Resolve(text, Project);
+        if (hit is null && _bulkDepth == 0)
+        {
+            // C-7 : St.번호 후보가 둘 이상 — 자동으로 고르지 않고 지점 콤보에 그 후보만 보여 준다.
+            var cands = _sites.Candidates(text, Project);
+            if (cands.Count > 1)
+            {
+                SetChoices(cands, $"'{text.Trim()}' 에 맞는 지점이 {cands.Count}곳입니다 — 하나를 고르세요: {string.Join(" · ", cands.Select(DisplayOf))}");
+                RaiseSiteFlags();
+                return;
+            }
+        }
+        if (IsShowingCandidates) SetChoices(SiteOptions, null);   // 다른 값을 쳤다 — 전체 목록으로
+
         if (hit is not null && !ReferenceEquals(hit, SelectedSite))
+        {
+            if (TryGuardSiteChange(hit)) { OnPropertyChanged(nameof(SelectedSiteChoice)); return; }   // C-2 확인 뒤 바꾼다
             SelectedSite = hit;
+        }
         else
             RaiseSiteFlags();
     }
 
-    /// <summary>화면 표기 — `곡교천1 (St.1)`. 조사자가 번호를 함께 인지하도록.</summary>
-    public string SiteDisplay => SelectedSite?.Display ?? Site ?? string.Empty;
+    /// <summary>
+    /// 화면 표기 — 번호를 믿을 수 있는 하천만 `곡교천1 (St.1)`, 나머지는 지점명만(C-7).
+    /// 공유 모델의 <c>SurveySite.Display</c>(늘 번호를 붙인다)는 고치지 않고 여기서 만든다.
+    /// </summary>
+    public string SiteDisplay => SelectedSite is not null ? DisplayOf(SelectedSite) : Site ?? string.Empty;
 
     /// <summary>지점 마스터에 등록된 지점인지(미등록이면 화면에 경고를 띄운다).</summary>
     public bool IsSiteRegistered => SelectedSite is not null || string.IsNullOrWhiteSpace(Site);
@@ -216,7 +351,7 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     /// <summary>요약줄 앞의 대분류 표기. 색점과 **함께** 쓴다(색만으로 구분하지 않는다).</summary>
     public string ProjectText => HasProject ? Project! : "대분류 미선택";
 
-    /// <summary>접힌 조사개황 한 줄 요약 — `곡교천1 (St.1) · 2026반기1차 · 05-14`.</summary>
+    /// <summary>접힌 조사개황 한 줄 요약 — `곡교천1 (St.1) · 2026반기1차 · 05-14`(St.번호는 C-7 규칙).</summary>
     public string OverviewSummary
     {
         get

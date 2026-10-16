@@ -153,6 +153,37 @@ return (DataTemplate)XamlReader.Parse(
 `App.xaml.cs` 생성자 순서 중요: 테마 설정 → 팔레트 → DI → `InitializeComponent()` → 폰트/팔레트 색 적용.
 팔레트 `AccentColor`를 바꾸면 기존 화면의 `AccentBrush`가 일괄 반영된다.
 
+### ⚠ 바깥 스크롤 안의 그리드 — `FillPanel` (C-3 · 2026-10-16 실측)
+
+본문 전체를 `ScrollViewer` 로 감싸면 안의 패널은 **높이 무한**으로 재진다. `Grid` 의 별(*) 행은 그때 Auto 처럼 굴어
+`RadGridView` 가 모든 행을 만든다(가상화 꺼짐 · 수백 행에서 느림). 그래서 `Views\UserControls\FillPanel` 을 쓴다 — 함정 두 개를 겪었다.
+
+1. **WPF 는 받은 높이보다 크게 원해도 `DesiredSize` 를 받은 높이로 잘라 알린다**(넘친 부분은 잘려 그려진다).
+   그래서 안쪽의 최소 높이(`MinHeight`)가 바깥 패널로 올라오지 않는다 — 첫 시도에서 그리드는 최소 높이를 지켰는데 그 아래(합계·상태바)가 잘렸고 바깥 스크롤도 안 생겼다.
+   → `FillPanel` 이 채움 칸 안을 따라 내려가 **최소 필요 높이를 직접 센다**(감싸는 요소만 · 안쪽 `FillPanel` 이면 그 고정 칸 합 + 채움 칸 최소).
+2. 안쪽 패널은 받은 높이를 늘 다 채우므로 블록을 **접어도 `DesiredSize` 가 그대로** → 바깥이 다시 재지 않아 스크롤이 남는다.
+   → 최소 필요 높이가 바뀌면 바깥 `FillPanel` 에 직접 `InvalidateMeasure`.
+
+- 맨 바깥 `FillPanel` 은 바깥 스크롤의 `ViewportHeight` 를 기준으로 삼고, `ScrollChanged`(보이는 높이 변화)에 다시 잰다. 여백은 패널 `Margin` 이 아니라 스크롤 `Padding` 으로 준다.
+- 휠: WPF `ScrollViewer` 는 끝에 닿아도 휠 이벤트를 처리됨으로 표시한다(바깥으로 안 넘김). Telerik `GridViewScrollViewer` 도 `ScrollViewer` 를 상속한다(메타데이터 확인).
+  → `Behaviors\NestedWheelScroll` 이 바깥 스크롤의 `PreviewMouseWheel` 에서 끝에 닿은 안쪽만 대신 굴린다. 안쪽 스크롤이 없는 곳은 손대지 않는다.
+
+### ⚠ XAML 주석 안에 `-->` 를 쓰지 말 것 (2026-10-16)
+
+기존 주석에 줄을 덧붙이며 `… 후보 이름). -->` 처럼 닫는 표시를 넣으면 **기존 주석이 그 자리에서 닫히고** 남은 주석 글자가 요소 내용이 된다.
+빌드와 `xaml_audit` 는 통과하고 **실행할 때** `XamlParseException`(UIElementCollection 에 String 추가)으로 터진다. 화면 하네스가 잡았다.
+
+### Telerik 확인한 멤버 (2026.3.1007 · 2026-10-16)
+
+| 용도 | 멤버 |
+|---|---|
+| 콤보 비우기 단추 | `RadComboBox.ClearSelectionButtonVisibility` · `ClearSelectionButtonContent` |
+| 그리드 여러 행 고르기 | `RadGridView.SelectionMode="Extended"` · `SelectedItems` · 이벤트 `SelectionChanged`(`Telerik.Windows.Controls.SelectionChangeEventArgs`) |
+| `RadButton` | `System.Windows.Controls.Button` 을 상속한다(`IsCancel`·`IsDefault` 그대로 쓴다) |
+| 아이콘(Material) | `FolderZipOutline` · `FolderDownloadOutline` 있음(평문 검색) |
+
+- .NET 8 WPF 에는 폴더 고르기 `Microsoft.Win32.OpenFolderDialog` 가 있다(새 패키지 불필요 · C-8).
+
 ---
 
 ## 3. Telerik 문서처리 (엑셀 읽기/쓰기)
@@ -188,6 +219,12 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 | `SUMPRODUCT` 에 `@` 삽입 | `SUMPRODUCT(($E$79:$E$331="O")*(CQ$79:CQ$331<>""))` 를 Import→Export 하면 파일 속 수식이 `SUMPRODUCT((@$E$79:…="O")*(@CQ$79:…<>""))` 로 바뀌고 Excel 에서 **`#VALUE!`** | **2026 Q3 에서 새로 생김**(Q2 왕복본은 정상). 어류 양식 36·37·38·41행. 끄는 설정 없음(`XlsxExportSettings` = `SkipShapes` 뿐) |
 
 → 양식 파일을 Telerik 으로 열어 다시 저장하는 기능(B-7 양식 내장)은 **어류 양식에 쓰지 않는다**. 저서·조류·포유류·양서파충류·수질·서식수변 양식은 왕복이 깨끗하다.
+
+### 통합문서 사이 셀 옮기기 (C-8 보고서 일괄 · 2026-10-16 실측)
+
+`using var frag = src.Cells[r0, c0, r1, c1].Copy();` → `dst.Cells[r, c].Paste(frag, PasteOptions.All)` — **다른 통합문서로도 서식째 옮겨진다**.
+열 너비는 따라오지 않으므로 `dst.Columns[c].SetWidth(src.Columns[c].GetWidth().Value)` 로 따로 옮긴다.
+보고서 일괄(`Export\CombinedReport`)은 지점별 보고서 exporter 의 `Build(vm)` 통합문서를 이렇게 합친다(계산을 다시 하지 않는다).
 
 ### ✅ AutoFilter (해결됨)
 `worksheet.Filter`의 타입은 `AutoFilter`이며 `SetFilterRange`는 **internal 인터페이스 `IWorksheetFilter`의 명시적 구현**이라 외부에서 호출 불가(CS0122).
@@ -376,6 +413,14 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
   → 템플릿에 **`조사지점` 시트**가 있고 여기에 조사장소 번호·좌표가 들어있다(지점 체계 구현 시 원천 자료).
 
 ---
+
+### 지점 — 권역 · 정렬 · St.번호 (C-6·C-7 · 2026-10-16)
+
+- **대권역·중권역**: `Data\RegionTable`(하천 단위 고정 · 키 = `sites.json` 의 `River`). 지점을 고르면 채우고, **세션 복원(대량 적용 구간)에서는 채우지 않는다**(저장된 값 보존).
+- **정렬·표시**: `Data\SiteOrdering` — 하천(가나다) → 그 하천 St.번호가 결측·중복 없이 다 있으면 번호 순, 아니면 지점명 자연 정렬. St.번호 표시(`곡교천1 (St.1)`)도 같은 판정.
+  하천 이름을 코드에 박지 않는다(자료로 판정). 공유 `SurveySite.Display` 는 늘 번호를 붙이므로 조사자 앱 콤보는 `SurveyMeta.SiteChoice` 를 쓴다.
+- **St.번호 입력**: 공유 `SiteResolver.Resolve` 는 대분류 안 첫 일치를 고른다(`St.4` → 늘 곡교천4). 조사자 앱 `SiteListProvider.Resolve` 가 감싸 후보(같은 St.번호·지도 번호)가 **둘 이상이면 고르지 않고** 콤보에 그 후보만 보여 준다.
+  2026-10-15 자료 기준 후보 예: `St.4` → 곡교천4·오산천4·오산천5, `St.11` → 성성공원·오산천3_1·오산천6.
 
 ## 7. 개발 환경 주의
 

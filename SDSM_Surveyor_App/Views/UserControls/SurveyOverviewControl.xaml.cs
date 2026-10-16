@@ -18,6 +18,9 @@ public partial class SurveyOverviewControl : UserControl
     private void Map_Click(object sender, System.Windows.RoutedEventArgs e)
         => new Windows.MapPopupWindow { Owner = System.Windows.Window.GetWindow(this) }.ShowDialog();
 
+    /// <summary>지점 칸에 포커스(C-2 [새 지점] 뒤).</summary>
+    public void FocusSite() => SiteCombo.Focus();
+
     // 지점 콤보는 편집 가능(IsEditable)이라 조사자가 `ST1` 처럼 칠 수 있다.
     // RadComboBox 에는 TextChanged 이벤트가 없어 포커스 이탈·Enter 시점에 해석한다.
     private void SiteCombo_LostFocus(object sender, System.Windows.RoutedEventArgs e) => ResolveSite();
@@ -34,7 +37,15 @@ public partial class SurveyOverviewControl : UserControl
 
         meta.ResolveSiteText(SiteCombo.Text);
 
+        if (meta.IsShowingCandidates)
+        {
+            // C-7 : St.번호 후보가 여럿 — 친 글자(St.4)로 거르면 후보가 하나도 안 보이므로 글자를 비우고 후보를 펼친다.
+            SiteCombo.Text = string.Empty;
+            SiteCombo.IsDropDownOpen = true;
+            return;
+        }
+
         // 해석에 성공했으면 콤보 텍스트를 정규화된 표기로 맞춘다(곡교천1 (St.1))
-        if (meta.SelectedSite is not null) SiteCombo.SelectedItem = meta.SelectedSite;
+        if (meta.SelectedSiteChoice is not null) SiteCombo.SelectedItem = meta.SelectedSiteChoice;
     }
 }

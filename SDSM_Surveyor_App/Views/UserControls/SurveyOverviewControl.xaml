@@ -70,12 +70,14 @@
         <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource FormFieldStyle}">
             <TextBlock Text="지점명" Style="{StaticResource FormLabelStyle}"/>
             <!-- 등록된 지점만 선택. ST번호(ST1·St.1·st 1)를 쳐도 DB상 지점명으로 정규화한다.
+                 C-7 : 항목은 하천 → 하천별 혼합 규칙으로 정렬되고(SiteOrdering), St.번호는 믿을 수 있는 하천만 붙는다.
+                       St.번호에 맞는 지점이 여럿이면 자동으로 고르지 않고 그 후보만 펼쳐 보인다(아래 안내 문구에 후보 이름).
                  ⚠ 대분류를 고르기 전에는 잠긴다 — 방류하천과 생태현황에 같은 이름의 다른 지점이 있어
                     섞어 보여주면 자료가 조용히 섞인다(_ecostatus_sites_extracted §8-2). -->
             <telerik:RadComboBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" x:Name="SiteCombo" AutomationProperties.AutomationId="SiteCombo"
                                  Height="{StaticResource InputHeight}"
-                                 ItemsSource="{Binding SiteOptions}"
-                                 SelectedItem="{Binding SelectedSite, Mode=TwoWay}"
+                                 ItemsSource="{Binding SiteChoices}"
+                                 SelectedItem="{Binding SelectedSiteChoice, Mode=TwoWay}"
                                  DisplayMemberPath="Display"
                                  IsEnabled="{Binding IsSiteSelectable}"
                                  IsEditable="True" IsFilteringEnabled="True"
@@ -133,21 +135,25 @@
 
         <!-- ── 3행 : 행정·기관 ───────────────────────────────────────────────── -->
         <StackPanel Grid.Row="2" Grid.Column="0" Style="{StaticResource FormFieldStyle}">
+            <!-- C-6 : 지점을 고르면 하천 단위 고정표(Data\RegionTable)로 채운다. 고칠 수 있고, 지점을 다시 고르면 다시 채운다. -->
             <TextBlock Text="대권역명" Style="{StaticResource FormLabelStyle}"/>
             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                         WatermarkContent="지점 선택 시 자동"
                                          Text="{Binding MajorRegion, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Grid.Column="1" Style="{StaticResource FormFieldStyle}">
             <TextBlock Text="중권역명" Style="{StaticResource FormLabelStyle}"/>
             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                         WatermarkContent="지점 선택 시 자동"
                                          Text="{Binding MiddleRegion, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Grid.Column="2" Style="{StaticResource FormFieldStyle}">
             <TextBlock Text="하천유형" Style="{StaticResource FormLabelStyle}"/>
-            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                         Text="{Binding RiverType, UpdateSourceTrigger=PropertyChanged}"/>
+            <!-- C-4 : 양식 8행 '산간형/평지형/강' 택1 · 이름 저장. 예전 값(평지천 등)은 지우지 않고 '(양식 외)' 경고 -->
+            <uc:SingleChoiceBox Options="{x:Static models:FormChoices.RiverType}" Value="{Binding RiverType}"
+                                ToolTipText="하천유형(개황) — 산간형 / 평지형 / 강" AutomationName="하천유형"/>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Style="{StaticResource FormFieldStyle}">

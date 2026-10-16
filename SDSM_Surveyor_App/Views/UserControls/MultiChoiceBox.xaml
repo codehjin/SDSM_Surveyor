@@ -12,7 +12,8 @@
          저장값은 고른 이름을 양식 순서대로 공백 없이 `,` 로 잇는다(`흐름,소` · 일괄입력용 규칙 §3-5).
          ⚠ 입력 컨트롤은 design.md §7 의 RadComboBox 다(AllowMultipleSelection). Style 은 통째로 주지 않는다.
          ⚠ 선택지에 없는 예전 값은 지우지 않는다 — 목록 끝에 '(양식 외)' 로 붙여 선택된 채로 두고 아래에 경고한다.
-            조사자가 그 항목을 직접 해제해야만 값에서 빠진다. -->
+            조사자가 그 항목을 직접 해제해야만 값에서 빠진다.
+         AllowCustom(제방·채집도구) : 아래 글상자에 치고 Enter → '(직접 입력)' 항목으로 더한다(경고 없음). -->
     <StackPanel>
         <telerik:RadComboBox x:Name="Box"
                              BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}"
@@ -23,6 +24,14 @@
                              ToolTipService.ToolTip="{Binding ToolTipText, ElementName=Root}"
                              AutomationProperties.Name="{Binding AutomationName, ElementName=Root}"
                              SelectionChanged="Box_SelectionChanged"/>
+
+        <telerik:RadWatermarkTextBox x:Name="Custom" Visibility="Collapsed" Margin="0 4 0 0"
+                                     BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}"
+                                     Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                     WatermarkContent="그 밖의 값 입력 후 Enter"
+                                     ToolTipService.ToolTip="선택지에 없는 값을 치고 Enter 를 누르면 목록에 더해 고릅니다(여러 개는 쉼표로)"
+                                     AutomationProperties.Name="직접 입력"
+                                     KeyDown="Custom_KeyDown"/>
 
         <TextBlock x:Name="Warn" Margin="0 2 0 0" Style="{StaticResource InlineWarnTextStyle}"/>
     </StackPanel>

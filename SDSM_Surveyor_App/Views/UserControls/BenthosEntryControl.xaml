@@ -8,6 +8,7 @@
              xmlns:core="clr-namespace:SDSM_Surveyor_App.Behaviors"
              xmlns:ctrl="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
              xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
+             xmlns:m="clr-namespace:SDSM_Surveyor_App.Models"
              mc:Ignorable="d" d:DesignWidth="1224" d:DesignHeight="700"
              d:DataContext="{d:DesignInstance vm:BenthosEntryViewModel}">
 
@@ -17,14 +18,9 @@
          ⚠ 지수(DI·H'·R1·J'·BMI)는 SDSM_Core/Ecology 가 계산한다 — 여기서는 결과만 그린다.
          ⚠ 조사환경 31칸은 저서동물 야장이 서식환경 실측(하폭·수폭·수심·유속·기온·수온)을 함께 지기 때문이다. -->
 
-    <Grid Margin="0 0 0 12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>   <!-- ① 조사환경 (접이식) -->
-            <RowDefinition Height="Auto"/>   <!-- ② 건강성   (접이식) -->
-            <RowDefinition Height="Auto"/>   <!-- ③ 빠른추가 -->
-            <RowDefinition Height="*"/>      <!-- ④ 종 그리드 + 합계 행 -->
-            <RowDefinition Height="Auto"/>   <!-- ⑤ 상태 · 액션 -->
-        </Grid.RowDefinitions>
+    <ctrl:FillPanel Margin="0 0 0 12">
+        <!-- C-3 : 바탕은 Grid 가 아니라 FillPanel 이다(나온 순서대로 쌓는다 · Grid.Row 는 보지 않는다).
+             채움 칸(FillPanel.Fill)만 남은 높이를 받고, 모자라면 최소 높이를 지킨 채 바깥 본문이 스크롤된다. -->
 
         <!--═══ ① 조사환경 (31칸) ═══════════════════════════════════════-->
         <ctrl:CollapsibleSummary Grid.Row="0" Title="조사환경"
@@ -61,35 +57,41 @@
             </ctrl:CollapsibleSummary.SummarySlot>
 
             <ctrl:CollapsibleSummary.ExpandedSlot>
-                <ScrollViewer MaxHeight="300" VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled">
+                <!-- C-3 : 종전에는 높이 300 안에서 따로 스크롤했다(그리드를 남기려고). 이제 본문 전체가 스크롤되므로 다 펼쳐 보인다. -->
                     <StackPanel>
-                        <!-- 채집방법 (정량 채집기) 4 -->
+                        <!-- 채집방법 (정량 채집기) 4 — C-5 : 양식 14~17행은 도구마다 "해당될 경우 조사회수" 다.
+                             칸 이름에 (회)를 붙여 횟수임이 보이게 하고, 쓰지 않은 도구는 비워 둔다(0 이 아니다 · 정수 제한은 B-6). -->
                         <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
                             <Border Style="{StaticResource GroupHeaderBarStyle}"/>
                             <TextBlock Text="채집방법 (정량 채집기)" Style="{StaticResource GroupHeaderTextStyle}"/>
+                            <TextBlock Text="해당될 때만 조사 횟수 — 쓰지 않은 도구는 비워 둡니다" Margin="12 0 0 0"
+                                       Style="{StaticResource CaptionTextStyle}"/>
                             <TextBlock Text="{Binding GearWarning}" Margin="12 0 0 0"
                                        Style="{StaticResource InlineWarnTextStyle}"/>
                         </StackPanel>
                         <WrapPanel>
                             <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                <TextBlock Text="Surber net 30×30" Style="{StaticResource FormLabelStyle}"/>
+                                <TextBlock Text="Surber 30×30 (회)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             WatermarkContent="횟수" ToolTipService.ToolTip="Surber net 30×30 cm — 조사 횟수(해당될 때만)"
                                                              core:IntegerInput.IsEnabled="True" Text="{Binding Surbernet30, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                <TextBlock Text="Surber net 50×50" Style="{StaticResource FormLabelStyle}"/>
+                                <TextBlock Text="Surber 50×50 (회)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             WatermarkContent="횟수" ToolTipService.ToolTip="Surber net 50×50 cm — 조사 횟수(해당될 때만)"
                                                              core:IntegerInput.IsEnabled="True" Text="{Binding Surbernet50, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                                <TextBlock Text="드렛지" Style="{StaticResource FormLabelStyle}"/>
+                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                                <TextBlock Text="드렛지/D-Net (회)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             WatermarkContent="횟수" ToolTipService.ToolTip="드렛지 / D-Net — 조사 횟수(해당될 때만)"
                                                              core:IntegerInput.IsEnabled="True" Text="{Binding Dredge, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                                <TextBlock Text="에크만" Style="{StaticResource FormLabelStyle}"/>
+                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                                <TextBlock Text="에크만 (회)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             WatermarkContent="횟수" ToolTipService.ToolTip="에크만 그랩 — 조사 횟수(해당될 때만)"
                                                              core:IntegerInput.IsEnabled="True" Text="{Binding Ekman, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                         </WrapPanel>
@@ -110,25 +112,31 @@
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                              Text="{Binding PollutionSource, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
+                            <!-- C-4 : 아래 선택 칸은 최종본 양식 정의 그대로(Models\FormChoices).
+                                 식생 수피도만 코드 숫자(1·2·3)를 저장한다(관리자가 이름으로 바꾼다 · 10-16 정정). -->
                             <StackPanel Style="{StaticResource FormFieldSmStyle}">
                                 <TextBlock Text="식생 수피도" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                             Text="{Binding CanopyCover, UpdateSourceTrigger=PropertyChanged}"/>
+                                <ctrl:SingleChoiceBox Options="{x:Static m:FormChoices.CanopyCover}" Value="{Binding CanopyCover}"
+                                                      ToolTipText="양식 20행 — 1 없음 / 2 부분적 / 3 짙음 중 택1 (코드 숫자로 저장)"
+                                                      AutomationName="식생 수피도"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
                                 <TextBlock Text="범람원의 이용" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                             Text="{Binding Floodplain, UpdateSourceTrigger=PropertyChanged}"/>
+                                <ctrl:MultiChoiceBox Options="{x:Static m:FormChoices.Floodplain}" Value="{Binding Floodplain}"
+                                                     ToolTipText="양식 21행 — 자연형 / 농경지 / 도로 / 주차장 / 산책로 / 기타 (여러 개)"
+                                                     AutomationName="범람원의 이용"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
                                 <TextBlock Text="제방(좌안)" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                             Text="{Binding LeveeLeft, UpdateSourceTrigger=PropertyChanged}"/>
+                                <ctrl:MultiChoiceBox Options="{x:Static m:FormChoices.Levee}" Value="{Binding LeveeLeft}" AllowCustom="True"
+                                                     ToolTipText="양식 22행 — 자연형 / 석축 / 돌망태 / 콘크리트, 그 밖은 아래 칸에 직접 입력 (여러 개)"
+                                                     AutomationName="제방(좌안)"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
                                 <TextBlock Text="제방(우안)" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                             Text="{Binding LeveeRight, UpdateSourceTrigger=PropertyChanged}"/>
+                                <ctrl:MultiChoiceBox Options="{x:Static m:FormChoices.Levee}" Value="{Binding LeveeRight}" AllowCustom="True"
+                                                     ToolTipText="양식 23행 — 자연형 / 석축 / 돌망태 / 콘크리트, 그 밖은 아래 칸에 직접 입력 (여러 개)"
+                                                     AutomationName="제방(우안)"/>
                             </StackPanel>
                         </WrapPanel>
 
@@ -188,10 +196,13 @@
                             <TextBlock Text="서식처 (수리·환경) · 특이사항" Style="{StaticResource GroupHeaderTextStyle}"/>
                         </StackPanel>
                         <WrapPanel>
-                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                <TextBlock Text="하천형태" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                             Text="{Binding HabitatRiverType, UpdateSourceTrigger=PropertyChanged}"/>
+                            <!-- 양식 33행은 '하천유형(서식처)' 다(1 산간형, 2 평지형, 3 강, 4 인공구조물). 종전 화면 이름 '하천형태' 는 어류 항목 이름이었다.
+                                 ⚠ 이름으로 저장한다 — 코드 1 을 쓰면 관리자 코드표 오타로 '산강형' 이 된다(§3-5). -->
+                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                                <TextBlock Text="하천유형(서식처)" Style="{StaticResource FormLabelStyle}"/>
+                                <ctrl:SingleChoiceBox Options="{x:Static m:FormChoices.HabitatRiverType}" Value="{Binding HabitatRiverType}"
+                                                      ToolTipText="양식 33행 — 산간형 / 평지형 / 강 / 인공구조물 중 택1"
+                                                      AutomationName="하천유형(서식처)"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource FormFieldXsStyle}">
                                 <TextBlock Text="하폭(m)" Style="{StaticResource FormLabelStyle}"/>
@@ -223,20 +234,24 @@
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                              Text="{Binding WaterTemperature, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
+                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
                                 <TextBlock Text="흐름상태" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                             Text="{Binding FlowState, UpdateSourceTrigger=PropertyChanged}"/>
+                                <ctrl:MultiChoiceBox Options="{x:Static m:FormChoices.FlowState}" Value="{Binding FlowState}"
+                                                     ToolTipText="양식 40행 — 여울 / 흐름 / 소 (여러 개)"
+                                                     AutomationName="흐름상태"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
+                            <!-- 투명도·냄새 : 정수 1~5 를 글자로 저장한다(세션 형식 그대로) — 일괄입력용에는 숫자로 나간다(관리자 int?) -->
+                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
                                 <TextBlock Text="투명도" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                             Text="{Binding Transparency, UpdateSourceTrigger=PropertyChanged}"/>
+                                <ctrl:SingleChoiceBox Options="{x:Static m:FormChoices.Transparency}" Value="{Binding Transparency}"
+                                                      ToolTipText="양식 41행 — 매우 맑음 1 ~ 5 매우 탁함"
+                                                      AutomationName="투명도"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
+                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
                                 <TextBlock Text="냄새" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                             Text="{Binding Smell, UpdateSourceTrigger=PropertyChanged}"/>
+                                <ctrl:SingleChoiceBox Options="{x:Static m:FormChoices.Smell}" Value="{Binding Smell}"
+                                                      ToolTipText="양식 42행 — 없음 1 ~ 5 매우 심함"
+                                                      AutomationName="냄새"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource FormFieldMdStyle}">
                                 <TextBlock Text="채집불가시(사유)" Style="{StaticResource FormLabelStyle}"/>
@@ -251,7 +266,6 @@
                             </StackPanel>
                         </WrapPanel>
                     </StackPanel>
-                </ScrollViewer>
             </ctrl:CollapsibleSummary.ExpandedSlot>
         </ctrl:CollapsibleSummary>
 
@@ -437,7 +451,8 @@
         <!--═══ ④ 종 그리드 + 합계 행 ═══════════════════════════════════
              선언 열 폭 : 40 + 220 + * + 96 + 96 + 96 + 96 + 200 = 고정폭 844px
              오탁치(s)·지표가중치(g)는 BMI 의 입력이라 화면에 근거로 함께 보인다. -->
-        <Grid Grid.Row="3" Margin="0 8 0 0">
+        <!-- C-3 : 조사환경·건강성을 펼쳐도 그리드 8행 + 합계는 남긴다(모자라면 바깥 본문이 스크롤된다) -->
+        <Grid Grid.Row="3" Margin="0 8 0 0" ctrl:FillPanel.Fill="True" MinHeight="{StaticResource SpeciesAreaMinHeight}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
@@ -747,5 +762,5 @@
                 </StackPanel>
             </ctrl:TaxonStatusBar.Actions>
         </ctrl:TaxonStatusBar>
-    </Grid>
+    </ctrl:FillPanel>
 </UserControl>

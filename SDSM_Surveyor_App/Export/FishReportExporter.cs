@@ -24,15 +24,17 @@ public static class FishReportExporter
             path => Write(vm, path));
 
     /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
-    public static void Write(FishEntryViewModel vm, string path)
+    public static void Write(FishEntryViewModel vm, string path) => ReportExporterBase.Save(Build(vm), path);
+
+    /// <summary>통합문서만 만든다(저장하지 않음) — C-8 보고서 일괄이 여러 지점을 파일 하나로 합칠 때 쓴다.</summary>
+    internal static Workbook Build(FishEntryViewModel vm)
     {
         var wb = new Workbook();
         WriteOverview(wb, vm);
         WriteSpecies(wb, vm);
         WriteAssessment(wb, vm);
 
-        ReportExporterBase.Save(wb, path);
-
+        return wb;
     }
 
     // ── 시트1 : 조사개황 (항목 | 값) ──

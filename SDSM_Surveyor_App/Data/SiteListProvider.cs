@@ -26,8 +26,28 @@ public sealed class SiteListProvider : ISiteListProvider, ISingletonService
 
     public List<SurveySite> ByProject(string? project) => SiteResolver.ByProject(_cat.Sites, project);
 
+    /// <summary>
+    /// 공유 해석기(<see cref="SiteResolver"/>)를 감싼다(C-7). 공유 해석기는 St.번호를 치면 대분류 안에서 <b>처음 맞는 지점</b>을 고른다 —
+    /// `St.4` 가 하천과 상관없이 늘 곡교천4 가 되고, 오산천의 중복 번호도 한쪽으로만 간다.
+    /// ① 지점명 정확 일치는 지금처럼 바로 고른다.
+    /// ② St.번호 형태면 후보(같은 St.번호·지도 번호)를 모두 모아 <b>하나일 때만</b> 고른다. 둘 이상이면 null — 화면이 후보를 보여 준다.
+    /// ③ 후보가 없으면 공유 해석기 나머지 규칙(연도별 표기)을 그대로 쓴다.
+    /// </summary>
     public SurveySite? Resolve(string? input, string? project = null)
-        => SiteResolver.Resolve(_cat.Sites, input, project);
+    {
+        if (SiteOrdering.IsStInput(input))
+        {
+            var pool = ByProject(project);
+            var exact = pool.FirstOrDefault(s => Key(s.SiteName) == Key(input));
+            if (exact is not null) return exact;
+            var cands = SiteOrdering.StCandidates(pool, input);
+            if (cands.Count == 1) return cands[0];
+            if (cands.Count > 1) return null;
+        }
+        return SiteResolver.Resolve(_cat.Sites, input, project);
+    }
+
+    private static string Key(string? s) => (s ?? string.Empty).Replace(" ", "").ToUpperInvariant();
 
     private static SiteCatalog Load()
     {

@@ -42,13 +42,9 @@
             10개를 전부 0점으로 골랐으면 그것은 평가한 것이다.
          ⚠ 점수·등급은 SDSM_Core/Ecology 가 계산한다. 여기서는 결과만 그린다. -->
 
-    <Grid Margin="0 0 0 12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>   <!-- ① 평가 결과 (접이식) -->
-            <RowDefinition Height="Auto"/>   <!-- ② 특이사항   (접이식) -->
-            <RowDefinition Height="*"/>      <!-- ③ 평가 항목 10 -->
-            <RowDefinition Height="Auto"/>   <!-- ④ 상태 · 액션 -->
-        </Grid.RowDefinitions>
+    <ctrl:FillPanel Margin="0 0 0 12">
+        <!-- C-3 : 바탕은 Grid 가 아니라 FillPanel 이다(나온 순서대로 쌓는다 · Grid.Row 는 보지 않는다).
+             채움 칸(FillPanel.Fill)만 남은 높이를 받고, 모자라면 최소 높이를 지킨 채 바깥 본문이 스크롤된다. -->
 
         <!--═══ ① 서식·수변환경 평가 (종전 우측 HRI 레일) ═══════════════════-->
         <ctrl:CollapsibleSummary Grid.Row="0" Title="서식·수변환경 평가"
@@ -228,8 +224,9 @@
         <!--═══ ③ 평가 항목 10 ([별표5] 점수 선택) ═══════════════════════════
              레일이 사라져 얻은 폭은 행 오른쪽 '항목 점수' 칸으로 간다 —
              좌/우안 평균이 얼마로 잡혔는지 그 자리에서 보인다. -->
-        <ScrollViewer Grid.Row="2" Margin="0 8 0 0" VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled">
+        <!-- C-3 : 평가 결과·특이사항을 펼쳐도 항목 칸은 최소 높이를 남긴다(모자라면 바깥 본문이 스크롤된다) -->
+        <ScrollViewer Grid.Row="2" Margin="0 8 0 0" ctrl:FillPanel.Fill="True" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled" MinHeight="{StaticResource GridMinHeight}">
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0 0 0 4">
@@ -450,5 +447,5 @@
                 </StackPanel>
             </ctrl:TaxonStatusBar.Actions>
         </ctrl:TaxonStatusBar>
-    </Grid>
+    </ctrl:FillPanel>
 </UserControl>

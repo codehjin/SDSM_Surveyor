@@ -31,17 +31,18 @@
 App.xaml(.cs)          진입점(Windows11 테마 + DI)
 InjectableServices/    DI 마커 인터페이스
 Helpers/               ChosungHelper (초성 검색)
-Behaviors/             ChosungFilteringBehavior
-Models/                *Entry / *SpeciesEntry (화면 행 모델)
+Behaviors/             ChosungFilteringBehavior · IntegerInput · NestedWheelScroll(바깥 스크롤 휠 넘김)
+Models/                *Entry / *SpeciesEntry (화면 행 모델) · FormChoices(양식 선택지 출처 · C-4)
 Data/                  ISpeciesListProvider · SpeciesListProvider(시드)
-                       · ISiteListProvider · SiteListProvider(지점 마스터)
-                       · ISessionStore · SessionStore(세션 파일) · SessionService(화면↔세션)
+                       · ISiteListProvider · SiteListProvider(지점 마스터) · SiteOrdering(정렬·St.번호 · C-7) · RegionTable(권역 · C-6)
+                       · ISessionStore · SessionStore(세션 파일) · SessionService(화면↔세션) · SessionArchive(자료함 zip · C-9)
                        · ITaxonSession(분류군별 저장/복원 규약)
 Messengers/            NotifyMessage (토스트)
 ViewModels/            분류군별 EntryViewModel (+ Sessions/*.Session.cs 저장·복원)
-Export/                분류군별 exporter 14종 · ExcelStyle · SiteColumns(구분 4열)
-Views/Windows/         MainSurveyWindow · SyncWindow · SessionBrowserWindow(자료함)
-Views/UserControls/    분류군별 EntryControl
+Export/                분류군별 exporter 14종 · ExcelStyle · SiteColumns(구분 4열) · BulkTemplate(일괄입력 내장본)
+                       · BatchExporter · CombinedReport(여러 지점 일괄 출력 · C-8)
+Views/Windows/         MainSurveyWindow · SyncWindow · SessionBrowserWindow(자료함) · ChoiceDialog(버튼=동작 확인창)
+Views/UserControls/    분류군별 EntryControl · FillPanel(화면 전체 스크롤 · C-3) · MultiChoiceBox · SingleChoiceBox
 ```
 > 생태 계산은 **`..\SDSM\SDSM_Core\Ecology\` 로 이관 완료**(2026-08-21 · R1).
 > 관리자 `GB` 도 같은 코드를 호출한다. 계산식을 고치면 **양쪽이 함께 바뀐다.**

@@ -6,6 +6,7 @@
         xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
         xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:ctrl="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
+        xmlns:core="clr-namespace:SDSM_Surveyor_App.Behaviors"
         xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance vm:MainSurveyWindowViewModel}"
@@ -238,12 +239,16 @@
                 </Grid>
             </Border>
 
-            <!--═══ 본문 : 조사개황 요약 카드 + 분류군 화면 ═══════════════════-->
-            <Grid Grid.Row="1" Margin="12 12 12 0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>   <!-- 조사개황 (셸 소유 · 접이식) -->
-                    <RowDefinition Height="*"/>      <!-- 분류군 본문 -->
-                </Grid.RowDefinitions>
+            <!--═══ 본문 : 조사개황 요약 카드 + 분류군 화면 ═══════════════════
+                 C-3 : 조사개황·조사환경·건강성을 펼친 채로도 종 그리드를 보고 고칠 수 있게 본문 전체를 바깥 스크롤로 감싼다.
+                 · 다 들어가면 지금과 같다(스크롤 없음). 모자라면 그리드 칸이 최소 높이(8행 · GridMinHeight)를 지키고 바깥이 스크롤된다.
+                 · FillPanel 이 그리드 칸에 '보이는 높이 이하'의 유한한 높이를 준다 — 높이 제한이 없으면 RadGridView 행 가상화가 꺼진다.
+                 · 휠 : 그리드 위에서는 그리드가, 그리드가 끝에 닿으면 바깥이 스크롤된다(NestedWheelScroll).
+                 ⚠ 여백은 FillPanel 이 아니라 스크롤의 Padding 으로 준다(보이는 높이 계산에 들어가게). -->
+            <ScrollViewer x:Name="BodyScroll" Grid.Row="1" Padding="12 12 12 0"
+                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          Focusable="False" core:NestedWheelScroll.IsEnabled="True">
+            <ctrl:FillPanel>
 
                 <!--── 조사개황 : 셸이 한 번만 소유한다(design.md §5.1) ─────────
                      접힘 48px 한 줄. DataContext 는 코드비하인드가 SurveyMeta 싱글턴으로 넣는다. -->
@@ -347,6 +352,11 @@
                             </TextBlock>
 
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <!-- C-2 : 새 지점 — 저장 확인(B-5) → 7개 분류군 입력·지점 비움 → 압정 칸 유지 → 지점 칸으로 -->
+                                <Button x:Name="NewSiteButton" Content="새 지점" Style="{StaticResource SmallOutlineButtonStyle}"
+                                        Margin="0 0 8 0" Click="NewSite_Click"
+                                        AutomationProperties.Name="새 지점"
+                                        ToolTipService.ToolTip="입력을 비우고 다른 지점을 새로 시작합니다. 압정으로 고정한 칸(대분류·연도차수·조사일자·날씨·조사자·조사기관)은 그대로 둡니다."/>
                                 <Button Content="지도" Style="{StaticResource SmallOutlineButtonStyle}"
                                         Click="Map_Click"
                                         ToolTipService.ToolTip="등록된 지도를 보고 지도를 추가·교체합니다"/>
@@ -425,7 +435,7 @@
                      그래서 컨트롤 자신에 건 바인딩은 창 VM 이 아니라 그 분류군 VM 을 본다 —
                      RelativeSource 로 창의 DataContext 를 짚어야 한다(design.md §8).
                      ElementName 으로 잡던 종전 탭 방식에서는 드러나지 않던 함정이다. -->
-                <Grid Grid.Row="1" Margin="0 8 0 0">
+                <Grid Grid.Row="1" Margin="0 8 0 0" ctrl:FillPanel.Fill="True">
                     <ctrl:FishEntryControl
                         Visibility="{Binding DataContext.Taxon.Current, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource TaxonToVisibility}, ConverterParameter=Fish}"/>
                     <ctrl:BenthosEntryControl
@@ -441,7 +451,8 @@
                     <ctrl:WaterQualityEntryControl
                         Visibility="{Binding DataContext.Taxon.Current, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource TaxonToVisibility}, ConverterParameter=WaterQuality}"/>
                 </Grid>
-            </Grid>
+            </ctrl:FillPanel>
+            </ScrollViewer>
         </Grid>
     </Border>
 </Window>

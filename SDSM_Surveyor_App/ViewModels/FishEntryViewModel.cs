@@ -86,13 +86,23 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     partial void OnBigStoneChanged(string? value) => RaiseEnvironmentSummary();
     partial void OnCollectionTimeChanged(string? value) => RaiseEnvironmentSummary();
 
-    public string[] CollectionTools { get; } = { "투망/족대" };
-
     /// <summary>
     /// 흐름상태(채집) 선택지 — 최종본 양식 16행 '1 여울, 2 흐름, 3 소 (복수)'(B-8).
     /// 저장은 이름을 공백 없이 `,` 로 잇는다(`흐름,소`). 양식 28행 '흐름상태(유속)' 은 <see cref="HabitatFlowState"/> 다.
+    /// 다른 선택지(하천형태·유속·채집도구)는 화면이 <see cref="FormChoices"/> 를 직접 쓴다(C-4).
     /// </summary>
-    public string[] CollectionFlowStates { get; } = { "여울", "흐름", "소" };
+    public IReadOnlyList<string> CollectionFlowStates => FormChoices.FlowState;
+
+    // C-4 : 선택지로 바꾼 칸의 양식 외 값(예전 세션) — 지우지 않고 접힌 요약줄에도 알린다
+    partial void OnHabitatRiverTypeChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnHabitatFlowStateChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnCollectionFlowStateChanged(string? value) => RaiseEnvironmentSummary();
+
+    /// <summary>선택지 밖 값 경고(C-4). 채집도구는 직접 입력을 허용하므로 보지 않는다.</summary>
+    public string ChoiceWarning => FormChoices.Describe(
+        ("하천형태", FormChoices.OutOfForm(HabitatRiverType, FormChoices.FishRiverForm)),
+        ("유속", FormChoices.OutOfForm(HabitatFlowState, FormChoices.FishVelocity) is string v ? new[] { v } : Array.Empty<string>()),
+        ("흐름상태(채집)", FormChoices.OutOfForm(CollectionFlowState, FormChoices.FlowState)));
 
     // ── 초고속 입력 그리드(Center-Left) ──
     /// <summary>종 행. 기반 클래스의 <c>Rows</c> 를 화면 바인딩 이름으로 노출한다.</summary>
@@ -287,7 +297,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
 
     /// <summary>접힌 요약줄에 띄우는 조사환경 경고(하상구성 + 채집시간).</summary>
     public string EnvironmentWarning =>
-        string.Join(" · ", new[] { SubstrateWarning, CollectionTimeWarning }.Where(s => s.Length > 0));
+        string.Join(" · ", new[] { SubstrateWarning, CollectionTimeWarning, ChoiceWarning }.Where(s => s.Length > 0));
 
     /// <summary>비정상종(DE·EF·LE·TU) 합계 개체수. FAI M8 의 분자다.</summary>
     public int AbnormalTotal => PiOrZero(DeCount) + PiOrZero(EfCount) + PiOrZero(LeCount) + PiOrZero(TuCount);
@@ -303,6 +313,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         OnPropertyChanged(nameof(SubstrateTotal));
         OnPropertyChanged(nameof(SubstrateWarning));
         OnPropertyChanged(nameof(CollectionTimeWarning));
+        OnPropertyChanged(nameof(ChoiceWarning));
         OnPropertyChanged(nameof(EnvironmentWarning));
         OnPropertyChanged(nameof(AbnormalSummary));
         OnPropertyChanged(nameof(RiverChasuText));

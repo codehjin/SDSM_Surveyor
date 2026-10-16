@@ -30,7 +30,10 @@ public static class AmphibianReptileReportExporter
             path => Write(vm, path));
 
     /// <summary>대화상자 없이 지정 경로로 저장한다(자동 검증·일괄 생성용).</summary>
-    public static void Write(AmphibianReptileEntryViewModel vm, string path)
+    public static void Write(AmphibianReptileEntryViewModel vm, string path) => ReportExporterBase.Save(Build(vm), path);
+
+    /// <summary>통합문서만 만든다(저장하지 않음) — C-8 보고서 일괄이 여러 지점을 파일 하나로 합칠 때 쓴다.</summary>
+    internal static Workbook Build(AmphibianReptileEntryViewModel vm)
     {
         var m = vm.Meta;
         var wb = new Workbook();
@@ -38,8 +41,7 @@ public static class AmphibianReptileReportExporter
         WriteSpecies(wb, vm);
         WriteSummary(wb, vm);
 
-        ReportExporterBase.Save(wb, path);
-
+        return wb;
     }
 
     // ── 시트2 : 출현종 (1행 = 1출현기록, 흔적 6종 개체수 포함) ──

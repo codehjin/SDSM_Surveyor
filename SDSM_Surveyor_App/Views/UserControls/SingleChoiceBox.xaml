@@ -1,0 +1,28 @@
+<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.SingleChoiceBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             mc:Ignorable="d"
+             x:Name="Root">
+
+    <!-- 단일 선택 칸 (C-4 신설 · MultiChoiceBox 의 단일판).
+         최종본 양식의 '택1' 항목 — 예: 하천유형 산간형/평지형/강, 투명도 1~5.
+         저장값은 선택지의 Value(이름 · 코드 숫자 · 정수 글자)다. 화면 글자는 Label(`1 없음`).
+         ⚠ 선택지에 없는 예전 값은 지우지 않는다 — '(양식 외)' 항목으로 붙여 고른 채로 두고 아래에 경고한다.
+         ⚠ 비우기는 콤보의 지우기(×) 단추로 한다(저장값 null = 미입력 · 0 과 다르다). -->
+    <StackPanel>
+        <telerik:RadComboBox x:Name="Box"
+                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}"
+                             Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                             DisplayMemberPath="Display"
+                             ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기"
+                             EmptyText="{Binding EmptyText, ElementName=Root}"
+                             ToolTipService.ToolTip="{Binding ToolTipText, ElementName=Root}"
+                             AutomationProperties.Name="{Binding AutomationName, ElementName=Root}"
+                             SelectionChanged="Box_SelectionChanged"/>
+
+        <TextBlock x:Name="Warn" Margin="0 2 0 0" Style="{StaticResource InlineWarnTextStyle}"/>
+    </StackPanel>
+</UserControl>

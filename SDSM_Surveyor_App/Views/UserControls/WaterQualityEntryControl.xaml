@@ -35,12 +35,9 @@
          ⚠ 하천 생활환경기준 등급은 1a·1b·2~6 이다. A~E 색 눈금(어류 FAI·서식수변 HRI)을
             쓰면 다른 척도로 오독되므로 중립 뱃지를 쓴다. -->
 
-    <Grid Margin="0 0 0 12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>   <!-- ① 수질 등급 (접이식) -->
-            <RowDefinition Height="*"/>      <!-- ② 측정 항목 + 추가 항목 -->
-            <RowDefinition Height="Auto"/>   <!-- ③ 상태 · 액션 -->
-        </Grid.RowDefinitions>
+    <ctrl:FillPanel Margin="0 0 0 12">
+        <!-- C-3 : 바탕은 Grid 가 아니라 FillPanel 이다(나온 순서대로 쌓는다 · Grid.Row 는 보지 않는다).
+             채움 칸(FillPanel.Fill)만 남은 높이를 받고, 모자라면 최소 높이를 지킨 채 바깥 본문이 스크롤된다. -->
 
         <!--═══ ① 수질 등급 (종전 우측 결과 레일) ═════════════════════════════
              접어 두어도 8종 등급이 요약줄에 그대로 남는다 — 접힘은 숨기기가 아니다. -->
@@ -172,8 +169,9 @@
         </ctrl:CollapsibleSummary>
 
         <!--═══ ② 측정 항목 · 추가 항목 ═══════════════════════════════════-->
-        <ScrollViewer Grid.Row="1" Margin="0 8 0 0" VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled">
+        <!-- C-3 : 수질 등급을 펼쳐도 항목 칸은 최소 높이를 남긴다(모자라면 바깥 본문이 스크롤된다 · 휠은 안쪽 끝에서 바깥으로) -->
+        <ScrollViewer Grid.Row="1" Margin="0 8 0 0" ctrl:FillPanel.Fill="True" VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled" MinHeight="{StaticResource GridMinHeight}">
             <StackPanel>
 
                 <!--── 측정 항목 9칸 (등급 산정 대상) ──────────────────────
@@ -395,5 +393,5 @@
                 </StackPanel>
             </ctrl:TaxonStatusBar.Actions>
         </ctrl:TaxonStatusBar>
-    </Grid>
+    </ctrl:FillPanel>
 </UserControl>

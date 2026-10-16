@@ -75,30 +75,62 @@ internal static class ReportExporterBase
             System.Windows.Input.Mouse.OverrideCursor = previousCursor;
         }
 
-        OfferToOpenFolder(dlg.FileName, note);
+        OfferToOpen(dlg.FileName, note);
         return dlg.FileName;
     }
 
     /// <summary>
-    /// 저장한 뒤 그 폴더를 열지 묻는다. 현장에서 파일을 어디에 뒀는지 놓치는 일이 잦다.
-    /// 탐색기를 <c>/select</c> 로 열면 저장한 파일이 선택된 채로 뜬다.
+    /// 셸 실행(파일·탐색기 열기). 자동 검증이 실제 엑셀·탐색기를 띄우지 않게 바꿔 끼울 수 있다 — 평소에는 그대로 실행한다.
     /// </summary>
-    private static void OfferToOpenFolder(string path, string? note = null)
+    internal static Action<ProcessStartInfo> Shell { get; set; } = psi => Process.Start(psi);
+
+    private static System.Windows.Window? ActiveWindow =>
+        System.Windows.Application.Current?.Windows.OfType<System.Windows.Window>().FirstOrDefault(w => w.IsActive)
+        ?? System.Windows.Application.Current?.MainWindow;
+
+    /// <summary>
+    /// 저장한 뒤 무엇을 열지 묻는다(C-1). 기본 <b>[파일 열기]</b>, 보조 [폴더 열기], [닫기].
+    /// 버튼 글자가 곧 동작이다 — MessageBox 의 예/아니요에 다른 뜻을 얹지 않는다(<see cref="Views.Windows.ChoiceDialog"/>).
+    /// 파일 열기에 실패하면(엑셀 미설치 등) 폴더 열기를 권한다.
+    /// </summary>
+    internal static void OfferToOpen(string path, string? note = null)
     {
         // 제목이 이미 '저장 완료'다. 본문에서 또 "저장했습니다" 라고 하면
         // 화면 아래 알림 띠(NotifyMessage)까지 세 번 같은 말을 하게 된다.
-        var answer = System.Windows.MessageBox.Show(
-            note is null ? $"{path}\n\n저장한 폴더를 열까요?" : $"{path}\n\n{note}\n\n저장한 폴더를 열까요?",
-            "저장 완료",
-            System.Windows.MessageBoxButton.YesNo,
-            System.Windows.MessageBoxImage.Information);
+        var pick = Views.Windows.ChoiceDialog.Ask(ActiveWindow, "저장 완료",
+            note is null ? path : $"{path}\n\n{note}",
+            new Views.Windows.ChoiceDialog.Option("닫기", IsCancel: true),
+            new Views.Windows.ChoiceDialog.Option("폴더 열기", ToolTip: "탐색기에서 저장한 파일을 선택한 채로 엽니다"),
+            new Views.Windows.ChoiceDialog.Option("파일 열기", IsPrimary: true, ToolTip: "저장한 엑셀 파일을 엽니다"));
 
-        if (answer != System.Windows.MessageBoxResult.Yes) return;
+        if (pick == 1) OpenFolder(path);
+        else if (pick == 2) OpenFile(path);
+    }
 
+    /// <summary>파일을 기본 프로그램(엑셀)으로 연다. 못 열면 폴더 열기를 권한다.</summary>
+    private static void OpenFile(string path)
+    {
+        try
+        {
+            Shell(new ProcessStartInfo(path) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            var pick = Views.Windows.ChoiceDialog.Ask(ActiveWindow, "파일을 열지 못했습니다",
+                $"{path}\n\n이 파일을 여는 프로그램을 찾지 못했습니다(엑셀이 설치되어 있는지 확인하세요).\n{ex.Message}\n\n저장은 끝났습니다. 저장한 폴더를 열어 파일을 확인할 수 있습니다.",
+                new Views.Windows.ChoiceDialog.Option("닫기", IsCancel: true),
+                new Views.Windows.ChoiceDialog.Option("폴더 열기", IsPrimary: true));
+            if (pick == 1) OpenFolder(path);
+        }
+    }
+
+    /// <summary>탐색기를 <c>/select</c> 로 열면 저장한 파일이 선택된 채로 뜬다.</summary>
+    internal static void OpenFolder(string path)
+    {
         try
         {
             // 따옴표 안에 경로를 넣어야 공백·한글 폴더에서도 열린다.
-            Process.Start(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true });
+            Shell(new ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = true });
         }
         catch
         {
@@ -117,11 +149,14 @@ internal static class ReportExporterBase
     /// 일괄입력용 파일명 — `대분류_지점_분류군_DB_v1.xlsx`.
     /// ⚠ 관리자 Import 가 **파일명 키워드로 대분류를 판별**한다. 형식을 바꾸지 말 것.
     /// </summary>
-    public static string BulkFileName(SurveyMeta m, string taxon)
+    public static string BulkFileName(SurveyMeta m, string taxon) => BulkFileName(m.Project, m.Site, taxon);
+
+    /// <summary>위와 같은 이름 — 세션 목록 항목으로 미리 계산할 때(C-8 일괄 출력).</summary>
+    public static string BulkFileName(string? project, string? site, string taxon)
     {
-        var project = string.IsNullOrWhiteSpace(m.Project) ? "방류하천" : m.Project!;
-        var site = string.IsNullOrWhiteSpace(m.Site) ? "" : $"_{m.Site}";
-        return $"{project}{site}_{taxon}_DB_v1.xlsx";
+        var p = string.IsNullOrWhiteSpace(project) ? "방류하천" : project!;
+        var s = string.IsNullOrWhiteSpace(site) ? "" : $"_{site}";
+        return $"{p}{s}_{taxon}_DB_v1.xlsx";
     }
 
     /// <summary>통합문서를 xlsx 로 저장한다. 3번째 인자 null(타임아웃 무제한)은 Telerik 필수 인자다.</summary>
