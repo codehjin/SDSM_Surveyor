@@ -21,6 +21,9 @@
     <PackageReference Include="Telerik.UI.for.Wpf.AllControls.Xaml">
       <Version>2026.3.1007</Version>
     </PackageReference>
+    <!-- Telerik 라이선스 검증(빌드 시 %AppData%\Telerik\telerik-license.txt 를 읽어 앱에 넣는다).
+         AllControls 가 전이 의존으로도 가져오지만 버전을 명시해 둔다(작업로그_261015). -->
+    <PackageReference Include="Telerik.Licensing" Version="1.9.3" />
   </ItemGroup>
   <ItemGroup>
     <!-- 관리자 앱과 공유하는 POCO 모델 (Fish/ImportFishSpecies/FishSpeciesList 등) -->

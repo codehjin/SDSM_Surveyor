@@ -2,9 +2,9 @@
 using Microsoft.Win32;
 using SDSM_Core.Ecology;
 using SDSM_Surveyor_App.ViewModels;
-using Telerik.Windows.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx;  // XlsxFormatProvider
-using Telerik.Windows.Documents.Spreadsheet.Formatting;                    // RadHorizontalAlignment
-using Telerik.Windows.Documents.Spreadsheet.Model;                         // Workbook, Worksheet
+using Telerik.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx;  // XlsxFormatProvider
+using Telerik.Documents.Spreadsheet.Formatting;                    // RadHorizontalAlignment
+using Telerik.Documents.Spreadsheet.Model;                         // Workbook, Worksheet
 using ThemableColor = Telerik.Documents.Common.Model.ThemableColor;
 using static SDSM_Surveyor_App.Export.ExcelStyle;                          // 공통 서식 헬퍼
 

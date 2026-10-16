@@ -1,5 +1,5 @@
-﻿using Telerik.Windows.Documents.Spreadsheet.Formatting;   // ColumnWidth, RadHorizontalAlignment
-using Telerik.Windows.Documents.Spreadsheet.Model;        // Worksheet, CellSelection, CellRange, PatternFill
+﻿using Telerik.Documents.Spreadsheet.Formatting;   // ColumnWidth, RadHorizontalAlignment
+using Telerik.Documents.Spreadsheet.Model;        // Worksheet, CellSelection, CellRange, PatternFill
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using ThemableColor = Telerik.Documents.Common.Model.ThemableColor;

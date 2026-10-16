@@ -31,7 +31,7 @@ git clone https://github.com/codehjin/SDSM_Surveyor.git
 
 ## 빌드·실행
 
-- Visual Studio 2026 / .NET 8 / Telerik UI for WPF 2026.2.520
+- Visual Studio 2026 / .NET 8 / Telerik UI for WPF 2026.3.1007 (라이선스 키 `%AppData%\Telerik\telerik-license.txt`)
 - 시작 프로젝트: `SDSM_Surveyor_App`
 
 ## 저장 위치

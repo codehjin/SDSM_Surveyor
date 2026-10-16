@@ -19,7 +19,7 @@
 | 항목 | 값 |
 |------|-----|
 | 런타임 | .NET 8 (`net8.0-windows`, WPF) |
-| UI | Telerik UI for WPF `AllControls.Xaml` 2026.2.520 (Windows11 테마) |
+| UI | Telerik UI for WPF `AllControls.Xaml` 2026.3.1007 (Windows11 테마) + `Telerik.Licensing` 1.9.3 |
 | MVVM | CommunityToolkit.Mvvm |
 | DI | Microsoft.Extensions.DependencyInjection + Scrutor |
 | 아이콘 | MahApps.Metro.IconPacks |
@@ -145,6 +145,7 @@ Views/UserControls/    분류군별 EntryControl
 ---
 
 ## 9. 빌드 · 실행
-- Visual Studio 2026 / .NET 8 / Telerik 2026.2.520. `NuGet.Config`에 로컬 Telerik 소스 등록됨.
+- Visual Studio 2026 / .NET 8 / Telerik 2026.3.1007. 패키지는 nuget.org 에서 받는다(2026 Q3 로컬 설치 폴더 없음 · `NuGet.Config` 의 로컬 소스는 2026 Q2).
+  라이선스 키는 `%AppData%\Telerik\telerik-license.txt` — 빌드 때 `Telerik.Licensing` 이 읽는다(90_TECH_NOTES §1).
 - 시작 프로젝트 `SDSM_Surveyor_App`. `SDSM_Models`는 `..\SDSM\SDSM_Models` 참조.
 - 진행 현황·할 일은 `todo.md` 참조(계속 갱신).

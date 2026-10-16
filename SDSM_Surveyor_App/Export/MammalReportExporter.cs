@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using Microsoft.Win32;
 using SDSM_Surveyor_App.ViewModels;
-using Telerik.Windows.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx;
-using Telerik.Windows.Documents.Spreadsheet.Model;
+using Telerik.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx;
+using Telerik.Documents.Spreadsheet.Model;
 using ThemableColor = Telerik.Documents.Common.Model.ThemableColor;
 using static SDSM_Surveyor_App.Export.ExcelStyle;
 

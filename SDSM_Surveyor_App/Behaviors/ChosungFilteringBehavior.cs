@@ -8,7 +8,7 @@ namespace SDSM_Surveyor_App.Behaviors;
 /// <summary>
 /// RadAutoCompleteBox용 초성 검색 필터.
 /// 일반 부분일치 + 한글 초성(ㅋㅈㄴ) 매칭을 함께 지원한다.
-/// (인터페이스 시그니처: Telerik.Windows.Controls.Input 2026.2.520 기준 검증)
+/// (인터페이스 시그니처: Telerik.Windows.Controls.Input 2026.2.520 기준 검증 · 2026.3.1007 에서 같은 시그니처로 빌드·동작 확인)
 /// </summary>
 public sealed class ChosungFilteringBehavior : IFilteringBehavior
 {

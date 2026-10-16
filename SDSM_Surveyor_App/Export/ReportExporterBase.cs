@@ -2,8 +2,8 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Win32;
 using SDSM_Surveyor_App.Models;
-using Telerik.Windows.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx;   // XlsxFormatProvider
-using Telerik.Windows.Documents.Spreadsheet.Model;                          // Workbook, Worksheet
+using Telerik.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx;   // XlsxFormatProvider
+using Telerik.Documents.Spreadsheet.Model;                          // Workbook, Worksheet
 using static SDSM_Surveyor_App.Export.ExcelStyle;
 
 namespace SDSM_Surveyor_App.Export;

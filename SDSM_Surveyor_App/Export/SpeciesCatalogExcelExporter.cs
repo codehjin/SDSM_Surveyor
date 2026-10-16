@@ -1,6 +1,6 @@
 using SDSM_Surveyor_App.Models;
 using SDSM_Surveyor_App.ViewModels;
-using Telerik.Windows.Documents.Spreadsheet.Model;
+using Telerik.Documents.Spreadsheet.Model;
 using static SDSM_Surveyor_App.Export.ExcelStyle;
 
 namespace SDSM_Surveyor_App.Export;

@@ -38,9 +38,18 @@ b'Telerik.Documents.Common.Model.ThemableColor' in d            # 정규화된 �
 ## 1. 환경
 
 - .NET 8 WPF, C# nullable enable, ImplicitUsings enable
-- **Telerik UI for WPF 2026.2.520**, 패키지명 `Telerik.UI.for.Wpf.AllControls.Xaml`
+- **Telerik UI for WPF 2026.3.1007**(2026-10-16 업그레이드 마법사로 2026.2.520 → 올림), 패키지명 `Telerik.UI.for.Wpf.AllControls.Xaml`
   (⚠ `Telerik.UI.for.Wpf.80.Xaml`은 온라인 피드 전용. 로컬 폴더엔 AllControls만 존재)
-- 로컬 NuGet: `C:\Program Files (x86)\Progress\Telerik UI for WPF 2026 Q2\Binaries\WPF80\NuGet`
+  - 문서처리(엑셀) DLL 은 **2026.3.1006** 이 따라 들어온다(AllControls 의 의존).
+  - 2026.3.1007 은 **nuget.org** 에서 받는다. 2026 Q3 로컬 설치 폴더는 이 PC 에 없다
+    (`NuGet.Config` 의 로컬 소스는 2026 Q2 그대로 — 거기엔 2026.2.520 만 있다).
+- 로컬 NuGet(2026 Q2): `C:\Program Files (x86)\Progress\Telerik UI for WPF 2026 Q2\Binaries\WPF80\NuGet`
+- **라이선스**: `Telerik.Licensing` 1.9.3 을 앱 프로젝트에 명시 참조. 빌드 때 `%AppData%\Telerik\telerik-license.txt` 를 찾아 앱에 넣는다.
+  확인: `dotnet build -p:TelerikLicensingVerbosity=diagnostic` → `License OK for "Telerik UI for WPF" … valid until …`.
+  키 파일은 저장소에 넣지 않는다.
+- ⚠ **2026 Q3 문서처리 네임스페이스 변경** — `Telerik.Windows.Documents.Spreadsheet.*` → **`Telerik.Documents.Spreadsheet.*`**,
+  `ThemableColor`·`ThemableFontFamily` 는 **`Telerik.Documents.Common.Model`** 로 옮겨졌다. DLL 파일 이름은 그대로다.
+  올린 직후 `Workbook`·`Worksheet` 를 못 찾는 컴파일 오류 74개가 이것이었다(using 만 바꿔 해결).
 - MVVM: CommunityToolkit.Mvvm / DI: Scrutor (마커 인터페이스 `ITransientService`/`IScopedService`/`ISingletonService`)
 - 아이콘: MahApps.Metro.IconPacks
 - **Telerik 문서처리(엑셀) DLL이 조사자 앱 bin에 이미 포함**되어 있다(AllControls 패키지). 별도 패키지 추가 불필요.
@@ -151,9 +160,10 @@ return (DataTemplate)XamlReader.Parse(
 관리자와 **동일 라이브러리**를 쓴다 → 100% 호환.
 
 ```csharp
-using Telerik.Windows.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx; // XlsxFormatProvider
-using Telerik.Windows.Documents.Spreadsheet.Model;      // Workbook, Worksheet, CellSelection, CellRange, PatternFill, PatternType
-using Telerik.Windows.Documents.Spreadsheet.Formatting; // ColumnWidth, RadHorizontalAlignment
+// ⚠ 2026 Q3(2026.3.1006)부터 Telerik.Windows.Documents.* → Telerik.Documents.* (§1)
+using Telerik.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx; // XlsxFormatProvider
+using Telerik.Documents.Spreadsheet.Model;      // Workbook, Worksheet, CellSelection, CellRange, PatternFill, PatternType
+using Telerik.Documents.Spreadsheet.Formatting; // ⚠ 2026 Q3 에서 ColumnWidth·RadHorizontalAlignment 는 Model 네임스페이스에 있다
 using ThemableColor = Telerik.Documents.Common.Model.ThemableColor;           // ⚠ 네임스페이스 주의
 using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; // ⚠ 네임스페이스 주의
 ```
@@ -163,6 +173,21 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 - 셀 인덱스는 **0-based** (`Cells[0,0]` = A1)
 - 서식: `SetIsBold` `SetFontSize` `SetForeColor(new ThemableColor(color))` `SetFill(new PatternFill(PatternType.Solid, fore, back))` `SetHorizontalAlignment(RadHorizontalAlignment.Center)` `SetFontFamily(new ThemableFontFamily("맑은 고딕"))`
 - 컬럼 폭: `ws.Columns[i].SetWidth(new ColumnWidth(px, true))`
+
+### ⚠ License 시트 — 라이선스 증빙은 **진입 실행 파일**에서 읽힌다 (2026-10-16 실측)
+
+- `Telerik.Licensing` 이 빌드 때 증빙을 그 프로젝트의 어셈블리에 넣는다. 런타임은 **진입 실행 파일**의 증빙을 본다.
+- 앱(`SDSM_Surveyor_App.exe`)이 만든 엑셀에는 `License` 시트가 붙지 않는다. 같은 exporter 를 **다른 실행 파일**(BaselineGen·검증 하네스)에서
+  부르면 그 실행 파일에 증빙이 없는 한 계속 붙는다 → 시험 도구로 License 시트를 확인하려면 그 도구에도 `Telerik.Licensing` 을 참조한다.
+
+### ⚠ 엑셀 왕복의 알려진 결함 (2026.3.1006 기준)
+
+| 결함 | 증상 | 범위 |
+|---|---|---|
+| 빈 인덱스의 `CHOOSE` | `CHOOSE(X$17,…)` 의 인덱스 셀이 비면 Export 가 `InvalidCastException(Double → RadExpression)` 으로 **파일을 못 만든다**(Export 는 셀 형식을 정하려고 모든 수식을 평가한다) | 2026 Q2·Q3 둘 다. 방류하천 어류 양식 69·70·74행 |
+| `SUMPRODUCT` 에 `@` 삽입 | `SUMPRODUCT(($E$79:$E$331="O")*(CQ$79:CQ$331<>""))` 를 Import→Export 하면 파일 속 수식이 `SUMPRODUCT((@$E$79:…="O")*(@CQ$79:…<>""))` 로 바뀌고 Excel 에서 **`#VALUE!`** | **2026 Q3 에서 새로 생김**(Q2 왕복본은 정상). 어류 양식 36·37·38·41행. 끄는 설정 없음(`XlsxExportSettings` = `SkipShapes` 뿐) |
+
+→ 양식 파일을 Telerik 으로 열어 다시 저장하는 기능(B-7 양식 내장)은 **어류 양식에 쓰지 않는다**. 저서·조류·포유류·양서파충류·수질·서식수변 양식은 왕복이 깨끗하다.
 
 ### ✅ AutoFilter (해결됨)
 `worksheet.Filter`의 타입은 `AutoFilter`이며 `SetFilterRange`는 **internal 인터페이스 `IWorksheetFilter`의 명시적 구현**이라 외부에서 호출 불가(CS0122).

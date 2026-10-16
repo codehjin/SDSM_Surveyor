@@ -59,7 +59,7 @@ public partial class MainSurveyWindow : Window, ISingletonService
         // ⚠ [아니요]처럼 확인이 이 호출 안에서 바로 끝나면 아직 '닫는 중' 이다 — 여기서 Close() 를 부르면
         //    WPF 가 예외를 던진다. 닫기 처리가 끝난 다음 차례에 다시 닫는다.
         _closeConfirmed = true;
-        Dispatcher.BeginInvoke(new Action(Close));
+        _ = Dispatcher.BeginInvoke(new Action(Close));
     }
 
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
