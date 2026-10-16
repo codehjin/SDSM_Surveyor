@@ -47,7 +47,9 @@ var specs = new[]
     new Spec("benthos", "2602_방류하천_곡교천_저서동물_DB_v1.xlsx", "입력", RowFrom: 0, ColFrom: 12),
     new Spec("bird", "2602_방류하천_곡교천_조류_DB_v1.xlsx", "조류", RowFrom: 4, ColFrom: 0),
     new Spec("mammal", "2602_방류하천_곡교천_포유류_DB_v1.xlsx", "포유류", RowFrom: 4, ColFrom: 0),
-    new Spec("amphrep", "2603_생태현황_양서파충류_DB_v1.xlsx", "양서파충류", RowFrom: 4, ColFrom: 0),
+    // 양서파충류 : 자료 행(5~824행)의 학명(H)·특징(I) 칸이 VLOOKUP 수식이다. 앱이 그 칸에 값을 쓰므로
+    // 자료 행의 이 두 열은 수식까지 지운다(10-16 (2) 결정). 4행 예시의 수식은 레코드 영역 밖이라 남는다.
+    new Spec("amphrep", "2603_생태현황_양서파충류_DB_v1.xlsx", "양서파충류", RowFrom: 4, ColFrom: 0, ClearFormulaCols: new[] { 7, 8 }),
     new Spec("water", "2602_방류하천_곡교천_수질_DB_v1.xlsx", "수질", RowFrom: 1, ColFrom: 5),
     new Spec("habitat", "2602_방류하천_곡교천_서식수변_DB_v1.xlsx", "서식 및 수변환경", RowFrom: 1, ColFrom: 5),
 };
@@ -61,8 +63,10 @@ readme.AppendLine("앱의 일괄입력용 exporter 가 이 파일을 열어 **�
 readme.AppendLine();
 readme.AppendLine("처리 : ① `조사지점` 시트 제거 ② 레코드 영역의 **상수만** 지움(수식·서식·데이터 유효성 유지) ③ 라벨·예시 열과 종 행의 분류·형질·국명 유지 ④ 필독·보조 시트 유지");
 readme.AppendLine();
-readme.AppendLine("| 내장본 | 원본 | 원본 크기 | 원본 수정일 | 입력 시트 | 레코드 영역(0-based 행·열부터) | 지운 상수 | 남은 상수 | 남은 수식 | 시트 | 내장본 크기 |");
-readme.AppendLine("|---|---|---:|---|---|---|---:|---:|---:|---|---:|");
+readme.AppendLine("⑤ 양서파충류만 : 자료 행(5행~)의 학명(H)·특징(I) VLOOKUP 수식도 지움 — 앱이 그 칸에 값을 쓴다(10-16 (2) 결정).");
+readme.AppendLine();
+readme.AppendLine("| 내장본 | 원본 | 원본 크기 | 원본 수정일 | 입력 시트 | 레코드 영역(0-based 행·열부터) | 지운 상수 | 지운 수식 | 남은 상수 | 남은 수식 | 시트 | 내장본 크기 |");
+readme.AppendLine("|---|---|---:|---|---|---|---:|---:|---:|---:|---|---:|");
 
 int fail = 0;
 foreach (var s in specs)
@@ -77,13 +81,18 @@ foreach (var s in specs)
     var ws = wb.Worksheets.First(w => w.Name == s.Sheet);
     var used = ws.UsedCellRange;
 
-    int cleared = 0, formulas = 0;
+    int cleared = 0, formulas = 0, clearedFormulas = 0;
     for (int r = Math.Max(s.RowFrom, used.FromIndex.RowIndex); r <= used.ToIndex.RowIndex; r++)
     for (int c = Math.Max(s.ColFrom, used.FromIndex.ColumnIndex); c <= used.ToIndex.ColumnIndex; c++)
     {
         var v = ws.Cells[r, c].GetValue().Value;
         if (v.ValueType == CellValueType.Empty) continue;
-        if (v.ValueType == CellValueType.Formula) { formulas++; continue; }
+        if (v.ValueType == CellValueType.Formula)
+        {
+            if (s.ClearFormulaCols?.Contains(c) == true) { ws.Cells[r, c].ClearValue(); clearedFormulas++; continue; }
+            formulas++;
+            continue;
+        }
         ws.Cells[r, c].ClearValue();   // 값만 지운다 — 서식·유효성은 남는다
         cleared++;
     }
@@ -115,8 +124,9 @@ foreach (var s in specs)
     if (remaining != 0 || back.Worksheets.Any(w => w.Name is "License" or "조사지점")) fail++;
 
     var size = new FileInfo(outPath).Length;
+    if (clearedFormulas > 0) Console.WriteLine($"         자료 행 수식 {clearedFormulas}칸 지움(열 {string.Join(",", s.ClearFormulaCols!.Select(c => (char)('A' + c)))})");
     Console.WriteLine($"{s.Name,-8} 지운 상수 {cleared,6} · 남은 상수 {remaining} · 수식 {formulas,5} · 조사지점 제거 {removedSite} · {sw.Elapsed.TotalSeconds:F1}s · {size / 1024:N0} KB · 시트 {sheets}");
-    readme.AppendLine($"| `{s.Name}.xlsx` | `{s.Source}` | {fi.Length / 1024:N0} KB | {fi.LastWriteTime:yyyy-MM-dd HH:mm} | `{s.Sheet}` | 행 {s.RowFrom}·열 {s.ColFrom} | {cleared:N0} | **{remaining}** | {formulas:N0} | {sheets} | {size / 1024:N0} KB |");
+    readme.AppendLine($"| `{s.Name}.xlsx` | `{s.Source}` | {fi.Length / 1024:N0} KB | {fi.LastWriteTime:yyyy-MM-dd HH:mm} | `{s.Sheet}` | 행 {s.RowFrom}·열 {s.ColFrom} | {cleared:N0} | {clearedFormulas:N0} | **{remaining}** | {formulas:N0} | {sheets} | {size / 1024:N0} KB |");
 }
 
 // ── 어류 : 라벨·예시·필독 글자만 뽑는다 ───────────────────────────────────────
@@ -229,4 +239,4 @@ static string FindRepoRoot()
     throw new InvalidOperationException("저장소 루트를 찾지 못했습니다.");
 }
 
-record Spec(string Name, string Source, string Sheet, int RowFrom, int ColFrom);
+record Spec(string Name, string Source, string Sheet, int RowFrom, int ColFrom, int[]? ClearFormulaCols = null);

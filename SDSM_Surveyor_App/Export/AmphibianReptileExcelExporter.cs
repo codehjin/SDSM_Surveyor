@@ -1,8 +1,4 @@
-﻿using System.IO;
-using Microsoft.Win32;
-using SDSM_Surveyor_App.ViewModels;
-using Telerik.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx;
-using Telerik.Documents.Spreadsheet.Model;
+﻿using SDSM_Surveyor_App.ViewModels;
 
 namespace SDSM_Surveyor_App.Export;
 
@@ -11,9 +7,14 @@ namespace SDSM_Surveyor_App.Export;
 /// 일반 레이아웃: 1행 = 1출현기록. 데이터는 **0-based 행4**(엑셀 5행)부터, 앵커는 **B열=연도차수**.
 /// 매핑 근거: 관리자 BulkAmphibianReptileControlViewModel (FirstRowNumber=5, FirstColumnNumber=2).
 /// ⚠ 어류·포유류와 달리 **흔적 6종이 앞(9~14)**, 좌표가 뒤(15~22)에 온다.
+///
+/// B-7 : 빈 통합문서 대신 **내장 양식**(`templates\bulk\amphrep.xlsx`)을 열어 쓴다. 양식 머리글·예시·필독·목록 시트가 함께 나간다.
+/// 최종본 자료 행의 학명(H)·특징(I) VLOOKUP 수식은 TemplateGen 이 지웠다(10-16 (2) 결정) — 앱이 그 칸에 값을 쓴다.
 /// </summary>
 public static class AmphibianReptileExcelExporter
 {
+    private const string TemplateFile = "amphrep.xlsx";
+    private const string SheetName = "양서파충류";
     private const int FirstRow = 4;      // 0-based
     private const int TraceFirstCol = 9;  // Trace1~6 = 9~14
 
@@ -27,42 +28,32 @@ public static class AmphibianReptileExcelExporter
     public static void Write(AmphibianReptileEntryViewModel vm, string path)
     {
         var m = vm.Meta;
-        var wb = new Workbook();
-        var ws = wb.Worksheets.Add();
-        ws.Name = "양서파충류";
-
-        var headers = new (int Col, string Name)[]
-        {
-            (1, "연도차수"), (2, "조사일"), (3, "날씨"), (4, "하천명"), (5, "지점명"),
-            (6, "국명"), (7, "학명"), (8, "특징"),
-            (21, "위도"), (22, "경도"), (24, "대분류"), (25, "중분류"), (26, "조사자"), (27, "비고")
-        };
-        foreach (var (col, name) in headers) ws.Cells[FirstRow - 1, col].SetValue(name);
-        for (int i = 0; i < AmphibianReptileReportExporter.TraceNames.Length; i++)
-            ws.Cells[FirstRow - 1, TraceFirstCol + i].SetValue(AmphibianReptileReportExporter.TraceNames[i]);
+        var wb = BulkTemplate.Open(TemplateFile);
+        var ws = BulkTemplate.Sheet(wb, SheetName);
 
         int r = FirstRow;
         foreach (var e in vm.Entries)
         {
             if (string.IsNullOrWhiteSpace(e.SpeciesKo) || e.TraceSum <= 0) continue;   // 관측된 기록만
 
-            void Set(int col, string? val) { if (!string.IsNullOrWhiteSpace(val)) ws.Cells[r, col].SetValue(val); }
-            void SetInt(int col, int? val) { if (val is int v) ws.Cells[r, col].SetValue((double)v); }
+            void Set(int col, string? val) => BulkTemplate.Put(ws, r, col, val);
 
             Set(1, m.YearChsu);                            // 앵커
-            Set(2, m.SurveyDate?.ToString("yyyyMMdd"));
+            // ⚠ 양식의 조사일(C) 칸은 날짜 서식(mm-dd-yy)이다. 숫자 20250923 을 넣으면 날짜로 읽혀 깨진다 →
+            //   종전과 같은 글자 `yyyyMMdd` 로 쓴다(관리자 Import 는 8자리 숫자 글자를 날짜로 바꾼다).
+            if (m.SurveyDate is DateTime d) BulkTemplate.PutText(ws, r, 2, d.ToString("yyyyMMdd"));
             Set(3, m.Weather);
             Set(4, m.River);
             Set(5, m.Site);
-            ws.Cells[r, 6].SetValue(e.SpeciesKo);
+            Set(6, e.SpeciesKo);
             Set(7, e.SpeciesEn);
             Set(8, e.Feature);
 
             var traces = new[] { e.Trace1, e.Trace2, e.Trace3, e.Trace4, e.Trace5, e.Trace6 };
-            for (int i = 0; i < traces.Length; i++) SetInt(TraceFirstCol + i, traces[i]);  // 미입력은 빈 칸
+            for (int i = 0; i < traces.Length; i++) BulkTemplate.Put(ws, r, TraceFirstCol + i, (double?)traces[i]);  // 미입력은 빈 칸
 
-            if (e.Lat is double lat) ws.Cells[r, 21].SetValue(lat);
-            if (e.Lng is double lng) ws.Cells[r, 22].SetValue(lng);
+            BulkTemplate.Put(ws, r, 21, e.Lat);
+            BulkTemplate.Put(ws, r, 22, e.Lng);
             Set(24, e.MajorCategory);
             Set(25, e.MiddleCategory);
             Set(26, m.Surveyor);
@@ -71,6 +62,5 @@ public static class AmphibianReptileExcelExporter
         }
 
         ReportExporterBase.Save(wb, path);
-
     }
 }

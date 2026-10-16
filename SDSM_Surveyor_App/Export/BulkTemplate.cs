@@ -68,6 +68,13 @@ internal static class BulkTemplate
             ws.Cells[row, col].SetValueAsText(value);
     }
 
+    /// <summary>글자 그대로 쓴다(숫자로 바꾸지 않는다 · 라벨용).</summary>
+    public static void PutText(Worksheet ws, int row, int col, string text)
+    {
+        Guard(ws, row, col);
+        ws.Cells[row, col].SetValueAsText(text);
+    }
+
     /// <summary>숫자를 쓴다(null 이면 쓰지 않는다).</summary>
     public static void Put(Worksheet ws, int row, int col, double? value)
     {

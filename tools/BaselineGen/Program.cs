@@ -78,7 +78,7 @@ if (seedPath is not null)
     W("조류", p => { BirdExcelExporter.Write(sBird, p); return null; });
     W("포유류", p => { MammalExcelExporter.Write(sMammal, p); return null; });
     W("양서파충류", p => { AmphibianReptileExcelExporter.Write(sAmph, p); return null; });
-    W("수질", p => { WaterQualityExcelExporter.Write(sWater, p); return null; });
+    W("수질", p => { var a = WaterQualityExcelExporter.Write(sWater, p); return a.Count == 0 ? null : "양식에 없어 덧붙인 항목: " + string.Join(", ", a); });
     W("서식수변", p => { HabitatWaterEdgeExcelExporter.Write(sHabitat, p); return null; });
     return 0;
 }

@@ -34,10 +34,13 @@ TEMPLATES = {
     "benthos": ("benthos.xlsx", "입력", 1, 13, "2602_방류하천_곡교천_저서동물_DB_v1.xlsx"),
     "bird": ("bird.xlsx", "조류", 5, 1, "2602_방류하천_곡교천_조류_DB_v1.xlsx"),
     "mammal": ("mammal.xlsx", "포유류", 5, 1, "2602_방류하천_곡교천_포유류_DB_v1.xlsx"),
-    "amphrep": ("amphrep.xlsx", "양서파충류", 5, 1, "2603_생태현황_양서파충류_DB_v1.xlsx"),
+    "amphrep": ("amphrep.xlsx", "양서파충류", 5, 1, "2603_생태현황_양서파충류_DB_v1.xlsx"),   # 자료 행 H·I 수식도 지움(CLEARED_FORMULA_COLS)
     "water": ("water.xlsx", "수질", 2, 6, "2602_방류하천_곡교천_수질_DB_v1.xlsx"),
     "habitat": ("habitat.xlsx", "서식 및 수변환경", 2, 6, "2602_방류하천_곡교천_서식수변_DB_v1.xlsx"),
 }
+
+# 레코드 영역에서 수식까지 지우는 열(1-based) — 양서파충류 학명(H)·특징(I) VLOOKUP(10-16 (2) 결정)
+CLEARED_FORMULA_COLS = {"amphrep": {8, 9}}
 
 fails = []
 
@@ -104,9 +107,14 @@ def check_templates(tdir, src):
         check(len(left) == 0, f"실자료 잔존 검사 — 레코드 영역(행{r0}·열{c0}~) 상수 {len(left)}개")
         outside = [k for k in set(tc) | set(sc) if not rec(k) and tc.get(k) != sc.get(k)]
         check(len(outside) == 0, f"레코드 영역 밖(라벨·예시·머리글·종목록) 그대로 — 다른 칸 {len(outside)}개 {sorted(outside)[:5]}")
+        gone = CLEARED_FORMULA_COLS.get(key, set())
         rf_t = sum(1 for k, v in tc.items() if rec(k) and is_formula(v))
-        rf_s = sum(1 for k, v in sc.items() if rec(k) and is_formula(v))
-        check(rf_t == rf_s, f"레코드 영역 수식 {rf_t} = 최종본 {rf_s}")
+        rf_s = sum(1 for k, v in sc.items() if rec(k) and is_formula(v) and k[1] not in gone)
+        check(rf_t == rf_s, f"레코드 영역 수식 {rf_t} = 최종본 {rf_s}" + (f" (최종본의 {sorted(gone)}열 자료 행 수식은 지움)" if gone else ""))
+        if gone:
+            left_f = [k for k, v in tc.items() if rec(k) and k[1] in gone and is_formula(v)]
+            had_f = sum(1 for k, v in sc.items() if rec(k) and k[1] in gone and is_formula(v))
+            check(not left_f, f"자료 행의 지울 수식 {had_f}칸 → 남은 {len(left_f)}칸")
         for other in expect:
             if other == sheet:
                 continue
@@ -240,7 +248,7 @@ def check_files(session_path, folder, tdir):
                {6: "SpeciesKo", 7: "SpeciesEn", 8: "Feature", 15: "Lat", 16: "Lng", 18: "IndividualCount", 19: "MigratoryType",
                 20: "Category", 21: "CategoryDetail", 22: "HabitatType", 24: "Note"}, 23),
         "포유류": ("Mammal", "포유류", "mammal.xlsx", lambda r: sum((r.get(f"Trace{i}") or 0) for i in range(1, 13)) > 0,
-                {6: "SpeciesKo", 7: "SpeciesEn", 8: "Feature", 15: "Lat", 16: "Lng", 17: "ObservationSite",
+                {6: "SpeciesKo", 7: "SpeciesEn", 8: "Feature", 15: "Lat", 16: "Lng", 18: "ObservationSite",   # 양식 머리글대로 S열
                  **{18 + i: f"Trace{i}" for i in range(1, 13)}, 32: "Note"}, 31),
         "양서파충류": ("AmphibianReptile", "양서파충류", "amphrep.xlsx", lambda r: sum((r.get(f"Trace{i}") or 0) for i in range(1, 7)) > 0,
                   {6: "SpeciesKo", 7: "SpeciesEn", 8: "Feature", **{8 + i: f"Trace{i}" for i in range(1, 7)}, 21: "Lat", 22: "Lng",
@@ -250,17 +258,14 @@ def check_files(session_path, folder, tdir):
         f = file_for(folder, taxon)
         print(f"\n=== {taxon} {os.path.basename(f)}")
         wb = openpyxl.load_workbook(f)
-        templated = wb.sheetnames != [sheet]
         ws = wb[sheet]
-        if templated:
+        if True:   # 관찰형 3종 모두 내장본 기반
             tw = openpyxl.load_workbook(os.path.join(tdir, tname))
             check(wb.sheetnames == tw.sheetnames, f"시트 = 내장본 {wb.sheetnames} (License 없음)")
             tc, oc = cells(tw[sheet]), cells(ws)
             diff = [k for k in set(tc) | set(oc) if k[0] < 5 and tc.get(k) != oc.get(k)]
             check(not diff, f"머리글 1~4행(예시 포함) 보존 — 다른 칸 {len(diff)}개 {sorted(diff)[:5]}")
             check(formula_count(wb) == formula_count(tw), f"수식 개수 {formula_count(wb)} = 내장본 {formula_count(tw)}")
-        else:
-            check(wb.sheetnames == [sheet], f"시트 {wb.sheetnames} (License 없음 · 현행 형식 — 양식 미적용)")
         rows = [r for r in taxa[key]["Rows"] if keep(r)]
         names = latin["Amphibian" if key == "AmphibianReptile" else key]
         bad = []
@@ -276,14 +281,18 @@ def check_files(session_path, folder, tdir):
                     bad.append((xr, c, v, ws.cell(xr, c).value))
         check(not bad, f"자료 행 5행~ {len(rows)}건 = 세션{'' if not bad else ' 다름 ' + str(bad[:4])}")
         check(ws.cell(5 + len(rows), 2).value is None, "자료 행 뒤에 남는 행 없음")
+        if key == "Mammal":
+            r_used = [5 + i for i in range(len(rows)) if ws.cell(5 + i, 18).value is not None]
+            check(not r_used, f"관찰지유형을 R열(종전·관리자 현재 열)에 쓰지 않음 {r_used[:5]}")
 
     # 수질 ────────────────────────────────────────────────────────────
     f = file_for(folder, "수질")
     print(f"\n=== 수질 {os.path.basename(f)}")
     wb = openpyxl.load_workbook(f)
     ws = wb["수질"]
-    templated = wb.sheetnames != ["수질"]
-    check(wb.sheetnames in (["수질"], ["필독", "수질"]), f"시트 {wb.sheetnames} (License 없음{'' if templated else ' · 현행 형식 — 양식 미적용'})")
+    tw = openpyxl.load_workbook(os.path.join(tdir, "water.xlsx"))
+    check(wb.sheetnames == tw.sheetnames, f"시트 = 내장본 {wb.sheetnames} (License 없음)")
+    check(formula_count(wb) == formula_count(tw), f"수식 개수 {formula_count(wb)} = 내장본 {formula_count(tw)}")
     wx = taxa["WaterQuality"]
     exp = dict(m)
     exp.update({13: wx.get("PH"), 14: wx.get("Bod"), 15: wx.get("Cod"), 16: wx.get("Toc"), 17: wx.get("Ss"), 18: wx.get("Dox"),
@@ -307,6 +316,30 @@ def check_files(session_path, folder, tdir):
         if norm(found) != norm(wx.get(key)):
             bad.append((key, wx.get(key), found))
     check(not bad, f"확장항목 14종 — 관리자 검색으로 읽힐 값 = 세션{'' if not bad else ' 다름 ' + str(bad)}")
+    # 덧붙임 : 양식에 없는 항목은 '지속 삽입 가능' 행 아래 빈 행에 C열 라벨(관리자 검색어)과 F열 값
+    tws = tw["수질"]
+    anchor = next(r for r in range(23, tws.max_row + 1)
+                  if any("지속삽입가능" in str(tws.cell(r, c).value or "").replace(" ", "") for c in (2, 3)))
+    in_tpl = lambda keys: any(str(tws.cell(r, 3).value or "").strip() and any(k.lower() in (str(tws.cell(r, 3).value or "") + str(tws.cell(r, 4).value or "")).replace(" ", "").lower() for k in keys)
+                              for r in range(23, tws.max_row + 1))
+    missing = [(k, keys) for k, keys in names.items() if wx.get(k) is not None and not in_tpl(keys)]
+    labels = {"WaterDepth": "수심"}
+    got_rows = []
+    r = anchor + 1
+    for k, keys in missing:
+        while any(tws.cell(r, c).value is not None for c in range(2, 7)):
+            r += 1
+        got_rows.append((r, ws.cell(r, 3).value, ws.cell(r, 6).value))
+        if ws.cell(r, 3).value != labels.get(k, keys[0]) or norm(ws.cell(r, 6).value) != norm(wx.get(k)):
+            bad.append(("덧붙임", k, r))
+        r += 1
+    check(not [b for b in bad if b[0] == "덧붙임"], f"양식에 없는 항목 {[k for k, _ in missing]} → '지속 삽입 가능'({anchor}행) 아래 {[(x[0], x[1], x[2]) for x in got_rows]}")
+    appended_rows = {x[0] for x in got_rows}
+    tc, oc = cells(tws), cells(ws)
+    diff = [k for k in set(tc) | set(oc) if k[1] != 6 and k[0] not in appended_rows and tc.get(k) != oc.get(k)]
+    check(not diff, f"라벨(B~D)·예시(E) 보존(단위를 E열에 쓰지 않음) — 다른 칸 {len(diff)}개 {sorted(diff)[:5]}")
+    extra = [k for k in oc if k[1] > 6 and not is_formula(oc[k])]
+    check(not extra, f"첫 레코드 열(F) 밖 레코드 열에 값 없음 {extra[:5]}")
 
     # 서식수변 ─────────────────────────────────────────────────────────
     f = file_for(folder, "서식수변")
