@@ -22,7 +22,14 @@ internal static class ReportExporterBase
     /// 저장 대화상자를 띄우고, 사용자가 고르면 <paramref name="write"/> 로 파일을 만든다.
     /// 취소하면 null.
     /// </summary>
-    public static string? SaveWithDialog(string title, string fileName, Action<string> write)
+    public static string? SaveWithDialog(string title, string fileName, Action<string> write) =>
+        SaveWithDialog(title, fileName, path => { write(path); return null; });
+
+    /// <summary>
+    /// 위와 같고, <paramref name="write"/> 가 돌려준 한 줄을 저장 완료 안내에 덧붙인다
+    /// (예: `양식 종목록에 없어 끝에 추가한 종: …` · B-7).
+    /// </summary>
+    public static string? SaveWithDialog(string title, string fileName, Func<string, string?> write)
     {
         var dlg = new SaveFileDialog
         {
@@ -32,14 +39,30 @@ internal static class ReportExporterBase
         };
         if (dlg.ShowDialog() != true) return null;
 
-        // 같은 이름 파일이 엑셀에 열려 있으면 FileStream 이 IOException 을 던진다.
-        // 잡지 않으면 입력 중이던 야장째로 앱이 종료된다.
+        // 일괄입력용은 양식(저서 내장본 약 1MB)을 열고 다시 저장하느라 몇 초 걸린다(저서 4~5초 · B-7 실측).
+        // 그동안 창이 멈춘 것처럼 보이지 않게 대기 커서를 띄운다.
+        string? note;
+        var previousCursor = System.Windows.Input.Mouse.OverrideCursor;
+        System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
         try
         {
-            write(dlg.FileName);
+            note = write(dlg.FileName);
+        }
+        catch (BulkTemplateException ex)
+        {
+            // 양식이 없거나(설치 손상) 양식과 좌표가 어긋났다 — 빈 통합문서로 대신하지 않고 멈춘다.
+            System.Windows.Input.Mouse.OverrideCursor = previousCursor;
+            System.Windows.MessageBox.Show(
+                "일괄입력용 양식을 쓸 수 없어 저장하지 않았습니다. 프로그램을 다시 설치하거나 담당자에게 알려 주세요."
+                + $"\n\n{ex.Message}",
+                "저장 중단", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            return null;
         }
         catch (IOException ex)
         {
+            // 같은 이름 파일이 엑셀에 열려 있으면 FileStream 이 IOException 을 던진다.
+            // 잡지 않으면 입력 중이던 야장째로 앱이 종료된다.
+            System.Windows.Input.Mouse.OverrideCursor = previousCursor;
             // 파일 잠김뿐 아니라 경로 없음(USB 분리 등)도 IOException 파생이다 — 원인을 함께 보여 준다.
             System.Windows.MessageBox.Show(
                 "저장하지 못했습니다. 같은 이름 파일이 엑셀에 열려 있는지, 저장 위치가 살아 있는지 확인해 주세요."
@@ -47,8 +70,12 @@ internal static class ReportExporterBase
                 "저장 실패", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             return null;
         }
+        finally
+        {
+            System.Windows.Input.Mouse.OverrideCursor = previousCursor;
+        }
 
-        OfferToOpenFolder(dlg.FileName);
+        OfferToOpenFolder(dlg.FileName, note);
         return dlg.FileName;
     }
 
@@ -56,12 +83,12 @@ internal static class ReportExporterBase
     /// 저장한 뒤 그 폴더를 열지 묻는다. 현장에서 파일을 어디에 뒀는지 놓치는 일이 잦다.
     /// 탐색기를 <c>/select</c> 로 열면 저장한 파일이 선택된 채로 뜬다.
     /// </summary>
-    private static void OfferToOpenFolder(string path)
+    private static void OfferToOpenFolder(string path, string? note = null)
     {
         // 제목이 이미 '저장 완료'다. 본문에서 또 "저장했습니다" 라고 하면
         // 화면 아래 알림 띠(NotifyMessage)까지 세 번 같은 말을 하게 된다.
         var answer = System.Windows.MessageBox.Show(
-            $"{path}\n\n저장한 폴더를 열까요?",
+            note is null ? $"{path}\n\n저장한 폴더를 열까요?" : $"{path}\n\n{note}\n\n저장한 폴더를 열까요?",
             "저장 완료",
             System.Windows.MessageBoxButton.YesNo,
             System.Windows.MessageBoxImage.Information);

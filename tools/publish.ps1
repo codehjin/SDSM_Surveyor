@@ -83,11 +83,23 @@ $must = @(
     'species.json',
     'sites.json',
     'maps\maps.json',
-    'Assets\Fonts\OFL.txt'      # Pretendard 재배포 의무(SIL OFL 1.1)
+    'Assets\Fonts\OFL.txt',     # Pretendard 재배포 의무(SIL OFL 1.1)
+    # 일괄입력용 양식 내장본 6개 + 어류 라벨 글자(B-7). 없으면 일괄입력용 내보내기가 멈춘다.
+    'templates\bulk\benthos.xlsx',
+    'templates\bulk\bird.xlsx',
+    'templates\bulk\mammal.xlsx',
+    'templates\bulk\amphrep.xlsx',
+    'templates\bulk\water.xlsx',
+    'templates\bulk\habitat.xlsx',
+    'templates\bulk\fish_labels.json'
 )
 foreach ($f in $must) {
     if (-not (Test-Path (Join-Path $stage $f))) { Fail "필수 파일 누락 : $f" 3 }
 }
+
+$nTpl = (Get-ChildItem (Join-Path $stage 'templates\bulk') -Filter *.xlsx).Count
+if ($nTpl -ne 6) { Fail "일괄입력용 내장본이 6개가 아닙니다 — 현재 $nTpl 개" 3 }
+Write-Host "    일괄입력용 내장본 $nTpl 개 확인"
 
 $nMap = (Get-ChildItem (Join-Path $stage 'maps') -Filter *.png).Count
 if ($nMap -ne 29) { Fail "지도가 29장이 아닙니다 — 현재 $nMap 장" 3 }

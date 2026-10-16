@@ -12,6 +12,8 @@
 # 대용량 참고자료
 *.xlsx
 !docs/**/*.xlsx
+# 일괄입력용 양식 내장본(B-7) — 배포에 들어가므로 커밋한다
+!SDSM_Surveyor_App/templates/**/*.xlsx
 
 # python 도구 캐시
 __pycache__/

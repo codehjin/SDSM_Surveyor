@@ -38,6 +38,51 @@ var noSession = new NoSessionService();
 
 Console.WriteLine($"종목록 {species.Version ?? "(없음)"} · 기준자료 {reference.Version ?? "(없음)"} · 지점 {sites.Version ?? "(없음)"}({sites.All.Count}건)\n");
 
+// ── --seed <세션 json> : 자료함 예시 세션 하나로 일괄입력용 7종만 만든다 ─────────────
+// B-7 3단계 검증(`tools\bulk_check.py` 의 입력). 예 : --seed SDSM_Surveyor_App\sessions_seed\방류하천_2025분기3차_곡교천4.json
+// 세션 파일은 읽기만 한다. 파일명은 앱의 일괄입력용 이름 규칙(`대분류_지점_분류군_DB_v1.xlsx`)과 같게 만든다.
+string? seedPath = null;
+for (int i = 0; i < args.Length - 1; i++)
+    if (args[i] == "--seed") seedPath = Path.GetFullPath(args[i + 1]);
+if (seedPath is not null)
+{
+    var session = System.Text.Json.JsonSerializer.Deserialize<SurveySession>(File.ReadAllText(seedPath),
+                      new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                  ?? throw new InvalidOperationException($"세션 파일을 읽지 못했습니다: {seedPath}");
+    var sm = new SurveyMeta(sites, new SurveyPins(new MemorySettingsStore()));
+    session.Meta.ApplyTo(sm);
+
+    var sFish = new FishEntryViewModel(species, noSession, reference, sm);
+    var sBenthos = new BenthosEntryViewModel(species, noSession, reference, sm);
+    var sBird = new BirdEntryViewModel(species, noSession, sm);
+    var sMammal = new MammalEntryViewModel(species, noSession, sm);
+    var sAmph = new AmphibianReptileEntryViewModel(species, noSession, sm);
+    var sHabitat = new HabitatWaterEdgeEntryViewModel(noSession, sm);
+    var sWater = new WaterQualityEntryViewModel(noSession, sm);
+    foreach (SDSM_Surveyor_App.Data.ITaxonSession t in new object[] { sFish, sBenthos, sBird, sMammal, sAmph, sHabitat, sWater })
+        if (session.Taxa.TryGetValue(t.Key, out var json)) t.RestoreState(json);
+
+    string Name(string taxon) =>
+        $"{(string.IsNullOrWhiteSpace(sm.Project) ? "방류하천" : sm.Project)}{(string.IsNullOrWhiteSpace(sm.Site) ? "" : "_" + sm.Site)}_{taxon}_DB_v1.xlsx";
+
+    Console.WriteLine($"=== 예시 세션 → 일괄입력용 7종 : {session.SessionId} ===");
+    int k = 0;
+    void W(string taxon, Func<string, string?> writer)
+    {
+        var path = Path.Combine(outDir, Name(taxon));
+        var note = writer(path);
+        Console.WriteLine($"  {++k}. {Path.GetFileName(path)}  ({new FileInfo(path).Length:N0} bytes){(note is null ? "" : "  · " + note)}");
+    }
+    W("어류", p => { FishExcelExporter.Write(sFish, p); return null; });
+    W("저서동물", p => { var a = BenthosExcelExporter.Write(sBenthos, p); return a.Count == 0 ? null : "양식에 없어 덧붙인 종: " + string.Join(", ", a); });
+    W("조류", p => { BirdExcelExporter.Write(sBird, p); return null; });
+    W("포유류", p => { MammalExcelExporter.Write(sMammal, p); return null; });
+    W("양서파충류", p => { AmphibianReptileExcelExporter.Write(sAmph, p); return null; });
+    W("수질", p => { WaterQualityExcelExporter.Write(sWater, p); return null; });
+    W("서식수변", p => { HabitatWaterEdgeExcelExporter.Write(sHabitat, p); return null; });
+    return 0;
+}
+
 // ── 본 케이스 : 7개 분류군 전부 채운 하나의 조사 ──────────────────────────────
 var meta = new SurveyMeta(sites, new SurveyPins(new MemorySettingsStore()));
 Fixtures.FillMeta(meta);

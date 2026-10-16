@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>TemplateGen</RootNamespace>
+    <AssemblyName>TemplateGen</AssemblyName>
+    <!-- 조사자 앱 솔루션에 딸려 빌드되지 않게 한다(도구일 뿐이다) -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Telerik 문서처리 DLL 을 앱과 같은 판으로 쓰려고 앱 프로젝트를 참조한다 -->
+    <ProjectReference Include="..\..\SDSM_Surveyor_App\SDSM_Surveyor_App.csproj" />
+    <!-- ⚠ 라이선스 증빙은 '진입 실행 파일'에서 읽힌다(90_TECH_NOTES §3). 없으면 내장본 끝에
+         'License' 시트가 붙고, 그 시트가 앱이 내보내는 파일까지 따라간다. -->
+    <PackageReference Include="Telerik.Licensing" Version="1.9.3" />
+  </ItemGroup>
+
+</Project>

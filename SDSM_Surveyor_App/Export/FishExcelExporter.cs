@@ -32,6 +32,11 @@ public static class FishExcelExporter
         var ws = wb.Worksheets.Add();
         ws.Name = "어류_입력";
 
+        // 최종본의 라벨 열(M·N·O)·예시 열(P)·필독 시트 글자(B-7). 어류는 양식을 내장하지 않는다 —
+        // Telerik 이 어류 양식 수식을 다시 저장하면 깨지므로(CHOOSE 예외 · SUMPRODUCT '@') 글자만 덧붙인다.
+        // 레코드 열(Q)·종 행(79행~)은 아래 그대로다.
+        BulkTemplate.ApplyFishLabels(wb, ws);
+
         // 레코드 열(Q)에 필드 기록 : 값이 있을 때만
         void Set(int row, string? val)
         {

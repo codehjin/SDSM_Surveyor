@@ -71,6 +71,11 @@
     <Content Include="maps\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <!-- 일괄입력용 양식 내장본 6개 + 어류 라벨 글자(B-7 · tools\TemplateGen 이 2026-03 최종본에서 만든다).
+         테스트판·실배포판 모두 들어간다. 없으면 일괄입력용 내보내기가 사유를 알리고 멈춘다. -->
+    <Content Include="templates\bulk\*.xlsx;templates\bulk\fish_labels.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <!-- 테스트 배포본 전용 : 자료함 예시 세션.
        기본 빌드에는 들어가지 않는다 — 실제 배포본에 예시 자료가 섞이면 안 된다.
