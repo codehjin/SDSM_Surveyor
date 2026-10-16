@@ -92,10 +92,32 @@ public partial class SessionBrowserViewModel : ObservableObject, ITransientServi
 
     private bool HasSelection() => Selected is not null;
 
+    /// <summary>
+    /// 저장 안 한 변경 확인(View 가 붙인다 · B-5). 인자는 질문 아래 붙는 한 줄.
+    /// false 를 돌려주면 동작을 멈춘다. null 이면 묻지 않는다.
+    /// </summary>
+    public Func<string, Task<bool>>? ConfirmUnsaved { get; set; }
+
+    /// <summary>
+    /// 지금 화면을 덮어쓰기 전에 묻는다. [예]로 저장했으면 목록을 새로 읽는다 —
+    /// 그러면 선택이 풀리므로 고르고 있던 세션을 다시 고른다.
+    /// </summary>
+    private async Task<bool> ConfirmOverwriteAsync(string consequence)
+    {
+        if (ConfirmUnsaved is null) return true;
+        var keep = Selected?.SessionId;
+        if (!await ConfirmUnsaved(consequence)) return false;
+        await RefreshAsync();
+        if (keep is not null) Selected = Sessions.FirstOrDefault(e => e.SessionId == keep);
+        return true;
+    }
+
     /// <summary>선택 세션을 7개 탭에 복원한다.</summary>
     [RelayCommand(CanExecute = nameof(HasSelection))]
     private async Task LoadSession()
     {
+        if (Selected is null) return;
+        if (!await ConfirmOverwriteAsync("불러오면 지금 화면이 이 세션으로 바뀝니다.")) return;
         if (Selected is null) return;
         var ok = await _sessions.LoadAsync(Selected.SessionId);
         if (!ok) { StatusText = "세션 파일을 찾지 못했습니다."; return; }
@@ -136,9 +158,12 @@ public partial class SessionBrowserViewModel : ObservableObject, ITransientServi
     /// 같은 날 여러 지점을 도는 현장 흐름에 맞춘 기능이다.
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanCopyToSite))]
-    private void CopyToSite()
+    private async Task CopyToSite()
     {
         if (CopyTargetSite is null) return;
+        var site = CopyTargetSite;
+        if (!await ConfirmOverwriteAsync("지점 복사를 하면 지금 화면의 종 목록이 비워집니다.")) return;
+        CopyTargetSite = site;   // 목록을 새로 읽어도 옮길 지점은 그대로
         _sessions.CopyToSite(CopyTargetSite);
         Notify($"{CopyTargetSite.Display} 지점으로 조사개황을 복사했습니다(종 목록은 비움).");
         LoadCompleted?.Invoke(this, EventArgs.Empty);
@@ -150,6 +175,8 @@ public partial class SessionBrowserViewModel : ObservableObject, ITransientServi
     [RelayCommand(CanExecute = nameof(CanCopyFromPrevious))]
     private async Task CopyFromPrevious()
     {
+        if (Selected is null || string.IsNullOrWhiteSpace(NewYearChsu)) return;
+        if (!await ConfirmOverwriteAsync("차수 복제를 하면 지금 화면이 고른 세션의 복제본으로 바뀝니다.")) return;
         if (Selected is null || string.IsNullOrWhiteSpace(NewYearChsu)) return;
 
         var ok = await _sessions.CopyFromPreviousAsync(Selected.SessionId, NewYearChsu.Trim(), DateTime.Today);

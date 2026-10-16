@@ -26,3 +26,7 @@ tools/_build.log
 _to_delete/
 docs/_backup_*/
 docs/_maps_seed_old/
+
+# Telerik upgrade wizard
+*_Backup_20*/
+*_Report_20*.htm

@@ -77,7 +77,8 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     // ── 입력 그리드 ──
     /// <summary>종 행. 기반 클래스의 <c>Rows</c> 를 화면 바인딩 이름으로 노출한다.</summary>
     public RadObservableCollection<BenthosSpeciesEntry> SpeciesEntries => Rows;
-    [ObservableProperty] private List<BenthosSpeciesList> _speciesListSource = new();
+    // ⚠ 종목록(SpeciesListSource)은 기반 클래스 것을 쓴다. 여기서 같은 이름을 다시 선언하면
+    //    기반 클래스 속성을 가려 빠른추가 후보(FilteredQuick)가 늘 비어 있었다(B-3 · 2026-10-15 확인).
 
     /// <summary>붙여넣기 한 줄 → 행. 열 순서 = [국명, 개체수].
     /// 국명이 공식 종목록에 있으면 학명·길드가 자동으로 연결된다.</summary>
@@ -162,10 +163,65 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         }
     }
 
+    /// <summary>하상구성 8칸(화면 이름, 값). 합계·정수 점검이 같이 쓴다.</summary>
+    private (string Label, string? Value)[] SubstrateFields => new[]
+    {
+        ("암반", Bedrock), ("콘크리트", Concrete), ("진흙", Mud), ("모래", Sand),
+        ("잔자갈", FineGravel), ("자갈", Gravel), ("작은돌", SmallStone), ("큰돌", BigStone),
+    };
+
+    /// <summary>하상구성 합계(%). 지침상 100 이어야 한다. 전부 비면 null. (어류와 같은 규칙 · B-6)</summary>
+    public double? SubstrateTotal
+    {
+        get
+        {
+            var vals = SubstrateFields.Select(f => Pd(f.Value)).Where(v => v is not null).Select(v => v!.Value).ToList();
+            return vals.Count == 0 ? null : vals.Sum();
+        }
+    }
+
+    /// <summary>
+    /// 하상구성 경고 — 합계가 100 이 아니거나, 0~100 정수가 아닌 칸이 있으면.
+    /// 최종본 실제 제출 자료에 합계 90% 가 있었다(B-6). 막지 않고 알리기만 한다. 8칸이 모두 비면 경고하지 않는다.
+    /// </summary>
+    public string SubstrateWarning
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (SubstrateTotal is double t && Math.Abs(t - 100) > 0.01)
+                parts.Add($"하상구성 합계 {t:0.#}% — 100 이 되어야 합니다");
+            var bad = WholeNumber.Describe(SubstrateFields, 100);
+            if (bad.Length > 0) parts.Add($"0~100 정수가 아닌 칸: {bad}");
+            return string.Join(" · ", parts);
+        }
+    }
+
+    /// <summary>정량 채집기 횟수가 정수가 아니면 경고(B-6 · 예전 세션 값은 지우지 않는다).</summary>
+    public string GearWarning
+    {
+        get
+        {
+            var bad = WholeNumber.Describe(new[]
+            {
+                ("Surber 30", Surbernet30), ("Surber 50", Surbernet50), ("드렛지", Dredge), ("에크만", Ekman),
+            });
+            return bad.Length == 0 ? string.Empty : $"채집기 횟수가 정수가 아닌 칸: {bad}";
+        }
+    }
+
+    /// <summary>접힌 요약줄에 띄우는 조사환경 경고(채집기 + 하상구성).</summary>
+    public string EnvironmentWarning =>
+        string.Join(" · ", new[] { GearWarning, SubstrateWarning }.Where(s => s.Length > 0));
+
     private void RaiseEnvironmentSummary()
     {
         OnPropertyChanged(nameof(SubstrateSummary));
         OnPropertyChanged(nameof(GearSummary));
+        OnPropertyChanged(nameof(SubstrateTotal));
+        OnPropertyChanged(nameof(SubstrateWarning));
+        OnPropertyChanged(nameof(GearWarning));
+        OnPropertyChanged(nameof(EnvironmentWarning));
     }
 
     partial void OnBedrockChanged(string? value) => RaiseEnvironmentSummary();
@@ -201,12 +257,24 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         if (string.IsNullOrEmpty(ko)) return;
         if (row.SelectedSpecies?.SpeciesKo == ko) return;
         var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko);
-        if (match is not null && !ReferenceEquals(match, row.SelectedSpecies))
-            row.SelectedSpecies = match;
+        if (match is not null)
+        {
+            if (!ReferenceEquals(match, row.SelectedSpecies)) row.SelectedSpecies = match;
+        }
+        else if (row.SelectedSpecies is not null)
+        {
+            // 목록 밖 국명으로 고쳤다(B-4) — 예전 종의 오탁치·가중치가 남으면 BMI 가 그 종으로 된다.
+            row.SelectedSpecies = null;
+        }
     }
 
-    // 입력 이상치 경고 개수(상태바 표시)
+    // 입력 이상치 경고 개수(상태바 표시) — 이상치 + 같은 종 중복 행을 합친 수다.
     [ObservableProperty] private int _warningCount;
+
+    // 상태바 문구를 두 갈래로 나눠 적으려고 따로 센다(이상치 n건 · 같은 종 중복 k종).
+    private int _outlierRows;
+    private int _unlistedRows;
+    private int _duplicateSpecies;
 
     /// <summary>경고 영역 표시 여부(06_DESIGN_REBUILD §5-2-1). 경고는 비차단이다 — 저장을 막지 않는다.</summary>
     public bool HasWarnings => WarningCount > 0;
@@ -218,28 +286,63 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         OnPropertyChanged(nameof(WarningText));
         OnPropertyChanged(nameof(HasWarnings));
     }
-    public string WarningText => WarningCount > 0 ? $"⚠ 이상치 경고 {WarningCount}건" : string.Empty;
+    public string WarningText
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (_outlierRows > 0) parts.Add($"이상치 경고 {_outlierRows}건");
+            if (_unlistedRows > 0) parts.Add($"목록 밖 국명 {_unlistedRows}건");
+            if (_duplicateSpecies > 0) parts.Add($"같은 종 중복 {_duplicateSpecies}종");
+            return parts.Count == 0 ? string.Empty : "⚠ " + string.Join(" · ", parts);
+        }
+    }
 
     private void ValidateRows()
     {
-        int warn = 0;
+        // 같은 종이 여러 행 — 불러온 세션에 이미 있던 중복은 자동으로 합치지 않고 알리기만 한다(B-1).
+        // BMI 는 행 단위라 두 행이면 오탁치·지표가중치가 이중으로 더해진다.
+        var dupCount = SpeciesEntries
+            .Select(SpeciesKeyOf).Where(k => !string.IsNullOrEmpty(k))
+            .GroupBy(k => k!, StringComparer.Ordinal)
+            .Where(g => g.Count() > 1)
+            .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+
+        int warn = 0, outlier = 0, unlisted = 0;
         foreach (var e in SpeciesEntries)
         {
             var ko = e.SelectedSpecies?.SpeciesKo ?? e.SpeciesKo;
             var cnt = e.IndividualCount;
-            if (string.IsNullOrWhiteSpace(ko) || cnt is null || cnt <= 0)
-            {
-                e.ErrorContent = string.Empty;
-                continue;
-            }
-            var range = _reference.GetBenthosRange(ko);
-            if (range is null) e.ErrorContent = "과거 기록 없음 (신규 종 확인)";
-            else if (cnt.Value > range.Max) e.ErrorContent = $"과거 최대 {range.Max:N0}개체 초과";
-            else e.ErrorContent = string.Empty;
 
+            var key = SpeciesKeyOf(e);
+            var dup = key is not null && dupCount.TryGetValue(key, out var n)
+                ? $"같은 종이 {n}행 — 합쳐야 계산이 맞습니다"
+                : null;
+
+            // 종목록에 없는 국명(B-4) — 지우지 않고 그대로 저장한다. 오타인지 확인만 요청한다.
+            // 이 경우 기준자료에도 없으므로 아래 '과거 기록 없음' 은 겹쳐 적지 않는다.
+            string? listed = e.SelectedSpecies is null && !string.IsNullOrWhiteSpace(e.SpeciesKo)
+                ? "종목록에 없는 국명 — 오타인지 확인하세요"
+                : null;
+            if (listed is not null) unlisted++;
+
+            string? range = null;
+            if (listed is null && !string.IsNullOrWhiteSpace(ko) && cnt is > 0)
+            {
+                var r = _reference.GetBenthosRange(ko);
+                if (r is null) range = "과거 기록 없음 (신규 종 확인)";
+                else if (cnt.Value > r.Max) range = $"과거 최대 {r.Max:N0}개체 초과";
+            }
+            if (range is not null) outlier++;
+
+            e.ErrorContent = string.Join(" · ", new[] { dup, listed, range }.Where(s => s is not null));
             if (e.HasWarning) warn++;
         }
+        _outlierRows = outlier;
+        _unlistedRows = unlisted;
+        _duplicateSpecies = dupCount.Count;
         WarningCount = warn;
+        OnPropertyChanged(nameof(WarningText));
 
         var names = SpeciesEntries.Where(x => x.HasWarning)
                                   .Select(x => x.SelectedSpecies?.SpeciesKo ?? x.SpeciesKo)
@@ -393,6 +496,31 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         propertyName is nameof(BenthosSpeciesEntry.IndividualCount)
                      or nameof(BenthosSpeciesEntry.SelectedSpecies)
                      or nameof(BenthosSpeciesEntry.SpeciesKo);
+
+    /// <summary>
+    /// 국명을 직접 친 경우에도 공식 종목록과 잇는다(B-4).
+    /// ⚠ 종전에는 이 연결이 붙여넣기 경로에만 있었다 — 그리드에 친 국명은 오탁치·가중치가 비어 BMI 가 틀렸다.
+    /// </summary>
+    protected override void OnRowPropertyChanged(BenthosSpeciesEntry row, string? propertyName)
+    {
+        if (propertyName == nameof(BenthosSpeciesEntry.SpeciesKo)) ResolveSpecies(row);
+    }
+
+    // ── 같은 종 중복 : 합산 (B-1) ─────────────────────────────────────────────
+
+    protected override DuplicateSpeciesMode DuplicateMode => DuplicateSpeciesMode.Merge;
+
+    protected override string? SpeciesKeyOf(BenthosSpeciesEntry row) =>
+        (row.SelectedSpecies?.SpeciesKo ?? row.SpeciesKo)?.Trim();
+
+    protected override (string Before, string Added, string After) MergeInto(BenthosSpeciesEntry target, BenthosSpeciesEntry source)
+    {
+        var before = target.IndividualCount;
+        var added = source.IndividualCount;
+        target.IndividualCount = CountMath.Sum(before, added);   // 결측 보존 — null 을 0 으로 채우지 않는다
+        target.Note = CountMath.JoinNote(target.Note, source.Note);
+        return (CountMath.Show(before), CountMath.Show(added), CountMath.Show(target.IndividualCount));
+    }
 }
 
 // ── 임시 저장용 DTO ──

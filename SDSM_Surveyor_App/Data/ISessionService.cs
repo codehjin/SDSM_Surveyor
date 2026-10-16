@@ -33,4 +33,13 @@ public interface ISessionService
 
     /// <summary>자료함이 비어 있으면 테스트 배포본의 예시 세션을 채운다. 채운 건수 반환.</summary>
     Task<int> SeedTestDataIfEmptyAsync();
+
+    /// <summary>지금 화면을 '저장된 상태' 로 기록한다(앱 시작 직후 창이 부른다 · B-5).</summary>
+    void MarkClean();
+
+    /// <summary>마지막 저장·불러오기·복사 이후 저장될 내용이 바뀌었는가(B-5).</summary>
+    bool HasUnsavedChanges();
+
+    /// <summary>저장 키를 만드는 칸(대분류·연도차수·지점) 중 비어 있는 것.</summary>
+    IReadOnlyList<string> MissingKeyFields();
 }

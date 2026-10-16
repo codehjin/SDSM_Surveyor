@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SDSM_Models;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using SDSM_Surveyor_App.InjectableServices;
 using SDSM_Surveyor_App.Models;
 using SDSM_Surveyor_App.ViewModels;
@@ -47,9 +48,80 @@ public sealed class SessionService : ISessionService, ISingletonService
 
     public Task<List<SessionIndexEntry>> ListAsync() => _store.ListAsync();
 
+    // ── 저장 안 한 변경 (B-5) ────────────────────────────────────────────────
+    // "마지막으로 저장하거나 불러온 시점" 의 화면을 세션 JSON 과 같은 방식으로 직렬화해 두고,
+    // 닫을 때 지금 화면과 비교한다. 속성마다 dirty 플래그를 다는 방식은 화면 상태
+    // (접힘·검색어·칩)와 섞여 오판하기 쉽다 — 스냅샷은 저장되는 내용만 본다.
+
+    private string? _baseline;
+
+    /// <summary>
+    /// 지금 화면을 '저장된 상태' 로 기록한다. 앱 시작(압정 주입·예시 시드 이후)에 창이 부르고,
+    /// 저장·불러오기·지점 복사·차수 복제가 끝날 때 이 서비스가 직접 부른다.
+    /// </summary>
+    public void MarkClean() => _baseline = CaptureSnapshot();
+
+    /// <summary>마지막 저장·불러오기 이후 저장될 내용이 바뀌었는가. 기준을 아직 잡지 않았으면 false.</summary>
+    public bool HasUnsavedChanges() => _baseline is not null && CaptureSnapshot() != _baseline;
+
+    /// <summary>
+    /// 저장 키(파일 이름)를 만드는 칸 중 비어 있는 것. 비어도 <see cref="SaveCurrentAsync"/> 는
+    /// '무제' 로 저장해 버린다 — 닫기 확인에서는 저장하기 전에 무엇이 필요한지 먼저 알린다.
+    /// </summary>
+    public IReadOnlyList<string> MissingKeyFields()
+    {
+        var missing = new List<string>();
+        if (string.IsNullOrWhiteSpace(_meta.Project)) missing.Add("대분류");
+        if (string.IsNullOrWhiteSpace(_meta.YearChsu)) missing.Add("연도차수");
+        if (string.IsNullOrWhiteSpace(_meta.Site)) missing.Add("지점");
+        return missing;
+    }
+
+    /// <summary>
+    /// 저장될 내용의 직렬화(조사개황 + 자료가 있는 분류군 — <see cref="SaveCurrentAsync"/> 와 같은 기준).
+    /// 저장 시각은 세션 겉봉에만 있어 여기 들어오지 않는다. 화면 상태인
+    /// 접힘(`…Expanded`)과 방금 추가 강조(`IsJustAdded`)는 세션에 실려도 비교에서 뺀다.
+    /// </summary>
+    private string CaptureSnapshot()
+    {
+        var taxa = new JsonObject();
+        foreach (var t in Taxa)
+        {
+            if (!t.HasData) continue;
+            taxa[t.Key] = JsonSerializer.SerializeToNode(t.CaptureState(), SessionJson.Options);
+        }
+        var root = new JsonObject
+        {
+            ["Meta"] = JsonSerializer.SerializeToNode(SurveyMetaSnapshot.From(_meta), SessionJson.Options),
+            ["Taxa"] = taxa,
+        };
+        StripViewState(root);
+        return root.ToJsonString();
+    }
+
+    private static void StripViewState(JsonNode? node)
+    {
+        switch (node)
+        {
+            case JsonObject o:
+                foreach (var key in o.Select(p => p.Key)
+                                     .Where(k => k == "IsJustAdded" || k.EndsWith("Expanded", StringComparison.Ordinal))
+                                     .ToList())
+                    o.Remove(key);
+                foreach (var p in o) StripViewState(p.Value);
+                break;
+            case JsonArray a:
+                foreach (var item in a) StripViewState(item);
+                break;
+        }
+    }
+
     /// <summary>현재 화면 전체를 세션으로 저장한다. 지점·차수가 바뀌었으면 파일 키도 옮긴다.</summary>
     public async Task<SessionIndexEntry> SaveCurrentAsync()
     {
+        // 저장하는 바로 그 내용을 기준으로 삼는다(파일 쓰는 동안 화면이 바뀌어도 그 변경은 '저장 안 함' 으로 남는다).
+        var snapshot = CaptureSnapshot();
+
         var session = new SurveySession
         {
             SessionId = CurrentKey,
@@ -87,6 +159,7 @@ public sealed class SessionService : ISessionService, ISingletonService
             await _store.SaveAsync(session, index);
 
         CurrentSessionId = session.SessionId;
+        _baseline = snapshot;
         return index;
     }
 
@@ -109,6 +182,7 @@ public sealed class SessionService : ISessionService, ISingletonService
         }
 
         CurrentSessionId = session.SessionId;
+        MarkClean();   // 불러온 직후 닫으면 묻지 않는다(B-5)
         return true;
     }
 
@@ -129,6 +203,7 @@ public sealed class SessionService : ISessionService, ISingletonService
         _meta.SelectedSite = null;
         _meta.SelectedSite = site;     // 지점명·하천·사업장·좌표가 함께 채워진다
         CurrentSessionId = null;       // 아직 저장되지 않은 새 세션
+        MarkClean();                   // 아직 아무것도 치지 않았다 — 이 상태가 출발점이다(B-5)
     }
 
     /// <summary>
@@ -142,6 +217,7 @@ public sealed class SessionService : ISessionService, ISingletonService
         _meta.YearChsu = newYearChsu;
         if (newDate is not null) _meta.SurveyDate = newDate;
         CurrentSessionId = null;       // 새 회차이므로 별도 세션으로 저장된다
+        MarkClean();                   // 복제 직후가 출발점이다(B-5)
         return true;
     }
 

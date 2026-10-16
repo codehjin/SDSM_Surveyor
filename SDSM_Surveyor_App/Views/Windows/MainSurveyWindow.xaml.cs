@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
@@ -25,6 +26,40 @@ public partial class MainSurveyWindow : Window, ISingletonService
 
         StateChanged += (_, _) => HandleMaximized();
         Loaded += (_, _) => MigrateLegacyDrafts();
+        Closing += OnClosing;
+    }
+
+    // 확인을 마치고 다시 닫는 중인가(재진입 방지).
+    private bool _closeConfirmed;
+
+    /// <summary>
+    /// 닫기 전에 저장 안 한 변경을 묻는다(B-5). 바꾼 것이 없으면 묻지 않는다.
+    /// [예] → 닫기를 멈추고 저장 → 성공하면 다시 닫는다 / 실패하면 사유를 알리고 창을 유지한다.
+    /// [아니요] → 닫는다. [취소] → 창을 유지한다.
+    /// </summary>
+    private async void OnClosing(object? sender, CancelEventArgs e)
+    {
+        if (_closeConfirmed) return;
+        var sessions = App.Current.Services.GetRequiredService<ISessionService>();
+        if (!sessions.HasUnsavedChanges()) return;
+
+        // 저장은 비동기라 일단 닫기를 멈춘다. 확인이 끝나면 아래에서 다시 닫는다.
+        e.Cancel = true;
+        try
+        {
+            if (!await UnsavedChangesPrompt.ConfirmAsync(this, sessions)) return;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(this, $"닫기 전에 확인하지 못했습니다 — {ex.Message}", "닫기",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        // ⚠ [아니요]처럼 확인이 이 호출 안에서 바로 끝나면 아직 '닫는 중' 이다 — 여기서 Close() 를 부르면
+        //    WPF 가 예외를 던진다. 닫기 처리가 끝난 다음 차례에 다시 닫는다.
+        _closeConfirmed = true;
+        Dispatcher.BeginInvoke(new Action(Close));
     }
 
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
@@ -73,6 +108,12 @@ public partial class MainSurveyWindow : Window, ISingletonService
         catch
         {
             // 편입 실패가 앱 시작을 막아서는 안 된다 — 원본 draft 파일은 그대로 남는다.
+        }
+        finally
+        {
+            // 압정 주입·예시 시드가 끝난 지금 화면이 '저장 안 한 변경' 의 출발점이다(B-5).
+            // 첫 화면에서 자료함 세션을 열고 들어왔으면 그 세션이 곧 이 상태다.
+            App.Current.Services.GetRequiredService<ISessionService>().MarkClean();
         }
     }
 

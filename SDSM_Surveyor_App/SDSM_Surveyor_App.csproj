@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -13,32 +12,28 @@
          조사자앱은 한국어 전용이다. -->
     <SatelliteResourceLanguages>ko;en</SatelliteResourceLanguages>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="Scrutor" Version="6.1.0" />
-    <PackageReference Include="Telerik.UI.for.Wpf.AllControls.Xaml" Version="2026.2.520" />
+    <PackageReference Include="Telerik.UI.for.Wpf.AllControls.Xaml">
+      <Version>2026.3.1007</Version>
+    </PackageReference>
   </ItemGroup>
-
   <ItemGroup>
     <!-- 관리자 앱과 공유하는 POCO 모델 (Fish/ImportFishSpecies/FishSpeciesList 등) -->
     <ProjectReference Include="..\..\SDSM\SDSM_Models\SDSM_Models.csproj" />
     <!-- 관리자와 공유하는 생태 계산(FAI·BMI·다양도지수·수질등급·HRI) -->
     <ProjectReference Include="..\..\SDSM\SDSM_Core\SDSM_Core.csproj" />
   </ItemGroup>
-
   <!-- 관리자 저장소(SDSM)를 같은 상위 폴더에 나란히 clone해야 빌드된다(05_REFACTORING §2-0).
        경로가 없을 때 알 수 없는 오류 수십 개 대신 이유를 알려 준다. -->
   <Target Name="CheckSiblingRepo" BeforeTargets="PrepareForBuild">
-    <Error Condition="!Exists('$(MSBuildProjectDirectory)\..\..\SDSM\SDSM_Models\SDSM_Models.csproj')"
-           Text="관리자 저장소(SDSM)를 찾지 못했습니다. SDSM 과 SDSM_Surveyor 를 같은 상위 폴더에 나란히 clone하세요. 자세한 내용은 README.md 참조." />
-    <Error Condition="!Exists('$(MSBuildProjectDirectory)\..\..\SDSM\SDSM_Core\SDSM_Core.csproj')"
-           Text="SDSM_Core 를 찾지 못했습니다. 관리자 저장소(SDSM)를 최신으로 pull 하세요. 자세한 내용은 README.md 참조." />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\..\..\SDSM\SDSM_Models\SDSM_Models.csproj')" Text="관리자 저장소(SDSM)를 찾지 못했습니다. SDSM 과 SDSM_Surveyor 를 같은 상위 폴더에 나란히 clone하세요. 자세한 내용은 README.md 참조." />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\..\..\SDSM\SDSM_Core\SDSM_Core.csproj')" Text="SDSM_Core 를 찾지 못했습니다. 관리자 저장소(SDSM)를 최신으로 pull 하세요. 자세한 내용은 README.md 참조." />
   </Target>
-
   <ItemGroup>
     <!-- Pretendard (SIL OFL 1.1 · 브랜드 자산 아님 · design.md §4).
          현장 PC 에 설치돼 있지 않아도 같게 렌더링되도록 배포 패키지에 포함한다.
@@ -54,7 +49,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
   <ItemGroup>
     <!-- 기준자료(관리자 DB에서 내보낸 종별 범위) 번들 -->
     <Content Include="reference.json">
@@ -75,7 +69,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <!-- 테스트 배포본 전용 : 자료함 예시 세션.
        기본 빌드에는 들어가지 않는다 — 실제 배포본에 예시 자료가 섞이면 안 된다.
        테스트본을 만들 때만 켠다 :  dotnet publish -p:IncludeTestData=true
@@ -85,5 +78,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
 </Project>

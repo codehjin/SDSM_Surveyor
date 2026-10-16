@@ -44,13 +44,19 @@
                                Style="{StaticResource SummaryValueTextStyle}"/>
                     <Border Style="{StaticResource VerticalDividerStyle}"/>
 
-                    <TextBlock Text="흐름상태" Style="{StaticResource SummaryLabelTextStyle}"/>
+                    <TextBlock Text="유속" Style="{StaticResource SummaryLabelTextStyle}"/>
                     <TextBlock Text="{Binding HabitatFlowState, Converter={StaticResource EmptyToDot}}"
                                Style="{StaticResource SummaryValueTextStyle}"/>
                     <Border Style="{StaticResource VerticalDividerStyle}"/>
 
                     <TextBlock Text="채집도구" Style="{StaticResource SummaryLabelTextStyle}"/>
                     <TextBlock Text="{Binding CollectionTool, Converter={StaticResource EmptyToDot}}"
+                               Style="{StaticResource SummaryValueTextStyle}"/>
+                    <Border Style="{StaticResource VerticalDividerStyle}"/>
+
+                    <!-- 흐름상태(채집)와 유속은 양식의 다른 행이다(16행·28행 · B-8) -->
+                    <TextBlock Text="흐름상태(채집)" Style="{StaticResource SummaryLabelTextStyle}"/>
+                    <TextBlock Text="{Binding CollectionFlowState, Converter={StaticResource EmptyToDot}}"
                                Style="{StaticResource SummaryValueTextStyle}"/>
                     <Border Style="{StaticResource VerticalDividerStyle}"/>
 
@@ -68,11 +74,9 @@
                     <TextBlock Text="{Binding AbnormalSummary}"
                                Style="{StaticResource SummaryValueTextStyle}"/>
 
-                    <!-- 하상구성 합계가 100 이 아니면 접힌 상태에서도 알린다 -->
-                    <TextBlock Text="{Binding SubstrateWarning}" VerticalAlignment="Center"
-                               FontSize="{StaticResource LinkFontSize}"
-                               Foreground="{StaticResource DangerOnSurfaceBrush}"
-                               TextTrimming="CharacterEllipsis"/>
+                    <!-- 하상구성 합계가 100 이 아니거나 정수가 아닌 값이 있으면 접힌 상태에서도 알린다(B-6) -->
+                    <TextBlock Text="{Binding EnvironmentWarning}" Margin="12 0 0 0"
+                               Style="{StaticResource InlineWarnTextStyle}"/>
                 </StackPanel>
             </ctrl:CollapsibleSummary.SummarySlot>
 
@@ -87,8 +91,9 @@
                                                          Text="{Binding HabitatRiverType, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                            <TextBlock Text="흐름상태" Style="{StaticResource FormLabelStyle}"/>
+                            <TextBlock Text="유속" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                         ToolTipService.ToolTip="양식 28행 흐름상태(유속) — 아주빠름 / 빠름 / 보통 / 느림 / 정체"
                                                          Text="{Binding HabitatFlowState, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldSmStyle}">
@@ -97,10 +102,19 @@
                                                  ItemsSource="{Binding CollectionTools}"
                                                  SelectedItem="{Binding CollectionTool, Mode=TwoWay}"/>
                         </StackPanel>
+                        <!-- 흐름상태(채집) : 양식 16행 '1 여울, 2 흐름, 3 소 (복수)'(B-8 신설).
+                             종전에는 VM·세션·내보내기에는 있었는데 화면 칸이 없었다. -->
+                        <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                            <TextBlock Text="흐름상태(채집)" Style="{StaticResource FormLabelStyle}"/>
+                            <ctrl:MultiChoiceBox Options="{Binding CollectionFlowStates}"
+                                                 Value="{Binding CollectionFlowState}"
+                                                 ToolTipText="채집한 곳의 흐름 — 여러 개를 고를 수 있습니다(여울 / 흐름 / 소)"
+                                                 AutomationName="흐름상태(채집)"/>
+                        </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="채집시간(분)" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="분"
-                                                         Text="{Binding CollectionTime, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         core:IntegerInput.IsEnabled="True" Text="{Binding CollectionTime, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="하천차수" Style="{StaticResource FormLabelStyle}"/>
@@ -117,63 +131,66 @@
                         </StackPanel>
                     </WrapPanel>
 
+                    <!-- 채집시간이 정수가 아니면(예전 세션 값) 알린다 -->
+                    <TextBlock Text="{Binding CollectionTimeWarning}" Margin="0 0 0 4"
+                               Style="{StaticResource InlineWarnTextStyle}"/>
+
                     <!-- 2행 : 하상구성 (%) — 합계 100 -->
                     <StackPanel Orientation="Horizontal" Margin="0 4 0 8">
                         <Border Style="{StaticResource GroupHeaderBarStyle}"/>
                         <TextBlock Style="{StaticResource GroupHeaderTextStyle}"
                                    Text="하상구성 (%) — 합계 100"/>
-                        <TextBlock Text="{Binding SubstrateWarning}" Margin="12 0 0 0" VerticalAlignment="Center"
-                                   FontSize="{StaticResource LinkFontSize}"
-                                   Foreground="{StaticResource DangerOnSurfaceBrush}"/>
+                        <TextBlock Text="{Binding SubstrateWarning}" Margin="12 0 0 0"
+                                   Style="{StaticResource InlineWarnTextStyle}"/>
                     </StackPanel>
                     <WrapPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="암반 (B)" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                          ToolTipService.ToolTip="암반"
-                                                         Text="{Binding Bedrock, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding Bedrock, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="콘크리트 (C)" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                          ToolTipService.ToolTip="콘크리트"
-                                                         Text="{Binding Concrete, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding Concrete, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="진흙 (M)" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                          ToolTipService.ToolTip="진흙 이하 (&lt;0.063mm)"
-                                                         Text="{Binding Mud, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding Mud, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="모래 (S)" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                          ToolTipService.ToolTip="모래 (0.063–2mm)"
-                                                         Text="{Binding Sand, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding Sand, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="잔자갈 (FG)" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                          ToolTipService.ToolTip="잔자갈 (2–16mm)"
-                                                         Text="{Binding FineGravel, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding FineGravel, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="자갈 (G)" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                          ToolTipService.ToolTip="자갈 (16–64mm)"
-                                                         Text="{Binding Gravel, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding Gravel, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="작은돌 (SS)" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                          ToolTipService.ToolTip="작은돌 (64–256mm)"
-                                                         Text="{Binding SmallStone, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding SmallStone, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="큰돌 (BS)" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                          ToolTipService.ToolTip="큰돌 (&gt;256mm)"
-                                                         Text="{Binding BigStone, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding BigStone, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </WrapPanel>
 
@@ -527,7 +544,7 @@
                         <telerik:GridViewDataColumn.CellEditTemplate>
                             <DataTemplate>
                                 <telerik:RadAutoCompleteBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
-                                    SelectionMode="Single"
+                                    SelectionMode="Single" AutoCompleteMode="Suggest"
                                     WatermarkContent="초성으로 종명 검색"
                                     DisplayMemberPath="SpeciesKo"
                                     TextSearchPath="SpeciesKo"

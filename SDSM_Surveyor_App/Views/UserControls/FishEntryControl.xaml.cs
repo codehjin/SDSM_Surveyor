@@ -25,6 +25,9 @@ public partial class FishEntryControl : UserControl
         // 행을 지우기 직전에 셀 편집을 끝낸다 — 붙여넣기 경로가 CancelEdit 를 부르는 것과 같은 이유다.
         _vm.EndGridEdit = () => SpeciesGrid.CancelEdit();
 
+        // 국명 편집 확정 → 목록 밖 국명 보존(B-4) · 같은 종 합산(B-1)
+        Helpers.GridSpeciesCommit.Attach(SpeciesGrid, () => _vm);
+
         // 열 폭 감사(Debug 전용) — 창 폭이 바뀔 때마다 실제 폭을 파일로 남긴다.
         // RadGridView 는 폭이 모자라면 가로 스크롤 대신 열을 뭉개므로 눈으로는 걸러지지 않는다(§7).
         Loaded += (_, _) => Helpers.LayoutAudit.CheckColumnWidths(SpeciesGrid, "어류");

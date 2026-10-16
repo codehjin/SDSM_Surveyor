@@ -14,6 +14,9 @@ public interface IObservationRow
     string? SpeciesKo { get; }
     bool IsProtected { get; }
     bool IsInvasive { get; }
+
+    /// <summary>국명이 같은 행 수(화면 표시용 · 저장 안 함). <see cref="ObservationSummary.MarkSameSpecies"/> 가 채운다.</summary>
+    int SameSpeciesCount { get; set; }
 }
 
 /// <summary>관찰형 3개 화면이 함께 쓰는 요약 집계.</summary>
@@ -26,5 +29,23 @@ public static class ObservationSummary
         int p = named.Where(r => r.IsProtected).Select(r => r.SpeciesKo).Distinct().Count();
         int i = named.Where(r => r.IsInvasive).Select(r => r.SpeciesKo).Distinct().Count();
         return (p, i);
+    }
+
+    /// <summary>
+    /// 행마다 '국명이 같은 행이 몇 개인지' 를 적는다(B-1). 관찰형은 같은 종 여러 행이 정상일 수 있어
+    /// 합치지 않고 표시만 한다 — 위치·흔적이 다른 관찰인지, 실수로 두 번 넣은 것인지는 조사자가 판단한다.
+    /// 국명은 <c>Trim()</c> 만 하고 대소문자·띄어쓰기는 그대로 비교한다(종명 정규화 규칙).
+    /// </summary>
+    public static void MarkSameSpecies(IReadOnlyCollection<IObservationRow> rows)
+    {
+        var count = rows.Select(r => r.SpeciesKo?.Trim())
+                        .Where(k => !string.IsNullOrEmpty(k))
+                        .GroupBy(k => k!, StringComparer.Ordinal)
+                        .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+        foreach (var r in rows)
+        {
+            var key = r.SpeciesKo?.Trim();
+            r.SameSpeciesCount = !string.IsNullOrEmpty(key) && count.TryGetValue(key, out var n) ? n : 0;
+        }
     }
 }

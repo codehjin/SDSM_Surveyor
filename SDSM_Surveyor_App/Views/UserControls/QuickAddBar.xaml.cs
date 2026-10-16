@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.Input;
@@ -23,6 +24,8 @@ public partial class QuickAddBar : UserControl
     {
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
+        // 콤보 안 글상자의 TextChanged 가 올라온다(편집형 콤보).
+        SpeciesBox.AddHandler(TextBoxBase.TextChangedEvent, new TextChangedEventHandler(SpeciesBox_TextChanged));
         Unloaded += (_, _) => Detach();
     }
 
@@ -81,6 +84,46 @@ public partial class QuickAddBar : UserControl
 
     private void FocusLater(IInputElement target) =>
         Dispatcher.BeginInvoke(new Action(() => target.Focus()), DispatcherPriority.Input);
+
+    /// <summary>
+    /// 검색어를 치면 드롭다운을 연다(B-3). 종전에는 포커스를 받을 때(<c>OpenDropDownOnFocus</c>)만 열려서
+    /// 한 번 닫히면 글자를 쳐도 후보가 보이지 않았다.
+    /// 목록에서 고른 직후에는 글자가 그 종명으로 바뀐다 — 이때 다시 열면 개체수 칸으로 넘어가는 흐름이 끊긴다.
+    /// </summary>
+    private void SpeciesBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (!SpeciesBox.IsKeyboardFocusWithin || SpeciesBox.IsDropDownOpen) return;
+        var text = SpeciesBox.Text;
+        if (string.IsNullOrWhiteSpace(text)) return;
+        if (SpeciesBox.SelectedItem is { } picked && text == DisplayName(picked)) return;
+        SpeciesBox.IsDropDownOpen = true;
+    }
+
+    /// <summary>
+    /// 검색창에서 Enter → 후보를 고른다(B-3 · `검색 → ↓/Enter → 개체수`).
+    /// ↓ 는 콤보가 첫 후보를 바로 고른다. Enter 는 콤보가 아무것도 하지 않아서 여기서 고른다 —
+    /// <b>친 글자와 이름이 똑같은 종</b>, 없으면 <b>후보가 하나뿐일 때</b> 그 종만. 후보가 여럿이면 고르지 않는다
+    /// (첫 후보를 멋대로 고르면 '참갈겨니'를 치려다 '갈겨니'가 들어갈 수 있다).
+    /// </summary>
+    private void SpeciesBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter || SpeciesBox.SelectedItem is not null) return;
+        var text = SpeciesBox.Text?.Trim();
+        if (string.IsNullOrEmpty(text)) return;
+
+        var items = SpeciesBox.Items.Cast<object>().ToList();
+        var pick = items.FirstOrDefault(i => string.Equals(DisplayName(i)?.Trim(), text, StringComparison.Ordinal))
+                   ?? (items.Count == 1 ? items[0] : null);
+        if (pick is null) return;
+
+        SpeciesBox.SelectedItem = pick;   // → QuickSpecies → 개체수 칸으로 이동(OnSpeciesPicked)
+        SpeciesBox.IsDropDownOpen = false;
+        e.Handled = true;
+    }
+
+    /// <summary>콤보에 보이는 종명(<c>DisplayMemberPath</c>). 종 타입이 분류군마다 달라 이름으로 읽는다.</summary>
+    private string? DisplayName(object item) =>
+        item.GetType().GetProperty(SpeciesBox.DisplayMemberPath)?.GetValue(item) as string;
 
     // 종목록 팝업 열기. 호스트를 넘겨 더블클릭한 종이 이 화면 야장으로 들어가게 한다.
     private void SpeciesCatalog_Click(object sender, RoutedEventArgs e)

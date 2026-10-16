@@ -67,9 +67,25 @@
         <ctrl:ObservationGrid Grid.Row="2" Rows="{Binding Entries}">
             <!-- ── 1행 10열 · 고정 합 992 + 특징 232 = 1,224 ──────────────────────── -->
             <telerik:GridViewDataColumn Header="일반명" Width="168" DataMemberBinding="{Binding SpeciesKo}">
+                <telerik:GridViewDataColumn.CellTemplate>
+                    <DataTemplate>
+                        <!-- 같은 종이 다른 행에도 있으면 '같은 종 n행'(B-1 · 관찰형은 합치지 않고 알리기만 한다)
+                             공식 종목록에 없는 국명이면 '목록 밖'(B-4 · 국명은 그대로 저장한다) -->
+                        <DockPanel LastChildFill="True">
+                            <Border DockPanel.Dock="Right" Style="{StaticResource SameSpeciesBadgeBorderStyle}">
+                                <TextBlock Text="{Binding SameSpeciesText}" Style="{StaticResource CheckBadgeTextStyle}"/>
+                            </Border>
+                            <Border DockPanel.Dock="Right" Style="{StaticResource UnlistedBadgeBorderStyle}">
+                                <TextBlock Text="목록 밖" Style="{StaticResource CheckBadgeTextStyle}"/>
+                            </Border>
+                            <TextBlock Text="{Binding SpeciesKo}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                        </DockPanel>
+                    </DataTemplate>
+                </telerik:GridViewDataColumn.CellTemplate>
+
                 <telerik:GridViewDataColumn.CellEditTemplate>
                     <DataTemplate>
-                        <telerik:RadAutoCompleteBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" SelectionMode="Single"
+                        <telerik:RadAutoCompleteBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" SelectionMode="Single" AutoCompleteMode="Suggest"
                             WatermarkContent="초성 검색 (예: ㅊㄷㅇㄹ)"
                             DisplayMemberPath="SpeciesKo" TextSearchPath="SpeciesKo" TextSearchMode="Contains"
                             SelectedItem="{Binding SelectedSpecies, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

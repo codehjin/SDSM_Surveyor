@@ -47,6 +47,18 @@ public interface IQuickAddHost
     IRelayCommand DeleteRowCommand { get; }
 
     /// <summary>
+    /// 그리드에서 국명 편집이 확정됐다(셀 편집 종료 · 맨 아래 새 행 확정 때 그리드 코드비하인드가 부른다).
+    /// 같은 종이 이미 있으면 분류군 규칙대로 합치거나 알린다(B-1).
+    /// </summary>
+    void OnSpeciesCommitted(object row, bool isNewRow);
+
+    /// <summary>
+    /// 그리드 국명 편집기에 친 글자를 행 국명으로 넣는다(목록 밖 국명 보존 · B-4).
+    /// 편집 확정 때 <see cref="OnSpeciesCommitted"/> 보다 먼저 부른다 — 합산·경고가 이 국명을 키로 쓴다.
+    /// </summary>
+    void ApplyTypedSpecies(object row, string? typed);
+
+    /// <summary>
     /// 행을 지우기 직전에 그리드 편집을 끝내는 훅(그리드 코드비하인드가 채운다).
     /// 셀 편집이 열린 채로 원본 컬렉션을 건드리면 Telerik 이 예외를 던진다 —
     /// 붙여넣기 경로가 <c>CancelEdit()</c> 를 부르는 것과 같은 이유다.

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.ComponentModel;
 using SDSM_Models;
 
 namespace SDSM_Surveyor_App.Models;
@@ -7,7 +8,8 @@ namespace SDSM_Surveyor_App.Models;
 /// 흔적 12종은 관리자와 동일하게 <b>체크(bool)가 아니라 개체수/횟수(int?)</b> 이다.</summary>
 public partial class MammalEntry : ObservableObject, IObservationRow
 {
-    [ObservableProperty] private string? _speciesKo;         // 일반명(초성검색)
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsUnlisted))]
+    private string? _speciesKo;         // 일반명(초성검색)
 
     /// <summary>방금 추가된 행(1.2초). 연속 입력 중 "지금 들어간 게 이거다"를 알려 준다.</summary>
     [ObservableProperty] private bool _isJustAdded;
@@ -37,12 +39,33 @@ public partial class MammalEntry : ObservableObject, IObservationRow
     [ObservableProperty] private string? _feature;           // 특징
     [ObservableProperty] private string? _note;              // 특이사항
 
+    /// <summary>
+    /// 이 행과 국명이 같은 행 수(이 행 포함). 2 이상이면 국명 칸에 '같은 종 n행' 을 띄운다(B-1).
+    /// 화면 표시용이라 세션 JSON 에 저장하지 않는다 — 열 때마다 다시 센다.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SameSpeciesText))]
+    [property: JsonIgnore]
+    private int _sameSpeciesCount;
+
+    /// <summary>
+    /// 국명이 있는데 공식 종목록(국가생물종목록)에서 못 찾은 행(B-4). 국명 칸에 '목록 밖' 을 띄운다.
+    /// 국명은 지우지 않고 그대로 저장한다 — 오타인지 신규 종인지는 조사자가 판단한다. 화면 표시용(저장 안 함).
+    /// </summary>
+    [JsonIgnore]
+    public bool IsUnlisted => !string.IsNullOrWhiteSpace(SpeciesKo) && MatchedSpecies is null;
+
+    /// <summary>'같은 종 n행' 표시 문구. 같은 종이 없으면 빈 문자열(표시 안 함).</summary>
+    [JsonIgnore]
+    public string SameSpeciesText => SameSpeciesCount > 1 ? $"같은 종 {SameSpeciesCount}행" : string.Empty;
+
     /// <summary>공식 종목록(국가생물종목록)에서 찾은 종. 보호종·교란종 표기의 근거.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedSpecies))]
     [NotifyPropertyChangedFor(nameof(IsProtected))]
     [NotifyPropertyChangedFor(nameof(IsInvasive))]
     [NotifyPropertyChangedFor(nameof(ProtectionText))]
+    [NotifyPropertyChangedFor(nameof(IsUnlisted))]
     private ObservedSpecies? _matchedSpecies;
 
     /// <summary>그리드 국명 편집기(자동완성)에서 고른 종. 고르면 국명·학명·목·과가 함께 채워진다.</summary>

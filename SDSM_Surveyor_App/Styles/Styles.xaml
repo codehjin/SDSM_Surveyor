@@ -901,6 +901,40 @@
         <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=SecondaryForegroundBrush}"/>
     </Style>
 
+    <!-- 확인 요청 뱃지 : 관찰형 국명 칸의 '같은 종 n행'(B-1) · '목록 밖'(B-4).
+         막지 않고 알리기만 하는 표시라 교란종 뱃지(진한 위험표면)와 섞이지 않게
+         경고박스와 같은 연한 위험표면 + 테두리를 쓴다. -->
+    <Style x:Key="CheckBadgeBorderStyle" TargetType="Border" BasedOn="{StaticResource TagBadgeBorderStyle}">
+        <Setter Property="Background" Value="{StaticResource DangerSurfaceSoftBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource DangerTextBrush}"/>
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThin}"/>
+    </Style>
+
+    <Style x:Key="CheckBadgeTextStyle" TargetType="TextBlock" BasedOn="{StaticResource InvasiveBadgeTextStyle}">
+        <Setter Property="FontWeight" Value="Normal"/>
+    </Style>
+
+    <!-- 같은 종이 없으면(문구가 비면) 접는다 -->
+    <Style x:Key="SameSpeciesBadgeBorderStyle" TargetType="Border" BasedOn="{StaticResource CheckBadgeBorderStyle}">
+        <Setter Property="ToolTip" Value="국명이 같은 행이 더 있습니다. 위치·흔적이 다른 관찰이면 그대로 두고, 두 번 넣은 것이면 [행 삭제]로 지우세요."/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding SameSpeciesText}" Value="">
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- 공식 종목록에 없는 국명 -->
+    <Style x:Key="UnlistedBadgeBorderStyle" TargetType="Border" BasedOn="{StaticResource CheckBadgeBorderStyle}">
+        <Setter Property="ToolTip" Value="국가생물종목록에 없는 국명입니다. 오타인지 확인하세요 — 그대로 저장되고 학명·목·과는 직접 적습니다."/>
+        <Setter Property="Visibility" Value="Collapsed"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsUnlisted}" Value="True">
+                <Setter Property="Visibility" Value="Visible"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <!--=========== 그리드 보조 텍스트 ===========-->
     <!-- 행 번호 : #666 (시안 1차본 #999 는 2.85:1 로 미달이었다 · README 대비 교정 이력) -->
     <Style x:Key="GridIndexTextStyle" TargetType="TextBlock">
@@ -946,6 +980,22 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
         <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+    </Style>
+
+    <!-- 입력값 경고 한 줄(하상구성 합계·정수 아님 등 · B-6). 막지 않고 알리기만 한다.
+         문구가 비면 자리를 차지하지 않게 접는다(빈 TextBlock 도 한 줄 높이를 먹는다). -->
+    <Style x:Key="InlineWarnTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource LinkFontSize}"/>
+        <Setter Property="Foreground" Value="{StaticResource DangerOnSurfaceBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        <!-- 접힌 요약줄·좁은 칸에서는 말줄임으로 잘린다 — 전체 문구는 툴팁으로 본다 -->
+        <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+        <Style.Triggers>
+            <Trigger Property="Text" Value="">
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <!--=========== 경고 박스 (건강성 카드) ===========-->

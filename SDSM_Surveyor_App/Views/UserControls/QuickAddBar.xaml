@@ -14,7 +14,10 @@
          키보드 흐름 : 초성 검색 → (자동) 개체수 → Enter → 행 추가 → (자동) 검색창 복귀
          ⚠ RadAutoCompleteBox 가 아니라 **RadComboBox** 다 — 자동완성 + 커스텀 필터 조합은
             선택하려면 두 번 클릭해야 한다(90_TECH_NOTES §2 · design.md §7). 바꾸지 말 것.
-         ⚠ 초성 필터는 VM(`FilterQuick`)이 `ChosungHelper` 로 한다. -->
+         ⚠ 초성 필터는 VM(`FilterQuick`)이 `ChosungHelper` 로 한다.
+         ⚠ 검색어를 치면 코드비하인드가 드롭다운을 연다(B-3). 그래서 `SelectAllTextEvent` 에서
+            DropDownOpen 을 뺀다 — 기본값(All)이면 열리는 순간 친 글자가 전부 선택되어
+            다음 글자가 앞 글자를 덮어쓴다. -->
     <Border Style="{StaticResource CardBorderStyle}" Padding="16 0"
             Height="{StaticResource QuickAddBarHeight}">
         <Grid>
@@ -51,11 +54,13 @@
                                              BorderThickness="0" Background="Transparent"
                                              IsEditable="True" IsTextSearchEnabled="False" IsFilteringEnabled="False"
                                              OpenDropDownOnFocus="True" StaysOpenOnEdit="True"
+                                             SelectAllTextEvent="GotFocus, SelectionChanged"
                                              EmptyText="{Binding SearchWatermark, ElementName=Root}"
                                              DisplayMemberPath="SpeciesKo"
                                              ItemsSource="{Binding FilteredQuick}"
                                              Text="{Binding QuickSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              SelectedItem="{Binding QuickSpecies, Mode=TwoWay}"
+                                             PreviewKeyDown="SpeciesBox_PreviewKeyDown"
                                              AutomationProperties.Name="종명 초성 검색"/>
                     </Grid>
                 </Border>

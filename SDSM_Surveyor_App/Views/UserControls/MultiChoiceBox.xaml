@@ -1,0 +1,29 @@
+<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.MultiChoiceBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             mc:Ignorable="d"
+             x:Name="Root">
+
+    <!-- 복수 선택 칸 (B-8 신설 · C-4 에서 다시 쓴다).
+         최종본 양식의 '(복수)' 항목 — 예: 어류 흐름상태(채집) 여울/흐름/소.
+         저장값은 고른 이름을 양식 순서대로 공백 없이 `,` 로 잇는다(`흐름,소` · 일괄입력용 규칙 §3-5).
+         ⚠ 입력 컨트롤은 design.md §7 의 RadComboBox 다(AllowMultipleSelection). Style 은 통째로 주지 않는다.
+         ⚠ 선택지에 없는 예전 값은 지우지 않는다 — 목록 끝에 '(양식 외)' 로 붙여 선택된 채로 두고 아래에 경고한다.
+            조사자가 그 항목을 직접 해제해야만 값에서 빠진다. -->
+    <StackPanel>
+        <telerik:RadComboBox x:Name="Box"
+                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}"
+                             Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                             AllowMultipleSelection="True"
+                             DisplayMemberPath="Display"
+                             EmptyText="{Binding EmptyText, ElementName=Root}"
+                             ToolTipService.ToolTip="{Binding ToolTipText, ElementName=Root}"
+                             AutomationProperties.Name="{Binding AutomationName, ElementName=Root}"
+                             SelectionChanged="Box_SelectionChanged"/>
+
+        <TextBlock x:Name="Warn" Margin="0 2 0 0" Style="{StaticResource InlineWarnTextStyle}"/>
+    </StackPanel>
+</UserControl>

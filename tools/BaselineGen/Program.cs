@@ -39,7 +39,7 @@ var noSession = new NoSessionService();
 Console.WriteLine($"종목록 {species.Version ?? "(없음)"} · 기준자료 {reference.Version ?? "(없음)"} · 지점 {sites.Version ?? "(없음)"}({sites.All.Count}건)\n");
 
 // ── 본 케이스 : 7개 분류군 전부 채운 하나의 조사 ──────────────────────────────
-var meta = new SurveyMeta(sites);
+var meta = new SurveyMeta(sites, new SurveyPins(new MemorySettingsStore()));
 Fixtures.FillMeta(meta);
 
 var fish = new FishEntryViewModel(species, noSession, reference, meta);
@@ -94,7 +94,7 @@ Write("habitat_bulk.xlsx", p => HabitatWaterEdgeExcelExporter.Write(habitat, p))
 
 // ── M8 상단 구간 : 비정상종 비율 > 1% → M8 0점 (12_CALC_FIX 회귀) ───────────
 Console.WriteLine("\n=== M8 상단 구간 케이스 ===");
-var metaM8 = new SurveyMeta(sites);
+var metaM8 = new SurveyMeta(sites, new SurveyPins(new MemorySettingsStore()));
 Fixtures.FillMeta(metaM8);
 metaM8.YearChsu = "2026반기1차_M8";
 
@@ -106,7 +106,7 @@ Write("fish_m8_bulk.xlsx", p => FishExcelExporter.Write(fishM8, p));
 
 // ── 0종 케이스 : 어류 빈 조사 → 점수 0 · 등급 E (12_CALC_FIX 회귀) ───────────
 Console.WriteLine("\n=== 0종(빈 조사) 케이스 ===");
-var metaZero = new SurveyMeta(sites);
+var metaZero = new SurveyMeta(sites, new SurveyPins(new MemorySettingsStore()));
 Fixtures.FillMeta(metaZero);
 metaZero.YearChsu = "2026반기1차_0종";
 
@@ -120,7 +120,7 @@ Write("fish_zero_bulk.xlsx", p => FishExcelExporter.Write(fishZero, p));
 // 콘크리트로 직강화된 도시하천은 10개 항목이 전부 0점으로 나온다. 종전 `total != 0` 판정이면
 // 미입력으로 뭉개져 `-` 가 됐다 — 가장 훼손된 하천이 평가를 못 받는 구조였다.
 Console.WriteLine("\n=== 서식수변 전부 0점 케이스 ===");
-var metaHri = new SurveyMeta(sites);
+var metaHri = new SurveyMeta(sites, new SurveyPins(new MemorySettingsStore()));
 Fixtures.FillMeta(metaHri);
 metaHri.YearChsu = "2026반기1차_HRI0";
 

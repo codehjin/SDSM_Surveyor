@@ -148,6 +148,8 @@ def build(P):
         ('위험표면연 배경(경고박스) / 흰',      'Colors.xaml:DangerSurfaceSoft', g('DangerSurfaceSoftColor'), WHITE, EXEMPT, 1.0),
         ('교란종 뱃지 글자 12px / 위험표면',    'FishEntry:교란종뱃지',   g('DangerOnSurfaceColor'), g('DangerSurfaceColor'),     TEXT, 1.0),
         ('경고박스 글자 13px / 위험표면연',     'HealthCard:경고박스',    g('DangerOnSurfaceColor'), g('DangerSurfaceSoftColor'), TEXT, 1.0),
+        ('확인 뱃지 글자 12px / 위험표면연',    '관찰형 국명:같은종·목록밖', g('DangerOnSurfaceColor'), g('DangerSurfaceSoftColor'), TEXT, 1.0),
+        ('입력 경고 한 줄 13px / 흰',          'InlineWarnTextStyle',    g('DangerOnSurfaceColor'), WHITE,                       TEXT, 1.0),
 
         # 행 번호·워터마크 : 시안 1차본 #999(2.85:1) · #8a8a8a(3.5:1) 로 되돌아가지 말 것
         ('그리드 행번호 #666 / 흰',            'FishEntry:# 열',       g('TertiaryForegroundColor'), WHITE,                 TEXT, 1.0),

@@ -24,6 +24,9 @@ public partial class BenthosEntryControl : UserControl
         // 행을 지우기 직전에 셀 편집을 끝낸다 — 붙여넣기 경로가 CancelEdit 를 부르는 것과 같은 이유다.
         _vm.EndGridEdit = () => SpeciesGrid.CancelEdit();
 
+        // 국명 편집 확정 → 목록 밖 국명 보존(B-4) · 같은 종 합산(B-1)
+        Helpers.GridSpeciesCommit.Attach(SpeciesGrid, () => _vm);
+
         // 열 폭 감사(Debug 전용) — RadGridView 는 폭이 모자라면 열을 조용히 뭉갠다(design.md §7).
         Loaded += (_, _) => Helpers.LayoutAudit.CheckColumnWidths(SpeciesGrid, "저서동물");
         SpeciesGrid.SizeChanged += (_, _) => Helpers.LayoutAudit.CheckColumnWidths(SpeciesGrid, "저서동물");

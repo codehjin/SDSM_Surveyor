@@ -41,7 +41,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     // ── 관리자 전체 필드(자동계산 외 전부 입력) : 값은 숫자도 원문 문자열로 보관 후 내보내기 시 파싱 ──
     // 채집방법 확장
     [ObservableProperty] private string? _collectionTime;    // 채집소요시간(분)
-    [ObservableProperty] private string? _collectionFlowState; // 흐름상태(채집)
+    [ObservableProperty] private string? _collectionFlowState; // 흐름상태(채집) — 여울/흐름/소 복수(B-8)
     // 서식지 하상구성(%)
     [ObservableProperty] private string? _bedrock;           // 암반
     [ObservableProperty] private string? _concrete;          // 콘크리트
@@ -53,7 +53,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     [ObservableProperty] private string? _bigStone;          // 큰돌(>256mm)
     // 서식처
     [ObservableProperty] private string? _habitatRiverType;  // 하천형태
-    [ObservableProperty] private string? _habitatFlowState;  // 흐름상태(서식처)
+    [ObservableProperty] private string? _habitatFlowState;  // 흐름상태(유속) — 화면 라벨 '유속'(B-8)
     // 채집불가시
     [ObservableProperty] private string? _note;              // 비고
 
@@ -84,8 +84,15 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     partial void OnGravelChanged(string? value) => RaiseEnvironmentSummary();
     partial void OnSmallStoneChanged(string? value) => RaiseEnvironmentSummary();
     partial void OnBigStoneChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnCollectionTimeChanged(string? value) => RaiseEnvironmentSummary();
 
     public string[] CollectionTools { get; } = { "투망/족대" };
+
+    /// <summary>
+    /// 흐름상태(채집) 선택지 — 최종본 양식 16행 '1 여울, 2 흐름, 3 소 (복수)'(B-8).
+    /// 저장은 이름을 공백 없이 `,` 로 잇는다(`흐름,소`). 양식 28행 '흐름상태(유속)' 은 <see cref="HabitatFlowState"/> 다.
+    /// </summary>
+    public string[] CollectionFlowStates { get; } = { "여울", "흐름", "소" };
 
     // ── 초고속 입력 그리드(Center-Left) ──
     /// <summary>종 행. 기반 클래스의 <c>Rows</c> 를 화면 바인딩 이름으로 노출한다.</summary>
@@ -240,22 +247,47 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         }
     }
 
+    /// <summary>하상구성 8칸(화면 이름, 값). 합계·정수 점검이 같이 쓴다.</summary>
+    private (string Label, string? Value)[] SubstrateFields => new[]
+    {
+        ("암반", Bedrock), ("콘크리트", Concrete), ("진흙", Mud), ("모래", Sand),
+        ("잔자갈", FineGravel), ("자갈", Gravel), ("작은돌", SmallStone), ("큰돌", BigStone),
+    };
+
     /// <summary>하상구성 합계(%). 지침상 100 이어야 한다. 전부 비면 null.</summary>
     public double? SubstrateTotal
     {
         get
         {
-            var vals = new[] { Bedrock, Concrete, Mud, Sand, FineGravel, Gravel, SmallStone, BigStone }
-                       .Select(Pd).Where(v => v is not null).Select(v => v!.Value).ToList();
+            var vals = SubstrateFields.Select(f => Pd(f.Value)).Where(v => v is not null).Select(v => v!.Value).ToList();
             return vals.Count == 0 ? null : vals.Sum();
         }
     }
 
-    /// <summary>하상구성 합계가 100 이 아니면 경고 문구, 맞으면 빈 문자열.</summary>
-    public string SubstrateWarning =>
-        SubstrateTotal is double t && Math.Abs(t - 100) > 0.01
-            ? $"하상구성 합계 {t:0.#}% — 100 이 되어야 합니다"
-            : string.Empty;
+    /// <summary>
+    /// 하상구성 경고 — 합계가 100 이 아니거나, 0~100 정수가 아닌 칸이 있으면(B-6 · 예전 세션 값).
+    /// 막지 않고 알리기만 한다. 8칸이 모두 비면 경고하지 않는다.
+    /// </summary>
+    public string SubstrateWarning
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (SubstrateTotal is double t && Math.Abs(t - 100) > 0.01)
+                parts.Add($"하상구성 합계 {t:0.#}% — 100 이 되어야 합니다");
+            var bad = WholeNumber.Describe(SubstrateFields, 100);
+            if (bad.Length > 0) parts.Add($"0~100 정수가 아닌 칸: {bad}");
+            return string.Join(" · ", parts);
+        }
+    }
+
+    /// <summary>채집시간(분)이 정수가 아니면 경고(B-6 · 예전 세션 값은 지우지 않는다).</summary>
+    public string CollectionTimeWarning =>
+        WholeNumber.IsValid(CollectionTime) ? string.Empty : $"채집시간 {CollectionTime!.Trim()} — 분 단위 정수로 고치세요";
+
+    /// <summary>접힌 요약줄에 띄우는 조사환경 경고(하상구성 + 채집시간).</summary>
+    public string EnvironmentWarning =>
+        string.Join(" · ", new[] { SubstrateWarning, CollectionTimeWarning }.Where(s => s.Length > 0));
 
     /// <summary>비정상종(DE·EF·LE·TU) 합계 개체수. FAI M8 의 분자다.</summary>
     public int AbnormalTotal => PiOrZero(DeCount) + PiOrZero(EfCount) + PiOrZero(LeCount) + PiOrZero(TuCount);
@@ -270,6 +302,8 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         OnPropertyChanged(nameof(SubstrateSummary));
         OnPropertyChanged(nameof(SubstrateTotal));
         OnPropertyChanged(nameof(SubstrateWarning));
+        OnPropertyChanged(nameof(CollectionTimeWarning));
+        OnPropertyChanged(nameof(EnvironmentWarning));
         OnPropertyChanged(nameof(AbnormalSummary));
         OnPropertyChanged(nameof(RiverChasuText));
     }
@@ -285,12 +319,25 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         if (string.IsNullOrEmpty(ko)) return;
         if (row.SelectedSpecies?.SpeciesKo == ko) return;   // 이미 일치(자동완성 선택 등)
         var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko);
-        if (match is not null && !ReferenceEquals(match, row.SelectedSpecies))
-            row.SelectedSpecies = match;                    // 미매칭이면 SelectedSpecies=null 유지(신규종 경고로 처리)
+        if (match is not null)
+        {
+            if (!ReferenceEquals(match, row.SelectedSpecies)) row.SelectedSpecies = match;
+        }
+        else if (row.SelectedSpecies is not null)
+        {
+            // 목록 밖 국명으로 고쳤다(B-4) — 예전 종의 학명·길드가 남으면 계산이 그 종으로 된다.
+            // 비우면 국명만 남고 '과거 기록 없음' 경고 경로를 탄다. SpeciesKo 는 건드리지 않는다.
+            row.SelectedSpecies = null;
+        }
     }
 
-    // 입력 이상치 경고 개수(상태바 표시)
+    // 입력 이상치 경고 개수(상태바 표시) — 이상치 + 같은 종 중복 행을 합친 수다.
     [ObservableProperty] private int _warningCount;
+
+    // 상태바 문구를 두 갈래로 나눠 적으려고 따로 센다(이상치 n건 · 같은 종 중복 k종).
+    private int _outlierRows;
+    private int _unlistedRows;
+    private int _duplicateSpecies;
 
     partial void OnWarningCountChanged(int value)
     {
@@ -298,7 +345,17 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         OnPropertyChanged(nameof(HasWarnings));
     }
 
-    public string WarningText => WarningCount > 0 ? $"⚠ 이상치 경고 {WarningCount}건" : string.Empty;
+    public string WarningText
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (_outlierRows > 0) parts.Add($"이상치 경고 {_outlierRows}건");
+            if (_unlistedRows > 0) parts.Add($"목록 밖 국명 {_unlistedRows}건");
+            if (_duplicateSpecies > 0) parts.Add($"같은 종 중복 {_duplicateSpecies}종");
+            return parts.Count == 0 ? string.Empty : "⚠ " + string.Join(" · ", parts);
+        }
+    }
 
     /// <summary>경고 영역 표시 여부(06_DESIGN_REBUILD §5-2-1). 경고는 비차단이다 — 저장을 막지 않는다.</summary>
     public bool HasWarnings => WarningCount > 0;
@@ -312,24 +369,49 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     /// <summary>기준자료 대비 이상치 검증(비차단 경고). 종별 과거 최대 초과 / 신규 종.</summary>
     private void ValidateRows()
     {
-        int warn = 0;
+        // 같은 종이 여러 행 — 불러온 세션에 이미 있던 중복은 자동으로 합치지 않고 알리기만 한다(B-1).
+        // 입력 중에 생긴 중복은 빠른추가·붙여넣기·그리드 확정 단계에서 이미 합쳐진다.
+        var dupCount = SpeciesEntries
+            .Select(SpeciesKeyOf).Where(k => !string.IsNullOrEmpty(k))
+            .GroupBy(k => k!, StringComparer.Ordinal)
+            .Where(g => g.Count() > 1)
+            .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+
+        int warn = 0, outlier = 0, unlisted = 0;
         foreach (var e in SpeciesEntries)
         {
             var ko = e.SelectedSpecies?.SpeciesKo ?? e.SpeciesKo;
             var cnt = e.IndividualCount;
-            if (string.IsNullOrWhiteSpace(ko) || cnt is null || cnt <= 0)
-            {
-                e.ErrorContent = string.Empty;
-                continue;
-            }
-            var range = _reference.GetFishRange(ko);
-            if (range is null) e.ErrorContent = "과거 기록 없음 (신규 종 확인)";
-            else if (cnt.Value > range.Max) e.ErrorContent = $"과거 최대 {range.Max:N0}개체 초과";
-            else e.ErrorContent = string.Empty;
 
+            var key = SpeciesKeyOf(e);
+            var dup = key is not null && dupCount.TryGetValue(key, out var n)
+                ? $"같은 종이 {n}행 — 합쳐야 계산이 맞습니다"
+                : null;
+
+            // 종목록에 없는 국명(B-4) — 지우지 않고 그대로 저장한다. 오타인지 확인만 요청한다.
+            // 이 경우 기준자료에도 없으므로 아래 '과거 기록 없음' 은 겹쳐 적지 않는다.
+            string? listed = e.SelectedSpecies is null && !string.IsNullOrWhiteSpace(e.SpeciesKo)
+                ? "종목록에 없는 국명 — 오타인지 확인하세요"
+                : null;
+            if (listed is not null) unlisted++;
+
+            string? range = null;
+            if (listed is null && !string.IsNullOrWhiteSpace(ko) && cnt is > 0)
+            {
+                var r = _reference.GetFishRange(ko);
+                if (r is null) range = "과거 기록 없음 (신규 종 확인)";
+                else if (cnt.Value > r.Max) range = $"과거 최대 {r.Max:N0}개체 초과";
+            }
+            if (range is not null) outlier++;
+
+            e.ErrorContent = string.Join(" · ", new[] { dup, listed, range }.Where(s => s is not null));
             if (e.HasWarning) warn++;
         }
+        _outlierRows = outlier;
+        _unlistedRows = unlisted;
+        _duplicateSpecies = dupCount.Count;
         WarningCount = warn;
+        OnPropertyChanged(nameof(WarningText));
 
         var names = SpeciesEntries.Where(x => x.HasWarning)
                                   .Select(x => x.SelectedSpecies?.SpeciesKo ?? x.SpeciesKo)
@@ -489,6 +571,32 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         propertyName is nameof(FishSpeciesEntry.IndividualCount)
                      or nameof(FishSpeciesEntry.SelectedSpecies)
                      or nameof(FishSpeciesEntry.SpeciesKo);
+
+    /// <summary>
+    /// 국명을 직접 친 경우에도 공식 종목록과 잇는다(B-4).
+    /// ⚠ 종전에는 이 연결이 붙여넣기 경로에만 있었다 — 그리드에 친 국명은 학명·길드가 비어 FAI 가 틀렸다.
+    /// </summary>
+    protected override void OnRowPropertyChanged(FishSpeciesEntry row, string? propertyName)
+    {
+        if (propertyName == nameof(FishSpeciesEntry.SpeciesKo)) ResolveSpecies(row);
+    }
+
+    // ── 같은 종 중복 : 합산 (B-1) ─────────────────────────────────────────────
+    // 한 지점·한 회차에 종당 한 행이 양식 구조다. 관리자 Import 도 종명 중복을 오류로 막는다.
+
+    protected override DuplicateSpeciesMode DuplicateMode => DuplicateSpeciesMode.Merge;
+
+    protected override string? SpeciesKeyOf(FishSpeciesEntry row) =>
+        (row.SelectedSpecies?.SpeciesKo ?? row.SpeciesKo)?.Trim();
+
+    protected override (string Before, string Added, string After) MergeInto(FishSpeciesEntry target, FishSpeciesEntry source)
+    {
+        var before = target.IndividualCount;
+        var added = source.IndividualCount;
+        target.IndividualCount = CountMath.Sum(before, added);   // 결측 보존 — null 을 0 으로 채우지 않는다
+        target.Note = CountMath.JoinNote(target.Note, source.Note);
+        return (CountMath.Show(before), CountMath.Show(added), CountMath.Show(target.IndividualCount));
+    }
 }
 
 // ── 임시 저장용 DTO ──

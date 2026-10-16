@@ -77,6 +77,16 @@ internal sealed class RepoSiteProvider(string path) : ISiteListProvider
 /// 세션 저장은 기준 파일 생성과 무관하다. 실수로 호출되면 곧바로 드러나게 예외를 던진다.
 /// (조용히 넘어가면 AppData 에 쓰는 코드가 섞여도 알아채지 못한다.)
 /// </summary>
+/// <summary>
+/// 설정 저장소 대역. 압정(고정값)이 모두 꺼진 기본 설정이라 조사개황에 아무것도 주입하지 않는다.
+/// ⚠ AppData 의 settings.json 을 읽지도 쓰지도 않는다(압정 기능이 생긴 뒤 SurveyMeta 생성자가 이것을 요구한다).
+/// </summary>
+internal sealed class MemorySettingsStore : ISettingsStore
+{
+    public AppSettings Settings { get; } = new();
+    public void Save() { }
+}
+
 internal sealed class NoSessionService : ISessionService
 {
     private static InvalidOperationException Fail([System.Runtime.CompilerServices.CallerMemberName] string m = "")
@@ -91,4 +101,9 @@ internal sealed class NoSessionService : ISessionService
     public void CopyToSite(SurveySite site) => throw Fail();
     public Task<bool> CopyFromPreviousAsync(string sessionId, string newYearChsu, DateTime? newDate) => throw Fail();
     public Task<int> MigrateLegacyDraftsAsync() => throw Fail();
+    public Task<int> SeedTestDataIfEmptyAsync() => throw Fail();
+    // 저장 안 한 변경(B-5) — 기준 파일 생성에는 화면 닫기가 없다. 상태를 갖지 않는다.
+    public void MarkClean() { }
+    public bool HasUnsavedChanges() => false;
+    public IReadOnlyList<string> MissingKeyFields() => Array.Empty<string>();
 }

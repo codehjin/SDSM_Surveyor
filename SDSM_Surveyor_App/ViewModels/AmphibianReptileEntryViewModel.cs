@@ -97,6 +97,7 @@ public partial class AmphibianReptileEntryViewModel : SpeciesEntryViewModelBase<
         // 결측치(null)와 0 엄격 구분 : 미입력은 합계에서 0으로 캐스팅(TraceSum)
         TotalIndividualCount = named.Sum(x => x.TraceSum);
         var (prot, invasive) = ObservationSummary.Count(Entries);
+        ObservationSummary.MarkSameSpecies(Entries);   // '같은 종 n행' 표시(B-1)
         ProtectedCount = prot;
         InvasiveCount = invasive;
         OnPropertyChanged(nameof(HasNoRows));

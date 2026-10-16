@@ -30,6 +30,8 @@ public partial class ObservationGrid : UserControl
         InitializeComponent();
         Columns.CollectionChanged += OnColumnsChanged;
         Loaded += (_, _) => SyncColumns();
+        // 국명 편집 확정 → 목록 밖 국명 보존(B-4) · 같은 종 경고(B-1)
+        Helpers.GridSpeciesCommit.Attach(Grid, () => _host);
         DataContextChanged += (_, e) =>
         {
             if (e.OldValue is IQuickAddHost old) old.EndGridEdit = null;   // 죽은 그리드를 겨누지 않게
