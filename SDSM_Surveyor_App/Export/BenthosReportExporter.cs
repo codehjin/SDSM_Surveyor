@@ -69,7 +69,8 @@ public static class BenthosReportExporter
         s.Kv("큰돌(>256mm)", vm.BigStone);
         s.Blank();
         s.Head("[ 서식처(수리·환경) ]");
-        s.Kv("하천형태", vm.HabitatRiverType);
+        // 양식 33행. 조사개황의 '하천유형'(8행)과 이름이 같아 화면처럼 (서식처)를 붙인다
+        s.Kv("하천유형(서식처)", vm.HabitatRiverType);
         s.Kv("하폭(m)", vm.RiverWidth);
         s.Kv("수폭(m)", vm.WaterWidth);
         s.Kv("평균수심(cm)", vm.AverageDepth);

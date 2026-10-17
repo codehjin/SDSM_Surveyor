@@ -48,7 +48,8 @@ public static class FishReportExporter
         s.Head("[ 채집방법 ]");
         s.Kv("채집소요시간(분)", vm.CollectionTime);
         s.Kv("채집도구", vm.CollectionTool);
-        s.Kv("흐름상태", vm.CollectionFlowState);
+        // 양식에 '흐름상태'가 두 번(16행 채집 · 28행 유속) 나오므로 화면처럼 괄호로 가른다
+        s.Kv("흐름상태(채집)", vm.CollectionFlowState);
         s.Kv("하천차수", vm.RiverChasu?.ToString());
         s.Blank();
         s.Head("[ 서식지 하상구성(%) ]");
@@ -63,7 +64,7 @@ public static class FishReportExporter
         s.Blank();
         s.Head("[ 서식처·특이사항 ]");
         s.Kv("하천형태", vm.HabitatRiverType);
-        s.Kv("흐름상태(서식처)", vm.HabitatFlowState);
+        s.Kv("흐름상태(유속)", vm.HabitatFlowState);
         s.Kv("특이사항(조사불가 등)", vm.SurveyUnavailableReason);
         s.Kv("비고", vm.Note);
         s.Blank();
