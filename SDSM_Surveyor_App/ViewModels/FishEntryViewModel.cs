@@ -295,9 +295,14 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     public string CollectionTimeWarning =>
         WholeNumber.IsValid(CollectionTime) ? string.Empty : $"채집소요시간 {CollectionTime!.Trim()} — 분 단위 정수로 고치세요";
 
-    /// <summary>접힌 요약줄에 띄우는 조사환경 경고(하상구성 + 채집소요시간).</summary>
+    /// <summary>하천차수가 정수가 아니면 경고(10-17 (4) · 칸은 정수로만 보이므로 예전 세션의 소수 값을 지우지 않고 알린다).
+    /// FAI 는 소수점 아래를 버린 값으로 계산한다(<c>(int)RiverChasu</c>).</summary>
+    public string RiverChasuWarning =>
+        RiverChasu is double c && c != Math.Floor(c) ? $"하천차수 {c:0.###} — 정수로 고치세요(지수 계산은 {(int)c}차)" : string.Empty;
+
+    /// <summary>접힌 요약줄에 띄우는 조사환경 경고(하상구성 + 채집소요시간 + 하천차수).</summary>
     public string EnvironmentWarning =>
-        string.Join(" · ", new[] { SubstrateWarning, CollectionTimeWarning, ChoiceWarning }.Where(s => s.Length > 0));
+        string.Join(" · ", new[] { SubstrateWarning, CollectionTimeWarning, RiverChasuWarning, ChoiceWarning }.Where(s => s.Length > 0));
 
     /// <summary>비정상종(DE·EF·LE·TU) 합계 개체수. FAI M8 의 분자다.</summary>
     public int AbnormalTotal => PiOrZero(DeCount) + PiOrZero(EfCount) + PiOrZero(LeCount) + PiOrZero(TuCount);
@@ -313,6 +318,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         OnPropertyChanged(nameof(SubstrateTotal));
         OnPropertyChanged(nameof(SubstrateWarning));
         OnPropertyChanged(nameof(CollectionTimeWarning));
+        OnPropertyChanged(nameof(RiverChasuWarning));
         OnPropertyChanged(nameof(ChoiceWarning));
         OnPropertyChanged(nameof(EnvironmentWarning));
         OnPropertyChanged(nameof(AbnormalSummary));

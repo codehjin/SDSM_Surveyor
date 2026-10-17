@@ -120,10 +120,13 @@
                                                          ToolTipService.ToolTip="양식 14행 채집소요시간 — 분 단위 정수"
                                                          core:IntegerInput.IsEnabled="True" Text="{Binding CollectionTime, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
+                        <!-- 하천차수 : 정수(1~7). 10-17 (4) — NumberDecimalDigits 기본(-1)은 문화권 소수 2자리라 '5.00' 이 되어
+                             Xs 칸(96 − 버튼 44 − 안쪽 여백 22)에서 '5.0(' 로 잘렸다 → IsInteger 로 정수만 보이고 정수만 친다.
+                             저장값(double?)은 그대로 — 예전 세션의 소수 값은 바꾸지 않고 아래 경고로 알린다. -->
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
                             <TextBlock Text="하천차수" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadNumericUpDown BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                      Minimum="0" Maximum="7" Value="{Binding RiverChasu, Mode=TwoWay}"
+                                                      Minimum="0" Maximum="7" IsInteger="True" Value="{Binding RiverChasu, Mode=TwoWay}"
                                                       ToolTipService.ToolTip="FAI M1·M2·M3·M7 의 구간표를 고르는 값입니다. 비어 있으면 지수가 산출되지 않습니다."/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXlStyle}">
@@ -135,8 +138,10 @@
                         </StackPanel>
                     </WrapPanel>
 
-                    <!-- 채집소요시간이 정수가 아니면(예전 세션 값) 알린다 -->
+                    <!-- 채집소요시간 · 하천차수가 정수가 아니면(예전 세션 값) 알린다 -->
                     <TextBlock Text="{Binding CollectionTimeWarning}" Margin="0 0 0 4"
+                               Style="{StaticResource InlineWarnTextStyle}"/>
+                    <TextBlock Text="{Binding RiverChasuWarning}" Margin="0 0 0 4"
                                Style="{StaticResource InlineWarnTextStyle}"/>
 
                     <!-- 2행 : 하상구성 (%) — 합계 100 -->
