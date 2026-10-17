@@ -101,7 +101,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     /// <summary>선택지 밖 값 경고(C-4). 채집도구는 직접 입력을 허용하므로 보지 않는다.</summary>
     public string ChoiceWarning => FormChoices.Describe(
         ("하천형태", FormChoices.OutOfForm(HabitatRiverType, FormChoices.FishRiverForm)),
-        ("유속", FormChoices.OutOfForm(HabitatFlowState, FormChoices.FishVelocity) is string v ? new[] { v } : Array.Empty<string>()),
+        ("흐름상태(유속)", FormChoices.OutOfForm(HabitatFlowState, FormChoices.FishVelocity) is string v ? new[] { v } : Array.Empty<string>()),
         ("흐름상태(채집)", FormChoices.OutOfForm(CollectionFlowState, FormChoices.FlowState)));
 
     // ── 초고속 입력 그리드(Center-Left) ──
@@ -291,11 +291,11 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         }
     }
 
-    /// <summary>채집시간(분)이 정수가 아니면 경고(B-6 · 예전 세션 값은 지우지 않는다).</summary>
+    /// <summary>채집소요시간(분)이 정수가 아니면 경고(B-6 · 예전 세션 값은 지우지 않는다).</summary>
     public string CollectionTimeWarning =>
-        WholeNumber.IsValid(CollectionTime) ? string.Empty : $"채집시간 {CollectionTime!.Trim()} — 분 단위 정수로 고치세요";
+        WholeNumber.IsValid(CollectionTime) ? string.Empty : $"채집소요시간 {CollectionTime!.Trim()} — 분 단위 정수로 고치세요";
 
-    /// <summary>접힌 요약줄에 띄우는 조사환경 경고(하상구성 + 채집시간).</summary>
+    /// <summary>접힌 요약줄에 띄우는 조사환경 경고(하상구성 + 채집소요시간).</summary>
     public string EnvironmentWarning =>
         string.Join(" · ", new[] { SubstrateWarning, CollectionTimeWarning, ChoiceWarning }.Where(s => s.Length > 0));
 

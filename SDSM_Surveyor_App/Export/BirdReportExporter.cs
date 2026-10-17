@@ -46,7 +46,7 @@ public static class BirdReportExporter
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("조류 출현종 목록"); row += 2;
 
         int headerRow = row;
-        WriteHeader(ws, row, SiteColumns.With("목", "과", "국명", "학명", "개체수",
+        WriteHeader(ws, row, SiteColumns.With("목", "과", "일반명", "학명", "개체수",
                     "도래유형", "대항목", "세부항목", "서식유형", "위도", "경도", "특징", "특이사항", "구분"));
         row++;
 

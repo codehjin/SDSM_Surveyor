@@ -53,7 +53,7 @@ public static class AmphibianReptileReportExporter
 
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("양서파충류 출현종 목록"); row += 2;
 
-        var headers = new List<string>(SiteColumns.Headers) { "목", "과", "국명", "학명", "대분류", "중분류" };
+        var headers = new List<string>(SiteColumns.Headers) { "목", "과", "일반명", "학명", "대분류", "중분류" };
         headers.AddRange(TraceNames);
         headers.AddRange(new[] { "합계", "위도", "경도", "특징", "특이사항", "구분" });
 

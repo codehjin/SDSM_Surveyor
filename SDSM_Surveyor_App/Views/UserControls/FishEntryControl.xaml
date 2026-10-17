@@ -40,7 +40,7 @@
                                Style="{StaticResource SummaryValueTextStyle}"/>
                     <Border Style="{StaticResource VerticalDividerStyle}"/>
 
-                    <TextBlock Text="유속" Style="{StaticResource SummaryLabelTextStyle}"/>
+                    <TextBlock Text="흐름상태(유속)" Style="{StaticResource SummaryLabelTextStyle}"/>
                     <TextBlock Text="{Binding HabitatFlowState, Converter={StaticResource EmptyToDot}}"
                                Style="{StaticResource SummaryValueTextStyle}"/>
                     <Border Style="{StaticResource VerticalDividerStyle}"/>
@@ -50,7 +50,7 @@
                                Style="{StaticResource SummaryValueTextStyle}"/>
                     <Border Style="{StaticResource VerticalDividerStyle}"/>
 
-                    <!-- 흐름상태(채집)와 유속은 양식의 다른 행이다(16행·28행 · B-8) -->
+                    <!-- 흐름상태(채집)와 흐름상태(유속)은 양식의 다른 행이다(16행·28행 · B-8 · 이름은 10-17 (3)에 양식·보고서와 맞춤) -->
                     <TextBlock Text="흐름상태(채집)" Style="{StaticResource SummaryLabelTextStyle}"/>
                     <TextBlock Text="{Binding CollectionFlowState, Converter={StaticResource EmptyToDot}}"
                                Style="{StaticResource SummaryValueTextStyle}"/>
@@ -91,11 +91,11 @@
                                                  AutomationName="하천형태"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                            <TextBlock Text="유속" Style="{StaticResource FormLabelStyle}"/>
+                            <TextBlock Text="흐름상태(유속)" Style="{StaticResource FormLabelStyle}"/>
                             <ctrl:SingleChoiceBox Options="{x:Static m:FormChoices.FishVelocity}"
                                                   Value="{Binding HabitatFlowState}"
                                                   ToolTipText="양식 28행 흐름상태(유속) — 아주빠름 / 빠름 / 보통 / 느림 / 정체"
-                                                  AutomationName="유속"/>
+                                                  AutomationName="흐름상태(유속)"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldMdStyle}">
                             <TextBlock Text="채집도구" Style="{StaticResource FormLabelStyle}"/>
@@ -113,8 +113,9 @@
                                                  ToolTipText="채집한 곳의 흐름 — 여러 개를 고를 수 있습니다(여울 / 흐름 / 소)"
                                                  AutomationName="흐름상태(채집)"/>
                         </StackPanel>
-                        <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                            <TextBlock Text="채집시간(분)" Style="{StaticResource FormLabelStyle}"/>
+                        <!-- 양식 14행 이름 '채집소요시간(분)' 이 Xs(96)에서는 두 줄로 꺾여 Sm 으로 넓혔다(10-17 (3)) -->
+                        <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                            <TextBlock Text="채집소요시간(분)" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="분"
                                                          ToolTipService.ToolTip="양식 14행 채집소요시간 — 분 단위 정수"
                                                          core:IntegerInput.IsEnabled="True" Text="{Binding CollectionTime, UpdateSourceTrigger=PropertyChanged}"/>
@@ -134,7 +135,7 @@
                         </StackPanel>
                     </WrapPanel>
 
-                    <!-- 채집시간이 정수가 아니면(예전 세션 값) 알린다 -->
+                    <!-- 채집소요시간이 정수가 아니면(예전 세션 값) 알린다 -->
                     <TextBlock Text="{Binding CollectionTimeWarning}" Margin="0 0 0 4"
                                Style="{StaticResource InlineWarnTextStyle}"/>
 

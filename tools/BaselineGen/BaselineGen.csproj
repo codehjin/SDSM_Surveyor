@@ -13,6 +13,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- 라이선스 증빙은 진입 exe 에서 읽힌다 — 없으면 Telerik 문서처리가 출력 엑셀에 'License' 시트를 붙인다.
+         앱과 같은 판(1.9.3)을 쓴다(새 패키지 아님 · 키는 %AppData%\Telerik\telerik-license.txt). -->
+    <PackageReference Include="Telerik.Licensing" Version="1.9.3" />
     <!-- 운영 코드를 그대로 호출해야 회귀 기준이 된다 -->
     <ProjectReference Include="..\..\SDSM_Surveyor_App\SDSM_Surveyor_App.csproj" />
   </ItemGroup>
