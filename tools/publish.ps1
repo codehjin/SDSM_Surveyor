@@ -91,7 +91,9 @@ $must = @(
     'templates\bulk\amphrep.xlsx',
     'templates\bulk\water.xlsx',
     'templates\bulk\habitat.xlsx',
-    'templates\bulk\fish_labels.json'
+    'templates\bulk\fish_labels.json',
+    # 서식수변 평가내용(화면 표시용 · 10-17). 없어도 입력은 되지만 '평가 내용' 열·툴팁이 빈다.
+    'templates\bulk\habitat_criteria.json'
 )
 foreach ($f in $must) {
     if (-not (Test-Path (Join-Path $stage $f))) { Fail "필수 파일 누락 : $f" 3 }

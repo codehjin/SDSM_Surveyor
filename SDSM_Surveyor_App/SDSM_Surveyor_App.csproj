@@ -73,7 +73,7 @@
     </Content>
     <!-- 일괄입력용 양식 내장본 6개 + 어류 라벨 글자(B-7 · tools\TemplateGen 이 2026-03 최종본에서 만든다).
          테스트판·실배포판 모두 들어간다. 없으면 일괄입력용 내보내기가 사유를 알리고 멈춘다. -->
-    <Content Include="templates\bulk\*.xlsx;templates\bulk\fish_labels.json">
+    <Content Include="templates\bulk\*.xlsx;templates\bulk\fish_labels.json;templates\bulk\habitat_criteria.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

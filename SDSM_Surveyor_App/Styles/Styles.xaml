@@ -93,6 +93,10 @@
     <sys:Double x:Key="FieldSm">128</sys:Double>
     <sys:Double x:Key="FieldMd">176</sys:Double>
     <sys:Double x:Key="FieldLg">264</sys:Double>
+    <!-- 긴 글(10-17) — 사유·비고·특이사항·유역이용·오염원. 종전 Md(176)의 3배. 칸은 자동 줄바꿈·높이 자동 증가 -->
+    <sys:Double x:Key="FieldXl">528</sys:Double>
+    <!-- 그리드 긴 글 열을 편집할 때 아래에 펼치는 전체 글 미리보기의 최소 폭(10-17) -->
+    <sys:Double x:Key="LongTextPreviewMinWidth">320</sys:Double>
 
     <!-- 구버전 이름 유지 (design.md §2 표기와 외부 참조 호환) -->
     <sys:Double x:Key="FormControlSmallWidth">120</sys:Double>
@@ -322,6 +326,11 @@
     </Style>
     <Style x:Key="FormFieldLgStyle" TargetType="StackPanel" BasedOn="{StaticResource FormFieldStyle}">
         <Setter Property="Width" Value="{StaticResource FieldLg}"/>
+    </Style>
+    <!-- 긴 글 칸(10-17). 입력칸은 사용처에서 TextWrapping="Wrap" · MinHeight="{StaticResource InputHeight}" 로 쓴다(Height 고정 금지 — 줄바꿈하면 늘어난다).
+         ⚠ Telerik 입력칸에 Style 을 통째로 주지 않는다(design.md §1.1) — 개별 속성으로 준다. -->
+    <Style x:Key="FormFieldXlStyle" TargetType="StackPanel" BasedOn="{StaticResource FormFieldStyle}">
+        <Setter Property="Width" Value="{StaticResource FieldXl}"/>
     </Style>
 
     <!--=========== 그룹 헤더 (§5-3) ===========-->
@@ -956,6 +965,27 @@
         <Setter Property="Foreground" Value="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- 그리드 긴 글 칸(10-17 · Behaviors\LongTextColumn) : 말줄임 + 마우스를 올리면 전체 글 툴팁(빈 칸이면 툴팁 없음) -->
+    <Style x:Key="LongTextCellStyle" TargetType="TextBlock" BasedOn="{StaticResource GridInheritedTextStyle}">
+        <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+        <Style.Triggers>
+            <Trigger Property="Text" Value="">
+                <Setter Property="ToolTip" Value="{x:Null}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <!-- 긴 글 칸을 편집할 때 편집칸 아래에 펼치는 전체 글(줄바꿈) -->
+    <Style x:Key="LongTextPreviewBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource CardBackBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{StaticResource BorderThin}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSm}"/>
+        <Setter Property="Padding" Value="{StaticResource PopupCardPadding}"/>
+    </Style>
+    <Style x:Key="LongTextPreviewTextStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+        <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
     <!-- 수치 열 : 자릿수가 흔들리지 않게 tabular numerals -->

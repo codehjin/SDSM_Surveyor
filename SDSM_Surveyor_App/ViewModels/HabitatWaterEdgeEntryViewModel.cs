@@ -175,6 +175,12 @@ public partial class HabitatWaterEdgeEntryViewModel : TaxonEntryViewModelBase, I
         ExportBulkCommand.NotifyCanExecuteChanged();
     }
 
+    /// <summary>
+    /// 항목 1~10 의 평가내용·판정점수 글자 — 최종본 양식 C·D열을 TemplateGen 이 뽑은 것(10-17 · 화면 표시용).
+    /// 넓은 창의 '평가 내용' 열 · 항목 이름 툴팁 · 선택지 툴팁에 쓴다. 저장·출력에는 쓰지 않는다.
+    /// </summary>
+    public IReadOnlyList<HabitatCriteria.Item> Criteria => HabitatCriteria.Items;
+
     // ── [별표5] 항목별 허용점수 옵션 (드롭다운 소스) ──
     public HriOption[] Opt1 { get; } = { new(10,"4회 이상"), new(5,"3회"), new(3,"2회"), new(1,"1회"), new(0,"없음") };
     public HriOption[] Opt2 { get; } = { new(25,"정비X 자연사행"), new(15,"정비, 사행유지"), new(10,"직강화·저수로사행"), new(5,"직강화(폭변화유지)"), new(0,"인공 직강화") };

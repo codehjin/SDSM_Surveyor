@@ -106,9 +106,17 @@
 | `FieldXs` | 96 | 하상구성 8종, 비정상종 DE·EF·LE·TU |
 | `FieldSm` | 128 | 채집도구, 흐름상태, 측정값 대부분 |
 | `FieldMd` | 176 | 하천형태, 조사불가 사유 |
-| `FieldLg` | 264 | 비고 |
+| `FieldLg` | 264 | (종전 비고 — 긴 글은 아래 `FieldXl`) |
+| `FieldXl` | 528 | **긴 글**(10-17) — 사유·비고·특이사항·유역이용·오염원. 종전 Md 의 3배 |
 
-`FormFieldXs/Sm/Md/LgStyle`(StackPanel)로 감싸 쓴다. 폭과 여백이 함께 붙는다.
+`FormFieldXs/Sm/Md/Lg/XlStyle`(StackPanel)로 감싸 쓴다. 폭과 여백이 함께 붙는다.
+긴 글 칸의 입력칸은 `TextWrapping="Wrap"` · `MinHeight="{StaticResource InputHeight}"`(높이 고정 금지) — 긴 글을 넣으면 줄바꿈하며 칸이 늘어난다.
+1280 창에서도 한 줄(가용폭 1,224)에 들어가므로 넘치지 않는다(WrapPanel 이 다음 줄로 넘긴다).
+
+**그리드 안의 긴 글 열**(관찰형 특징·특이사항, 종 입력형 비고)은 열 너비를 바꾸지 않는다 — `Behaviors\LongTextColumn`:
+보기 상태는 말줄임 + 마우스를 올리면 전체 글 툴팁, 편집 상태는 편집칸 아래에 전체 글을 줄바꿈해 보여 준다(행 높이가 고정이라 편집칸은 늘리지 않는다).
+
+**점수 콤보**(서식수변 평가항목)는 점수 숫자를 치면 그 점수가 골라진다(`Behaviors\ScoreKeySelect` · 1초 안 이어 치기 · 없는 점수는 무시). Tab → 숫자 → Tab 으로 마우스 없이 입력한다.
 구버전 이름(`FormControlSmallWidth`·`MiddleWidth`·`Width`)은 외부 참조 호환을 위해 남겨 뒀다.
 
 ### 2.4 결과 레일 (❌ 폐기 — 2026-08-30)

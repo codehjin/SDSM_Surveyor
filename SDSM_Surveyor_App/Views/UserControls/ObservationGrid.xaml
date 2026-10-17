@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:core="clr-namespace:SDSM_Surveyor_App.Behaviors"
              mc:Ignorable="d" d:DesignWidth="1224" d:DesignHeight="400"
              MinHeight="{StaticResource GridMinHeight}"
              x:Name="Root">
@@ -23,7 +24,8 @@
             (SpeciesEntryViewModelBase.DeleteRow). 그 번호는 원본 컬렉션 순서라
             정렬을 허용하면 화면 순서와 어긋난다. 어류·저서동물 그리드와 같은 규칙이다.
          ══════════════════════════════════════════════════════════════════════ -->
-    <telerik:RadGridView x:Name="Grid"
+    <!-- 10-17 : 긴 글 열(특징·특이사항 — 각 화면이 core:LongTextColumn.IsLongText 로 표시) = 말줄임 + 툴팁 · 편집 때 아래에 전체 글 -->
+    <telerik:RadGridView x:Name="Grid" core:LongTextColumn.Enable="True"
                          ItemsSource="{Binding Rows, ElementName=Root}"
                          AutoGenerateColumns="False"
                          CanUserSortColumns="False"

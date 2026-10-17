@@ -15,6 +15,11 @@
         <Style x:Key="WqTile" TargetType="StackPanel">
             <Setter Property="Margin" Value="0 0 16 12"/>
         </Style>
+        <!-- 칸 제목 : 한 줄로만(10-17 '구리 Cu (mg/L)' 두 줄 꺾임) -->
+        <Style x:Key="WqLabel" TargetType="TextBlock" BasedOn="{StaticResource FormLabelStyle}">
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
         <Style x:Key="WqGrade" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
             <Setter Property="Margin" Value="0 4 0 0"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -152,17 +157,22 @@
                     </StackPanel>
 
                     <!--── 우 : 미입력 경고 ───────────────────────────────────-->
+                    <!-- 10-17 : 종전에는 아이콘과 글을 가로 StackPanel 에 넣어 글이 줄바꿈되지 못하고 잘렸다 → 2열 Grid(글 칸이 남은 폭을 받아 줄바꿈) -->
                     <Border Grid.Column="1" Style="{StaticResource WarnBoxBorderStyle}" MaxWidth="280"
                             Visibility="{Binding HasUnfilledGrades, Converter={StaticResource BoolToVisibility}}">
-                        <StackPanel Orientation="Horizontal">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
                             <icon:PackIconMaterial Kind="AlertCircleOutline" Width="14" Height="14"
                                                    VerticalAlignment="Top" Margin="0 2 6 0"
                                                    Foreground="{StaticResource DangerOnSurfaceBrush}"/>
-                            <TextBlock Style="{StaticResource WarnBoxTextStyle}">
+                            <TextBlock Grid.Column="1" AutomationProperties.Name="미입력 경고" Style="{StaticResource WarnBoxTextStyle}">
                                 <Run Text="{Binding UnfilledGradeText, Mode=OneWay}"/>
                                 <Run Text="— 미측정 항목은 비워 둡니다. 0 을 적으면 측정한 것으로 저장됩니다."/>
                             </TextBlock>
-                        </StackPanel>
+                        </Grid>
                     </Border>
                 </Grid>
             </ctrl:CollapsibleSummary.ExpandedSlot>
@@ -187,55 +197,55 @@
 
                         <UniformGrid Columns="5">
                             <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="pH" Style="{StaticResource FormLabelStyle}"/>
+                                <TextBlock Text="pH" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                              Text="{Binding PH, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding PhGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="BOD (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <TextBlock Text="BOD (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                              Text="{Binding Bod, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding BodGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="COD (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <TextBlock Text="COD (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                              Text="{Binding Cod, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding CodGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="TOC (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <TextBlock Text="TOC (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                              Text="{Binding Toc, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding TocGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="SS (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <TextBlock Text="SS (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                              Text="{Binding Ss, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding SsGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="DO (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <TextBlock Text="DO (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                              Text="{Binding Dox, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding DoGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="T-P (mg/L)" Style="{StaticResource FormLabelStyle}"/>
+                                <TextBlock Text="T-P (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                              Text="{Binding Tp, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding TpGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="대장균군 (군수/100mL)" Style="{StaticResource FormLabelStyle}"/>
+                                <TextBlock Text="대장균군 (군수/100mL)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                              Text="{Binding EColi, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding EColiGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
-                                <TextBlock Text="생태독성 (TU)" Style="{StaticResource FormLabelStyle}"/>
+                                <TextBlock Text="생태독성 (TU)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                              Text="{Binding Ecotoxicity, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Text="등급 없음" Margin="0 4 0 0" Style="{StaticResource CaptionTextStyle}"/>
@@ -259,96 +269,88 @@
                     </ctrl:CollapsibleSummary.SummarySlot>
 
                     <ctrl:CollapsibleSummary.ExpandedSlot>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <!-- 10-17 : 위 '측정 항목' 과 같은 격자 — 한 줄 5칸 · 같은 칸 너비·간격(WqTile) · 제목은 칸 위 한 줄.
+                             종전 WrapPanel(Xs·Sm 혼용)에서는 칸이 어긋나고 '구리 Cu (mg/L)' 제목이 두 줄로 꺾였다. -->
+                        <StackPanel>
+                            <TextBlock Text="수질 확장" Style="{StaticResource FormLabelStyle}" FontWeight="SemiBold" Margin="0 0 0 8"/>
+                            <UniformGrid Columns="5">
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="T-N (mg/L)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding TN, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="전기전도도 (µS/cm)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding EC, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="염소이온 (mg/L)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding Cl, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="황이온 (mg/L)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding SO42, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="구리 Cu (mg/L)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding Cu, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="아연 Zn (mg/L)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding Zn, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="크롬 Cr (mg/L)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding Cr, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="탁도 (NTU)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding Turbidity, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="클로로필a (mg/m³)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding Chla, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </UniformGrid>
 
-                            <!-- 수질 확장 9 -->
-                            <StackPanel Grid.Column="0" Margin="0 0 20 0">
-                                <TextBlock Text="수질 확장" Style="{StaticResource FormLabelStyle}" Margin="0 0 0 4"/>
-                                <WrapPanel>
-                                    <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                        <TextBlock Text="T-N (mg/L)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding TN, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                        <TextBlock Text="전기전도도 (µS/cm)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding EC, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                        <TextBlock Text="염소이온 (mg/L)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding Cl, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                        <TextBlock Text="황이온 (mg/L)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding SO42, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                                        <TextBlock Text="구리 Cu (mg/L)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding Cu, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                                        <TextBlock Text="아연 Zn (mg/L)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding Zn, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                                        <TextBlock Text="크롬 Cr (mg/L)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding Cr, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                                        <TextBlock Text="탁도 (NTU)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding Turbidity, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                        <TextBlock Text="클로로필a (mg/m³)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding Chla, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                </WrapPanel>
-                            </StackPanel>
-
-                            <!-- 현장 측정 5 : 성격이 다르므로 분리한다 -->
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="현장 측정" Style="{StaticResource FormLabelStyle}" Margin="0 0 0 4"/>
-                                <WrapPanel MaxWidth="420">
-                                    <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                                        <TextBlock Text="수온 (℃)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding WaterTemperature, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                                        <TextBlock Text="수심 (cm)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding WaterDepth, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                                        <TextBlock Text="유속 (cm/s)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding FlowVelocity, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                        <TextBlock Text="초당유량 (m³/sec)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding FlowSec, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                    <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                        <TextBlock Text="일당유량 (m³/day)" Style="{StaticResource FormLabelStyle}"/>
-                                        <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                                                     Text="{Binding FlowDay, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </StackPanel>
-                                </WrapPanel>
-                            </StackPanel>
-                        </Grid>
+                            <!-- 현장 측정 5 : 성격이 다르므로 묶음을 나눈다 -->
+                            <TextBlock Text="현장 측정" Style="{StaticResource FormLabelStyle}" FontWeight="SemiBold" Margin="0 4 0 8"/>
+                            <UniformGrid Columns="5">
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="수온 (℃)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding WaterTemperature, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="수심 (cm)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding WaterDepth, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="유속 (cm/s)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding FlowVelocity, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="초당유량 (m³/sec)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding FlowSec, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                                <StackPanel Style="{StaticResource WqTile}">
+                                    <TextBlock Text="일당유량 (m³/day)" Style="{StaticResource WqLabel}"/>
+                                    <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                Text="{Binding FlowDay, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </UniformGrid>
+                        </StackPanel>
                     </ctrl:CollapsibleSummary.ExpandedSlot>
                 </ctrl:CollapsibleSummary>
             </StackPanel>

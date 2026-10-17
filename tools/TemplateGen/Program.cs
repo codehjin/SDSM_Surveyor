@@ -38,6 +38,19 @@ Directory.CreateDirectory(outDir);
 Console.WriteLine($"원본 : {src}  (읽기만 한다)");
 Console.WriteLine($"출력 : {outDir}\n");
 
+// --criteria : 서식수변 평가내용(10-17 화면 검토)만 다시 뽑는다 — 내장본 xlsx 는 다시 만들지 않는다.
+if (args.Contains("--criteria"))
+{
+    var section = WriteHabitatCriteria(src, outDir);
+    var readmePath = Path.Combine(outDir, "README.md");
+    var text = File.Exists(readmePath) ? File.ReadAllText(readmePath) : string.Empty;
+    const string Mark = "## 서식수변 — 평가내용";
+    int at = text.IndexOf(Mark, StringComparison.Ordinal);
+    text = (at >= 0 ? text[..at] : text.TrimEnd() + "\n\n") + section;
+    File.WriteAllText(readmePath, text, new UTF8Encoding(false));
+    return 0;
+}
+
 // 레코드 영역 = (rowFrom, colFrom) 부터 사용 범위 끝까지. 0-based.
 // 저서 : 레코드 열 M(12)부터 모든 행(머리글·라벨은 A~L 에 있다).
 // 관찰형 : 엑셀 5행(0-based 4)부터 모든 열(1~3행 머리글 · 4행 예시).
@@ -166,9 +179,47 @@ const string FishSource = "2602_방류하천_곡교천_어류_DB_v1.xlsx";
     readme.AppendLine($"`어류_입력` 1~78행 M·N·O·P 상수 {input.Count}칸(P열 수식 {skippedFormula}칸은 넣지 않음) + `필독` {notice.Count}칸. 어류 exporter 는 이 글자를 같은 칸에 적고, 레코드(Q열)·종 행은 지금처럼 쓴다.");
 }
 
+readme.AppendLine();
+readme.Append(WriteHabitatCriteria(src, outDir));
+
 File.WriteAllText(Path.Combine(outDir, "README.md"), readme.ToString(), new UTF8Encoding(false));
 Console.WriteLine(fail == 0 ? "\n완료 — 남은 상수 0 · License·조사지점 시트 없음" : $"\n⚠ 확인 필요 {fail}건");
 return fail == 0 ? 0 : 1;
+
+// ── 서식수변 평가내용 : 화면의 '평가 내용' 열·툴팁에 쓰는 글자(10-17 화면 검토) ─────────────
+// 최종본 서식수변 양식 `서식 및 수변환경` 시트 17~26행(평가항목 1~10)의 A(번호)·B(항목)·C(평가내용)·D(판정점수) 글자를
+// 그대로 뽑는다(손으로 다시 치지 않는다). 줄바꿈도 원본 그대로 둔다 — 화면이 한 줄로 이어 보인다.
+static string WriteHabitatCriteria(string src, string outDir)
+{
+    const string Source = "2602_방류하천_곡교천_서식수변_DB_v1.xlsx";
+    var path = Path.Combine(src, Source);
+    var fi = new FileInfo(path);
+    Workbook wb;
+    using (var fs = File.OpenRead(path)) wb = new XlsxFormatProvider().Import(fs, null);
+    var ws = wb.Worksheets.First(w => w.Name == "서식 및 수변환경");
+
+    string T(int r, int c) => ws.Cells[r, c].GetValue().Value.RawValue ?? string.Empty;
+    var items = new List<object>();
+    for (int r = 16; r <= 25; r++)   // 0-based 16~25 = 엑셀 17~26행
+        items.Add(new { no = T(r, 0), name = T(r, 1), content = T(r, 2), scoring = T(r, 3) });
+
+    var doc = new
+    {
+        source = Source,
+        sourceBytes = fi.Length,
+        sourceModified = fi.LastWriteTime.ToString("yyyy-MM-dd HH:mm"),
+        generated = DateTime.Now.ToString("yyyy-MM-dd HH:mm"),
+        note = "서식 및 수변환경 시트 17~26행 A(번호)·B(항목)·C(평가내용)·D(판정점수) 글자. 화면 표시용 — 일괄입력용·보고서 출력에는 쓰지 않는다.",
+        items,
+    };
+    var json = JsonSerializer.Serialize(doc, new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+    File.WriteAllText(Path.Combine(outDir, "habitat_criteria.json"), json, new UTF8Encoding(false));
+    Console.WriteLine($"habitat  평가내용 {items.Count}항목 → habitat_criteria.json");
+
+    return "## 서식수변 — 평가내용 (화면 표시용 · 10-17)\n\n" +
+           $"`{Source}`({fi.Length / 1024:N0} KB · {fi.LastWriteTime:yyyy-MM-dd HH:mm})의 `서식 및 수변환경` 시트 17~26행 A·B·C·D 글자를 `habitat_criteria.json` 에 둔다" +
+           $"(생성 {DateTime.Now:yyyy-MM-dd HH:mm}). 서식수변 화면의 '평가 내용' 열(넓은 창)·항목 툴팁(C열)·선택지 툴팁(D열)이 이 글자를 그대로 쓴다. 출력 엑셀에는 쓰지 않는다.\n";
+}
 
 // [행, 열, 값] — 값은 글자면 string, 숫자면 double. 수식 칸은 건너뛴다.
 static List<object[]> Extract(Worksheet ws, int rowTo, int colFrom, int colTo, out int skippedFormula)

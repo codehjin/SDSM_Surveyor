@@ -33,6 +33,7 @@
                                      AutomationProperties.Name="직접 입력"
                                      KeyDown="Custom_KeyDown"/>
 
-        <TextBlock x:Name="Warn" Margin="0 2 0 0" Style="{StaticResource InlineWarnTextStyle}"/>
+        <!-- 10-17 : 칸 폭이 좁아도 경고 전체가 보이게 줄바꿈한다(종전에는 말줄임으로 잘렸다) -->
+        <TextBlock x:Name="Warn" Margin="0 2 0 0" Style="{StaticResource InlineWarnTextStyle}" TextWrapping="Wrap" TextTrimming="None"/>
     </StackPanel>
 </UserControl>

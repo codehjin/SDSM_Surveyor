@@ -173,6 +173,16 @@ return (DataTemplate)XamlReader.Parse(
 기존 주석에 줄을 덧붙이며 `… 후보 이름). -->` 처럼 닫는 표시를 넣으면 **기존 주석이 그 자리에서 닫히고** 남은 주석 글자가 요소 내용이 된다.
 빌드와 `xaml_audit` 는 통과하고 **실행할 때** `XamlParseException`(UIElementCollection 에 String 추가)으로 터진다. 화면 하네스가 잡았다.
 
+### ⚠ `CollapsibleSummary` 슬롯 안의 요소에는 `x:Name` 을 줄 수 없다 (2026-10-17)
+
+`SummarySlot`·`ExpandedSlot` 내용은 `CollapsibleSummary` 의 이름 범위에 들어가 빌드가 `MC3093`(이미 다른 범위에 등록)으로 막힌다.
+자동 검증이 찾아야 하면 `AutomationProperties.Name` 을 준다(수질 미입력 경고 `"미입력 경고"`).
+
+### 가로 StackPanel 안의 글은 줄바꿈되지 않는다 (2026-10-17 · 수질 미입력 경고)
+
+가로 `StackPanel` 은 자식에게 폭 무한을 준다 — `TextWrapping="Wrap"` 이어도 한 줄로 재고, 바깥 `MaxWidth` 에서 잘린다.
+아이콘 + 글은 `Grid`(Auto · *)로 둔다.
+
 ### Telerik 확인한 멤버 (2026.3.1007 · 2026-10-16)
 
 | 용도 | 멤버 |
@@ -181,6 +191,9 @@ return (DataTemplate)XamlReader.Parse(
 | 그리드 여러 행 고르기 | `RadGridView.SelectionMode="Extended"` · `SelectedItems` · 이벤트 `SelectionChanged`(`Telerik.Windows.Controls.SelectionChangeEventArgs`) |
 | `RadButton` | `System.Windows.Controls.Button` 을 상속한다(`IsCancel`·`IsDefault` 그대로 쓴다) |
 | 아이콘(Material) | `FolderZipOutline` · `FolderDownloadOutline` 있음(평문 검색) |
+| 그리드 편집기 준비(10-17) | `RadGridView.PreparedCellForEdit`(`GridViewPreparingCellForEditEventArgs` · `Column` · `EditingElement`) |
+| 콤보 글자 찾기(10-17) | `RadComboBox.IsTextSearchEnabled` · `TextSearchMode` — 점수 숫자 입력은 `PreviewTextInput` 에서 먼저 처리하고 끝낸다(`ScoreKeySelect`) |
+| `PlacementMode` | `Telerik.Windows.Controls` 에도 같은 이름이 있다 — `System.Windows.Controls.Primitives.PlacementMode` 로 적는다 |
 
 - .NET 8 WPF 에는 폴더 고르기 `Microsoft.Win32.OpenFolderDialog` 가 있다(새 패키지 불필요 · C-8).
 

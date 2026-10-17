@@ -102,14 +102,14 @@
                             <TextBlock Text="서식처" Style="{StaticResource GroupHeaderTextStyle}"/>
                         </StackPanel>
                         <WrapPanel>
-                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
+                            <StackPanel Style="{StaticResource FormFieldXlStyle}">
                                 <TextBlock Text="유역이용" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" MinHeight="{StaticResource InputHeight}" TextWrapping="Wrap" VerticalContentAlignment="Center"
                                                              Text="{Binding Watershed, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                            <StackPanel Style="{StaticResource FormFieldXlStyle}">
                                 <TextBlock Text="확인 가능 오염원" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" MinHeight="{StaticResource InputHeight}" TextWrapping="Wrap" VerticalContentAlignment="Center"
                                                              Text="{Binding PollutionSource, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <!-- C-4 : 아래 선택 칸은 최종본 양식 정의 그대로(Models\FormChoices).
@@ -253,15 +253,15 @@
                                                       ToolTipText="양식 42행 — 없음 1 ~ 5 매우 심함"
                                                       AutomationName="냄새"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                            <StackPanel Style="{StaticResource FormFieldXlStyle}">
                                 <TextBlock Text="채집불가시(사유)" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" MinHeight="{StaticResource InputHeight}" TextWrapping="Wrap" VerticalContentAlignment="Center"
                                                              WatermarkContent="접근불가/건천화 등"
                                                              Text="{Binding SurveyUnavailableReason, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldLgStyle}">
+                            <StackPanel Style="{StaticResource FormFieldXlStyle}">
                                 <TextBlock Text="특이사항(비고)" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" MinHeight="{StaticResource InputHeight}" TextWrapping="Wrap" VerticalContentAlignment="Center"
                                                              Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                         </WrapPanel>
@@ -458,7 +458,8 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <telerik:RadGridView x:Name="SpeciesGrid" Grid.Row="0"
+            <!-- 10-17 : 비고(긴 글) 열 = 말줄임 + 툴팁 · 편집 때 아래에 전체 글(core:LongTextColumn) -->
+            <telerik:RadGridView x:Name="SpeciesGrid" Grid.Row="0" core:LongTextColumn.Enable="True"
                                  ItemsSource="{Binding SpeciesEntries}"
                                  AutoGenerateColumns="False"
                                  CanUserInsertRows="True"
@@ -618,13 +619,14 @@
                         </telerik:GridViewDataColumn.CellTemplate>
                     </telerik:GridViewDataColumn>
 
-                    <telerik:GridViewDataColumn Header="비고" Width="200"
+                    <telerik:GridViewDataColumn Header="비고" Width="200" core:LongTextColumn.IsLongText="True"
                                                 DataMemberBinding="{Binding Note}">
                         <telerik:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
                                     <TextBlock Text="{Binding Note, Converter={StaticResource EmptyToDot}}"
                                                VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                               ToolTipService.ToolTip="{Binding Note}"
                                                Style="{StaticResource GridInheritedTextStyle}"
                                                Visibility="{Binding IsJustAdded, Converter={StaticResource InverseBoolToVisibility}}"/>
                                     <TextBlock Text="방금 추가" VerticalAlignment="Center"

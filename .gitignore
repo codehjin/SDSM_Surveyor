@@ -28,6 +28,8 @@ tools/_build.log
 _to_delete/
 docs/_backup_*/
 docs/_maps_seed_old/
+# 화면 확인용 사진(하네스가 찍음 · 커밋하지 않음)
+docs/_screens_*/
 
 # Telerik upgrade wizard
 *_Backup_20*/

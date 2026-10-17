@@ -125,9 +125,9 @@
                                                       Minimum="0" Maximum="7" Value="{Binding RiverChasu, Mode=TwoWay}"
                                                       ToolTipService.ToolTip="FAI M1·M2·M3·M7 의 구간표를 고르는 값입니다. 비어 있으면 지수가 산출되지 않습니다."/>
                         </StackPanel>
-                        <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                        <StackPanel Style="{StaticResource FormFieldXlStyle}">
                             <TextBlock Text="조사불가 사유" Style="{StaticResource FormLabelStyle}"/>
-                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" MinHeight="{StaticResource InputHeight}" TextWrapping="Wrap" VerticalContentAlignment="Center"
                                                          WatermarkContent="접근불가 / 건천화 / 준설 / 공사중"
                                                          Text="{Binding SurveyUnavailableReason, UpdateSourceTrigger=PropertyChanged}"
                                                          ToolTipService.ToolTip="사유가 있으면 등급이 '-'(미평가)가 됩니다. 0종과는 다릅니다."/>
@@ -223,9 +223,9 @@
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="0"
                                                          Text="{Binding TuCount, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
-                        <StackPanel Style="{StaticResource FormFieldLgStyle}">
+                        <StackPanel Style="{StaticResource FormFieldXlStyle}">
                             <TextBlock Text="비고" Style="{StaticResource FormLabelStyle}"/>
-                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" MinHeight="{StaticResource InputHeight}" TextWrapping="Wrap" VerticalContentAlignment="Center"
                                                          Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </WrapPanel>
@@ -456,7 +456,8 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <telerik:RadGridView x:Name="SpeciesGrid" Grid.Row="0"
+            <!-- 10-17 : 비고(긴 글) 열 = 말줄임 + 툴팁 · 편집 때 아래에 전체 글(core:LongTextColumn) -->
+            <telerik:RadGridView x:Name="SpeciesGrid" Grid.Row="0" core:LongTextColumn.Enable="True"
                                  ItemsSource="{Binding SpeciesEntries}"
                                  AutoGenerateColumns="False"
                                  CanUserInsertRows="True"
@@ -647,13 +648,14 @@
                     </telerik:GridViewDataColumn>
 
                     <!-- 비고 : 조사자 메모. ⚠ 관리자 모델에 대응 필드가 없어 세션 저장 전용이다 -->
-                    <telerik:GridViewDataColumn Header="비고" Width="200"
+                    <telerik:GridViewDataColumn Header="비고" Width="200" core:LongTextColumn.IsLongText="True"
                                                 DataMemberBinding="{Binding Note}">
                         <telerik:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
                                     <TextBlock Text="{Binding Note, Converter={StaticResource EmptyToDot}}"
                                                VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                               ToolTipService.ToolTip="{Binding Note}"
                                                Style="{StaticResource GridInheritedTextStyle}"
                                                Visibility="{Binding IsJustAdded, Converter={StaticResource InverseBoolToVisibility}}"/>
                                     <TextBlock Text="방금 추가" VerticalAlignment="Center"

@@ -106,8 +106,8 @@
                                         DataMemberBinding="{Binding Lat}" DataFormatString="{}{0:N6}" TextAlignment="Right"/>
             <telerik:GridViewDataColumn Header="경도" Width="92" IsFilterable="False"
                                         DataMemberBinding="{Binding Lng}" DataFormatString="{}{0:N6}" TextAlignment="Right"/>
-            <telerik:GridViewDataColumn Header="특징" Width="*" MinWidth="120" DataMemberBinding="{Binding Feature}"/>
-            <telerik:GridViewDataColumn Header="특이사항" Width="140" DataMemberBinding="{Binding Note}"/>
+            <telerik:GridViewDataColumn Header="특징" Width="*" MinWidth="120" DataMemberBinding="{Binding Feature}" core:LongTextColumn.IsLongText="True"/>
+            <telerik:GridViewDataColumn Header="특이사항" Width="140" DataMemberBinding="{Binding Note}" core:LongTextColumn.IsLongText="True"/>
             <telerik:GridViewDataColumn Header="구분" Width="110" IsReadOnly="True"
                                         DataMemberBinding="{Binding ProtectionText}"
                                         ToolTipService.ToolTip="공식 종목록의 법정보호종·생태계교란생물 표기(자동)"/>
