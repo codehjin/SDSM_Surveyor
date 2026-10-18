@@ -76,6 +76,8 @@
                  E2(2026-10-18 (2)) : Enter·Tab = 같은 이름 → 방향키·마우스로 고른 후보 → 그 밖은 고르지 않음(코드비하인드 Decide).
                        치는 동안·포커스가 떠날 때 콤보가 맞는 첫 항목을 골라 버리지 않게
                        CanAutocompleteSelectItems=False · UpdateSelectionOnLostFocus=False.
+                 G1(2026-10-18 (3)) : ↓ = 친 글자로 거른 후보(같음 → 앞부분 → 포함)를 펼쳐 그 안에서 움직임(코드비하인드 MoveCandidate).
+                       콤보 자체 거르기(IsFilteringEnabled)는 끈다 — 후보를 바꿔 끼울 때 콤보가 다시 거르지 않게.
                  ⚠ 대분류를 고르기 전에는 잠긴다 — 방류하천과 생태현황에 같은 이름의 다른 지점이 있어
                     섞어 보여주면 자료가 조용히 섞인다(_ecostatus_sites_extracted §8-2). -->
             <telerik:RadComboBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" x:Name="SiteCombo" AutomationProperties.AutomationId="SiteCombo"
@@ -84,12 +86,13 @@
                                  SelectedItem="{Binding SelectedSiteChoice, Mode=TwoWay}"
                                  DisplayMemberPath="Display"
                                  IsEnabled="{Binding IsSiteSelectable}"
-                                 IsEditable="True" IsFilteringEnabled="True"
+                                 IsEditable="True" IsFilteringEnabled="False" IsTextSearchEnabled="False"
                                  CanAutocompleteSelectItems="False" UpdateSelectionOnLostFocus="False"
                                  EmptyText="지점 선택 또는 ST번호 입력"
                                  LostFocus="SiteCombo_LostFocus"
                                  PreviewKeyDown="SiteCombo_PreviewKeyDown"
                                  PreviewTextInput="SiteCombo_PreviewTextInput"
+                                 DropDownClosed="SiteCombo_DropDownClosed"
                                  PreviewMouseLeftButtonDown="SiteCombo_PreviewMouseLeftButtonDown"
                                  KeyDown="SiteCombo_KeyDown"/>
             <TextBlock Text="{Binding SiteHint}" Style="{StaticResource CaptionTextStyle}"

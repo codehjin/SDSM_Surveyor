@@ -145,7 +145,7 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     /// <summary>지점 콤보의 선택(= <see cref="SelectedSite"/>). 목록을 바꿔 끼우는 동안 들어오는 null 은 무시한다.</summary>
     public SiteChoice? SelectedSiteChoice
     {
-        get => SelectedSite is null ? null : SiteChoices.FirstOrDefault(c => ReferenceEquals(c.Site, SelectedSite));
+        get => _previewChoice ?? (SelectedSite is null ? null : SiteChoices.FirstOrDefault(c => ReferenceEquals(c.Site, SelectedSite)));
         set
         {
             if (_swappingChoices && value is null) return;
@@ -164,7 +164,31 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     /// (`곡교` → 곡교천1 — CanAutocompleteSelectItems 를 꺼도 닫힌 콤보에서는 고른다). 그 선택을 조사개황에 넘기지 않고,
     /// Enter·Tab(같은 이름 → 고른 후보 → 고르지 않음)·방향키·마우스가 정한다. 화면(SurveyOverviewControl)이 켜고 끈다.
     /// </summary>
-    public bool HoldSiteSelection { get; set; }
+    public bool HoldSiteSelection
+    {
+        get => _holdSiteSelection;
+        set
+        {
+            _holdSiteSelection = value;
+            if (!value && _previewChoice is not null) { _previewChoice = null; OnPropertyChanged(nameof(SelectedSiteChoice)); }
+        }
+    }
+    private bool _holdSiteSelection;
+
+    /// <summary>
+    /// ↓ 후보 강조(G1) — 선택을 보류한 동안 콤보에 보일 항목. 조사개황 지점(<see cref="SelectedSite"/>)은 바꾸지 않는다.
+    /// 콤보의 SelectedItem 을 직접 바꾸면 양방향 바인딩이 (보류 중이라 그대로인) 이 값을 다시 읽어 되돌리므로, 여기에 둔다.
+    /// 보류가 풀리면 지운다.
+    /// </summary>
+    private SiteChoice? _previewChoice;
+
+    /// <summary>↓ 로 강조할 후보를 콤보에 보인다(조사개황은 그대로 · 선택 보류를 켠다). null 이면 강조를 지운다.</summary>
+    public void PreviewSiteChoice(SiteChoice? choice)
+    {
+        if (choice is not null) _holdSiteSelection = true;
+        _previewChoice = choice;
+        OnPropertyChanged(nameof(SelectedSiteChoice));
+    }
 
     /// <summary>
     /// 지점 직접 변경 확인(C-2). 화면(창)이 붙인다 — 입력한 자료가 있어 물어야 하면 true 를 돌려주고
@@ -283,6 +307,31 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
         if (SelectedSite is SurveySite cur && !list.Contains(cur) && cur.Project == Project && IsEcoStatus(Project) && !IsOfCurrentTaxon(cur)) list.Add(cur);
         return list;
     }
+
+    /// <summary>
+    /// 지점 칸 ↓ 후보(2026-10-18 (3) 결정 G1) — 지금 목록(대분류·조사연도·생태현황은 분류군으로 거른 것)에서
+    /// 친 글자로 거르고 같은 이름 → 앞부분 일치 → 포함 순으로 줄 세운다(같은 순위는 목록 순 · D1 과 같은 순위 함수).
+    /// 지점명과 화면 표기(`곡교천4 (St.4)`) 가운데 더 잘 맞는 쪽으로 본다. 글자가 없으면 목록 전부.
+    /// </summary>
+    public List<SurveySite> SiteCandidates(string? query)
+    {
+        var pool = ChoicePool();
+        var q = query?.Trim();
+        if (string.IsNullOrEmpty(q)) return pool;
+        int Rank(SurveySite s)
+        {
+            var a = Helpers.SpeciesNameRank.Of(s.SiteName, q);
+            var b = Helpers.SpeciesNameRank.Of(DisplayOf(s), q);
+            return a < 0 ? b : b < 0 ? a : Math.Min(a, b);
+        }
+        return pool.Select(s => (s, r: Rank(s))).Where(x => x.r >= 0).OrderBy(x => x.r).Select(x => x.s).ToList();
+    }
+
+    /// <summary>지점 콤보 항목을 이 후보로 바꿔 보인다(G1 · 선택은 그대로).</summary>
+    public void ShowSiteChoices(IEnumerable<SurveySite> sites) => SetChoices(sites, null);
+
+    /// <summary>지점 콤보 항목을 지금 목록 전부로 되돌린다(G1).</summary>
+    public void RestoreSiteChoices() => SetChoices(ChoicePool(), null);
 
     /// <summary>
     /// 대분류가 바뀌면 **선택된 지점을 즉시 해제**한다.

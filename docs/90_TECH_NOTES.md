@@ -496,6 +496,15 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 - **E3** — `SurveyMeta.CurrentTaxon`(`ApplyTaxonForm` 이 넣음) · 생태현황 `RefreshSiteOptions` 는 `Taxa` 에 지금 분류군이 있는 지점만(Taxa 가 비면 모두).
   친 글자 해석도 그 목록 안에서(세션 복원은 대분류 전체 — 다른 탭에서 불러와도 지점을 되찾게). 고른 지점이 목록 밖이면 콤보 항목에 덧붙여 `(조류 지점)` 표시.
 - **E4** — [새 지점](`SessionService.StartNewSite`)은 압정 상태를 보지 않는다(설계 · CLAUDE.md §7).
+- **G1 지점 칸 ↓ (2026-10-18 (3))** — ↑↓·PgUp/PgDn 은 콤보 기본 동작(닫힌 채 전체 목록에서 바로 고름 — `진위` ↓↓ → `삽교천`) 대신
+  `SurveyOverviewControl.MoveCandidate` 가 처리한다: 처음 ↓ 에서 `SurveyMeta.SiteCandidates(친 글자)`(지금 목록을 같음 → 앞부분 → 포함 순 ·
+  `SpeciesNameRank` · 지점명과 표기 중 잘 맞는 쪽 · 글자가 없으면 전부)로 콤보 항목을 바꿔 펼치고, 강조만 옮긴다(선택 보류 그대로 — 조사개황은 안 바뀜).
+  Enter·Tab = 강조된 후보로 확정(E2 ②) · Esc = 목록만 닫고 친 글자로 · 글자를 더 치면 친 글자로 돌아가 잇는다 · 목록이 닫히면 항목을 지금 목록 전부로 되돌린다.
+  ⚠ 콤보 자체 거르기(`IsFilteringEnabled`)를 끄면 Telerik 이 **치는 글자를 첫 항목 표기로 자동 완성**한다(`진위천1` → `진위천15` · 하네스에서 확인) —
+  `IsTextSearchEnabled=False` 를 함께 꺼야 한다. 두 가지를 끄고 거르기·강조는 앱이 한다.
+  ⚠ 강조는 콤보 `SelectedItem` 을 코드로 바꾸면 안 된다 — 양방향 바인딩이 (선택 보류 중이라 그대로인) `SelectedSiteChoice` 를 다시 읽어 곧바로 되돌린다.
+  `SurveyMeta.PreviewSiteChoice` 가 보류 중에만 쓰는 '강조 후보'를 두고 `SelectedSiteChoice` 가 그것을 돌려준다(조사개황 `SelectedSite` 는 그대로 · 보류가 풀리면 지움).
+- **G2** — 관찰형 3종 보고서 조사개황은 하천유형 행이 없다(`WriteSurveyMeta(m, null, withRiverType: false)` · 14행). 각주에서도 '하천유형'을 뺌. 일괄입력용·다른 보고서는 그대로.
 
 ## 7. 개발 환경 주의
 
