@@ -133,7 +133,7 @@ public sealed class SessionArchive : ISingletonService
                 }
 
                 // ⚠ 세션 키는 파일 이름이 된다 — zip 안의 값을 그대로 믿지 않는다(경로 문자·빈 값이면 조사개황으로 다시 만든다).
-                var key = SafeKey(s.SessionId) ?? SurveySession.MakeId(s.Meta.Project, s.Meta.YearChsu, s.Meta.Site);
+                var key = SafeKey(s.SessionId) ?? SurveySession.MakeId(s.Meta.Project, s.Meta.YearChsu, SiteKeys.Of(s.Meta.Project, s.Meta.Site, s.Meta.River));
                 s.SessionId = key;
                 var name = $"{s.Meta.Site ?? "(지점 없음)"} · {s.Meta.YearChsu ?? "(차수 없음)"}";
 

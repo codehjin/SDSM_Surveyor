@@ -30,10 +30,12 @@
 ```
 App.xaml(.cs)          진입점(Windows11 테마 + DI)
 InjectableServices/    DI 마커 인터페이스
-Helpers/               ChosungHelper (초성 검색)
-Behaviors/             ChosungFilteringBehavior · IntegerInput · NestedWheelScroll(바깥 스크롤 휠 넘김)
+Helpers/               SpeciesNameRank(후보 순서 같음→앞부분→포함 · D1) · GridSpeciesCommit · GridRowPicker 등 (초성 검색은 SDSM_Core.Helpers.ChosungHelper)
+Behaviors/             ChosungFilteringBehavior · ExactNameHighlightBehavior(그리드 국명 칸 Enter = 똑같은 이름만 · D1)
+                       · IntegerInput · NestedWheelScroll(바깥 스크롤 휠 넘김)
                        · DropDownWheelGuard(목록 열린 채 휠 = 목록만 · 밖이면 닫기 · 닫힌 콤보 휠로 값 안 바뀜 · 앱 전체)
-Models/                *Entry / *SpeciesEntry (화면 행 모델) · FormChoices(양식 선택지 출처 · C-4)
+Models/                *Entry / *SpeciesEntry (화면 행 모델) · FormChoices(양식 선택지 출처 · C-4 · D5~D7)
+                       · SiteKeys(세션 키·파일명의 지점 자리 · 조사연도 · D4)
 Data/                  ISpeciesListProvider · SpeciesListProvider(시드)
                        · ISiteListProvider · SiteListProvider(지점 마스터) · SiteOrdering(정렬·St.번호 · C-7) · RegionTable(권역 · C-6)
                        · ISessionStore · SessionStore(세션 파일) · SessionService(화면↔세션) · SessionArchive(자료함 zip · C-9)
@@ -96,12 +98,16 @@ Views/UserControls/    분류군별 EntryControl · FillPanel(화면 전체 스�
 
 ## 5. 종명 · 초성 검색
 - 종명 입력은 `RadAutoCompleteBox` + `ChosungFilteringBehavior`(초성 `ㅋㅈㄴ` + 부분일치). Telerik `IFilteringBehavior.FindMatchingItems` 구현(검증됨).
+- **국명 칸 Enter(2026-10-18 결정 D1)** — ① 친 글자와 똑같은 이름 → 그 종 ② 방향키·마우스로 고른 후보 → 그 종 ③ 그 밖 → 친 글자 그대로(목록 밖 국명 경고).
+  첫 후보로 자동 치환하지 않는다(`ExactNameHighlightBehavior`). 후보 순서는 같은 이름 → 앞부분 일치 → 포함(`SpeciesNameRank` · 빠른추가도 같음).
 - **종명은 원문 그대로**(`Trim`만, 대소문자·띄어쓰기 보존; CLAUDE 규칙). 길드/보호종 코드성 값만 정규화.
 - 종목록형은 모델 기반 목록(`FishSpeciesList`/`BenthosSpeciesList`), **관찰형은 `ObservedSpecies`**(국명·학명·목·과·보호종·교란종).
 - `SpeciesListProvider`는 `species.json`을 읽는다(AppData 교체본 → 실행폴더 번들 순). 파일이 없을 때만 최소 시드로 대체.
   - 어류·저서동물 = 관리자 마스터 내보내기, **관찰형 3종 = 국가생물종목록**(`tools\build_species_json.py`로 생성).
   - 구형 `species.json`(관찰형이 국명 문자열 배열)도 하위 호환으로 읽힌다.
-- 관찰형은 종 선택·붙여넣기 시 **학명·목·과가 자동으로 채워지되 잠기지 않는다**(조사자가 덮어쓸 수 있음).
+- 관찰형은 종 선택·붙여넣기 시 학명·목·과가 자동으로 채워진다. **학명은 종목록대로(2026-10-18 결정 D2)** —
+  종목록 국명이면 학명 칸이 잠기고, 붙여넣기·직접 수정·예전 세션 불러오기에서 다른 학명이 들어오면 종목록 학명으로 바꾸고
+  "학명 N건을 종목록대로 바꿨습니다" 로 알린다(`ScientificNameRule`). **목록 밖 국명만 학명을 직접 입력**한다. 목·과는 덮어쓸 수 있다.
   보호종(멸종위기·천연기념물)과 **생태계교란생물은 의미가 반대이므로 표기·색을 분리**한다.
 
 ---
@@ -128,7 +134,12 @@ Views/UserControls/    분류군별 EntryControl · FillPanel(화면 전체 스�
   · 대분류가 비면 지점 목록은 **빈 목록**이고 드롭다운이 **잠긴다**
   · 대분류를 바꾸면 **선택 지점·하천·사업장·좌표를 즉시 비운다**
   · `Resolve()` 는 **그 대분류 안에서만** 찾는다(다른 대분류로 넘어가지 않는다)
-- 조사자는 **등록된 지점만 선택**(`sites.json` 기반 드롭다운). `ST1`/`St.1`/`st 1` 입력 → **`곡교천1`로 정규화** 저장, 화면에는 `곡교천1 (St.1)` 병기.
+- **생태현황 지점(2026-10-18 결정 D4)** — `sites.json` 에 149곳(어류 118 · 조류 28 · 포유류 3, `Taxa` = 기록된 분류군).
+  원천은 `..\SDSM\docs\_ecostatus_sites_extracted.md` §3(§8·§9 판정) · `tools/build_sites_json.py --ecostatus`. 좌표·하천명 이상은 `Desc` 의 `보완 필요: …`.
+  같은 이름이 해마다 다른 장소면 `ValidFrom`/`ValidTo` 로 나눈다(진위천1~5·오산천2) — 목록은 **조사연도(없으면 연도차수 앞 네 자리)로 거르고**, 연도를 모르면 `[2023~2024]` 구간을 병기한다.
+  생태현황은 **목록 밖 지점을 직접 입력**한다(지점명·하천명·좌표 손입력, 권역은 표에 없으면 목록에서 고름, '목록 밖 지점' 표시).
+  지점명이 비어도 하천명(대상지명)이 있으면 저장된다 — 세션 키·파일명의 지점 자리 = `하천명(지점명 없음)`(`SiteKeys`). **방류하천은 목록에서만** 고른다.
+- 조사자는 방류하천에서 **등록된 지점만 선택**(`sites.json` 기반 드롭다운). `ST1`/`St.1`/`st 1` 입력 → **`곡교천1`로 정규화** 저장, 화면에는 `곡교천1 (St.1)` 병기.
   미등록 값을 치면 지우지 않고 경고만 띄운다(오타를 조사자가 알아채도록).
 - 지점을 고르면 **하천명·사업장·좌표**가 자동으로 채워지고 [지도] 버튼으로 기본 브라우저에서 위치를 연다.
 - `sites.json` 은 제출 엑셀의 `조사지점` 시트에서 만든다(`tools/build_sites_json.py`).

@@ -8,6 +8,7 @@
              xmlns:core="clr-namespace:SDSM_Surveyor_App.Behaviors"
              xmlns:ctrl="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
              xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
+             xmlns:models="clr-namespace:SDSM_Surveyor_App.Models"
              mc:Ignorable="d" d:DesignWidth="1224" d:DesignHeight="540"
              d:DataContext="{d:DesignInstance vm:MammalEntryViewModel}">
 
@@ -94,12 +95,18 @@
                             <telerik:RadAutoCompleteBox.FilteringBehavior>
                                 <core:ChosungFilteringBehavior/>
                             </telerik:RadAutoCompleteBox.FilteringBehavior>
+                            <!-- D1(2026-10-18) : 똑같은 이름만 강조 — Enter 가 첫 후보로 바꾸지 않는다 -->
+                            <telerik:RadAutoCompleteBox.HighlightBehavior>
+                                <core:ExactNameHighlightBehavior/>
+                            </telerik:RadAutoCompleteBox.HighlightBehavior>
                         </telerik:RadAutoCompleteBox>
                     </DataTemplate>
                 </telerik:GridViewDataColumn.CellEditTemplate>
             </telerik:GridViewDataColumn>
 
-            <telerik:GridViewDataColumn Header="학명" Width="150" DataMemberBinding="{Binding SpeciesEn}"/>
+            <telerik:GridViewDataColumn Header="학명" Width="150" DataMemberBinding="{Binding SpeciesEn}"
+                                        IsReadOnlyBinding="{Binding IsScientificNameLocked}"
+                                        ToolTipService.ToolTip="종목록에 있는 국명은 학명이 종목록대로 들어갑니다(고칠 수 없음) · 목록 밖 국명만 직접 입력(D2)"/>
             <telerik:GridViewDataColumn Header="목" Width="78" DataMemberBinding="{Binding OrderKo}"/>
             <telerik:GridViewDataColumn Header="과" Width="78" DataMemberBinding="{Binding FamilyKo}"/>
             <telerik:GridViewDataColumn Header="관찰지유형" Width="104" DataMemberBinding="{Binding ObservationSite}"/>

@@ -56,6 +56,7 @@ public partial class BirdEntry : ObservableObject, IObservationRow
     [NotifyPropertyChangedFor(nameof(IsInvasive))]
     [NotifyPropertyChangedFor(nameof(ProtectionText))]
     [NotifyPropertyChangedFor(nameof(IsUnlisted))]
+    [NotifyPropertyChangedFor(nameof(IsScientificNameLocked))]
     private ObservedSpecies? _matchedSpecies;
 
     /// <summary>그리드 국명 편집기(자동완성)에서 고른 종. 고르면 국명·학명·목·과가 함께 채워진다.</summary>
@@ -90,6 +91,12 @@ public partial class BirdEntry : ObservableObject, IObservationRow
 
     /// <summary>법정보호종(멸종위기Ⅰ·Ⅱ급/천연기념물).</summary>
     public bool IsProtected => MatchedSpecies?.IsProtected ?? false;
+
+    /// <summary>학명 칸 잠금 — 종목록에 있는 국명은 학명을 종목록대로(2026-10-18 결정 D2). 화면용(저장 안 함).</summary>
+    [JsonIgnore] public bool IsScientificNameLocked => ScientificNameRule.IsLocked(this);
+
+    /// <summary>개체수·흔적이 비었거나 0 — 일괄입력용에는 그대로 내고 저장 때 알린다(D3). 화면용(저장 안 함).</summary>
+    [JsonIgnore] public bool HasNoCount => (IndividualCount ?? 0) == 0;
 
     /// <summary>생태계교란생물. 보호종과 의미가 반대이므로 표기를 섞지 않는다.</summary>
     public bool IsInvasive => MatchedSpecies?.IsInvasive ?? false;

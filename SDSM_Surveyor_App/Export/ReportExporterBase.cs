@@ -143,13 +143,13 @@ internal static class ReportExporterBase
     /// 세션 정보(대분류·연도차수·지점)를 파일명에 그대로 반영한다.
     /// </summary>
     public static string ReportFileName(SurveyMeta m, string taxon) =>
-        $"{FileToken(m.Project)}{FileToken(m.YearChsu)}{FileToken(m.Site)}{taxon}_조사결과.xlsx";
+        $"{FileToken(m.Project)}{FileToken(m.YearChsu)}{FileToken(m.SiteKey)}{taxon}_조사결과.xlsx";
 
     /// <summary>
     /// 일괄입력용 파일명 — `대분류_지점_분류군_DB_v1.xlsx`.
     /// ⚠ 관리자 Import 가 **파일명 키워드로 대분류를 판별**한다. 형식을 바꾸지 말 것.
     /// </summary>
-    public static string BulkFileName(SurveyMeta m, string taxon) => BulkFileName(m.Project, m.Site, taxon);
+    public static string BulkFileName(SurveyMeta m, string taxon) => BulkFileName(m.Project, m.SiteKey, taxon);   // 지점 자리 = SiteKey(D4 ②)
 
     /// <summary>위와 같은 이름 — 세션 목록 항목으로 미리 계산할 때(C-8 일괄 출력).</summary>
     public static string BulkFileName(string? project, string? site, string taxon)

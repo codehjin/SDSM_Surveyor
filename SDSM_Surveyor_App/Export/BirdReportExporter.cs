@@ -52,15 +52,15 @@ public static class BirdReportExporter
 
         foreach (var e in vm.Entries)
         {
-            if (string.IsNullOrWhiteSpace(e.SpeciesKo) || (e.IndividualCount ?? 0) <= 0) continue;  // 관측된 종만
+            if (string.IsNullOrWhiteSpace(e.SpeciesKo)) continue;   // 국명이 있는 행은 모두(D3 · 개체수 빈칸은 빈칸)
 
             SiteColumns.Write(ws, row, vm.Meta);
             Str(ws, row, 4, e.OrderKo);
             Str(ws, row, 5, e.FamilyKo);
             ws.Cells[row, 6].SetValue(e.SpeciesKo);
             Str(ws, row, 7, e.SpeciesEn);
-            Num(ws, row, 8, e.IndividualCount!.Value);
-            Str(ws, row, 9, e.MigratoryType);
+            Num(ws, row, 8, (double?)e.IndividualCount);
+            Str(ws, row, 9, Models.FormChoices.MigratoryCode(e.MigratoryType));   // 출력은 코드(D5)
             Str(ws, row, 10, e.Category);
             Str(ws, row, 11, e.CategoryDetail);
             Str(ws, row, 12, e.HabitatType);
@@ -95,7 +95,7 @@ public static class BirdReportExporter
         var m = vm.Meta;
 
         var observed = vm.Entries
-            .Where(e => !string.IsNullOrWhiteSpace(e.SpeciesKo) && (e.IndividualCount ?? 0) > 0)
+            .Where(e => !string.IsNullOrWhiteSpace(e.SpeciesKo))   // 개체수가 빈 행도 출현종(D3)
             .ToList();
 
         int row = 0;
@@ -108,7 +108,7 @@ public static class BirdReportExporter
             "연도차수", "하천명", "조사일",
             "총종수", "총개체수", "법정보호종 수", "법정보호종 목록", "생태계교란생물"
         };
-        headers.AddRange(types.Select(t => $"{t} 개체수"));
+        headers.AddRange(Models.FormChoices.MigratoryType.Select(c => $"{c.Label} 개체수"));   // 양식 코드(D5)
         headers.Add("기타 도래유형 개체수");
 
         int headerRow = row;
@@ -131,10 +131,10 @@ public static class BirdReportExporter
         int col = 12;
         foreach (var t in types)
         {
-            Num(ws, row, col, observed.Where(e => e.MigratoryType == t).Sum(e => e.IndividualCount ?? 0));
+            Num(ws, row, col, observed.Where(e => Models.FormChoices.MigratoryCode(e.MigratoryType) == t).Sum(e => e.IndividualCount ?? 0));
             col++;
         }
-        Num(ws, row, col, observed.Where(e => string.IsNullOrWhiteSpace(e.MigratoryType) || !types.Contains(e.MigratoryType))
+        Num(ws, row, col, observed.Where(e => string.IsNullOrWhiteSpace(e.MigratoryType) || !types.Contains(Models.FormChoices.MigratoryCode(e.MigratoryType)))
                                   .Sum(e => e.IndividualCount ?? 0));
 
         int lastCol = headers.Count - 1;

@@ -1,3 +1,4 @@
+﻿using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -82,7 +83,7 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
         var q = QuickSearch?.Trim();
         ReplaceFiltered(string.IsNullOrEmpty(q)
             ? SpeciesListSource
-            : SpeciesListSource.Where(s => ChosungHelper.IsMatch(SpeciesKoOf(s), q)).Take(80));
+            : Helpers.SpeciesNameRank.Order(SpeciesListSource, SpeciesKoOf, q).Take(80));   // 같음 → 앞부분 → 포함(D1)
     }
 
     /// <summary>드롭다운 내용을 통째로 바꾼다. 알림은 한 번(Reset)만 낸다 — 항목마다 내면 수백 번 다시 그린다.</summary>
@@ -404,6 +405,15 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
         foreach (var e in empties) Rows.Remove(e);
     }
 
+    /// <summary>붙여넣기 한 번에서 종목록 학명으로 바꾼 건수(D2 · 관찰형 <c>CreateRowFromCells</c> 가 센다).</summary>
+    protected int PasteScientificFixed;
+
+    /// <summary>관찰형 — 학명을 종목록대로 바꿨음을 알린다(D2 · 직접 수정·불러오기).</summary>
+    protected void NotifyScientificFixed(int n)
+    {
+        if (n > 0) WeakReferenceMessenger.Default.Send(new Messengers.NotifyMessage(($"{NoticeTaxon} {ScientificNameRule.Notice(n)}", false)));
+    }
+
     /// <summary>
     /// 엑셀에서 복사한 여러 줄을 그리드 행으로 추가(그리드 Ctrl+V에서 호출).
     /// RadGridView 기본 붙여넣기가 커스텀 편집기 컬럼과 충돌해 한 칸에 뭉치므로 직접 파싱한다.
@@ -415,6 +425,7 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
 
         int pasted = 0, dup = 0;
         var touched = new List<TEntry>();
+        PasteScientificFixed = 0;
 
         var lines = clipboard.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
         foreach (var line in lines)
@@ -456,6 +467,7 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
             : DuplicateMode == DuplicateSpeciesMode.Merge
                 ? $"붙여넣기 {pasted}행 · 같은 종 {dup}건 합산"
                 : $"붙여넣기 {pasted}행 · 이미 있는 종 {dup}건";
+        if (PasteScientificFixed > 0) label += " · " + ScientificNameRule.Notice(PasteScientificFixed);   // D2
         MarkJustAdded(touched, label);
     }
 

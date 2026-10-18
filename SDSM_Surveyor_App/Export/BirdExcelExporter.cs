@@ -35,7 +35,7 @@ public static class BirdExcelExporter
         int r = FirstRow;
         foreach (var e in vm.Entries)
         {
-            if (string.IsNullOrWhiteSpace(e.SpeciesKo) || (e.IndividualCount ?? 0) <= 0) continue;  // 관측된 기록만
+            if (string.IsNullOrWhiteSpace(e.SpeciesKo)) continue;   // 국명이 있는 행은 모두(D3 · 빈칸은 빈칸 · 0 은 0)
 
             void Set(int col, string? val) => BulkTemplate.Put(ws, r, col, val);
 
@@ -50,7 +50,7 @@ public static class BirdExcelExporter
             BulkTemplate.Put(ws, r, 15, e.Lat);
             BulkTemplate.Put(ws, r, 16, e.Lng);
             BulkTemplate.Put(ws, r, 18, (double?)e.IndividualCount);
-            Set(19, e.MigratoryType);
+            Set(19, Models.FormChoices.MigratoryCode(e.MigratoryType));   // 출력은 코드(D5 · 이름이 남아 있어도 코드로)
             Set(20, e.Category);
             Set(21, e.CategoryDetail);
             Set(22, e.HabitatType);

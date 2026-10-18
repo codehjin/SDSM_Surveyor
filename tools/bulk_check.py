@@ -136,6 +136,24 @@ def meta_rows(meta):
             9: meta.get("Lng"), 10: meta.get("Weather"), 11: meta.get("SurveyAgency"), 12: meta.get("Surveyor")}
 
 
+MIG_CODES = ("RES", "SV", "WV", "PM")
+MIG_NAMES = {"텃새": "RES", "여름철새": "SV", "겨울철새": "WV", "통과철새": "PM", "나그네새": "PM"}
+
+
+def mig_code(v):
+    """조류 도래유형 → 양식 코드(앱 FormChoices.MigratoryCode 와 같은 규칙 · D5). 모르는 값은 그대로."""
+    if v is None or not str(v).strip():
+        return None
+    v = str(v).strip()
+    for c in MIG_CODES:
+        if v.upper() == c:
+            return c
+    if v in MIG_NAMES:
+        return MIG_NAMES[v]
+    head = re.split(r"[:· (]+", v)[0] if v else ""
+    return head.upper() if head.upper() in MIG_CODES else v
+
+
 def check_column(ws, col, expected, label):
     """전치 양식 : {0-based 행: 기대값} 을 한 열(1-based col)에서 대조."""
     bad = []
@@ -157,10 +175,14 @@ def check_files(session_path, folder, tdir):
     meta, taxa = d["Meta"], d["Taxa"]
     m = meta_rows(meta)
 
-    # 파일명 형식 : 대분류_지점_분류군_DB_v1.xlsx
+    # 파일명 형식 : 대분류_지점_분류군_DB_v1.xlsx — 지점 자리는 앱 SiteKeys.Of 와 같다
+    #   (생태현황에서 지점명이 비고 하천명만 있으면 `하천명(지점명 없음)` · 2026-10-18 D4)
+    site_key = (meta.get("Site") or "").strip()
+    if not site_key and (meta.get("Project") or "").strip() == "생태현황" and (meta.get("River") or "").strip():
+        site_key = f"{meta['River'].strip()}(지점명 없음)"
     for f in glob.glob(os.path.join(folder, "*.xlsx")):
         n = os.path.basename(f)
-        check(re.fullmatch(rf"{meta['Project']}_{meta['Site']}_[^_]+_DB_v1\.xlsx", n) is not None, f"파일명 형식 {n}")
+        check(re.fullmatch(rf"{re.escape(meta['Project'])}_{re.escape(site_key)}_[^_]+_DB_v1\.xlsx", n) is not None, f"파일명 형식 {n}")
 
     # 어류 ────────────────────────────────────────────────────────────
     if file_for(folder, "어류") is None:
@@ -250,14 +272,16 @@ def check_files(session_path, folder, tdir):
     species_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "SDSM_Surveyor_App", "species.json")
     catalog = json.load(open(species_json, encoding="utf-8-sig"))
     latin = {k: {sp["SpeciesKo"]: sp.get("SpeciesEn") for sp in catalog.get(k, [])} for k in ("Bird", "Mammal", "Amphibian")}
+    # D3(2026-10-18) : 국명이 있는 관찰 행은 개체수·흔적이 비거나 0 이어도 모두 나간다(빈칸=빈칸 · 0=0).
+    has_name = lambda r: bool((r.get("SpeciesKo") or "").strip())
     obs = {
-        "조류": ("Bird", "조류", "bird.xlsx", lambda r: (r.get("IndividualCount") or 0) > 0,
+        "조류": ("Bird", "조류", "bird.xlsx", has_name,
                {6: "SpeciesKo", 7: "SpeciesEn", 8: "Feature", 15: "Lat", 16: "Lng", 18: "IndividualCount", 19: "MigratoryType",
                 20: "Category", 21: "CategoryDetail", 22: "HabitatType", 24: "Note"}, 23),
-        "포유류": ("Mammal", "포유류", "mammal.xlsx", lambda r: sum((r.get(f"Trace{i}") or 0) for i in range(1, 13)) > 0,
+        "포유류": ("Mammal", "포유류", "mammal.xlsx", has_name,
                 {6: "SpeciesKo", 7: "SpeciesEn", 8: "Feature", 15: "Lat", 16: "Lng", 18: "ObservationSite",   # 양식 머리글대로 S열
                  **{18 + i: f"Trace{i}" for i in range(1, 13)}, 32: "Note"}, 31),
-        "양서파충류": ("AmphibianReptile", "양서파충류", "amphrep.xlsx", lambda r: sum((r.get(f"Trace{i}") or 0) for i in range(1, 7)) > 0,
+        "양서파충류": ("AmphibianReptile", "양서파충류", "amphrep.xlsx", has_name,
                   {6: "SpeciesKo", 7: "SpeciesEn", 8: "Feature", **{8 + i: f"Trace{i}" for i in range(1, 7)}, 21: "Lat", 22: "Lng",
                    24: "MajorCategory", 25: "MiddleCategory", 27: "Note"}, 26),
     }
@@ -284,8 +308,11 @@ def check_files(session_path, folder, tdir):
             want = {2: meta.get("YearChsu"), 3: date8(meta.get("SurveyDate")), 4: meta.get("Weather"), 5: meta.get("River"),
                     6: meta.get("Site"), surveyor_col + 1: meta.get("Surveyor")}
             want.update({c + 1: r.get(k) for c, k in cols.items()})
-            if r.get("SpeciesEn") is None:
+            # D2 : 종목록 국명이면 학명은 종목록 학명, 목록 밖 국명만 세션 값
+            if names.get(r["SpeciesKo"]):
                 want[8] = names.get(r["SpeciesKo"])
+            if key == "Bird":
+                want[20] = mig_code(r.get("MigratoryType"))   # D5 : 출력은 코드
             for c, v in want.items():
                 if norm(ws.cell(xr, c).value) != norm(v):
                     bad.append((xr, c, v, ws.cell(xr, c).value))

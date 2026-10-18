@@ -27,7 +27,8 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
     }
 
 
-    public string[] MigratoryTypes { get; } = { "텃새", "여름철새", "겨울철새", "나그네새", "길잃은새" };
+    /// <summary>도래유형 양식 코드(D5 · RES·SV·WV·PM). 화면 글자·선택지는 <see cref="FormChoices.MigratoryType"/>.</summary>
+    public string[] MigratoryTypes { get; } = FormChoices.MigratoryType.Select(c => c.Value).ToArray();
 
     /// <summary>관찰 행. 기반 클래스의 <c>Rows</c> 를 화면 바인딩 이름으로 노출한다.</summary>
     public RadObservableCollection<BirdEntry> Entries => Rows;
@@ -42,7 +43,7 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
         {
             SpeciesKo = ko,
             IndividualCount = Pi(Cell(cells, 1)),
-            MigratoryType = Cell(cells, 5),
+            MigratoryType = FormChoices.MigratoryCode(Cell(cells, 5)),   // 이름·코드 어느 쪽을 붙여넣어도 코드로(D5)
             Category = Cell(cells, 6),
             CategoryDetail = Cell(cells, 7),
             HabitatType = Cell(cells, 8),
@@ -52,7 +53,10 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
             Note = Cell(cells, 12),
         };
         entry.ApplySpecies(SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko));
-        entry.SpeciesEn = Cell(cells, 2) ?? entry.SpeciesEn;   // 붙여넣은 값이 있으면 우선
+        // 학명(D2) — 종목록에 있는 국명은 종목록대로. 붙여넣은 학명이 다르면 바꾸고 센다. 목록 밖 국명만 붙여넣은 학명을 쓴다.
+        var pastedEn = Cell(cells, 2);
+        if (ScientificNameRule.IsLocked(entry)) { if (ScientificNameRule.Differs(entry, pastedEn)) PasteScientificFixed++; }
+        else entry.SpeciesEn = pastedEn ?? entry.SpeciesEn;
         entry.OrderKo = Cell(cells, 3) ?? entry.OrderKo;
         entry.FamilyKo = Cell(cells, 4) ?? entry.FamilyKo;
         return entry;
@@ -115,7 +119,7 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
             if (saved is not null)
             {
                 StatusText = $"보고서용 엑셀 완료 · {System.IO.Path.GetFileName(saved)}";
-                WeakReferenceMessenger.Default.Send(new NotifyMessage(("보고서용 엑셀을 내보냈습니다.", true)));
+                NotifyExported("보고서용 엑셀을 내보냈습니다.");
             }
         }
         catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
@@ -131,7 +135,7 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
             if (saved is not null)
             {
                 StatusText = $"일괄입력용 완료 · {System.IO.Path.GetFileName(saved)}";
-                WeakReferenceMessenger.Default.Send(new NotifyMessage(("일괄입력용 엑셀을 내보냈습니다.", true)));
+                NotifyExported("일괄입력용 엑셀을 내보냈습니다.");
             }
         }
         catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
@@ -162,5 +166,19 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
     protected override void OnRowPropertyChanged(BirdEntry row, string? propertyName)
     {
         if (propertyName == nameof(BirdEntry.SpeciesKo)) ResolveSpecies(row);
+        else if (propertyName == nameof(BirdEntry.SpeciesEn) && ScientificNameRule.Enforce(row)) NotifyScientificFixed(1);   // D2 직접 수정
+    }
+
+    // ── 저장·내보내기 알림(2026-10-18 결정 D3 · 학명 D2) ──
+    protected override string NoticeTaxon => "조류";
+
+    /// <summary>국명이 있는데 개체수·흔적이 비었거나 0 인 행(D3 — 내보내되 알린다).</summary>
+    public override int EmptyObservationRows => Entries.Count(e => !string.IsNullOrWhiteSpace(e.SpeciesKo) && e.HasNoCount);
+
+    /// <summary>도래유형이 양식 코드(RES·SV·WV·PM)가 아닌 행(D5 · 지우지 않는다).</summary>
+    public override string? OutOfFormNotice()
+    {
+        var bad = Entries.Select(e => FormChoices.OutOfForm(e.MigratoryType, FormChoices.MigratoryType)).Where(v => v is not null).Distinct().ToList();
+        return bad.Count == 0 ? null : $"조류 도래유형 {string.Join(",", bad)}(양식에 없는 값)";
     }
 }

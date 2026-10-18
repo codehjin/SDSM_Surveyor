@@ -12,6 +12,10 @@
 사용법:
     python tools/build_sites_json.py
     python tools/build_sites_json.py --input <폴더> --output <sites.json> --version sites-20260820
+
+생태현황 지점(2026-10-18 결정 D4) — 방류하천 항목은 그대로 두고 생태현황만 다시 만든다:
+    python tools/build_sites_json.py --ecostatus ../SDSM/docs/_ecostatus_sites_extracted.md
+        --version sites-20261018 --csv tools/ecostatus_sites_20261018.csv      (한 줄로 친다)
 """
 from __future__ import annotations
 
@@ -142,13 +146,253 @@ def site_group(river: str | None, name: str) -> str | None:
     return river
 
 
+# ── 생태현황 지점 (2026-10-18 결정 D4 ①) ──────────────────────────────────────────────
+# 원천: ..\SDSM\docs\_ecostatus_sites_extracted.md
+#   §3 추출 목록 149개(어류 118 · 조류 28 · 포유류 3) = 등록 시드(§9 · 2026-09-06 판정)
+#   §4(가) 표 = '여러 값' 지점의 기록별 좌표 · §8-2 Project 로만 구분(개명 없음) · §8-3 연도별 별개 지점
+# 방류하천 지점은 건드리지 않는다 — 기존 sites.json 의 방류하천 항목을 그대로 옮겨 쓴다.
+# 이상 항목(§4·§7)은 등록을 막지 않고 Desc 에 '보완 필요: …' 로 적는다(값은 조사자료 그대로 · §9).
+
+ECO = "생태현황"
+SAME_PLACE_M = 300          # §7-1 : 300m 이내 = 같은 장소
+ECO_TAXA_ORDER = {"어류": 0, "조류": 1, "포유류": 2}
+# §4(라) : 하천명 칸에 하천이 아닌 값(어류 0 · 호소·공원 / 조류 현장 메모·지명·시설)
+NON_RIVER = {"0", "배다리생태공원", "신정저수지", "송악저수지", "도고저수지", "아산호", "삽교호",
+             "하천변 제방공사중", "진위천 합류부", "동탄 여울공원", "기흥호수", "설화산"}
+REGION_NAMES = {"천안", "평택", "온양", "용인산단"}   # §4(라)·(사) : 권역명
+UNDECIDED_PAIRS = [("황구지천", "황구지천1")]           # §8-5 #4 미판정
+
+
+def _md_section(text: str, head: str) -> list[str]:
+    """`### 3-1.` 처럼 시작하는 절의 줄들(다음 같은 수준 머리글 전까지)."""
+    lines = text.splitlines()
+    start = next(i for i, l in enumerate(lines) if l.startswith(head))
+    level = len(head) - len(head.lstrip("#"))
+    out = []
+    for l in lines[start + 1:]:
+        if l.startswith("#") and len(l) - len(l.lstrip("#")) <= level:
+            break
+        out.append(l)
+    return out
+
+
+def _md_rows(lines: list[str]) -> list[list[str]]:
+    """마크다운 표 본문 행(머리글·구분선 제외)."""
+    rows, seen_sep = [], False
+    for l in lines:
+        if not l.startswith("|"):
+            if seen_sep and rows:
+                break
+            continue
+        cells = [c.strip() for c in l.strip().strip("|").split("|")]
+        if all(re.fullmatch(r":?-+:?", c) for c in cells if c):
+            seen_sep = True
+            continue
+        if seen_sep:
+            rows.append(cells)
+    return rows
+
+
+def _num(t: str) -> float | None:
+    t = t.replace("*", "").replace(",", "").strip()
+    try:
+        return float(t)
+    except ValueError:
+        return None
+
+
+def _year(yc: str) -> int | None:
+    m = re.match(r"\s*(\d{4})", yc or "")
+    return int(m.group(1)) if m else None
+
+
+def _dist_m(a: tuple, b: tuple) -> float:
+    import math
+    la1, lo1, la2, lo2 = map(math.radians, (a[0], a[1], b[0], b[1]))
+    h = math.sin((la2 - la1) / 2) ** 2 + math.cos(la1) * math.cos(la2) * math.sin((lo2 - lo1) / 2) ** 2
+    return 6371008.8 * 2 * math.asin(math.sqrt(h))
+
+
+def _counts(cell: str) -> list[tuple[str, int]]:
+    """`천안(139) / 평택(35)` → [(천안,139),(평택,35)] — 기록 수 많은 순."""
+    out = []
+    for part in cell.split("/"):
+        m = re.match(r"\s*(.+?)\s*\((\d+)\)\s*$", part)
+        if m:
+            out.append((m.group(1), int(m.group(2))))
+        elif part.strip():
+            out.append((part.strip(), 0))
+    return sorted(out, key=lambda x: -x[1])
+
+
+def _group_of(name: str) -> str | None:
+    """조사권역(SiteGroup) — 지점명 접두어(§3-1 : 접두어는 하천이 아니라 조사권역). `1지점` 류는 없음."""
+    if re.fullmatch(r"\d+지점", name):
+        return None
+    g = re.sub(r"\d+$", "", name)
+    return g or None
+
+
+def _river_flags(values: list[tuple[str, int]]) -> list[str]:
+    flags = []
+    if len(values) > 1:
+        flags.append("하천명 여러 개(" + " · ".join(f"{v} {n}건" for v, n in values) + ")")
+    main = values[0][0] if values else None
+    if main in NON_RIVER or main in REGION_NAMES or (main or "").isdigit():
+        flags.append(f"하천명(원본 값 '{main}')")
+    return flags
+
+
+def _eco_site(taxon, name, river, lat, lng, chasu, flags, vfrom=None, vto=None) -> dict:
+    rec = {
+        "Project": ECO,
+        "Workplace": None,                 # 관리자 DB SiteDivision(생태현황)의 사업장이 비어 있다
+        "River": river,
+        "SiteGroup": _group_of(name),
+        "SiteName": name,
+        "StNo": None,
+        "Desc": ("보완 필요: " + " · ".join(flags)) if flags else None,
+        "Chasu": chasu,
+        "Lat": lat,
+        "Lng": lng,
+        "YearAliases": {},
+        "MapNumbers": {},
+        "Taxa": [taxon],
+    }
+    if vfrom is not None or vto is not None:
+        rec["ValidFrom"] = vfrom
+        rec["ValidTo"] = vto
+    return rec
+
+
+def build_ecostatus(md_path: str) -> tuple[list[dict], list[str]]:
+    """§3 목록 → 생태현황 지점. (지점들, 판정 기록) 를 돌려준다."""
+    text = io.open(md_path, encoding="utf-8-sig").read()
+    log: list[str] = []
+    sites: list[dict] = []
+
+    # 어류 ─ §3-1 목록 + §4(가) 기록별 좌표
+    fish = _md_rows(_md_section(text, "### 3-1."))
+    multi: dict[str, list[dict]] = {}
+    cur = None
+    for r in _md_rows(_md_section(text, "### (가)")):
+        name, yc, river, lat, lng, chasu = r[0], r[1], r[2], r[3], r[4], r[5]
+        cur = name or cur
+        multi.setdefault(cur, []).append({"year": _year(yc), "yc": yc, "river": river,
+                                          "lat": _num(lat), "lng": _num(lng), "chasu": int(_num(chasu))})
+    undecided = {n for pair in UNDECIDED_PAIRS for n in pair}
+    for r in fish:
+        name, river, lat, lng, chasu, yc = r[0], r[1], r[2], r[3], r[4], r[5]
+        if lat == "여러 값":
+            recs = multi[name]
+        else:
+            recs = [{"year": _year(yc), "yc": yc, "river": river, "lat": _num(lat), "lng": _num(lng),
+                     "chasu": int(_num(chasu)) if _num(chasu) is not None else None}]
+        base_flags = [f"{'·'.join(p)} 같은 지점인지 미판정" for p in UNDECIDED_PAIRS if name in p] if name in undecided else []
+        years = sorted({x["year"] for x in recs})
+        far = any(_dist_m((a["lat"], a["lng"]), (b["lat"], b["lng"])) > SAME_PLACE_M
+                  for a in recs for b in recs if a["year"] != b["year"])
+        if len(years) > 1 and far:
+            # §8-3 연도별 별개 지점 — 시작 연도 ~ 다음 조사 연도 직전
+            for i, y in enumerate(years):
+                vto = years[i + 1] - 1 if i + 1 < len(years) else None
+                same = [x for x in recs if x["year"] == y]
+                flags = list(base_flags)
+                pick = next((x for x in same if x["river"] == _group_of(name)), same[0])
+                for o in same:
+                    if o is not pick and _dist_m((o["lat"], o["lng"]), (pick["lat"], pick["lng"])) > SAME_PLACE_M:
+                        flags.append(f"{y}년 같은 차수에 {o['river']}({o['lat']:.6f}, {o['lng']:.6f})도 이 이름으로 조사됨")
+                sites.append(_eco_site("어류", name, pick["river"], pick["lat"], pick["lng"], pick["chasu"], flags, y, vto))
+                log.append(f"  어류 {name} [{y}~{vto or ''}] {pick['river']} {pick['lat']:.6f},{pick['lng']:.6f} 차수 {pick['chasu']}"
+                           + (f"  ← 같은 해 {len(same)}건 중 하천명=조사권역({_group_of(name)}) 우선" if len(same) > 1 else ""))
+        else:
+            # 같은 장소(300m 이내) — 가장 최근 조사 기록의 좌표·차수(§9 '25년까지 내용으로 기초틀')
+            pick = sorted(recs, key=lambda x: x["year"] or 0)[-1]
+            flags = list(base_flags)
+            rivers = sorted({x["river"] for x in recs})
+            if len(rivers) > 1:
+                flags.append("하천명 여러 개(" + " · ".join(rivers) + ")")
+            if pick["river"] in NON_RIVER or (pick["river"] or "").isdigit():
+                flags.append(f"하천명(원본 값 '{pick['river']}')")
+            chs = sorted({(x["year"], x["chasu"]) for x in recs})
+            if len({c for _, c in chs}) > 1:
+                flags.append("하천차수(" + " · ".join(f"{y}년 {c}" for y, c in chs) + ")")
+            if len(recs) > 1:
+                log.append(f"  어류 {name} 기록 {len(recs)}건 같은 장소(최대 {max(_dist_m((a['lat'], a['lng']), (b['lat'], b['lng'])) for a in recs for b in recs):.0f}m) → {pick['year']}년 기록 좌표")
+            sites.append(_eco_site("어류", name, pick["river"], pick["lat"], pick["lng"], pick["chasu"], flags))
+
+    # 조류 ─ §3-2 : 좌표 없음(조사 기록의 좌표는 정점 좌표가 아니다 · §7-5·§7-6 · §9 (가))
+    for r in _md_rows(_md_section(text, "### 3-2.")):
+        values = _counts(r[1])
+        sites.append(_eco_site("조류", r[0], values[0][0] if values else None, None, None, None,
+                               ["좌표"] + _river_flags(values)))
+    # 포유류 ─ §3-3 : 권역 3개 · 좌표 없음(선형 조사 궤적 · 좌표 오류 3건 §7-3·§7-4)
+    for r in _md_rows(_md_section(text, "### 3-3.")):
+        values = _counts(r[1])
+        sites.append(_eco_site("포유류", r[0], values[0][0] if values else None, None, None, None,
+                               ["좌표"] + _river_flags(values)))
+
+    sites.sort(key=lambda s: (ECO_TAXA_ORDER.get(s["Taxa"][0], 9), _natural(s["SiteName"]), s.get("ValidFrom") or 0))
+    return sites, log
+
+
+def _natural(s: str) -> list:
+    return [(0, int(t), "") if t.isdigit() else (1, 0, t) for t in re.findall(r"\d+|\D+", s)]
+
+
+def write_ecostatus(args) -> int:
+    """기존 sites.json 의 방류하천 항목은 그대로 두고 생태현황 항목만 다시 만든다."""
+    with io.open(args.output, encoding="utf-8-sig") as f:
+        cur = json.load(f)
+    keep = [s for s in cur["Sites"] if s.get("Project") != ECO]
+    eco, log = build_ecostatus(args.ecostatus)
+    names = {(s["Taxa"][0], s["SiteName"]) for s in eco}
+    by_taxon = {t: len({n for tt, n in names if tt == t}) for t in ECO_TAXA_ORDER}
+    data = {
+        "Version": args.version or f"sites-{_dt.date.today():%Y%m%d}",
+        "GeneratedAt": _dt.datetime.now().replace(microsecond=0).isoformat(),
+        "Sites": keep + eco,
+    }
+    with io.open(args.output, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+
+    if args.csv:
+        import csv
+        cols = ["Project", "Taxa", "SiteName", "ValidFrom", "ValidTo", "River", "SiteGroup", "Lat", "Lng", "Chasu", "Desc"]
+        with io.open(args.csv, "w", encoding="utf-8-sig", newline="") as f:
+            w = csv.writer(f, lineterminator="\n")   # 저장소 개행 LF(.gitattributes)
+            w.writerow(cols)
+            for s in eco:
+                w.writerow([",".join(s["Taxa"]) if c == "Taxa" else ("" if s.get(c) is None else s.get(c)) for c in cols])
+
+    print(f"결과 : {args.output}")
+    print(f"  Version    {data['Version']}")
+    print(f"  방류하천    {len(keep)}개 (그대로)")
+    print(f"  생태현황    지점명 {len(names)}개 · 항목 {len(eco)}개 (연도 구간으로 나뉜 지점 포함)")
+    for t, n in by_taxon.items():
+        print(f"    {t:<4} {n:>3}개")
+    flagged = [s for s in eco if s["Desc"]]
+    print(f"  보완 필요   {len(flagged)}개")
+    print("판정 기록")
+    for line in log:
+        print(line)
+    if args.csv:
+        print(f"CSV : {args.csv}")
+    return 0
+
+
 def main() -> int:
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ap = argparse.ArgumentParser(description="제출 엑셀 조사지점 시트 → sites.json")
     ap.add_argument("--input", default=r"F:\17_한국환경지리연구소\2_삼성DS\2026년\5_보낸파일\20260305\일괄입력자료")
     ap.add_argument("--output", default=os.path.join(root, "SDSM_Surveyor_App", "sites.json"))
     ap.add_argument("--version", default=None, help="기본값: sites-YYYYMMDD")
+    ap.add_argument("--ecostatus", default=None, help="생태현황 추출 보고서(_ecostatus_sites_extracted.md) — 주면 생태현황 항목만 다시 만든다")
+    ap.add_argument("--csv", default=None, help="--ecostatus 와 함께 : 생태현황 목록 CSV")
     args = ap.parse_args()
+    if args.ecostatus:
+        return write_ecostatus(args)
 
     files = sorted(glob.glob(os.path.join(args.input, "*.xlsx")))
     if not files:

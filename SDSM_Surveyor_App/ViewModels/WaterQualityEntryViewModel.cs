@@ -16,6 +16,9 @@ public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISing
 {
     internal const string TaxonKey = "WaterQuality";
 
+    /// <summary>양식에 조사개황 하천유형이 있다 — 내보내기 때 '양식에 없는 값'을 알린다(D7).</summary>
+    protected override bool UsesRiverType => true;
+
     public WaterQualityEntryViewModel(ISessionService sessions, SurveyMeta meta)
         : base(sessions, meta) { }
 
@@ -176,7 +179,7 @@ public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISing
             if (saved is not null)
             {
                 StatusText = $"보고서용 엑셀 완료 · {System.IO.Path.GetFileName(saved)}";
-                WeakReferenceMessenger.Default.Send(new NotifyMessage(("보고서용 엑셀을 내보냈습니다.", true)));
+                NotifyExported("보고서용 엑셀을 내보냈습니다.");
             }
         }
         catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
@@ -192,7 +195,7 @@ public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISing
             if (saved is not null)
             {
                 StatusText = $"일괄입력용 완료 · {System.IO.Path.GetFileName(saved)}";
-                WeakReferenceMessenger.Default.Send(new NotifyMessage(("일괄입력용 엑셀을 내보냈습니다.", true)));
+                NotifyExported("일괄입력용 엑셀을 내보냈습니다.");
             }
         }
         catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }

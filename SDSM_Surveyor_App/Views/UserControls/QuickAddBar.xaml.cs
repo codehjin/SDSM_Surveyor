@@ -101,9 +101,9 @@ public partial class QuickAddBar : UserControl
 
     /// <summary>
     /// 검색창에서 Enter → 후보를 고른다(B-3 · `검색 → ↓/Enter → 개체수`).
-    /// ↓ 는 콤보가 첫 후보를 바로 고른다. Enter 는 콤보가 아무것도 하지 않아서 여기서 고른다 —
-    /// <b>친 글자와 이름이 똑같은 종</b>, 없으면 <b>후보가 하나뿐일 때</b> 그 종만. 후보가 여럿이면 고르지 않는다
-    /// (첫 후보를 멋대로 고르면 '참갈겨니'를 치려다 '갈겨니'가 들어갈 수 있다).
+    /// ↓ 는 콤보가 첫 후보(= 같은 이름 → 앞부분 → 포함 순)를 고른다 — 사용자가 고른 것이다.
+    /// Enter 는 <b>친 글자와 이름이 똑같은 종</b>만 고른다(2026-10-18 결정 D1 — 후보가 하나뿐이어도 자동으로 고르지 않는다).
+    /// 그 밖에는 아무것도 고르지 않는다. 빠른추가는 목록에서 고른 종만 넣는다(목록 밖 국명은 그리드 맨 아래 새 행에 친다).
     /// </summary>
     private void SpeciesBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
@@ -112,8 +112,7 @@ public partial class QuickAddBar : UserControl
         if (string.IsNullOrEmpty(text)) return;
 
         var items = SpeciesBox.Items.Cast<object>().ToList();
-        var pick = items.FirstOrDefault(i => string.Equals(DisplayName(i)?.Trim(), text, StringComparison.Ordinal))
-                   ?? (items.Count == 1 ? items[0] : null);
+        var pick = items.FirstOrDefault(i => string.Equals(DisplayName(i)?.Trim(), text, StringComparison.Ordinal));
         if (pick is null) return;
 
         SpeciesBox.SelectedItem = pick;   // → QuickSpecies → 개체수 칸으로 이동(OnSpeciesPicked)

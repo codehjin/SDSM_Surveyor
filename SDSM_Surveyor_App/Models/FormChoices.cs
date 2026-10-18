@@ -21,9 +21,71 @@ public static class FormChoices
 {
     private static FormChoice[] Names(params string[] names) => names.Select(FormChoice.Name).ToArray();
 
-    // ── 조사개황 (어류·저서 양식 8행) ──
-    /// <summary>하천유형(개황) — 산간형 / 평지형 / 강 · 단일 · 이름.</summary>
+    // ── 조사개황 하천유형 — 분류군 양식마다 다르다(2026-10-18 결정 D7) ──
+    /// <summary>하천유형(개황) — 어류·저서 양식 8행 '산간형/평지형/강' · 단일 · 이름.</summary>
     public static IReadOnlyList<FormChoice> RiverType { get; } = Names("산간형", "평지형", "강");
+
+    /// <summary>하천유형(개황) — 수질·서식수변 양식 8행 '본류/지류/기타' · 단일 · 이름(D7).</summary>
+    public static IReadOnlyList<FormChoice> RiverTypeWater { get; } = Names("본류", "지류", "기타");
+
+    /// <summary>분류군 양식의 하천유형 선택지. 조류·포유류·양서파충류 양식에는 하천유형이 없다 → null(화면에서 숨김).</summary>
+    public static IReadOnlyList<FormChoice>? RiverTypeFor(TaxonKind kind) => kind switch
+    {
+        TaxonKind.Fish or TaxonKind.Benthos => RiverType,
+        TaxonKind.WaterQuality or TaxonKind.HabitatWaterEdge => RiverTypeWater,
+        _ => null,
+    };
+
+    // ── 조류 `조류` T열 도래유형 — 'RES :텃새 / SV :여름철새 / WV:겨울철새 / PM:통과철새'(D5) ──
+    /// <summary>도래유형 · 단일 · <b>코드</b> 저장(관리자 DB 와 같다). 화면 글자 `RES · 텃새`.
+    /// 양식 정의에는 4개뿐이다(지시서 §12 의 `Vag.` 은 양식에 없어 넣지 않았다 — 예전 값은 '양식 외'로 둔다).</summary>
+    public static IReadOnlyList<FormChoice> MigratoryType { get; } = new[]
+    {
+        new FormChoice("RES", "RES · 텃새"), new FormChoice("SV", "SV · 여름철새"),
+        new FormChoice("WV", "WV · 겨울철새"), new FormChoice("PM", "PM · 통과철새"),
+    };
+
+    private static readonly Dictionary<string, string> MigratoryNames = new()
+    {
+        ["텃새"] = "RES", ["여름철새"] = "SV", ["겨울철새"] = "WV", ["통과철새"] = "PM", ["나그네새"] = "PM",
+    };
+
+    /// <summary>도래유형 글자 → 양식 코드. 코드(대소문자 무시)·이름(텃새…)·`RES :텃새`·`RES · 텃새` 꼴을 받는다.
+    /// 모르는 값은 앞뒤 공백만 지우고 그대로 둔다(양식 외 — 지우지 않는다). 빈 값은 null.</summary>
+    public static string? MigratoryCode(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        var v = value.Trim();
+        foreach (var c in MigratoryType)
+            if (string.Equals(v, c.Value, StringComparison.OrdinalIgnoreCase)) return c.Value;
+        if (MigratoryNames.TryGetValue(v, out var byName)) return byName;
+        var head = v.Split(new[] { ':', '·', ' ', '(' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        if (head is not null)
+            foreach (var c in MigratoryType)
+                if (string.Equals(head, c.Value, StringComparison.OrdinalIgnoreCase)) return c.Value;
+        return v;
+    }
+
+    // ── 양서파충류 Y·Z열 서식지 유형(D6) ──
+    /// <summary>서식지 유형 대분류(Y열) — '①농림지역, ②산림지역, ③습지대, ④기타 지역' · 단일 · 이름.</summary>
+    public static IReadOnlyList<FormChoice> AmphHabitatMajor { get; } = Names("농림지역", "산림지역", "습지대", "기타 지역");
+
+    /// <summary>
+    /// 서식지 유형 중분류(Z열) — 대분류별 항목 · 복수 · 이름을 `, ` 로 잇는다(양식 예 `묵논_경작지, 수로`).
+    /// 양식의 `논(저지대 or 산림)` 처럼 둘 중 하나를 고르는 항목은 예시 꼴대로 `논_저지대`·`논_산림` 으로 나눴다.
+    /// 양식 Z열의 첫 묶음 제목은 '농업지역'이지만 Y열(대분류)은 '농림지역'이다 — 대분류 글자(Y열)에 붙였다.
+    /// </summary>
+    public static IReadOnlyList<string> AmphHabitatMiddle(string? major) => major?.Trim() switch
+    {
+        "농림지역" => new[] { "논_저지대", "논_산림", "밭_저지대", "밭_산림", "과수원", "초지대", "수로", "웅덩이" },
+        "산림지역" => new[] { "계곡", "사방댐", "임도", "초지대", "수로", "웅덩이" },
+        "습지대" => new[] { "하천", "저수지", "묵논_경작지", "묵논_산림", "초지대", "수로", "웅덩이" },
+        "기타 지역" => new[] { "해안", "시가화지역", "도로(Roadkill)" },
+        _ => Array.Empty<string>(),
+    };
+
+    /// <summary>중분류를 잇는 글자(양식 예시 `묵논_경작지, 수로`).</summary>
+    public const string AmphHabitatMiddleSeparator = ", ";
 
     // ── 어류 `어류_입력` ──
     /// <summary>채집도구(15행) — 투망/족대 · 통발 + 직접입력 · 복수 · 이름.</summary>

@@ -55,6 +55,7 @@ public partial class MainSurveyWindowViewModel : ObservableObject, ISingletonSer
         Meta.PropertyChanged += OnMetaChanged;
         Taxon.PropertyChanged += OnTaxonChanged;
         RefreshCurrentMark();
+        Meta.ApplyTaxonForm(Taxon.Current);   // 하천유형 선택지 = 지금 분류군 양식(D7)
     }
 
     /// <summary>담당 분류군(표시 상태). 7개 VM 싱글턴은 그대로다.</summary>
@@ -160,7 +161,11 @@ public partial class MainSurveyWindowViewModel : ObservableObject, ISingletonSer
 
     private void OnTaxonChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(TaxonSelection.Current)) RefreshCurrentMark();
+        if (e.PropertyName is nameof(TaxonSelection.Current))
+        {
+            RefreshCurrentMark();
+            Meta.ApplyTaxonForm(Taxon.Current);   // 분류군 양식이 바뀌면 하천유형 선택지도(D7)
+        }
     }
 
     private void OnMetaChanged(object? sender, PropertyChangedEventArgs e)

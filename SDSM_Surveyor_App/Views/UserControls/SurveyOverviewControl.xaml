@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              xmlns:models="clr-namespace:SDSM_Surveyor_App.Models"
+             xmlns:data="clr-namespace:SDSM_Surveyor_App.Data"
              xmlns:uc="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
              mc:Ignorable="d" d:DesignWidth="1200"
              d:DataContext="{d:DesignInstance models:SurveyMeta}">
@@ -83,19 +84,27 @@
                                  IsEditable="True" IsFilteringEnabled="True"
                                  EmptyText="지점 선택 또는 ST번호 입력"
                                  LostFocus="SiteCombo_LostFocus"
+                                 PreviewKeyDown="SiteCombo_PreviewKeyDown"
                                  KeyDown="SiteCombo_KeyDown"/>
             <TextBlock Text="{Binding SiteHint}" Style="{StaticResource CaptionTextStyle}"
                        Margin="0 4 0 0" TextTrimming="CharacterEllipsis"/>
             <TextBlock Text="미등록 지점입니다 — 목록에서 선택하세요"
                        Style="{StaticResource CaptionTextStyle}" Margin="0 4 0 0"
                        Foreground="{StaticResource MaxBrush}"
-                       Visibility="{Binding IsSiteUnregistered, Converter={StaticResource BoolToVisibility}}"/>
+                       Visibility="{Binding IsSiteUnregisteredWarning, Converter={StaticResource BoolToVisibility}}"/>
+            <!-- D4 ②(2026-10-18) : 생태현황은 목록에 없는 지점을 직접 입력한다(지점명이 없으면 하천명만으로도 저장).
+                 방류하천은 지금처럼 목록에서만 고른다(위 빨간 경고). -->
+            <TextBlock Text="목록 밖 지점 — 하천명·좌표·대권역·중권역을 직접 적으세요"
+                       AutomationProperties.AutomationId="OffListSiteText"
+                       Style="{StaticResource CaptionTextStyle}" Margin="0 4 0 0"
+                       Foreground="{StaticResource AppAccentDarkBrush}" TextWrapping="Wrap"
+                       Visibility="{Binding IsOffListSite, Converter={StaticResource BoolToVisibility}}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Grid.Column="2" Style="{StaticResource FormFieldStyle}">
             <TextBlock Text="하천명" Style="{StaticResource FormLabelStyle}"/>
             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                         WatermarkContent="지점 선택 시 자동"
+                                         WatermarkContent="지점 선택 시 자동 · 목록 밖 지점은 직접"
                                          Text="{Binding River, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
 
@@ -137,23 +146,31 @@
         <StackPanel Grid.Row="2" Grid.Column="0" Style="{StaticResource FormFieldStyle}">
             <!-- C-6 : 지점을 고르면 하천 단위 고정표(Data\RegionTable)로 채운다. 고칠 수 있고, 지점을 다시 고르면 다시 채운다. -->
             <TextBlock Text="대권역명" Style="{StaticResource FormLabelStyle}"/>
-            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                         WatermarkContent="지점 선택 시 자동"
-                                         Text="{Binding MajorRegion, UpdateSourceTrigger=PropertyChanged}"/>
+            <!-- D4 ② : 표에 없는 하천(생태현황 목록 밖 지점 등)은 목록에서 고르거나 직접 적는다(편집 가능 콤보) -->
+            <telerik:RadComboBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                 AutomationProperties.AutomationId="MajorRegionCombo"
+                                 IsEditable="True" EmptyText="지점 선택 시 자동 · 직접 고름"
+                                 ItemsSource="{x:Static data:RegionTable.Majors}"
+                                 Text="{Binding MajorRegion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Grid.Column="1" Style="{StaticResource FormFieldStyle}">
             <TextBlock Text="중권역명" Style="{StaticResource FormLabelStyle}"/>
-            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                         WatermarkContent="지점 선택 시 자동"
-                                         Text="{Binding MiddleRegion, UpdateSourceTrigger=PropertyChanged}"/>
+            <telerik:RadComboBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                 AutomationProperties.AutomationId="MiddleRegionCombo"
+                                 IsEditable="True" EmptyText="지점 선택 시 자동 · 직접 고름"
+                                 ItemsSource="{x:Static data:RegionTable.Middles}"
+                                 Text="{Binding MiddleRegion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Grid.Column="2" Style="{StaticResource FormFieldStyle}">
+        <StackPanel Grid.Row="2" Grid.Column="2" Style="{StaticResource FormFieldStyle}"
+                    Visibility="{Binding IsRiverTypeVisible, Converter={StaticResource BoolToVisibility}}">
             <TextBlock Text="하천유형" Style="{StaticResource FormLabelStyle}"/>
             <!-- C-4 : 양식 8행 '산간형/평지형/강' 택1 · 이름 저장. 예전 값(평지천 등)은 지우지 않고 '(양식 외)' 경고 -->
-            <uc:SingleChoiceBox Options="{x:Static models:FormChoices.RiverType}" Value="{Binding RiverType}"
-                                ToolTipText="하천유형(개황) — 산간형 / 평지형 / 강" AutomationName="하천유형"/>
+            <!-- D7(2026-10-18) : 선택지는 지금 분류군 양식대로(어류·저서 산간형/평지형/강 · 수질·서식수변 본류/지류/기타).
+                 조류·포유류·양서파충류 양식에는 하천유형이 없어 칸을 숨긴다(값은 지우지 않는다). -->
+            <uc:SingleChoiceBox Options="{Binding RiverTypeOptions}" Value="{Binding RiverType}"
+                                ToolTipText="{Binding RiverTypeHint}" AutomationName="하천유형"/>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Style="{StaticResource FormFieldStyle}">

@@ -7,7 +7,7 @@ namespace SDSM_Surveyor_App.Behaviors;
 
 /// <summary>
 /// RadAutoCompleteBox용 초성 검색 필터.
-/// 일반 부분일치 + 한글 초성(ㅋㅈㄴ) 매칭을 함께 지원한다.
+/// 일반 부분일치 + 한글 초성(ㅋㅈㄴ) 매칭을 함께 지원한다. 후보는 같은 이름 → 앞부분 → 포함 순(D1).
 /// (인터페이스 시그니처: Telerik.Windows.Controls.Input 2026.2.520 기준 검증 · 2026.3.1007 에서 같은 시그니처로 빌드·동작 확인)
 /// </summary>
 public sealed class ChosungFilteringBehavior : IFilteringBehavior
@@ -24,6 +24,7 @@ public sealed class ChosungFilteringBehavior : IFilteringBehavior
     {
         var result = new List<object>();
         if (items is null) return result;
+        var ranked = new List<(object item, int rank)>();
 
         // 이미 선택(토큰)된 항목 제외 — 단일 선택 모드에선 보통 비어 있음
         var escaped = escapedItems as IList<object> ?? escapedItems?.ToList();
@@ -34,9 +35,11 @@ public sealed class ChosungFilteringBehavior : IFilteringBehavior
             if (escaped != null && escaped.Contains(item)) continue;
 
             var text = GetItemText(item, textSearchPath);
-            if (ChosungHelper.IsMatch(text, searchText))
-                result.Add(item);
+            if (!ChosungHelper.IsMatch(text, searchText)) continue;
+            ranked.Add((item, Helpers.SpeciesNameRank.Of(text, searchText)));
         }
+        // 후보 순서 = 같은 이름 → 앞부분 일치 → 포함(2026-10-18 결정 D1 · 같은 순위는 종목록 순)
+        result.AddRange(ranked.OrderBy(x => x.rank < 0 ? 3 : x.rank).Select(x => x.item));
         return result;
     }
 

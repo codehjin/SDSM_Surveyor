@@ -77,6 +77,27 @@ public partial class MultiChoiceBox : UserControl
         set => SetValue(AllowCustomProperty, value);
     }
 
+    /// <summary>저장값을 잇는 글자. 기본은 공백 없는 `,`(지시서 §3-5). 양서파충류 서식지 중분류는 양식 예시대로 `, `(D6).</summary>
+    public static readonly DependencyProperty SeparatorProperty = DependencyProperty.Register(
+        nameof(Separator), typeof(string), typeof(MultiChoiceBox), new PropertyMetadata(","));
+
+    public string Separator
+    {
+        get => (string)GetValue(SeparatorProperty);
+        set => SetValue(SeparatorProperty, value);
+    }
+
+    /// <summary>칸 아래 경고 줄을 보일지(그리드 안에서는 끈다 — '(양식 외)' 표시는 콤보에 남는다).</summary>
+    public static readonly DependencyProperty ShowWarningProperty = DependencyProperty.Register(
+        nameof(ShowWarning), typeof(bool), typeof(MultiChoiceBox),
+        new PropertyMetadata(true, (d, e) => ((MultiChoiceBox)d).Warn.Visibility = (bool)e.NewValue ? Visibility.Visible : Visibility.Collapsed));
+
+    public bool ShowWarning
+    {
+        get => (bool)GetValue(ShowWarningProperty);
+        set => SetValue(ShowWarningProperty, value);
+    }
+
     /// <summary>아무것도 고르지 않았을 때 콤보에 보이는 글자.</summary>
     public static readonly DependencyProperty EmptyTextProperty = DependencyProperty.Register(
         nameof(EmptyText), typeof(string), typeof(MultiChoiceBox), new PropertyMetadata("·"));
@@ -145,7 +166,7 @@ public partial class MultiChoiceBox : UserControl
     {
         var picked = _items.Where(c => Box.SelectedItems.Contains(c)).Select(c => c.Name).ToList();
         _syncing = true;
-        try { Value = picked.Count == 0 ? null : string.Join(",", picked); }
+        try { Value = picked.Count == 0 ? null : string.Join(Separator, picked); }
         finally { _syncing = false; }
         UpdateWarning();
     }

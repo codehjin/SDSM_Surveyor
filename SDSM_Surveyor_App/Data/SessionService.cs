@@ -44,7 +44,7 @@ public sealed class SessionService : ISessionService, ISingletonService
     /// <summary>현재 열려 있는 세션의 키. 저장하면 채워지고, 지점·차수를 바꾸면 re-key 된다.</summary>
     public string? CurrentSessionId { get; private set; }
 
-    public string CurrentKey => SurveySession.MakeId(_meta.Project, _meta.YearChsu, _meta.Site);
+    public string CurrentKey => SurveySession.MakeId(_meta.Project, _meta.YearChsu, _meta.SiteKey);   // 생태현황 지점명 없음 → 하천명(D4 ②)
 
     public Task<List<SessionIndexEntry>> ListAsync() => _store.ListAsync();
 
@@ -73,7 +73,8 @@ public sealed class SessionService : ISessionService, ISingletonService
         var missing = new List<string>();
         if (string.IsNullOrWhiteSpace(_meta.Project)) missing.Add("대분류");
         if (string.IsNullOrWhiteSpace(_meta.YearChsu)) missing.Add("연도차수");
-        if (string.IsNullOrWhiteSpace(_meta.Site)) missing.Add("지점");
+        // D4 ② : 생태현황은 지점명이 없어도 하천명(대상지명)이 있으면 저장한다(원본 양서파충류는 지점명 칸이 비어 있다)
+        if (_meta.SiteKey is null) missing.Add(SurveyMeta.IsEcoStatus(_meta.Project) ? "지점(또는 하천명)" : "지점");
         return missing;
     }
 
@@ -209,13 +210,14 @@ public sealed class SessionService : ISessionService, ISingletonService
     /// <summary>
     /// 새 지점으로 시작(C-2) — <see cref="CopyToSite"/> 와 같은 흐름에서 지점만 비운 형태(site 가 null)이거나,
     /// 지점을 직접 바꾸면서 [새 지점으로 시작]을 고른 경우(site = 새 지점)다.
-    /// 압정 6칸을 포함한 나머지 조사개황은 그대로 둔다.
+    /// 압정 6칸을 포함한 나머지 조사개황은 그대로 둔다 — 하천유형만 비운다(D7).
     /// </summary>
     public void StartNewSite(SurveySite? site)
     {
         foreach (var t in Taxa) t.ClearData();
 
         _meta.ClearSite();
+        _meta.RiverType = null;   // 하천유형은 지점마다 다르다 — 다음 지점으로 따라가지 않게(2026-10-18 결정 D7)
         if (site is not null) _meta.SelectedSite = site;   // 지점명·하천·사업장·좌표·권역이 함께 채워진다
         CurrentSessionId = null;       // 아직 저장되지 않은 새 세션
         MarkClean();                   // 새 지점의 출발점(B-5)
@@ -280,7 +282,7 @@ public sealed class SessionService : ISessionService, ISingletonService
         int n = 0;
         if (string.IsNullOrWhiteSpace(_meta.Project)) n++;
         if (string.IsNullOrWhiteSpace(_meta.YearChsu)) n++;
-        if (string.IsNullOrWhiteSpace(_meta.Site)) n++;
+        if (_meta.SiteKey is null) n++;
         if (!_meta.IsSiteRegistered) n++;               // 지점 마스터에 없는 지점
         if (_meta.SurveyDate is null) n++;
         if (string.IsNullOrWhiteSpace(_meta.Surveyor)) n++;

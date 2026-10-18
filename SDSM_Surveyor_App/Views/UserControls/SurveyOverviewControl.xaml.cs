@@ -25,6 +25,23 @@ public partial class SurveyOverviewControl : UserControl
     // RadComboBox 에는 TextChanged 이벤트가 없어 포커스 이탈·Enter 시점에 해석한다.
     private void SiteCombo_LostFocus(object sender, System.Windows.RoutedEventArgs e) => ResolveSite();
 
+    /// <summary>
+    /// Enter·Tab 전에 — 친 글자가 지점명과 <b>똑같으면 그 지점</b>을 고른다(2026-10-18 · D1 과 같은 규칙).
+    /// 콤보 기본 동작은 Enter 에 '걸러진 첫 후보'를 고른다. 목록이 하천 순이라 생태현황에서 `진위천1` 을 치면
+    /// 송전천 쪽 `진위천15` 가, `평택1` 은 `평택18` 이 골라졌다(하네스 diag_site_exact). 똑같은 이름이 없으면 손대지 않는다.
+    /// </summary>
+    private void SiteCombo_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key is not (Key.Enter or Key.Tab) || DataContext is not SurveyMeta meta) return;
+        var exact = meta.ExactSite(SiteCombo.Text);
+        if (exact is null) return;
+        var choice = meta.SiteChoices.FirstOrDefault(c => ReferenceEquals(c.Site, exact));
+        if (choice is null) return;
+        SiteCombo.IsDropDownOpen = false;
+        if (!ReferenceEquals(SiteCombo.SelectedItem, choice)) SiteCombo.SelectedItem = choice;
+        if (e.Key == Key.Enter) e.Handled = true;   // 콤보가 강조된 첫 후보로 다시 바꾸지 않게
+    }
+
     private void SiteCombo_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key is Key.Enter or Key.Tab) ResolveSite();

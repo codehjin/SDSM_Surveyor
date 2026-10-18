@@ -27,7 +27,8 @@ public partial class AmphibianReptileEntryViewModel : SpeciesEntryViewModelBase<
     }
 
 
-    public string[] MajorCategories { get; } = { "양서류", "파충류" };
+    /// <summary>서식지 유형 대분류(D6 · 양식 Y열). 중분류는 행마다 <see cref="AmphibianReptileEntry.MiddleOptions"/>.</summary>
+    public IReadOnlyList<FormChoice> HabitatMajorChoices => FormChoices.AmphHabitatMajor;
 
     /// <summary>관찰 행. 기반 클래스의 <c>Rows</c> 를 화면 바인딩 이름으로 노출한다.</summary>
     public RadObservableCollection<AmphibianReptileEntry> Entries => Rows;
@@ -53,7 +54,10 @@ public partial class AmphibianReptileEntryViewModel : SpeciesEntryViewModelBase<
             Note = Cell(cells, 15),
         };
         entry.ApplySpecies(SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko));
-        entry.SpeciesEn = Cell(cells, 1) ?? entry.SpeciesEn;
+        // 학명(D2) — 종목록에 있는 국명은 종목록대로. 붙여넣은 학명이 다르면 바꾸고 센다. 목록 밖 국명만 붙여넣은 학명을 쓴다.
+        var pastedEn = Cell(cells, 1);
+        if (ScientificNameRule.IsLocked(entry)) { if (ScientificNameRule.Differs(entry, pastedEn)) PasteScientificFixed++; }
+        else entry.SpeciesEn = pastedEn ?? entry.SpeciesEn;
         entry.OrderKo = Cell(cells, 2) ?? entry.OrderKo;
         entry.FamilyKo = Cell(cells, 3) ?? entry.FamilyKo;
         return entry;
@@ -118,7 +122,7 @@ public partial class AmphibianReptileEntryViewModel : SpeciesEntryViewModelBase<
             if (saved is not null)
             {
                 StatusText = $"보고서용 엑셀 완료 · {System.IO.Path.GetFileName(saved)}";
-                WeakReferenceMessenger.Default.Send(new NotifyMessage(("보고서용 엑셀을 내보냈습니다.", true)));
+                NotifyExported("보고서용 엑셀을 내보냈습니다.");
             }
         }
         catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
@@ -134,7 +138,7 @@ public partial class AmphibianReptileEntryViewModel : SpeciesEntryViewModelBase<
             if (saved is not null)
             {
                 StatusText = $"일괄입력용 완료 · {System.IO.Path.GetFileName(saved)}";
-                WeakReferenceMessenger.Default.Send(new NotifyMessage(("일괄입력용 엑셀을 내보냈습니다.", true)));
+                NotifyExported("일괄입력용 엑셀을 내보냈습니다.");
             }
         }
         catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
@@ -165,5 +169,30 @@ public partial class AmphibianReptileEntryViewModel : SpeciesEntryViewModelBase<
     protected override void OnRowPropertyChanged(AmphibianReptileEntry row, string? propertyName)
     {
         if (propertyName == nameof(AmphibianReptileEntry.SpeciesKo)) ResolveSpecies(row);
+        else if (propertyName == nameof(AmphibianReptileEntry.SpeciesEn) && ScientificNameRule.Enforce(row)) NotifyScientificFixed(1);   // D2 직접 수정
+        else if (propertyName == nameof(AmphibianReptileEntry.MajorCategory)) TrimMiddle(row);   // D6 대분류를 바꾸면 맞지 않는 중분류는 비운다
+    }
+
+    // ── 저장·내보내기 알림(2026-10-18 결정 D3 · 학명 D2) ──
+    protected override string NoticeTaxon => "양서파충류";
+
+    /// <summary>국명이 있는데 개체수·흔적이 비었거나 0 인 행(D3 — 내보내되 알린다).</summary>
+    public override int EmptyObservationRows => Entries.Count(e => !string.IsNullOrWhiteSpace(e.SpeciesKo) && e.HasNoCount);
+
+    /// <summary>서식지 유형이 양식에 없는 행(D6 · 예전 세션 `양서류` 등 · 지우지 않는다).</summary>
+    public override string? OutOfFormNotice()
+    {
+        var n = Entries.Count(e => e.HabitatOutOfForm.Length > 0);
+        return n == 0 ? null : $"양서파충류 서식지 유형 {n}행(양식에 없는 값)";
+    }
+
+    /// <summary>대분류에 맞지 않는 중분류를 뺀다(D6).</summary>
+    private static void TrimMiddle(AmphibianReptileEntry row)
+    {
+        var options = row.MiddleOptions;
+        var tokens = FormChoices.Split(row.MiddleCategory);
+        var kept = tokens.Where(t => options.Contains(t)).ToList();
+        if (kept.Count != tokens.Count)
+            row.MiddleCategory = kept.Count == 0 ? null : string.Join(FormChoices.AmphHabitatMiddleSeparator, kept);
     }
 }

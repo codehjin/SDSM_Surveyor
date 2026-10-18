@@ -1,6 +1,6 @@
 {
-  "Version": "sites-20260821",
-  "GeneratedAt": "2026-08-21T10:23:45",
+  "Version": "sites-20261018",
+  "GeneratedAt": "2026-10-18T16:00:54",
   "Sites": [
     {
       "Project": "방류하천",
@@ -1116,6 +1116,2665 @@
         "어류",
         "저서동물",
         "조류",
+        "포유류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "경안천",
+      "SiteGroup": "경안천",
+      "SiteName": "경안천1",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.225944,
+      "Lng": 127.214157,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "양지천",
+      "SiteGroup": "경안천",
+      "SiteName": "경안천2",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.235042,
+      "Lng": 127.23175,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "양지천",
+      "SiteGroup": "경안천",
+      "SiteName": "경안천3",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.227315,
+      "Lng": 127.256871,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "금학천",
+      "SiteGroup": "경안천",
+      "SiteName": "경안천4",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.23973,
+      "Lng": 127.178982,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "경안천",
+      "SiteGroup": "경안천",
+      "SiteName": "경안천5",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 37.27369,
+      "Lng": 127.213324,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "경안천",
+      "SiteGroup": "경안천",
+      "SiteName": "경안천6",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 37.29431,
+      "Lng": 127.233113,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "대대천",
+      "SiteGroup": "경안천",
+      "SiteName": "경안천7",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 37.274126,
+      "Lng": 127.268022,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "노곡천",
+      "SiteGroup": "경안천",
+      "SiteName": "경안천8",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 37.284465,
+      "Lng": 127.283255,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "노곡천",
+      "SiteGroup": "경안천",
+      "SiteName": "경안천9",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 37.290921,
+      "Lng": 127.308126,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "고매천",
+      "SiteGroup": "고매천",
+      "SiteName": "고매천1",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 37.220483,
+      "Lng": 127.110106,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "내추계천",
+      "SiteGroup": "복하천",
+      "SiteName": "복하천1",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 37.254332,
+      "Lng": 127.306771,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "평촌천",
+      "SiteGroup": "복하천",
+      "SiteName": "복하천2",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 37.224558,
+      "Lng": 127.312862,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "삼미천",
+      "SiteGroup": "삼미천",
+      "SiteName": "삼미천1",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 37.1998,
+      "Lng": 127.031161,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "삽교천",
+      "SiteGroup": "삽교천",
+      "SiteName": "삽교천",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 36.799581,
+      "Lng": 126.85991,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "삽교호",
+      "SiteGroup": "삽교호",
+      "SiteName": "삽교호",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '삽교호')",
+      "Chasu": 5,
+      "Lat": 36.867592,
+      "Lng": 126.857432,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "성환천",
+      "SiteGroup": "성환천",
+      "SiteName": "성환천",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.856477,
+      "Lng": 127.14329,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "아산호",
+      "SiteGroup": "아산호",
+      "SiteName": "아산호1",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '아산호')",
+      "Chasu": 5,
+      "Lat": 36.985809,
+      "Lng": 127.039086,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "아산호",
+      "SiteGroup": "아산호",
+      "SiteName": "아산호2",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '아산호')",
+      "Chasu": 5,
+      "Lat": 36.976474,
+      "Lng": 126.970573,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "아산호",
+      "SiteGroup": "아산호",
+      "SiteName": "아산호3",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '아산호')",
+      "Chasu": 5,
+      "Lat": 36.895089,
+      "Lng": 126.918728,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "안성천",
+      "SiteGroup": "안성천",
+      "SiteName": "안성천",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 36.831963,
+      "Lng": 126.868454,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "오산천",
+      "SiteGroup": "오산천",
+      "SiteName": "오산천1",
+      "StNo": null,
+      "Desc": "보완 필요: 하천차수(2023년 4 · 2025년 2)",
+      "Chasu": 2,
+      "Lat": 37.255263,
+      "Lng": 127.096462,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "오산천",
+      "SiteGroup": "오산천",
+      "SiteName": "오산천2",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 37.221336,
+      "Lng": 127.091436,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2023,
+      "ValidTo": 2024
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "오산천",
+      "SiteGroup": "오산천",
+      "SiteName": "오산천2",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 37.185148,
+      "Lng": 127.083347,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2025,
+      "ValidTo": null
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "오산천",
+      "SiteGroup": "오산천",
+      "SiteName": "오산천3",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 37.171792,
+      "Lng": 127.082594,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "오산천",
+      "SiteGroup": "오산천",
+      "SiteName": "오산천4",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 37.12945,
+      "Lng": 127.052333,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "오산천",
+      "SiteGroup": "오산천",
+      "SiteName": "오산천5",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 37.105092,
+      "Lng": 127.049531,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "온양천",
+      "SiteGroup": "온양천",
+      "SiteName": "온양천",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.757053,
+      "Lng": 127.053894,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "원천리천",
+      "SiteGroup": "원천리천",
+      "SiteName": "원천리천1",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 37.265142,
+      "Lng": 127.051289,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "원천리천",
+      "SiteGroup": "원천리천",
+      "SiteName": "원천리천2",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 37.236931,
+      "Lng": 127.037394,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천1",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 37.098231,
+      "Lng": 127.078106,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2023,
+      "ValidTo": 2024
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천1",
+      "StNo": null,
+      "Desc": "보완 필요: 2025년 같은 차수에 송전천(37.143179, 127.199344)도 이 이름으로 조사됨",
+      "Chasu": 4,
+      "Lat": 37.090469,
+      "Lng": 126.999378,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2025,
+      "ValidTo": null
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천2",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 37.096833,
+      "Lng": 127.055636,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2023,
+      "ValidTo": 2024
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천2",
+      "StNo": null,
+      "Desc": "보완 필요: 2025년 같은 차수에 송전천(37.158458, 127.204070)도 이 이름으로 조사됨",
+      "Chasu": 4,
+      "Lat": 37.035462,
+      "Lng": 126.994015,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2025,
+      "ValidTo": null
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천3",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 6,
+      "Lat": 37.090589,
+      "Lng": 127.003433,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2023,
+      "ValidTo": 2024
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "송전천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천3",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.177084,
+      "Lng": 127.198409,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2025,
+      "ValidTo": null
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천4",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 7,
+      "Lat": 37.081361,
+      "Lng": 126.991939,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2023,
+      "ValidTo": 2024
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "용덕사천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천4",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.187856,
+      "Lng": 127.209775,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2025,
+      "ValidTo": null
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천5",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 7,
+      "Lat": 37.052725,
+      "Lng": 126.994075,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2023,
+      "ValidTo": 2024
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천5",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 37.109104,
+      "Lng": 127.181233,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ],
+      "ValidFrom": 2025,
+      "ValidTo": null
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천6",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 37.11128,
+      "Lng": 127.157427,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천7",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 37.106879,
+      "Lng": 127.137962,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "봉무천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천8",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.12332,
+      "Lng": 127.156773,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "완장천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천9",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.126324,
+      "Lng": 127.167849,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "완장천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천10",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.150174,
+      "Lng": 127.173873,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "용덕사천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천11",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.17447,
+      "Lng": 127.23137,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천12",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 37.142293,
+      "Lng": 127.258975,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천13",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.105998,
+      "Lng": 127.233964,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "용덕사천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천14",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 37.155916,
+      "Lng": 127.25675,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "송전천",
+      "SiteGroup": "진위천",
+      "SiteName": "진위천15",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.136015,
+      "Lng": 127.202078,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "무학천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양1",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.704139,
+      "Lng": 127.118022,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "곡교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양2",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 36.740522,
+      "Lng": 127.133731,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "곡교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양3",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 36.755261,
+      "Lng": 127.1021,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "곡교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양4",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 36.779794,
+      "Lng": 127.081833,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "곡교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양5",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 36.789161,
+      "Lng": 127.065997,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "곡교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양6",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 36.798272,
+      "Lng": 126.989439,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "곡교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양7",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 36.813594,
+      "Lng": 126.953106,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "곡교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양8",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 36.818542,
+      "Lng": 126.899272,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "곡교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양9",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 36.831819,
+      "Lng": 126.866994,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "삽교호",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양10",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '삽교호')",
+      "Chasu": 5,
+      "Lat": 36.8674,
+      "Lng": 126.857281,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "삽교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양11",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 36.815536,
+      "Lng": 126.852169,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "삽교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양12",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 36.799486,
+      "Lng": 126.859756,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "삽교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양13",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 36.774658,
+      "Lng": 126.833497,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "성환천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양14",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 36.856881,
+      "Lng": 127.143803,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "천안천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양15",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 36.781128,
+      "Lng": 127.127433,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "매곡천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양16",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.794394,
+      "Lng": 127.086192,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "율지천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양17",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 36.832719,
+      "Lng": 127.086433,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "오목천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양18",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.785611,
+      "Lng": 126.976419,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "신정저수지",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양19",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '신정저수지')",
+      "Chasu": 1,
+      "Lat": 36.755725,
+      "Lng": 126.973786,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "송악저수지",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양20",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '송악저수지')",
+      "Chasu": 1,
+      "Lat": 36.706256,
+      "Lng": 126.993572,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "온양천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양21",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 36.752514,
+      "Lng": 127.020169,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "금곡천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양22",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.740031,
+      "Lng": 127.050369,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "도고저수지",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양23",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '도고저수지')",
+      "Chasu": 1,
+      "Lat": 36.735311,
+      "Lng": 126.924219,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "도고천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양24",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.765033,
+      "Lng": 126.881275,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "무한천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양25",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 36.70075,
+      "Lng": 126.822206,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "청미천",
+      "SiteGroup": "청미천",
+      "SiteName": "청미천1",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.187047,
+      "Lng": 127.316441,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "안성천",
+      "SiteGroup": "평택",
+      "SiteName": "평택1",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 36.984392,
+      "Lng": 127.198983,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "안성천",
+      "SiteGroup": "평택",
+      "SiteName": "평택2",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 36.973078,
+      "Lng": 127.183036,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "안성천",
+      "SiteGroup": "평택",
+      "SiteName": "평택3",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 36.965175,
+      "Lng": 127.133169,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "안성천",
+      "SiteGroup": "평택",
+      "SiteName": "평택4",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 36.976689,
+      "Lng": 127.091836,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "안성천",
+      "SiteGroup": "평택",
+      "SiteName": "평택5",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 36.991394,
+      "Lng": 127.059758,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "안성천",
+      "SiteGroup": "평택",
+      "SiteName": "평택6",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 5,
+      "Lat": 36.985922,
+      "Lng": 127.038869,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "평택",
+      "SiteName": "평택7",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 37.039022,
+      "Lng": 126.995119,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "평택",
+      "SiteName": "평택8",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 37.026911,
+      "Lng": 127.010044,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천",
+      "SiteGroup": "평택",
+      "SiteName": "평택9",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 37.007986,
+      "Lng": 127.024439,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "아산호",
+      "SiteGroup": "평택",
+      "SiteName": "평택10",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '아산호')",
+      "Chasu": 5,
+      "Lat": 36.976539,
+      "Lng": 126.970458,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "아산호",
+      "SiteGroup": "평택",
+      "SiteName": "평택11",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '아산호')",
+      "Chasu": 5,
+      "Lat": 36.961503,
+      "Lng": 126.975033,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "아산호",
+      "SiteGroup": "평택",
+      "SiteName": "평택12",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '아산호')",
+      "Chasu": 5,
+      "Lat": 36.919442,
+      "Lng": 126.984497,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "아산호",
+      "SiteGroup": "평택",
+      "SiteName": "평택13",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '아산호')",
+      "Chasu": 5,
+      "Lat": 36.929225,
+      "Lng": 126.936894,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "아산호",
+      "SiteGroup": "평택",
+      "SiteName": "평택14",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '아산호')",
+      "Chasu": 5,
+      "Lat": 36.895186,
+      "Lng": 126.918456,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "신전천",
+      "SiteGroup": "평택",
+      "SiteName": "평택15",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 36.880844,
+      "Lng": 127.045181,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "둔포천",
+      "SiteGroup": "평택",
+      "SiteName": "평택16",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.917139,
+      "Lng": 127.038119,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "둔포천",
+      "SiteGroup": "평택",
+      "SiteName": "평택17",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 36.931822,
+      "Lng": 127.021881,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "0",
+      "SiteGroup": "평택",
+      "SiteName": "평택18",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '0')",
+      "Chasu": 1,
+      "Lat": 36.900967,
+      "Lng": 126.971633,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "주천",
+      "SiteGroup": "평택",
+      "SiteName": "평택19",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.882231,
+      "Lng": 126.940675,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "도대천",
+      "SiteGroup": "평택",
+      "SiteName": "평택20",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.947408,
+      "Lng": 126.926992,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "도대천",
+      "SiteGroup": "평택",
+      "SiteName": "평택21",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.960844,
+      "Lng": 126.911669,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "0",
+      "SiteGroup": "평택",
+      "SiteName": "평택22",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '0')",
+      "Chasu": 1,
+      "Lat": 36.936164,
+      "Lng": 126.890572,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "0",
+      "SiteGroup": "평택",
+      "SiteName": "평택23",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '0')",
+      "Chasu": 2,
+      "Lat": 37.010761,
+      "Lng": 126.903186,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "관리천",
+      "SiteGroup": "평택",
+      "SiteName": "평택24",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.044428,
+      "Lng": 126.961383,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "입장천",
+      "SiteGroup": "평택",
+      "SiteName": "평택25",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.916894,
+      "Lng": 127.202761,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "입장천",
+      "SiteGroup": "평택",
+      "SiteName": "평택26",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 36.955783,
+      "Lng": 127.1631,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "승두천",
+      "SiteGroup": "평택",
+      "SiteName": "평택27",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.981231,
+      "Lng": 127.1615,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "승두천",
+      "SiteGroup": "평택",
+      "SiteName": "평택28",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.984389,
+      "Lng": 127.124786,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "통복천",
+      "SiteGroup": "평택",
+      "SiteName": "평택29",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.012644,
+      "Lng": 127.103369,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "통복천",
+      "SiteGroup": "평택",
+      "SiteName": "평택30",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.0421,
+      "Lng": 127.132794,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "도일천",
+      "SiteGroup": "평택",
+      "SiteName": "평택31",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 37.033886,
+      "Lng": 127.085683,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "도일천",
+      "SiteGroup": "평택",
+      "SiteName": "평택32",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 1,
+      "Lat": 37.007567,
+      "Lng": 127.061475,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "성환천",
+      "SiteGroup": "평택",
+      "SiteName": "평택33",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 36.89165,
+      "Lng": 127.134603,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "배다리생태공원",
+      "SiteGroup": "평택",
+      "SiteName": "평택34",
+      "StNo": null,
+      "Desc": "보완 필요: 하천명(원본 값 '배다리생태공원')",
+      "Chasu": 1,
+      "Lat": 37.001631,
+      "Lng": 127.118578,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "한천",
+      "SiteGroup": "한천",
+      "SiteName": "한천1",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.122297,
+      "Lng": 127.307621,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "한천",
+      "SiteGroup": "한천",
+      "SiteName": "한천2",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.153486,
+      "Lng": 127.304608,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "오두천",
+      "SiteGroup": "한천",
+      "SiteName": "한천3",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.031992,
+      "Lng": 127.301175,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "곡천",
+      "SiteGroup": "한천",
+      "SiteName": "한천4",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 3,
+      "Lat": 37.056768,
+      "Lng": 127.279133,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "한천",
+      "SiteGroup": "한천",
+      "SiteName": "한천5",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 37.064953,
+      "Lng": 127.257511,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "한천",
+      "SiteGroup": "한천",
+      "SiteName": "한천6",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 37.052555,
+      "Lng": 127.222726,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "한천",
+      "SiteGroup": "한천",
+      "SiteName": "한천7",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 37.028147,
+      "Lng": 127.214328,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "한천",
+      "SiteGroup": "한천",
+      "SiteName": "한천8",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 4,
+      "Lat": 37.048974,
+      "Lng": 127.2022,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "도곡천",
+      "SiteGroup": "한천",
+      "SiteName": "한천9",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 2,
+      "Lat": 37.072964,
+      "Lng": 127.209489,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "황구지천",
+      "SiteGroup": "황구지천",
+      "SiteName": "황구지천",
+      "StNo": null,
+      "Desc": "보완 필요: 황구지천·황구지천1 같은 지점인지 미판정",
+      "Chasu": 4,
+      "Lat": 37.182206,
+      "Lng": 127.001841,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "황구지천",
+      "SiteGroup": "황구지천",
+      "SiteName": "황구지천1",
+      "StNo": null,
+      "Desc": "보완 필요: 황구지천·황구지천1 같은 지점인지 미판정",
+      "Chasu": 5,
+      "Lat": 37.230544,
+      "Lng": 126.993908,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "황구지천",
+      "SiteGroup": "황구지천",
+      "SiteName": "황구지천2",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 6,
+      "Lat": 37.223378,
+      "Lng": 127.020925,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "황구지천",
+      "SiteGroup": "황구지천",
+      "SiteName": "황구지천3",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 6,
+      "Lat": 37.186864,
+      "Lng": 127.007014,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "황구지천",
+      "SiteGroup": "황구지천",
+      "SiteName": "황구지천4",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 6,
+      "Lat": 37.16915,
+      "Lng": 126.995806,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "황구지천",
+      "SiteGroup": "황구지천",
+      "SiteName": "황구지천5",
+      "StNo": null,
+      "Desc": null,
+      "Chasu": 6,
+      "Lat": 37.122667,
+      "Lng": 126.998936,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "어류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "기흥호수",
+      "SiteGroup": null,
+      "SiteName": "1지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '기흥호수')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "동탄 여울공원",
+      "SiteGroup": null,
+      "SiteName": "2지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '동탄 여울공원')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "황구지천",
+      "SiteGroup": null,
+      "SiteName": "3지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천 합류부",
+      "SiteGroup": null,
+      "SiteName": "4지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '진위천 합류부')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천 합류부",
+      "SiteGroup": null,
+      "SiteName": "5지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '진위천 합류부')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "진위천 합류부",
+      "SiteGroup": null,
+      "SiteName": "6지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '진위천 합류부')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "하천변 제방공사중",
+      "SiteGroup": null,
+      "SiteName": "7지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '하천변 제방공사중')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "하천변 제방공사중",
+      "SiteGroup": null,
+      "SiteName": "8지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '하천변 제방공사중')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "국교천",
+      "SiteGroup": null,
+      "SiteName": "9지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "국교천",
+      "SiteGroup": null,
+      "SiteName": "10지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "설화산",
+      "SiteGroup": null,
+      "SiteName": "11지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '설화산')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "설화산",
+      "SiteGroup": null,
+      "SiteName": "12지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '설화산')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "설화산",
+      "SiteGroup": null,
+      "SiteName": "13지점",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '설화산')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "천안",
+      "SiteGroup": "천안",
+      "SiteName": "천안01",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명 여러 개(천안 139건 · 평택 35건) · 하천명(원본 값 '천안')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "천안",
+      "SiteGroup": "천안",
+      "SiteName": "천안02",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '천안')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "천안",
+      "SiteGroup": "천안",
+      "SiteName": "천안03",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '천안')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "천안",
+      "SiteGroup": "천안",
+      "SiteName": "천안04",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '천안')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "천안",
+      "SiteGroup": "천안",
+      "SiteName": "천안05",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '천안')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "천안",
+      "SiteGroup": "천안",
+      "SiteName": "천안06",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '천안')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "천안",
+      "SiteGroup": "천안",
+      "SiteName": "천안07",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '천안')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "천안",
+      "SiteGroup": "천안",
+      "SiteName": "천안08",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '천안')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "평택",
+      "SiteGroup": "평택",
+      "SiteName": "평택01",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '평택')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "평택",
+      "SiteGroup": "평택",
+      "SiteName": "평택02",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '평택')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "평택",
+      "SiteGroup": "평택",
+      "SiteName": "평택03",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '평택')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "평택",
+      "SiteGroup": "평택",
+      "SiteName": "평택04",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '평택')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "평택",
+      "SiteGroup": "평택",
+      "SiteName": "평택05",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '평택')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "평택",
+      "SiteGroup": "평택",
+      "SiteName": "평택06",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '평택')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "평택",
+      "SiteGroup": "평택",
+      "SiteName": "평택07",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명(원본 값 '평택')",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "조류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "오산천",
+      "SiteGroup": "기흥화성",
+      "SiteName": "기흥화성",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명 여러 개(오산천 64건 · 황구지천 24건 · 진위천 14건)",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "포유류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "곡교천",
+      "SiteGroup": "천안온양",
+      "SiteName": "천안온양",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
+        "포유류"
+      ]
+    },
+    {
+      "Project": "생태현황",
+      "Workplace": null,
+      "River": "안성천",
+      "SiteGroup": "평택",
+      "SiteName": "평택",
+      "StNo": null,
+      "Desc": "보완 필요: 좌표 · 하천명 여러 개(안성천 81건 · 진위천 2건)",
+      "Chasu": null,
+      "Lat": null,
+      "Lng": null,
+      "YearAliases": {},
+      "MapNumbers": {},
+      "Taxa": [
         "포유류"
       ]
     }

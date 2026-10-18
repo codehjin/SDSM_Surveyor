@@ -67,10 +67,13 @@ internal sealed class RepoSiteProvider(string path) : ISiteListProvider
     public string? Version => string.IsNullOrEmpty(_cat.Version) ? null : _cat.Version;
     public IReadOnlyList<SurveySite> All => _cat.Sites;
 
-    public List<SurveySite> ByProject(string? project) => SiteResolver.ByProject(_cat.Sites, project);
+    // year : 그 조사연도에 유효한 지점만(ValidFrom~ValidTo · 2026-10-18 D4) — 운영 SiteListProvider 와 같은 규칙
+    private IEnumerable<SurveySite> InYear(int? year) => year is null ? _cat.Sites : _cat.Sites.Where(s => s.IsValidFor(year));
 
-    public SurveySite? Resolve(string? input, string? project = null)
-        => SiteResolver.Resolve(_cat.Sites, input, project);
+    public List<SurveySite> ByProject(string? project, int? year = null) => SiteResolver.ByProject(InYear(year), project);
+
+    public SurveySite? Resolve(string? input, string? project = null, int? year = null)
+        => SiteResolver.Resolve(InYear(year), input, project);
 }
 
 /// <summary>

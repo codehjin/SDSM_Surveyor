@@ -17,6 +17,45 @@ public interface IObservationRow
 
     /// <summary>국명이 같은 행 수(화면 표시용 · 저장 안 함). <see cref="ObservationSummary.MarkSameSpecies"/> 가 채운다.</summary>
     int SameSpeciesCount { get; set; }
+
+    /// <summary>학명. 종목록에 있는 국명이면 종목록대로(2026-10-18 결정 D2 · <see cref="ScientificNameRule"/>).</summary>
+    string? SpeciesEn { get; set; }
+
+    /// <summary>공식 종목록에서 찾은 종(없으면 목록 밖 국명).</summary>
+    SDSM_Models.ObservedSpecies? MatchedSpecies { get; }
+
+    /// <summary>개체수(조류)·흔적(포유류·양서파충류)이 모두 비었거나 0 — 일괄입력용에는 그대로 내고 저장 때 알린다(D3).</summary>
+    bool HasNoCount { get; }
+}
+
+/// <summary>
+/// 학명 규칙(2026-10-18 결정 D2) — 종목록에 있는 국명은 학명을 <b>종목록대로</b> 넣는다.
+/// 붙여넣기·직접 수정·예전 세션 불러오기에서 다른 학명이 오면 종목록 학명으로 바꾸고 바꾼 건수를 알린다.
+/// 목록 밖 국명만 학명을 직접 입력한다. 종목록에 학명이 비어 있는 종은 직접 입력을 막지 않는다.
+/// </summary>
+public static class ScientificNameRule
+{
+    /// <summary>그 행에 맞는 종목록 학명. 목록 밖 국명이거나 종목록 학명이 비었으면 null.</summary>
+    public static string? CatalogName(IObservationRow r) =>
+        string.IsNullOrWhiteSpace(r.MatchedSpecies?.SpeciesEn) ? null : r.MatchedSpecies!.SpeciesEn;
+
+    /// <summary>학명 칸을 잠그는가(종목록 학명이 있는 종).</summary>
+    public static bool IsLocked(IObservationRow r) => CatalogName(r) is not null;
+
+    /// <summary>주어진 학명이 종목록 학명과 다른가(비어 있으면 다르지 않다 — 채우는 것이다).</summary>
+    public static bool Differs(IObservationRow r, string? given) =>
+        CatalogName(r) is string c && !string.IsNullOrWhiteSpace(given) && !string.Equals(given.Trim(), c.Trim(), StringComparison.Ordinal);
+
+    /// <summary>종목록 학명으로 맞춘다. 바꿨으면 true.</summary>
+    public static bool Enforce(IObservationRow r)
+    {
+        if (CatalogName(r) is not string c) return false;
+        if (string.Equals(r.SpeciesEn?.Trim(), c.Trim(), StringComparison.Ordinal)) return false;
+        r.SpeciesEn = c;
+        return true;
+    }
+
+    public static string Notice(int n) => $"학명 {n}건을 종목록대로 바꿨습니다";
 }
 
 /// <summary>관찰형 3개 화면이 함께 쓰는 요약 집계.</summary>

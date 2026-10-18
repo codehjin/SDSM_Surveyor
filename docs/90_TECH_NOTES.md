@@ -196,6 +196,16 @@ return (DataTemplate)XamlReader.Parse(
 - 하네스에서 휠은 `PreviewMouseWheel` → (처리 안 됐으면) 같은 인자로 `MouseWheel` 을 `RaiseEvent` 로 흉내 낸다.
   목록이 열리면 콤보가 마우스를 캡처하므로 **목록 밖 휠은 콤보 자체가 대상**이다.
 
+### `RadAutoCompleteBox` Enter 가 고르는 항목 = `HighlightBehavior` (2026-10-18 · D1)
+
+- 그리드 국명 칸에서 Enter 를 누르면 Telerik 은 **강조된 후보**를 고른다. 기본 강조 규칙(`HighlightBehavior`)은 친 글자를 포함하는 **첫 후보**라
+  종목록에 있는 `방울새` 를 정확히 쳐도 앞쪽 `홍방울새` 가 들어갔다(5개 그리드 · 192종).
+- `Behaviors\ExactNameHighlightBehavior`(`IHighlightBehavior.FindHighlightedIndex`) — **친 글자와 이름이 똑같은 후보만** 강조, 없으면 -1.
+  -1 이면 Enter 가 아무것도 고르지 않아 `GridSpeciesCommit` 이 친 글자를 그대로 남긴다(목록 밖). 방향키·마우스로 고른 후보는 Telerik 기본 그대로.
+- 후보 순서는 `ChosungFilteringBehavior` 가 정한다 — 같은 이름 → 앞부분 일치 → 포함(`Helpers\SpeciesNameRank` · 같은 순위는 종목록 순). 빠른추가 목록도 같은 함수.
+- 시그니처는 메타데이터로 확인: `int FindHighlightedIndex(string searchText, IList filteredItems, IEnumerable<object> escapedItems, string textSearchPath, TextSearchMode textSearchMode)`.
+- 하네스 `d1_grid`(192종 + 분류군별 무작위 20 · ↓ 고르기 · 목록 밖 · 초성) · `diag_d1_all`(5개 분류군 종목록 1,855종 전부 · 약 10분) 통과.
+
 ### Telerik 확인한 멤버 (2026.3.1007 · 2026-10-16)
 
 | 용도 | 멤버 |
@@ -447,6 +457,28 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
   하천 이름을 코드에 박지 않는다(자료로 판정). 공유 `SurveySite.Display` 는 늘 번호를 붙이므로 조사자 앱 콤보는 `SurveyMeta.SiteChoice` 를 쓴다.
 - **St.번호 입력**: 공유 `SiteResolver.Resolve` 는 대분류 안 첫 일치를 고른다(`St.4` → 늘 곡교천4). 조사자 앱 `SiteListProvider.Resolve` 가 감싸 후보(같은 St.번호·지도 번호)가 **둘 이상이면 고르지 않고** 콤보에 그 후보만 보여 준다.
   2026-10-15 자료 기준 후보 예: `St.4` → 곡교천4·오산천4·오산천5, `St.11` → 성성공원·오산천3_1·오산천6.
+
+### 생태현황 지점 · 연도 구간 · 목록 밖 지점 (D4 · 2026-10-18)
+
+- `sites.json` 생태현황 149곳(어류 118 · 조류 28 · 포유류 3 · 항목 155) — `tools/build_sites_json.py --ecostatus <추출 보고서>`.
+  **방류하천 항목은 기존 파일에서 그대로 옮긴다**(엑셀에서 다시 만들지 않는다 · 전후 대조로 43곳 글자 그대로 확인).
+  원천은 `..\SDSM\docs\_ecostatus_sites_extracted.md` §3 표(+ §4(가) 기록별 좌표). 관리자 DB(게시본) 어류 127건과 대조해 불일치 0.
+- 판정 규칙(생성기에 코드로): 같은 이름의 기록이 **다른 해에 300m 넘게** 떨어지면 해마다 별개 지점(`ValidFrom` = 그 해, `ValidTo` = 다음 조사 연도 − 1) —
+  §8-3 표와 같다(진위천1~5 · 오산천2). 300m 이내면 하나로 두고 **가장 최근 기록**의 좌표·차수(오산천1 — 차수 2023년 4 · 2025년 2 를 보완 필요로).
+  같은 해에 두 곳(진위천1·2 의 2025 송전천)은 **하천명 = 조사권역(지점명 접두어)** 인 기록을 고르고 나머지를 `Desc` 에 적는다(§8-4 · 개명 금지).
+  조류·포유류는 좌표를 넣지 않는다(기록 좌표가 정점이 아님 · §7-5·§7-6 · §9 (가)) → `보완 필요: 좌표`. 하천명은 기록 수가 가장 많은 값, 여러 개면 `하천명 여러 개(…)`.
+  §4(라) 하천이 아닌 값(0 · 호소·공원 · 현장 메모 · 권역명)은 값은 그대로 두고 `하천명(원본 값 '…')`. 황구지천·황구지천1 은 `같은 지점인지 미판정`.
+  `Workplace` 는 비운다(관리자 DB `SiteDivision` 생태현황 행의 사업장이 비어 있다) · `SiteGroup` = 지점명 접두어(조사권역).
+- 조사자 앱: `ISiteListProvider.ByProject/Resolve` 에 `year`(선택) — `SurveySite.IsValidFor` 로 거른 뒤 공유 `SiteResolver` 에 넘긴다(공유 코드는 그대로).
+  `SurveyMeta.SiteYear` = 연도 칸, 없으면 연도차수 앞 네 자리. 연도가 바뀌면 같은 이름의 그 해 지점으로 바꾼다(좌표가 그 구간 값으로).
+  지점 콤보 항목은 구간 `[2023~2024]` · 생태현황은 분류군(` · 조류`)을 붙인다.
+- 지점을 고르면 좌표·사업장을 **마스터 값으로 덮어쓴다(없으면 비운다)** — 전에는 마스터에 좌표가 없으면 앞 지점 좌표가 남았다.
+  세션 복원(`SurveyMetaSnapshot.ApplyTo`)은 마스터에 빈 칸(하천·사업장·좌표)만 저장된 값으로 되살린다(조류 지점에 손으로 적은 좌표).
+- 목록 밖 지점(생태현황만): 지점명을 직접 치거나 지점명 없이 하천명만 — `SurveyMeta.IsOffListSite` · 안내 '목록 밖 지점'.
+  저장 키의 지점 자리 = `SiteKeys.Of` — 지점명, 없으면 `하천명(지점명 없음)`(그냥 하천명이면 포유류 지점 `평택` 과 세션 파일이 겹친다).
+  일괄입력용·보고서 파일명도 같은 값. 저장 필수 칸 = 대분류 · 연도차수 · 지점명 또는 하천명(생태현황) / 지점명(방류하천).
+  하천명을 직접 적으면 `RegionTable` 에 있는 하천만 권역을 채우고(비어 있을 때), 대권역·중권역 칸은 편집 가능한 콤보(관리자 DB 게시본 값 한강·금강 / 안성천·삽교천·경안천·남한강하류).
+- 관리자 Import(`ImportCheck`)는 생태현황 파일을 지점 목록과 대조하지 않는다(생태현황은 `SiteDivision` 한 행) — 목록 밖·지점명 없음 파일도 오류 0.
 
 ## 7. 개발 환경 주의
 

@@ -21,13 +21,20 @@ public partial class MammalEntryViewModel : ITaxonSession
         if (d is null) return;
 
         Entries.Clear();
+        int fixedEn = 0;
         foreach (var e in d.Rows)
         {
             // 보호종·교란종 표기는 저장본이 아니라 공식 종목록에서 다시 잇는다.
+            // 학명도 종목록대로 — 저장본과 다르면 바꾸고 센다(2026-10-18 결정 D2).
             if (!string.IsNullOrWhiteSpace(e.SpeciesKo))
+            {
+                var savedEn = e.SpeciesEn;
                 e.ApplySpecies(SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == e.SpeciesKo));
+                if (ScientificNameRule.Differs(e, savedEn)) fixedEn++;
+            }
             Entries.Add(e);
         }
+        NotifyScientificFixed(fixedEn);
     }
 
     void ITaxonSession.ClearData() => Entries.Clear();

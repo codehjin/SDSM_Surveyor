@@ -17,6 +17,13 @@ public static class RegionTable
         ["원천리천"] = ("한강", "안성천"),   // 10지점
     };
 
+    /// <summary>
+    /// 직접 고를 때의 선택지(생태현황 목록 밖 지점 · D4 ②). 관리자 DB 게시본(2026-03-05) 어류 자료의 대권역·중권역 값.
+    /// 콤보는 편집 가능이라 목록에 없는 값도 적을 수 있다.
+    /// </summary>
+    public static readonly string[] Majors = { "한강", "금강" };
+    public static readonly string[] Middles = { "안성천", "삽교천", "경안천", "남한강하류" };
+
     /// <summary>하천의 (대권역, 중권역). 표에 없으면 null.</summary>
     public static (string Major, string Middle)? Find(string? river) =>
         river is not null && ByRiver.TryGetValue(river.Trim(), out var r) ? r : null;

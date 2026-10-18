@@ -567,6 +567,10 @@
                                     <telerik:RadAutoCompleteBox.FilteringBehavior>
                                         <core:ChosungFilteringBehavior/>
                                     </telerik:RadAutoCompleteBox.FilteringBehavior>
+                                    <!-- D1(2026-10-18) : 똑같은 이름만 강조 — Enter 가 첫 후보로 바꾸지 않는다 -->
+                                    <telerik:RadAutoCompleteBox.HighlightBehavior>
+                                        <core:ExactNameHighlightBehavior/>
+                                    </telerik:RadAutoCompleteBox.HighlightBehavior>
                                 </telerik:RadAutoCompleteBox>
                             </DataTemplate>
                         </telerik:GridViewDataColumn.CellEditTemplate>

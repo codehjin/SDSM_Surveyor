@@ -63,7 +63,7 @@ public static class AmphibianReptileReportExporter
 
         foreach (var e in vm.Entries)
         {
-            if (string.IsNullOrWhiteSpace(e.SpeciesKo) || e.TraceSum <= 0) continue;   // 관측된 기록만
+            if (string.IsNullOrWhiteSpace(e.SpeciesKo)) continue;   // 국명이 있는 행은 모두(D3 · 흔적 빈칸은 빈칸)
 
             SiteColumns.Write(ws, row, vm.Meta);
             Str(ws, row, 4, e.OrderKo);
@@ -76,7 +76,7 @@ public static class AmphibianReptileReportExporter
             int col = 10;
             foreach (var t in Traces(e)) { Num(ws, row, col, t); col++; }   // 미입력(null)은 빈 칸
 
-            Num(ws, row, col, e.TraceSum); col++;
+            Num(ws, row, col, e.HasNoCount && Traces(e).All(t => t is null) ? null : e.TraceSum); col++;
             Num(ws, row, col, e.Lat); col++;
             Num(ws, row, col, e.Lng); col++;
             Str(ws, row, col, e.Feature); col++;
@@ -110,7 +110,7 @@ public static class AmphibianReptileReportExporter
         ws.Name = "출현종요약";
         var m = vm.Meta;
 
-        var observed = vm.Entries.Where(e => !string.IsNullOrWhiteSpace(e.SpeciesKo) && e.TraceSum > 0).ToList();
+        var observed = vm.Entries.Where(e => !string.IsNullOrWhiteSpace(e.SpeciesKo)).ToList();   // 흔적이 빈 행도 출현종(D3)
 
         int row = 0;
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("양서파충류 출현종 요약"); row += 2;
@@ -140,8 +140,9 @@ public static class AmphibianReptileReportExporter
         Num(ws, row, 10, protectedList.Count);
         Str(ws, row, 11, string.Join(", ", protectedList));
         Str(ws, row, 12, string.Join(", ", invasiveList));
-        Num(ws, row, 13, observed.Where(e => e.MajorCategory == "양서류").Select(e => e.SpeciesKo).Distinct().Count());
-        Num(ws, row, 14, observed.Where(e => e.MajorCategory == "파충류").Select(e => e.SpeciesKo).Distinct().Count());
+        // D6 : 대분류가 서식지 유형이 되어 양서류·파충류는 목으로 가른다(유미목·무미목 = 양서류 · 종목록 목 우선)
+        Num(ws, row, 13, observed.Where(IsAmphibian).Select(e => e.SpeciesKo).Distinct().Count());
+        Num(ws, row, 14, observed.Where(e => !IsAmphibian(e)).Select(e => e.SpeciesKo).Distinct().Count());
 
         int col = 15;
         for (int i = 0; i < TraceNames.Length; i++, col++)
@@ -162,4 +163,7 @@ public static class AmphibianReptileReportExporter
         ws.Cells[row, 0].SetValue("※ 총개체수 = 흔적 6종 합계. 미입력(빈 칸)은 0으로 보지 않고 집계에서만 0으로 캐스팅한다.");
         FontAll(ws, row, lastCol);
     }
+
+    /// <summary>양서류인가 — 목이 유미목·무미목(종목록 목 우선, 없으면 행에 적힌 목).</summary>
+    private static bool IsAmphibian(Models.AmphibianReptileEntry e) => (e.MatchedSpecies?.OrderKo ?? e.OrderKo) is "유미목" or "무미목";
 }

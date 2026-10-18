@@ -24,7 +24,10 @@ public sealed class SiteListProvider : ISiteListProvider, ISingletonService
 
     public IReadOnlyList<SurveySite> All => _cat.Sites;
 
-    public List<SurveySite> ByProject(string? project) => SiteResolver.ByProject(_cat.Sites, project);
+    public List<SurveySite> ByProject(string? project, int? year = null) => SiteResolver.ByProject(InYear(year), project);
+
+    /// <summary>그 조사연도에 유효한 지점(연도를 모르면 전부). 대분류 격리는 공유 해석기가 그대로 한다.</summary>
+    private IEnumerable<SurveySite> InYear(int? year) => year is null ? _cat.Sites : _cat.Sites.Where(s => s.IsValidFor(year));
 
     /// <summary>
     /// 공유 해석기(<see cref="SiteResolver"/>)를 감싼다(C-7). 공유 해석기는 St.번호를 치면 대분류 안에서 <b>처음 맞는 지점</b>을 고른다 —
@@ -33,18 +36,18 @@ public sealed class SiteListProvider : ISiteListProvider, ISingletonService
     /// ② St.번호 형태면 후보(같은 St.번호·지도 번호)를 모두 모아 <b>하나일 때만</b> 고른다. 둘 이상이면 null — 화면이 후보를 보여 준다.
     /// ③ 후보가 없으면 공유 해석기 나머지 규칙(연도별 표기)을 그대로 쓴다.
     /// </summary>
-    public SurveySite? Resolve(string? input, string? project = null)
+    public SurveySite? Resolve(string? input, string? project = null, int? year = null)
     {
         if (SiteOrdering.IsStInput(input))
         {
-            var pool = ByProject(project);
+            var pool = ByProject(project, year);
             var exact = pool.FirstOrDefault(s => Key(s.SiteName) == Key(input));
             if (exact is not null) return exact;
             var cands = SiteOrdering.StCandidates(pool, input);
             if (cands.Count == 1) return cands[0];
             if (cands.Count > 1) return null;
         }
-        return SiteResolver.Resolve(_cat.Sites, input, project);
+        return SiteResolver.Resolve(InYear(year), input, project);
     }
 
     private static string Key(string? s) => (s ?? string.Empty).Replace(" ", "").ToUpperInvariant();

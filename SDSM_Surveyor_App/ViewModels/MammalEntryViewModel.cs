@@ -56,7 +56,10 @@ public partial class MammalEntryViewModel : SpeciesEntryViewModelBase<MammalEntr
             Note = Cell(cells, 20),
         };
         entry.ApplySpecies(SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko));
-        entry.SpeciesEn = Cell(cells, 1) ?? entry.SpeciesEn;
+        // 학명(D2) — 종목록에 있는 국명은 종목록대로. 붙여넣은 학명이 다르면 바꾸고 센다. 목록 밖 국명만 붙여넣은 학명을 쓴다.
+        var pastedEn = Cell(cells, 1);
+        if (ScientificNameRule.IsLocked(entry)) { if (ScientificNameRule.Differs(entry, pastedEn)) PasteScientificFixed++; }
+        else entry.SpeciesEn = pastedEn ?? entry.SpeciesEn;
         entry.OrderKo = Cell(cells, 2) ?? entry.OrderKo;
         entry.FamilyKo = Cell(cells, 3) ?? entry.FamilyKo;
         return entry;
@@ -121,7 +124,7 @@ public partial class MammalEntryViewModel : SpeciesEntryViewModelBase<MammalEntr
             if (saved is not null)
             {
                 StatusText = $"보고서용 엑셀 완료 · {System.IO.Path.GetFileName(saved)}";
-                WeakReferenceMessenger.Default.Send(new NotifyMessage(("보고서용 엑셀을 내보냈습니다.", true)));
+                NotifyExported("보고서용 엑셀을 내보냈습니다.");
             }
         }
         catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
@@ -137,7 +140,7 @@ public partial class MammalEntryViewModel : SpeciesEntryViewModelBase<MammalEntr
             if (saved is not null)
             {
                 StatusText = $"일괄입력용 완료 · {System.IO.Path.GetFileName(saved)}";
-                WeakReferenceMessenger.Default.Send(new NotifyMessage(("일괄입력용 엑셀을 내보냈습니다.", true)));
+                NotifyExported("일괄입력용 엑셀을 내보냈습니다.");
             }
         }
         catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
@@ -168,5 +171,12 @@ public partial class MammalEntryViewModel : SpeciesEntryViewModelBase<MammalEntr
     protected override void OnRowPropertyChanged(MammalEntry row, string? propertyName)
     {
         if (propertyName == nameof(MammalEntry.SpeciesKo)) ResolveSpecies(row);
+        else if (propertyName == nameof(MammalEntry.SpeciesEn) && ScientificNameRule.Enforce(row)) NotifyScientificFixed(1);   // D2 직접 수정
     }
+
+    // ── 저장·내보내기 알림(2026-10-18 결정 D3 · 학명 D2) ──
+    protected override string NoticeTaxon => "포유류";
+
+    /// <summary>국명이 있는데 개체수·흔적이 비었거나 0 인 행(D3 — 내보내되 알린다).</summary>
+    public override int EmptyObservationRows => Entries.Count(e => !string.IsNullOrWhiteSpace(e.SpeciesKo) && e.HasNoCount);
 }

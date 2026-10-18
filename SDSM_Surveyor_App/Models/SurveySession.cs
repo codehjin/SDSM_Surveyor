@@ -83,7 +83,7 @@ public sealed class SurveyMetaSnapshot
         m.Surveyor = Surveyor;
 
         // 지점을 마스터에서 되찾으면 하천·사업장·좌표가 따라 채워진다.
-        // 못 찾으면(마스터에서 빠진 옛 지점) 저장된 값을 그대로 되살린다.
+        // 못 찾으면(마스터에서 빠진 옛 지점 · 생태현황 목록 밖 지점) 저장된 값을 그대로 되살린다.
         m.SelectedSite = null;
         m.ResolveSiteText(Site);
         if (m.SelectedSite is null)
@@ -93,6 +93,15 @@ public sealed class SurveyMetaSnapshot
             m.Workplace = Workplace;
             m.Lat = Lat;
             m.Lng = Lng;
+        }
+        else
+        {
+            // D4 : 마스터에 비어 있는 칸(생태현황 조류·포유류 지점의 좌표 · 사업장)은 조사자가 적어 저장한 값을 되살린다.
+            var site = m.SelectedSite;
+            if (string.IsNullOrWhiteSpace(site.River)) m.River = River;
+            if (string.IsNullOrWhiteSpace(site.Workplace)) m.Workplace = Workplace;
+            if (site.Lat is null) m.Lat = Lat;
+            if (site.Lng is null) m.Lng = Lng;
         }
         }
         finally { m.EndBulkApply(); }

@@ -67,7 +67,7 @@ public static class MammalReportExporter
 
         foreach (var e in vm.Entries)
         {
-            if (string.IsNullOrWhiteSpace(e.SpeciesKo) || e.TraceSum <= 0) continue;   // 관측된 기록만
+            if (string.IsNullOrWhiteSpace(e.SpeciesKo)) continue;   // 국명이 있는 행은 모두(D3 · 흔적 빈칸은 빈칸)
 
             SiteColumns.Write(ws, row, vm.Meta);
             Str(ws, row, 4, e.OrderKo);
@@ -79,7 +79,7 @@ public static class MammalReportExporter
             int col = 9;
             foreach (var t in Traces(e)) { Num(ws, row, col, t); col++; }   // 미입력(null)은 빈 칸
 
-            Num(ws, row, col, e.TraceSum); col++;
+            Num(ws, row, col, e.HasNoCount && Traces(e).All(t => t is null) ? null : e.TraceSum); col++;
             Num(ws, row, col, e.Lat); col++;
             Num(ws, row, col, e.Lng); col++;
             Str(ws, row, col, e.Feature); col++;
@@ -112,7 +112,7 @@ public static class MammalReportExporter
         ws.Name = "출현종요약";
         var m = vm.Meta;
 
-        var observed = vm.Entries.Where(e => !string.IsNullOrWhiteSpace(e.SpeciesKo) && e.TraceSum > 0).ToList();
+        var observed = vm.Entries.Where(e => !string.IsNullOrWhiteSpace(e.SpeciesKo)).ToList();   // 흔적이 빈 행도 출현종(D3)
 
         int row = 0;
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("포유류 출현종 요약"); row += 2;

@@ -46,7 +46,7 @@ internal static class BatchExporter
         {
             var names = e.Taxa.Count == 0 ? Taxa.Select(t => t.Name).ToHashSet() : e.Taxa.ToHashSet();
             foreach (var (key, name) in Taxa.Where(t => names.Contains(t.Name)))
-                raw.Add((e, key, name, ReportExporterBase.BulkFileName(e.Project, e.Site, name)));
+                raw.Add((e, key, name, ReportExporterBase.BulkFileName(e.Project, SiteKeys.Of(e.Project, e.Site, e.River), name)));
         }
 
         // 같은 이름이 하나라도 생긴 세션은 그 세션 파일 전부를 연도차수 폴더로 옮긴다 — 한 세션의 파일이 위·아래로 갈라지지 않게.

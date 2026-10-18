@@ -17,8 +17,11 @@ public partial class AmphibianReptileEntry : ObservableObject, IObservationRow
     [ObservableProperty] private string? _orderKo;          // 목(자동 · 수정 가능)
     [ObservableProperty] private string? _familyKo;         // 과(자동 · 수정 가능)
 
-    [ObservableProperty] private string? _majorCategory;    // 대분류(양서류/파충류)
-    [ObservableProperty] private string? _middleCategory;   // 중분류
+    // 서식지 유형(양식 Y·Z열 · 2026-10-18 결정 D6) — 대분류 농림지역/산림지역/습지대/기타 지역 · 중분류는 대분류별 항목 여러 개(`, `)
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(MiddleOptions))][NotifyPropertyChangedFor(nameof(HabitatOutOfForm))]
+    private string? _majorCategory;    // 대분류
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(HabitatOutOfForm))]
+    private string? _middleCategory;   // 중분류
 
     // 흔적 6종 (관리자 AmphibianReptile.Trace1~6). 미입력은 null 유지 — 0(실측 부재)과 구분한다.
     [ObservableProperty][NotifyPropertyChangedFor(nameof(TraceSum))] private int? _trace1;   // 성체
@@ -62,6 +65,7 @@ public partial class AmphibianReptileEntry : ObservableObject, IObservationRow
     [NotifyPropertyChangedFor(nameof(IsInvasive))]
     [NotifyPropertyChangedFor(nameof(ProtectionText))]
     [NotifyPropertyChangedFor(nameof(IsUnlisted))]
+    [NotifyPropertyChangedFor(nameof(IsScientificNameLocked))]
     private ObservedSpecies? _matchedSpecies;
 
     /// <summary>그리드 국명 편집기(자동완성)에서 고른 종. 고르면 국명·학명·목·과가 함께 채워진다.</summary>
@@ -96,6 +100,27 @@ public partial class AmphibianReptileEntry : ObservableObject, IObservationRow
 
     /// <summary>법정보호종(멸종위기Ⅰ·Ⅱ급/천연기념물).</summary>
     public bool IsProtected => MatchedSpecies?.IsProtected ?? false;
+
+    /// <summary>학명 칸 잠금 — 종목록에 있는 국명은 학명을 종목록대로(2026-10-18 결정 D2). 화면용(저장 안 함).</summary>
+    [JsonIgnore] public bool IsScientificNameLocked => ScientificNameRule.IsLocked(this);
+
+    /// <summary>고른 대분류의 중분류 선택지(D6). 대분류가 비면 빈 목록.</summary>
+    [JsonIgnore] public IReadOnlyList<string> MiddleOptions => FormChoices.AmphHabitatMiddle(MajorCategory);
+
+    /// <summary>서식지 유형 중 양식에 없는 값(예전 세션 `양서류` 등 · 지우지 않는다). 없으면 빈 글자.</summary>
+    [JsonIgnore] public string HabitatOutOfForm
+    {
+        get
+        {
+            var bad = new List<string>();
+            if (FormChoices.OutOfForm(MajorCategory, FormChoices.AmphHabitatMajor) is string m) bad.Add(m);
+            bad.AddRange(FormChoices.OutOfForm(MiddleCategory, MiddleOptions));
+            return bad.Count == 0 ? string.Empty : $"양식 외 {string.Join(",", bad)}";
+        }
+    }
+
+    /// <summary>개체수·흔적이 비었거나 0 — 일괄입력용에는 그대로 내고 저장 때 알린다(D3). 화면용(저장 안 함).</summary>
+    [JsonIgnore] public bool HasNoCount => TraceSum == 0;
 
     /// <summary>생태계교란생물. 보호종과 의미가 반대이므로 표기를 섞지 않는다.</summary>
     public bool IsInvasive => MatchedSpecies?.IsInvasive ?? false;

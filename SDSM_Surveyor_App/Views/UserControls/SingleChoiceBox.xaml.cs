@@ -57,6 +57,17 @@ public partial class SingleChoiceBox : UserControl
         set => SetValue(ValueProperty, value);
     }
 
+    /// <summary>칸 아래 경고 줄을 보일지(그리드 2행처럼 높이가 고정된 곳에서는 끈다 — '(양식 외)' 표시는 콤보에 남는다).</summary>
+    public static readonly DependencyProperty ShowWarningProperty = DependencyProperty.Register(
+        nameof(ShowWarning), typeof(bool), typeof(SingleChoiceBox),
+        new PropertyMetadata(true, (d, e) => ((SingleChoiceBox)d).Warn.Visibility = (bool)e.NewValue ? Visibility.Visible : Visibility.Collapsed));
+
+    public bool ShowWarning
+    {
+        get => (bool)GetValue(ShowWarningProperty);
+        set => SetValue(ShowWarningProperty, value);
+    }
+
     public static readonly DependencyProperty EmptyTextProperty = DependencyProperty.Register(
         nameof(EmptyText), typeof(string), typeof(SingleChoiceBox), new PropertyMetadata("·"));
 

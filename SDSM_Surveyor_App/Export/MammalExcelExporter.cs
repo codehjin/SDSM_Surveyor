@@ -36,7 +36,7 @@ public static class MammalExcelExporter
         int r = FirstRow;
         foreach (var e in vm.Entries)
         {
-            if (string.IsNullOrWhiteSpace(e.SpeciesKo) || e.TraceSum <= 0) continue;   // 관측된 기록만
+            if (string.IsNullOrWhiteSpace(e.SpeciesKo)) continue;   // 국명이 있는 행은 모두(D3 · 빈칸은 빈칸 · 0 은 0)
 
             void Set(int col, string? val) => BulkTemplate.Put(ws, r, col, val);
 
