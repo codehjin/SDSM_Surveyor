@@ -1,5 +1,7 @@
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using SDSM_Surveyor_App.Models;
 using Telerik.Windows.Controls;
 
@@ -11,7 +13,11 @@ namespace SDSM_Surveyor_App.Views.UserControls;
 /// </summary>
 public partial class SurveyOverviewControl : UserControl
 {
-    public SurveyOverviewControl() => InitializeComponent();
+    public SurveyOverviewControl()
+    {
+        InitializeComponent();
+        SiteCombo.Loaded += (_, _) => HookSiteText();
+    }
 
     // 지도 팝업. 창을 여는 것은 View 의 일이다 — SurveyMeta 는 Model 이라 Window 를 모른다.
     // 좌표가 없어도 열린다 — 지도 관리로 가는 입구가 이 버튼뿐이다(XAML 주석 참조).
@@ -30,6 +36,10 @@ public partial class SurveyOverviewControl : UserControl
     //      G1(2026-10-18 (3)) : ↓ 는 친 글자로 거른 후보(같은 이름 → 앞부분 → 포함)를 펼치고 그 안에서 ↑↓ 로 움직인다.
     //      글자가 없으면 목록 전부. 움직이는 동안은 조사개황에 넣지 않고(선택 보류) Enter·Tab 으로 확정한다.
     //      Esc 는 목록만 닫고 친 글자는 남긴다. 콤보 자체의 거르기(IsFilteringEnabled)는 끄고 여기서 거른다.
+    //      G3(2026-10-18 (4)) : 목록이 열려 있으면(▼·↓) 글자를 칠 때마다 같은 규칙으로 다시 거른다 — 강조는 두지 않는다
+    //      (맨 앞 후보를 강조하면 Enter 가 첫 후보를 고르게 되어 E2 를 어긴다). 강조는 ↑↓·마우스로만. 닫힌 채 치면 열지 않는다.
+    //      칸 글상자의 TextChanged 로 거르므로 한글 조합 중인 글자도 들어간다(조합이 글상자에 보이는 동안의 글자).
+    //      거르는 동안에는 칸 글자를 건드리지 않는다(조합이 깨지지 않게) — 강조·선택은 치기 전(PreviewKeyDown·ImeProcessed)에 떼어 둔다.
     //   ③ 그 밖에는 고르지 않는다 — 콤보 기본 동작(걸러진 첫 후보 자동 선택: `진위` → `진위천8`)을 막는다.
     //      방류하천은 '목록에서 고르세요' 안내, 생태현황은 '목록 밖 지점으로 입력됩니다' 확인([아니요]면 칸으로 돌아감).
     //   St.번호 후보가 여럿이면 자동으로 고르지 않고 후보를 펼친다(C-7 그대로).
@@ -41,24 +51,111 @@ public partial class SurveyOverviewControl : UserControl
     private int _candIndex = -1;
     private string _typed = string.Empty;   // ↓ 를 누를 때 칸에 있던 글자(Esc 로 되돌린다)
     private bool _exiting;
+    private bool _programmatic;            // 앱이 칸 글자·항목을 바꾸는 중(TextChanged 로 다시 거르지 않게)
+    private TextBox? _siteText;            // 콤보 안 글상자
+    private bool _typingPending;           // 글자 키·Back·Delete·한글 입력기 키가 눌렸다 — 다음 글자 바뀜은 조사자가 친 것
+
+    /// <summary>콤보 안 글상자에 TextChanged 를 건다. 틀이 다시 만들어지면 새 글상자로 옮긴다.</summary>
+    private void HookSiteText()
+    {
+        var tb = FindChild<TextBox>(SiteCombo);
+        if (ReferenceEquals(tb, _siteText)) return;
+        if (_siteText is not null) _siteText.TextChanged -= SiteText_TextChanged;
+        _siteText = tb;
+        if (_siteText is not null) _siteText.TextChanged += SiteText_TextChanged;
+    }
+
+    private static T? FindChild<T>(DependencyObject root) where T : DependencyObject
+    {
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+        {
+            var c = VisualTreeHelper.GetChild(root, i);
+            if (c is T t) return t;
+            if (FindChild<T>(c) is T d) return d;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// G3 — 목록이 열려 있으면 조사자가 친 글자로 칸이 바뀔 때마다 다시 거른다(강조 없음 · 조사개황 그대로).
+    /// 콤보가 항목을 골라 칸 글자를 바꾸는 경우(마우스로 후보 고름 등)는 거르지 않는다 — 치기 직전 키가 눌렸을 때만.
+    /// </summary>
+    private void SiteText_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (_programmatic || _exiting || !_typingPending || Meta is not { } meta || _siteText is null) return;
+        if (!SiteCombo.IsDropDownOpen && _cands is null) return;     // 닫힌 채 치면 열지 않는다
+        Refilter(meta, _siteText.Text ?? string.Empty);
+    }
+
+    private void Refilter(SurveyMeta meta, string text)
+    {
+        _programmatic = true;
+        try
+        {
+            meta.PreviewSiteChoice(null);                            // 강조 없음
+            meta.ShowSiteChoices(meta.SiteCandidates(text));         // 같은 이름 → 앞부분 → 포함 · 빈 글자면 목록 전부
+            _cands = meta.SiteChoices.ToList();
+            _candIndex = -1;
+            _typed = text;
+            if (_siteText is not null && _siteText.Text != text) { _siteText.Text = text; _siteText.CaretIndex = text.Length; }
+            if (!SiteCombo.IsDropDownOpen) SiteCombo.IsDropDownOpen = true;
+        }
+        finally { _programmatic = false; }
+    }
+
+    /// <summary>
+    /// 글자를 치기 직전(글자 키·Back·Delete·한글 입력기 키) — 강조된 후보를 보던 중이면 친 글자로 돌아가고,
+    /// ▼ 로 연 목록에 조사개황 지점이 골라져 있으면 떼어 둔다(그 뒤 치는 글자·조합을 건드리지 않게).
+    /// </summary>
+    private void PrepareTyping()
+    {
+        if (Meta is not { } meta) return;
+        HookSiteText();
+        _typingPending = true;
+        meta.HoldSiteSelection = true;
+        if (_siteText is null) return;
+        if (_cands is not null && _candIndex >= 0)
+        {
+            _programmatic = true;
+            try
+            {
+                meta.PreviewSiteChoice(null);
+                _candIndex = -1;
+                _siteText.Text = _typed;
+                _siteText.CaretIndex = _typed.Length;
+            }
+            finally { _programmatic = false; }
+            return;
+        }
+        if (SiteCombo.IsDropDownOpen && SiteCombo.SelectedItem is not null)
+        {
+            var t = _siteText.Text; int start = _siteText.SelectionStart, len = _siteText.SelectionLength;
+            _programmatic = true;
+            try
+            {
+                meta.PreviewSiteChoice(null);
+                if (_siteText.Text != t) { _siteText.Text = t; _siteText.Select(start, len); }
+            }
+            finally { _programmatic = false; }
+        }
+    }
 
     private SurveyMeta? Meta => DataContext as SurveyMeta;
 
     /// <summary>글자를 친다 — 콤보가 스스로 고르는 항목을 조사개황에 넘기지 않는다(<see cref="SurveyMeta.HoldSiteSelection"/>).</summary>
-    private void SiteCombo_PreviewTextInput(object sender, TextCompositionEventArgs e)
-    {
-        if (_cands is not null) LeaveCandidatesForTyping();   // 후보를 보던 중 글자를 더 친다 — 친 글자로 돌아가 잇는다
-        if (Meta is { } m) m.HoldSiteSelection = true;
-    }
+    private void SiteCombo_PreviewTextInput(object sender, TextCompositionEventArgs e) => PrepareTyping();
 
     /// <summary>마우스로 항목을 고르거나 칸을 누른다 — 고른 것은 바로 받는다(②).</summary>
     private void SiteCombo_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        _typingPending = false;                                     // 마우스 — 콤보가 바꾸는 칸 글자는 친 글자가 아니다
         if (Meta is { } m) m.HoldSiteSelection = false;
     }
 
     private void SiteCombo_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (e.Key is Key.Up or Key.Down or Key.PageUp or Key.PageDown or Key.Enter or Key.Tab or Key.Escape)
+            _typingPending = false;   // 이 뒤 콤보가 칸 글자를 바꿔도(강조 후보 표기 등 · 늦게 올 수 있다) 친 글자가 아니다
         if (e.Key is Key.Up or Key.Down or Key.PageUp or Key.PageDown)
         {
             // G1 : 콤보의 기본 방향키(전체 목록에서 바로 고름) 대신 거른 후보 안에서 움직인다
@@ -73,13 +170,13 @@ public partial class SurveyOverviewControl : UserControl
             e.Handled = true;
             return;
         }
-        if (e.Key is Key.Back or Key.Delete)
+        if (e.Key is not (Key.Enter or Key.Tab))
         {
-            if (_cands is not null) LeaveCandidatesForTyping();
-            if (Meta is { } m) m.HoldSiteSelection = true;
+            // 글자 키·Back·Delete·한글 입력기(ImeProcessed) — 치기 전에 강조·선택을 떼어 둔다(G3)
+            if (e.Key is not (Key.LeftShift or Key.RightShift or Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt
+                              or Key.Left or Key.Right or Key.Home or Key.End or Key.Escape)) PrepareTyping();
             return;
         }
-        if (e.Key is not (Key.Enter or Key.Tab)) return;
         if (_cands is not null)
         {
             if (_candIndex >= 0)
@@ -116,19 +213,25 @@ public partial class SurveyOverviewControl : UserControl
             bool asTyped = !(current is not null && current.Display == raw && !meta.HoldSiteSelection);
             var query = asTyped ? raw : string.Empty;
             _typed = raw;
-            meta.HoldSiteSelection = true;
-            meta.ShowSiteChoices(meta.SiteCandidates(query));
-            _cands = meta.SiteChoices.ToList();
-            _candIndex = asTyped ? -1 : _cands.FindIndex(c => ReferenceEquals(c.Site, current!.Site));
-            SiteCombo.SelectedItem = null;
-            SiteCombo.Text = raw;
-            SiteCombo.IsDropDownOpen = true;
+            _programmatic = true;
+            try
+            {
+                meta.PreviewSiteChoice(null);
+                meta.ShowSiteChoices(meta.SiteCandidates(query));
+                _cands = meta.SiteChoices.ToList();
+                _candIndex = asTyped ? -1 : _cands.FindIndex(c => ReferenceEquals(c.Site, current!.Site));
+                SiteCombo.Text = raw;
+                SiteCombo.IsDropDownOpen = true;
+            }
+            finally { _programmatic = false; }
             if (_cands.Count == 0) return;
         }
         if (_cands.Count == 0) return;
         _candIndex = _candIndex < 0 && step < 0 ? _cands.Count - 1 : Math.Clamp(_candIndex + step, 0, _cands.Count - 1);
         var item = _cands[_candIndex];
-        meta.PreviewSiteChoice(item);                             // 목록에서 강조되고 칸에 그 후보가 보인다 — 조사개황은 그대로(보류)
+        _programmatic = true;
+        try { meta.PreviewSiteChoice(item); }                     // 목록에서 강조되고 칸에 그 후보가 보인다 — 조사개황은 그대로(보류)
+        finally { _programmatic = false; }
         Dispatcher.BeginInvoke(() =>
         {
             if (SiteCombo.ItemContainerGenerator.ContainerFromItem(item) is System.Windows.FrameworkElement fe) fe.BringIntoView();
@@ -157,7 +260,7 @@ public partial class SurveyOverviewControl : UserControl
             _cands = null; _candIndex = -1;
             var held = meta.HoldSiteSelection;
             meta.HoldSiteSelection = true;                         // 목록을 바꿔 끼우는 동안 콤보 선택이 조사개황에 가지 않게
-            meta.PreviewSiteChoice(null);
+            meta.EndSitePreview();
             SiteCombo.IsDropDownOpen = false;
             meta.RestoreSiteChoices();
             if (restoreText)
@@ -171,9 +274,6 @@ public partial class SurveyOverviewControl : UserControl
         finally { _exiting = false; }
     }
 
-    /// <summary>후보를 보던 중 글자를 더 친다 — 칸을 친 글자로 되돌려 그 뒤에 잇게 한다.</summary>
-    private void LeaveCandidatesForTyping() => ExitCandidates(restoreText: true);
-
     private void CaretToEnd()
     {
         if (SiteCombo.Template?.FindName("PART_EditableTextBox", SiteCombo) is TextBox tb) tb.CaretIndex = tb.Text.Length;
@@ -182,6 +282,7 @@ public partial class SurveyOverviewControl : UserControl
     /// <summary>목록이 닫혔다 — 후보를 보던 중이면 끝낸다(마우스로 고른 것은 그대로 · 그 밖에는 친 글자로).</summary>
     private void SiteCombo_DropDownClosed(object sender, EventArgs e)
     {
+        _typingPending = false;
         if (_cands is null || _exiting || Meta is not { } meta) return;
         bool mousePicked = !meta.HoldSiteSelection && meta.SelectedSite is not null
                            && SiteCombo.SelectedItem is SurveyMeta.SiteChoice c && ReferenceEquals(c.Site, meta.SelectedSite);

@@ -504,6 +504,10 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
   `IsTextSearchEnabled=False` 를 함께 꺼야 한다. 두 가지를 끄고 거르기·강조는 앱이 한다.
   ⚠ 강조는 콤보 `SelectedItem` 을 코드로 바꾸면 안 된다 — 양방향 바인딩이 (선택 보류 중이라 그대로인) `SelectedSiteChoice` 를 다시 읽어 곧바로 되돌린다.
   `SurveyMeta.PreviewSiteChoice` 가 보류 중에만 쓰는 '강조 후보'를 두고 `SelectedSiteChoice` 가 그것을 돌려준다(조사개황 `SelectedSite` 는 그대로 · 보류가 풀리면 지움).
+- **G3 열린 목록에서 치는 대로 거르기 (2026-10-18 (4))** — 콤보 안 글상자(틀 안 첫 `TextBox` · 틀이 바뀌면 다시 찾음)의 `TextChanged` 로 거른다.
+  ⚠ 이 이벤트는 콤보가 항목을 골라 칸 글자를 바꿀 때(마우스로 후보 고름 등)도 온다 → 글자 키·Back·Delete·`ImeProcessed` 를 누른 직후(`_typingPending`)만 거른다.
+  거를 때는 `SurveyMeta.PreviewSiteChoice(null)`(미리보기 켬 · 강조 없음)로 콤보 `SelectedItem` 을 비워 둔 채 항목만 바꾼다 — 칸 글자를 건드리지 않아 한글 조합이 깨지지 않는다.
+  강조·선택을 떼는 일(`PrepareTyping`)은 키를 누르는 순간 먼저 한다. 한글 조합 중 글자도 WPF 글상자가 칸 글자에 넣어 보이는 방식이라 TextChanged 로 함께 걸러지게 했다(실제 입력기 확인은 사용자 · 하네스는 완성된 글자만 보낸다).
 - **G2** — 관찰형 3종 보고서 조사개황은 하천유형 행이 없다(`WriteSurveyMeta(m, null, withRiverType: false)` · 14행). 각주에서도 '하천유형'을 뺌. 일괄입력용·다른 보고서는 그대로.
 
 ## 7. 개발 환경 주의

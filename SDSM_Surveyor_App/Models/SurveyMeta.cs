@@ -145,7 +145,7 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     /// <summary>지점 콤보의 선택(= <see cref="SelectedSite"/>). 목록을 바꿔 끼우는 동안 들어오는 null 은 무시한다.</summary>
     public SiteChoice? SelectedSiteChoice
     {
-        get => _previewChoice ?? (SelectedSite is null ? null : SiteChoices.FirstOrDefault(c => ReferenceEquals(c.Site, SelectedSite)));
+        get => _previewActive ? _previewChoice : (SelectedSite is null ? null : SiteChoices.FirstOrDefault(c => ReferenceEquals(c.Site, SelectedSite)));
         set
         {
             if (_swappingChoices && value is null) return;
@@ -170,7 +170,7 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
         set
         {
             _holdSiteSelection = value;
-            if (!value && _previewChoice is not null) { _previewChoice = null; OnPropertyChanged(nameof(SelectedSiteChoice)); }
+            if (!value) EndSitePreview();
         }
     }
     private bool _holdSiteSelection;
@@ -182,11 +182,26 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     /// </summary>
     private SiteChoice? _previewChoice;
 
-    /// <summary>↓ 로 강조할 후보를 콤보에 보인다(조사개황은 그대로 · 선택 보류를 켠다). null 이면 강조를 지운다.</summary>
+    private bool _previewActive;
+
+    /// <summary>
+    /// 후보 목록을 보는 동안 콤보에 보일 항목(G1 ↓ 강조 · G3 치는 대로 거르기). 조사개황은 그대로 · 선택 보류를 켠다.
+    /// null 이면 '강조 없음' — 목록을 다시 거르는 동안 콤보가 조사개황의 지점을 다시 골라 칸 글자를 덮어쓰지 않게 한다(G3).
+    /// </summary>
     public void PreviewSiteChoice(SiteChoice? choice)
     {
-        if (choice is not null) _holdSiteSelection = true;
+        _holdSiteSelection = true;
+        _previewActive = true;
         _previewChoice = choice;
+        OnPropertyChanged(nameof(SelectedSiteChoice));
+    }
+
+    /// <summary>후보 미리보기를 끝낸다 — 콤보는 다시 조사개황의 지점을 보인다.</summary>
+    public void EndSitePreview()
+    {
+        if (!_previewActive) return;
+        _previewActive = false;
+        _previewChoice = null;
         OnPropertyChanged(nameof(SelectedSiteChoice));
     }
 
