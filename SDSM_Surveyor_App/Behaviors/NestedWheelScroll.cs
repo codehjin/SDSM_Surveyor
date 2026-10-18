@@ -36,13 +36,17 @@ public static class NestedWheelScroll
         if (e.Handled || sender is not ScrollViewer outer || e.Delta == 0) return;
 
         bool sawInner = false;
-        for (var d = e.OriginalSource as DependencyObject; d is not null && d != outer; d = Parent(d))
+        var d = e.OriginalSource as DependencyObject;
+        for (; d is not null && d != outer; d = Parent(d))
         {
             if (d is not ScrollViewer inner || inner.ScrollableHeight <= 0) continue;
             sawInner = true;
             bool canGo = e.Delta > 0 ? inner.VerticalOffset > 0 : inner.VerticalOffset < inner.ScrollableHeight - 0.5;
             if (canGo) return;              // 안쪽이 아직 갈 수 있다 — 안쪽에 맡긴다
         }
+        // 바깥까지 시각 트리로 이어지지 않았다 = 드롭다운 목록창(Popup) 같은 별도 창에서 온 휠이다.
+        // 목록 끝이라고 바깥을 굴리면 목록창이 칸에서 떨어진다 — 손대지 않는다(DropDownWheelGuard 가 막는다).
+        if (d is null) return;
         if (!sawInner) return;              // 안쪽 스크롤이 없다 — 원래대로 바깥이 받는다
 
         // 안쪽이 끝에 닿았다 — 바깥을 대신 굴린다(줄 단위 3칸 = 기본 휠 한 칸과 같은 양).

@@ -30,6 +30,9 @@ public partial class App : Application
 
         Services = ConfigureServices();
 
+        // 드롭다운이 열렸을 때 휠은 목록만 · 목록 밖 휠은 닫기 · 닫힌 콤보 휠로 값 안 바뀜(모든 창)
+        Behaviors.DropDownWheelGuard.Register();
+
         StartBindingErrorLog();
 
         InitializeComponent();

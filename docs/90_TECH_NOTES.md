@@ -183,6 +183,19 @@ return (DataTemplate)XamlReader.Parse(
 가로 `StackPanel` 은 자식에게 폭 무한을 준다 — `TextWrapping="Wrap"` 이어도 한 줄로 재고, 바깥 `MaxWidth` 에서 잘린다.
 아이콘 + 글은 `Grid`(Auto · *)로 둔다.
 
+### 드롭다운이 열린 채 휠 — 목록창은 별도 창인데 휠은 바깥까지 올라간다 (2026-10-18 · `DropDownWheelGuard`)
+
+- 목록창(`Popup`)은 별도 창이지만 휠 이벤트는 논리 트리를 따라 콤보 → 바깥 `ScrollViewer` 까지 간다.
+  바깥이 스크롤되면 목록창은 제자리에 남아 칸에서 떨어져 보인다. C-3 `NestedWheelScroll` 은 목록 끝에서 바깥을 굴렸다.
+- `RadComboBox.IsMouseWheelEnabled`(기본 True) — 포커스가 있는 **닫힌** 콤보 위의 휠이 **선택값을 바꾼다**(시험에서 서식수변 점수 · → 30).
+  그런데 False 로 해도 콤보가 휠을 처리됨으로 표시해 바깥 화면이 멈춘다.
+- 처리: 앱 전체 클래스 처리기 3개(`App` 생성자에서 `DropDownWheelGuard.Register()`) —
+  `Window.PreviewMouseWheel`(목록이 열렸고 휠이 목록창 밖이면 닫기 · 닫힌 콤보 위면 가장 가까운 스크롤을 대신 굴림) ·
+  `Popup.MouseWheel`(handledEventsToo · 목록창 안 휠이 밖으로 못 나가게) · `RadComboBox.Loaded`(`IsMouseWheelEnabled=False`).
+  `NestedWheelScroll` 은 바깥까지 시각 트리로 이어지지 않는 휠(= 목록창에서 온 것)은 손대지 않는다.
+- 하네스에서 휠은 `PreviewMouseWheel` → (처리 안 됐으면) 같은 인자로 `MouseWheel` 을 `RaiseEvent` 로 흉내 낸다.
+  목록이 열리면 콤보가 마우스를 캡처하므로 **목록 밖 휠은 콤보 자체가 대상**이다.
+
 ### Telerik 확인한 멤버 (2026.3.1007 · 2026-10-16)
 
 | 용도 | 멤버 |

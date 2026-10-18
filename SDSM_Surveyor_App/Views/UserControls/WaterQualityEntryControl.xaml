@@ -83,14 +83,11 @@
             </ctrl:CollapsibleSummary.SummarySlot>
 
             <ctrl:CollapsibleSummary.ExpandedSlot>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!--── 좌 : 등급 8종을 한 번에 본다 ─────────────────────-->
-                    <StackPanel Grid.Column="0">
+                <!-- 최종 입력 시험 1단계 : 미입력 경고가 등급 타일 오른쪽 칸(MaxWidth 280)에서 '0' 뒤로 두세 줄 꺾였다
+                     → 타일 아래 줄로 옮겨 카드 전폭을 쓴다(1280·1920 모두 한 줄 · 더 좁으면 줄바꿈) -->
+                <StackPanel>
+                    <!--── 등급 8종을 한 번에 본다 ─────────────────────-->
+                    <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <StackPanel Style="{StaticResource WqGradeTile}">
                                 <TextBlock Text="pH" Style="{StaticResource CaptionTextStyle}"/>
@@ -156,9 +153,9 @@
                                    Text="pH · SS 는 숫자 등급(1 · 4 · 5), 나머지는 1a · 1b · 2~6 입니다."/>
                     </StackPanel>
 
-                    <!--── 우 : 미입력 경고 ───────────────────────────────────-->
+                    <!--── 미입력 경고 (타일 아래 · 글 길이만큼) ───────────────────────────────────-->
                     <!-- 10-17 : 종전에는 아이콘과 글을 가로 StackPanel 에 넣어 글이 줄바꿈되지 못하고 잘렸다 → 2열 Grid(글 칸이 남은 폭을 받아 줄바꿈) -->
-                    <Border Grid.Column="1" Style="{StaticResource WarnBoxBorderStyle}" MaxWidth="280"
+                    <Border Style="{StaticResource WarnBoxBorderStyle}" HorizontalAlignment="Left" Margin="0 12 0 0"
                             Visibility="{Binding HasUnfilledGrades, Converter={StaticResource BoolToVisibility}}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -174,7 +171,7 @@
                             </TextBlock>
                         </Grid>
                     </Border>
-                </Grid>
+                </StackPanel>
             </ctrl:CollapsibleSummary.ExpandedSlot>
         </ctrl:CollapsibleSummary>
 

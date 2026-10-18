@@ -69,7 +69,7 @@ public partial class MainSurveyWindowViewModel : ObservableObject, ISingletonSer
     [ObservableProperty] private string _windowTitle = "삼성 DS 모니터링 야장";
 
     [ObservableProperty] private string _version =
-        $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(2) ?? "0.1"}";
+        $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(2) ?? "0.2"}";
 
     /// <summary>분류군 재선택 팝오버가 열려 있는지(칩 테두리·배경이 이 값을 따라간다).</summary>
     [ObservableProperty] private bool _isTaxonPopupOpen;

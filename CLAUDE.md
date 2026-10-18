@@ -32,6 +32,7 @@ App.xaml(.cs)          진입점(Windows11 테마 + DI)
 InjectableServices/    DI 마커 인터페이스
 Helpers/               ChosungHelper (초성 검색)
 Behaviors/             ChosungFilteringBehavior · IntegerInput · NestedWheelScroll(바깥 스크롤 휠 넘김)
+                       · DropDownWheelGuard(목록 열린 채 휠 = 목록만 · 밖이면 닫기 · 닫힌 콤보 휠로 값 안 바뀜 · 앱 전체)
 Models/                *Entry / *SpeciesEntry (화면 행 모델) · FormChoices(양식 선택지 출처 · C-4)
 Data/                  ISpeciesListProvider · SpeciesListProvider(시드)
                        · ISiteListProvider · SiteListProvider(지점 마스터) · SiteOrdering(정렬·St.번호 · C-7) · RegionTable(권역 · C-6)
