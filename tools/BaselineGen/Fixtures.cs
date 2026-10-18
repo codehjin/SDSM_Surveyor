@@ -29,7 +29,8 @@ internal static class Fixtures
         m.SurveyDate = SurveyDate;
         m.MajorRegion = "금강";
         m.MiddleRegion = "삽교천";
-        m.RiverType = "평지형";
+        m.RiverType = "평지형";        // 하천유형(어류·저서)
+        m.RiverTypeWater = "지류";     // 하천유형(수질·서식수변) — 2026-10-18 E1 두 칸
         m.Weather = "맑음";
         m.SurveyAgency = "한국환경지리연구소";
         m.Surveyor = "기준픽스처";

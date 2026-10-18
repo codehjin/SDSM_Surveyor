@@ -480,6 +480,23 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
   하천명을 직접 적으면 `RegionTable` 에 있는 하천만 권역을 채우고(비어 있을 때), 대권역·중권역 칸은 편집 가능한 콤보(관리자 DB 게시본 값 한강·금강 / 안성천·삽교천·경안천·남한강하류).
 - 관리자 Import(`ImportCheck`)는 생태현황 파일을 지점 목록과 대조하지 않는다(생태현황은 `SiteDivision` 한 행) — 목록 밖·지점명 없음 파일도 오류 0.
 
+### 하천유형 두 칸 · 지점 칸 Enter·Tab · 생태현황 목록 분류군별 (E1~E4 · 2026-10-18 (2))
+
+- **E1 하천유형 두 칸** — `SurveyMeta.RiverType`(어류·저서) · `RiverTypeWater`(수질·서식수변) · 세션 `SurveyMetaSnapshot.RiverTypeWater`(추가한 칸 하나).
+  `ApplyTaxonForm(kind)` 는 보일 칸만 정한다(`IsRiverTypeFishVisible`/`IsRiverTypeWaterVisible` · 값은 비우지 않음 — D7 의 '비우기'는 걷어냄).
+  출력: 어류·저서 `m.RiverType` · 수질·서식수변 `m.RiverTypeWater`(일괄입력용 8행 · 보고서 `WriteSurveyMeta(m, riverType)`). 관찰형 3종 보고서 조사개황 '하천유형' 칸은 종전대로 `RiverType`.
+  복원(`ApplyTo`)에서 `RiverTypeWater` 가 없고 `RiverType` 이 본류/지류/기타면 옮긴다. 알림은 칸별(`RiverTypeNotice` · `RiverTypeWaterNotice`).
+  `tools\bulk_check.py` 도 같은 규칙(`river_types`) · BaselineGen 픽스처에 `RiverTypeWater = "지류"`.
+- **E2 지점 칸** — ⚠ Telerik `RadComboBox`(편집형)는 **닫힌 채로 글자를 치는 동안에도** 그 글자로 시작하는 첫 항목을 `SelectedItem` 으로 고른다
+  (`곡교` → 곡교천1 · `CanAutocompleteSelectItems=False` 로도 막히지 않음 · 하네스 `diag_site_trace` 실측). 포커스가 떠날 때도 고른다(`UpdateSelectionOnLostFocus` 기본 True → False 로).
+  그래서 치는 동안(`PreviewTextInput`·Back·Delete)은 `SurveyMeta.HoldSiteSelection` 을 켜 콤보의 선택을 조사개황이 받지 않고, 방향키·마우스 누름에서 끈다.
+  Enter·Tab 은 `SurveyOverviewControl.Decide` — ① `ResolveSiteText` 성공 ② 방향키로 움직였으면 콤보 기본 동작 ③ 고르지 않음(방류하천 `SiteEntryNotice` · 생태현황 `ChoiceDialog` [예]=`CommitOffListSite`).
+  ③에서는 콤보가 스스로 고른 항목을 걷어 내고 친 글자를 되돌린다. 포커스 이탈도 같은 규칙(확인 창이 떠 있는 동안은 건너뜀).
+  함께 고친 것: 전에는 목록에 없는 지점명을 쳐도 **조사개황 `Site` 로 들어가는 길이 없었다**(콤보 글자만 남고 저장 안 됨 — D4 ② 직접 입력은 프로그램으로만 시험됐었다).
+- **E3** — `SurveyMeta.CurrentTaxon`(`ApplyTaxonForm` 이 넣음) · 생태현황 `RefreshSiteOptions` 는 `Taxa` 에 지금 분류군이 있는 지점만(Taxa 가 비면 모두).
+  친 글자 해석도 그 목록 안에서(세션 복원은 대분류 전체 — 다른 탭에서 불러와도 지점을 되찾게). 고른 지점이 목록 밖이면 콤보 항목에 덧붙여 `(조류 지점)` 표시.
+- **E4** — [새 지점](`SessionService.StartNewSite`)은 압정 상태를 보지 않는다(설계 · CLAUDE.md §7).
+
 ## 7. 개발 환경 주의
 
 - F: 드라이브 마운트에서 **bash로 방금 쓴 파일을 읽으면 내용이 오래된 경우가 있다.** 파일 도구(Read/Edit/Write)를 신뢰할 것. 특히 `.git/config`를 bash로 판단하지 말 것.

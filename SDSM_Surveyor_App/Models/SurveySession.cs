@@ -47,6 +47,9 @@ public sealed class SurveyMetaSnapshot
     public string? MiddleRegion { get; set; }
     public string? River { get; set; }
     public string? RiverType { get; set; }
+    /// <summary>하천유형(수질·서식수변) — 2026-10-18 결정 E1 로 더한 칸(세션 형식 원칙의 유일한 예외 · 추가만).
+    /// 이 칸이 없는 예전 세션은 <see cref="RiverType"/> 이 본류/지류/기타면 여기로 옮겨 읽는다.</summary>
+    public string? RiverTypeWater { get; set; }
     public string? Workplace { get; set; }
     public string? Site { get; set; }
     public string? Lat { get; set; }
@@ -58,7 +61,7 @@ public sealed class SurveyMetaSnapshot
     public static SurveyMetaSnapshot From(SurveyMeta m) => new()
     {
         Project = m.Project, SurveyYear = m.SurveyYear, YearChsu = m.YearChsu, SurveyDate = m.SurveyDate,
-        MajorRegion = m.MajorRegion, MiddleRegion = m.MiddleRegion, River = m.River, RiverType = m.RiverType,
+        MajorRegion = m.MajorRegion, MiddleRegion = m.MiddleRegion, River = m.River, RiverType = m.RiverType, RiverTypeWater = m.RiverTypeWater,
         Workplace = m.Workplace, Site = m.Site, Lat = m.Lat, Lng = m.Lng, Weather = m.Weather,
         SurveyAgency = m.SurveyAgency, Surveyor = m.Surveyor
     };
@@ -77,7 +80,15 @@ public sealed class SurveyMetaSnapshot
         m.SurveyDate = SurveyDate;
         m.MajorRegion = MajorRegion;
         m.MiddleRegion = MiddleRegion;
-        m.RiverType = RiverType;
+        // E1 : 예전 세션(하천유형 한 칸) — 값이 본류/지류/기타면 수질·서식수변 칸으로 옮기고, 그 밖은 원래 칸에 둔다(지우는 값 없음)
+        var fishType = RiverType; var waterType = RiverTypeWater;
+        if (waterType is null && fishType is not null && FormChoices.RiverTypeWater.Any(c => c.Value == fishType.Trim()))
+        {
+            waterType = fishType.Trim();
+            fishType = null;
+        }
+        m.RiverType = fishType;
+        m.RiverTypeWater = waterType;
         m.Weather = Weather;
         m.SurveyAgency = SurveyAgency;
         m.Surveyor = Surveyor;

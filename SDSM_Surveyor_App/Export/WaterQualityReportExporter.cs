@@ -73,7 +73,7 @@ public static class WaterQualityReportExporter
         var m = vm.Meta;
         var s = ReportExporterBase.BeginOverview(wb, "수질 조사결과 — 조사개황");
         s.Head("[ 조사개황 ]");
-        s.WriteSurveyMeta(m);
+        s.WriteSurveyMeta(m, m.RiverTypeWater);   // 하천유형 = 수질·서식수변 칸(E1)
 
         s.Finish();
     }

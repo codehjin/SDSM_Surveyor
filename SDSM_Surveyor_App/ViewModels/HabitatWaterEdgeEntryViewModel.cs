@@ -16,7 +16,7 @@ public partial class HabitatWaterEdgeEntryViewModel : TaxonEntryViewModelBase, I
     internal const string TaxonKey = "HabitatWaterEdge";
 
     /// <summary>양식에 조사개황 하천유형이 있다 — 내보내기 때 '양식에 없는 값'을 알린다(D7).</summary>
-    protected override bool UsesRiverType => true;
+    protected override bool UsesRiverTypeWater => true;   // 하천유형 = 수질·서식수변 칸(E1)
 
     public HabitatWaterEdgeEntryViewModel(ISessionService sessions, SurveyMeta meta)
         : base(sessions, meta) { }

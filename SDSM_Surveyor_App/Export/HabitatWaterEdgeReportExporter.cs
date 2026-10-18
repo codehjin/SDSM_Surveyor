@@ -40,7 +40,7 @@ public static class HabitatWaterEdgeReportExporter
         var m = vm.Meta;
         var s = ReportExporterBase.BeginOverview(wb, "서식·수변환경 조사결과 — 조사개황");
         s.Head("[ 조사개황 ]");
-        s.WriteSurveyMeta(m);
+        s.WriteSurveyMeta(m, m.RiverTypeWater);   // 하천유형 = 수질·서식수변 칸(E1)
         s.Blank();
         s.Head("[ 특이사항 ]");
         s.Kv("조사불가시", vm.SurveyUnavailableReason);

@@ -41,8 +41,11 @@ public abstract partial class TaxonEntryViewModelBase : ObservableObject
     /// <summary>양식에 없는 값 알림(D5·D6 · 예전 세션 호환). 없으면 null.</summary>
     public virtual string? OutOfFormNotice() => null;
 
-    /// <summary>이 분류군 양식에 조사개황 하천유형이 있는가(D7 · 어류·저서·수질·서식수변).</summary>
+    /// <summary>이 분류군 양식에 조사개황 하천유형(어류·저서 칸)이 있는가.</summary>
     protected virtual bool UsesRiverType => false;
+
+    /// <summary>이 분류군 양식에 조사개황 하천유형(수질·서식수변 칸)이 있는가(E1).</summary>
+    protected virtual bool UsesRiverTypeWater => false;
 
     private static string EmptyRowsText(IEnumerable<TaxonEntryViewModelBase> vms)
     {
@@ -51,12 +54,13 @@ public abstract partial class TaxonEntryViewModelBase : ObservableObject
             : $"개체수·흔적이 빈 행 {vms.Sum(v => v.EmptyObservationRows)}개({string.Join(" · ", parts)}) — 빈칸 그대로 저장·내보냄";
     }
 
-    private string Compose(string head, IReadOnlyList<TaxonEntryViewModelBase> vms, bool riverType)
+    private string Compose(string head, IReadOnlyList<TaxonEntryViewModelBase> vms, bool riverType, bool riverTypeWater)
     {
         var notes = new List<string>();
         var empty = EmptyRowsText(vms);
         if (empty.Length > 0) notes.Add(empty);
         if (riverType && Meta.RiverTypeNotice is string r) notes.Add(r);
+        if (riverTypeWater && Meta.RiverTypeWaterNotice is string rw) notes.Add(rw);
         notes.AddRange(vms.Select(v => v.OutOfFormNotice()).Where(s => !string.IsNullOrEmpty(s))!);
         return notes.Count == 0 ? head : $"{head} · 확인: {string.Join(" · ", notes)}";
     }
@@ -66,13 +70,13 @@ public abstract partial class TaxonEntryViewModelBase : ObservableObject
     {
         List<TaxonEntryViewModelBase> all;
         lock (Instances) all = Instances.Select(w => w.TryGetTarget(out var v) ? v : null).Where(v => v is not null).Distinct().ToList()!;
-        return Compose("자료함에 저장되었습니다.", all, riverType: true);
+        return Compose("자료함에 저장되었습니다.", all, riverType: true, riverTypeWater: true);
     }
 
     /// <summary>내보내기 알림 — 이 분류군의 빈 행·양식에 없는 값을 함께(경고만).</summary>
     protected void NotifyExported(string head)
     {
-        var text = Compose(head, new[] { this }, UsesRiverType);
+        var text = Compose(head, new[] { this }, UsesRiverType, UsesRiverTypeWater);
         WeakReferenceMessenger.Default.Send(new NotifyMessage((text, text == head)));
     }
 

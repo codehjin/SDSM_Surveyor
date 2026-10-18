@@ -129,10 +129,23 @@ def date8(s):
     return s[:10].replace("-", "") if s else None
 
 
-def meta_rows(meta):
-    """전치 양식 공통 1~12행(0-based) — 90_TECH_NOTES §4."""
+WATER_RIVER_TYPES = ("본류", "지류", "기타")
+
+
+def river_types(meta):
+    """하천유형 두 칸(2026-10-18 결정 E1) — (어류·저서, 수질·서식수변).
+    RiverTypeWater 칸이 없는 예전 세션은 RiverType 이 본류/지류/기타면 수질·서식수변 칸으로 옮겨 읽는다(앱과 같은 규칙)."""
+    fish, water = meta.get("RiverType"), meta.get("RiverTypeWater")
+    if water is None and fish is not None and str(fish).strip() in WATER_RIVER_TYPES:
+        fish, water = None, str(fish).strip()
+    return fish, water
+
+
+def meta_rows(meta, water=False):
+    """전치 양식 공통 1~12행(0-based) — 90_TECH_NOTES §4. 하천유형(7행)은 어류·저서 칸, 수질·서식수변 양식이면 그 칸(E1)."""
+    fish, wat = river_types(meta)
     return {1: meta.get("YearChsu"), 2: meta.get("Site"), 3: date8(meta.get("SurveyDate")), 4: meta.get("MajorRegion"),
-            5: meta.get("MiddleRegion"), 6: meta.get("River"), 7: meta.get("RiverType"), 8: meta.get("Lat"),
+            5: meta.get("MiddleRegion"), 6: meta.get("River"), 7: wat if water else fish, 8: meta.get("Lat"),
             9: meta.get("Lng"), 10: meta.get("Weather"), 11: meta.get("SurveyAgency"), 12: meta.get("Surveyor")}
 
 
@@ -334,7 +347,7 @@ def check_files(session_path, folder, tdir):
         check(wb.sheetnames == tw.sheetnames, f"시트 = 내장본 {wb.sheetnames} (License 없음)")
         check(formula_count(wb) == formula_count(tw), f"수식 개수 {formula_count(wb)} = 내장본 {formula_count(tw)}")
         wx = taxa["WaterQuality"]
-        exp = dict(m)
+        exp = meta_rows(meta, water=True)   # 하천유형 = 수질·서식수변 칸(E1)
         exp.update({13: wx.get("PH"), 14: wx.get("Bod"), 15: wx.get("Cod"), 16: wx.get("Toc"), 17: wx.get("Ss"), 18: wx.get("Dox"),
                     19: wx.get("Tp"), 20: wx.get("Ecotoxicity"), 21: wx.get("EColi")})
         check_column(ws, 6, exp, "F열")
@@ -397,7 +410,7 @@ def check_files(session_path, folder, tdir):
             return sum(vals) / len(vals) if vals else None
         items = [hx.get("S1"), side("B2L", "B2R"), hx.get("S3"), hx.get("S4"), side("B5L", "B5R"), side("B6L", "B6R"),
                  hx.get("S7"), hx.get("S8"), side("B9L", "B9R"), side("B10L", "B10R")]
-        exp = dict(m)
+        exp = meta_rows(meta, water=True)   # 하천유형 = 수질·서식수변 칸(E1)
         exp.update({13: hx.get("SurveyUnavailableReason"), 14: hx.get("Note")})
         exp.update({16 + i: v for i, v in enumerate(items)})
         check_column(ws, 6, exp, "F열")

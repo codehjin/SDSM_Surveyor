@@ -217,7 +217,8 @@ public sealed class SessionService : ISessionService, ISingletonService
         foreach (var t in Taxa) t.ClearData();
 
         _meta.ClearSite();
-        _meta.RiverType = null;   // 하천유형은 지점마다 다르다 — 다음 지점으로 따라가지 않게(2026-10-18 결정 D7)
+        _meta.RiverType = null;        // 하천유형은 지점마다 다르다 — 두 칸 모두 다음 지점으로 따라가지 않게(D7 · E1)
+        _meta.RiverTypeWater = null;
         if (site is not null) _meta.SelectedSite = site;   // 지점명·하천·사업장·좌표·권역이 함께 채워진다
         CurrentSessionId = null;       // 아직 저장되지 않은 새 세션
         MarkClean();                   // 새 지점의 출발점(B-5)

@@ -221,7 +221,10 @@ internal sealed class OverviewSheet
     /// 모든 분류군이 똑같이 쓰는 조사개황 15행.
     /// ⚠ 순서·문구를 바꾸면 7개 보고서 엑셀이 한꺼번에 달라진다. 기준 파일 대조로 확인할 것.
     /// </summary>
-    public void WriteSurveyMeta(SurveyMeta m)
+    public void WriteSurveyMeta(SurveyMeta m) => WriteSurveyMeta(m, m.RiverType);
+
+    /// <summary>하천유형 칸에 쓸 값을 정해서(E1 — 수질·서식수변 보고서는 수질·서식수변 칸 값).</summary>
+    public void WriteSurveyMeta(SurveyMeta m, string? riverType)
     {
         Kv("대분류", m.Project);
         Kv("연도", m.SurveyYear);
@@ -230,7 +233,7 @@ internal sealed class OverviewSheet
         Kv("대권역명", m.MajorRegion);
         Kv("중권역명", m.MiddleRegion);
         Kv("하천명", m.River);
-        Kv("하천유형", m.RiverType);
+        Kv("하천유형", riverType);
         Kv("사업장", m.Workplace);
         Kv("지점명", m.Site);
         Kv("위도", m.Lat);

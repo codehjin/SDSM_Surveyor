@@ -73,6 +73,9 @@
             <!-- 등록된 지점만 선택. ST번호(ST1·St.1·st 1)를 쳐도 DB상 지점명으로 정규화한다.
                  C-7 : 항목은 하천 → 하천별 혼합 규칙으로 정렬되고(SiteOrdering), St.번호는 믿을 수 있는 하천만 붙는다.
                        St.번호에 맞는 지점이 여럿이면 자동으로 고르지 않고 그 후보만 펼쳐 보인다(아래 안내 문구에 후보 이름).
+                 E2(2026-10-18 (2)) : Enter·Tab = 같은 이름 → 방향키·마우스로 고른 후보 → 그 밖은 고르지 않음(코드비하인드 Decide).
+                       치는 동안·포커스가 떠날 때 콤보가 맞는 첫 항목을 골라 버리지 않게
+                       CanAutocompleteSelectItems=False · UpdateSelectionOnLostFocus=False.
                  ⚠ 대분류를 고르기 전에는 잠긴다 — 방류하천과 생태현황에 같은 이름의 다른 지점이 있어
                     섞어 보여주면 자료가 조용히 섞인다(_ecostatus_sites_extracted §8-2). -->
             <telerik:RadComboBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" x:Name="SiteCombo" AutomationProperties.AutomationId="SiteCombo"
@@ -82,9 +85,12 @@
                                  DisplayMemberPath="Display"
                                  IsEnabled="{Binding IsSiteSelectable}"
                                  IsEditable="True" IsFilteringEnabled="True"
+                                 CanAutocompleteSelectItems="False" UpdateSelectionOnLostFocus="False"
                                  EmptyText="지점 선택 또는 ST번호 입력"
                                  LostFocus="SiteCombo_LostFocus"
                                  PreviewKeyDown="SiteCombo_PreviewKeyDown"
+                                 PreviewTextInput="SiteCombo_PreviewTextInput"
+                                 PreviewMouseLeftButtonDown="SiteCombo_PreviewMouseLeftButtonDown"
                                  KeyDown="SiteCombo_KeyDown"/>
             <TextBlock Text="{Binding SiteHint}" Style="{StaticResource CaptionTextStyle}"
                        Margin="0 4 0 0" TextTrimming="CharacterEllipsis"/>
@@ -169,7 +175,15 @@
             <!-- C-4 : 양식 8행 '산간형/평지형/강' 택1 · 이름 저장. 예전 값(평지천 등)은 지우지 않고 '(양식 외)' 경고 -->
             <!-- D7(2026-10-18) : 선택지는 지금 분류군 양식대로(어류·저서 산간형/평지형/강 · 수질·서식수변 본류/지류/기타).
                  조류·포유류·양서파충류 양식에는 하천유형이 없어 칸을 숨긴다(값은 지우지 않는다). -->
-            <uc:SingleChoiceBox Options="{Binding RiverTypeOptions}" Value="{Binding RiverType}"
+            <!-- E1(2026-10-18 (2)) : 칸을 둘로 — 어류·저서 RiverType(산간형/평지형/강) · 수질·서식수변 RiverTypeWater(본류/지류/기타).
+                 보고 있는 분류군 탭에 맞는 칸 하나만 보이고, 탭을 바꿔도 값은 두 칸 모두 그대로다. -->
+            <uc:SingleChoiceBox Options="{x:Static models:FormChoices.RiverType}" Value="{Binding RiverType}"
+                                Visibility="{Binding IsRiverTypeFishVisible, Converter={StaticResource BoolToVisibility}}"
+                                AutomationProperties.AutomationId="RiverTypeFishBox"
+                                ToolTipText="{Binding RiverTypeHint}" AutomationName="하천유형"/>
+            <uc:SingleChoiceBox Options="{x:Static models:FormChoices.RiverTypeWater}" Value="{Binding RiverTypeWater}"
+                                Visibility="{Binding IsRiverTypeWaterVisible, Converter={StaticResource BoolToVisibility}}"
+                                AutomationProperties.AutomationId="RiverTypeWaterBox"
                                 ToolTipText="{Binding RiverTypeHint}" AutomationName="하천유형"/>
         </StackPanel>
 

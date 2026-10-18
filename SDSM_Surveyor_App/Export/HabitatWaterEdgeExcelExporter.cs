@@ -39,7 +39,7 @@ public static class HabitatWaterEdgeExcelExporter
         Set(4, m.MajorRegion);
         Set(5, m.MiddleRegion);
         Set(6, m.River);
-        Set(7, m.RiverType);
+        Set(7, m.RiverTypeWater);   // 하천유형(수질·서식수변 칸 · E1)
         Set(8, m.Lat);
         Set(9, m.Lng);
         Set(10, m.Weather);
