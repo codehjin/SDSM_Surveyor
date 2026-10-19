@@ -131,17 +131,31 @@ $name = if ($Test) { 'SDSM_Surveyor_테스트_' } else { 'SDSM_Surveyor_' }
 $zip  = Join-Path $dest ($name + (Get-Date -Format 'yyyyMMdd') + '.zip')
 if (Test-Path $zip) { Remove-Item $zip -Force }
 
+# 압축 안 맨 위 폴더 — SDSM_Surveyor_v<버전>\ (2026-10-19 결정 H2). 버전은 게시한 exe 의 파일 버전(앞 두 자리)에서 읽는다.
+#   압축을 풀면 이 폴더 하나가 생기고 그 안에 실행 파일이 있다(맨 위 폴더가 없으면 '여기에 풀기'로 파일 400여 개가 흩어진다).
+$exeVer = [System.Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $stage 'SDSM_Surveyor_App.exe')).FileVersion
+if (-not $exeVer) { Fail 'exe 파일 버전을 읽지 못했습니다' 4 }
+$top = 'SDSM_Surveyor_v' + (([version]$exeVer).ToString(2))
+
+# 게시 폴더를 '맨 위 폴더 이름'으로 잠시 옮겨 그 폴더째 압축한다(includeBaseDirectory = $true).
+$wrap = Join-Path $tools '_publish_zip'
+if (Test-Path $wrap) { Remove-Item $wrap -Recurse -Force }
+New-Item -ItemType Directory -Path $wrap | Out-Null
+$topDir = Join-Path $wrap $top
+Move-Item $stage $topDir
+
 # ⚠ Compress-Archive 는 300MB 급에서 느리고 한글 파일명 플래그를 안 세운다.
 #    CreateFromDirectory 는 entryNameEncoding 을 UTF-8 로 못박을 수 있다.
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::CreateFromDirectory(
-    $stage, $zip,
+    $topDir, $zip,
     [System.IO.Compression.CompressionLevel]::Optimal,
-    $false,
+    $true,
     [System.Text.Encoding]::UTF8)
 if (-not (Test-Path $zip)) { Fail '압축 실패' 4 }
 
-Remove-Item $stage -Recurse -Force
+Remove-Item $wrap -Recurse -Force
+Write-Host "    압축 안 맨 위 폴더 : $top\"
 
 $mb = '{0:N1} MB' -f ((Get-Item $zip).Length / 1MB)
 Write-Host ''

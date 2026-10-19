@@ -113,6 +113,29 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     [ObservableProperty] private string _dominantSpecies = "-";
     [ObservableProperty] private double? _dominantShare;
 
+    // ── 개체밀도(inds./㎡) — 표시만(H1). 지수·세션·일괄입력용은 실측 개체수 그대로 ──
+    /// <summary>채집기 횟수 4칸으로 정한 채집 면적(<see cref="BenthosDensity"/> 면적표).</summary>
+    public BenthosDensity.Sampling DensitySampling => BenthosDensity.Of(Surbernet30, Surbernet50, Dredge, Ekman);
+
+    /// <summary>총 개체밀도 = 총 개체수 ÷ 채집 면적(소수 1자리). 환산할 수 없거나 자료가 없으면 null.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TotalDensityText))]
+    private double? _totalDensity;
+
+    /// <summary>계산 근거(예: `Surber 30×30 × 3회 = 0.27㎡`) 또는 계산하지 않은 까닭.</summary>
+    [ObservableProperty] private string _densityBasis = BenthosDensity.NoCountText;
+
+    public string TotalDensityText => TotalDensity is double d ? d.ToString("N1") : "·";
+
+    /// <summary>채집기 횟수나 총 개체수가 바뀌면 다시 계산한다.</summary>
+    private void RecalculateDensity()
+    {
+        var s = DensitySampling;
+        DensityBasis = s.Text;
+        // 종이 하나도 없으면 '미입력'과 구분할 수 없다 — 출현종 없음(0종) 선언일 때만 0
+        TotalDensity = TotalSpeciesCount == 0 && !NoSpeciesDeclared ? null : s.Density(TotalIndividualCount);
+    }
+
     /// <summary>합계 행의 상대풍부도 칸. 개체가 없으면 100% 가 아니라 `·`(미산출).</summary>
     public string TotalShareText => TotalIndividualCount > 0 ? "100%" : "·";
 
@@ -262,10 +285,10 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     partial void OnGravelChanged(string? value) => RaiseEnvironmentSummary();
     partial void OnSmallStoneChanged(string? value) => RaiseEnvironmentSummary();
     partial void OnBigStoneChanged(string? value) => RaiseEnvironmentSummary();
-    partial void OnSurbernet30Changed(string? value) => RaiseEnvironmentSummary();
-    partial void OnSurbernet50Changed(string? value) => RaiseEnvironmentSummary();
-    partial void OnDredgeChanged(string? value) => RaiseEnvironmentSummary();
-    partial void OnEkmanChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnSurbernet30Changed(string? value) { RaiseEnvironmentSummary(); RecalculateDensity(); }
+    partial void OnSurbernet50Changed(string? value) { RaiseEnvironmentSummary(); RecalculateDensity(); }
+    partial void OnDredgeChanged(string? value) { RaiseEnvironmentSummary(); RecalculateDensity(); }
+    partial void OnEkmanChanged(string? value) { RaiseEnvironmentSummary(); RecalculateDensity(); }
 
     /// <summary>빠른추가로 들어온 행을 1.2초간 강조한다(기반 클래스가 타이머를 돌린다).</summary>
     protected override void SetJustAdded(BenthosSpeciesEntry row, bool value) => row.IsJustAdded = value;
@@ -467,6 +490,8 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         var (bmi, bmiGrade) = BenthosCalculator.GetBMI(imports, SurveyUnavailableReason, NoSpeciesDeclared);
         BmiScore = bmi;
         BmiGrade = bmiGrade ?? "-";
+
+        RecalculateDensity();
 
         ExportExcelCommand.NotifyCanExecuteChanged();
         ExportBulkCommand.NotifyCanExecuteChanged();

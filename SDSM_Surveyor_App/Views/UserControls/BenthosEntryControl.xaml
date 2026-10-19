@@ -397,6 +397,15 @@
                             <TextBlock Text="{Binding TotalIndividualCount, StringFormat={}{0:N0}}"
                                        Style="{StaticResource ValueTextStyle}"/>
                         </StackPanel>
+                        <!-- H1 : 개체밀도 = 총 개체수 ÷ 채집 면적(Models\BenthosDensity 면적표) · 표시만 — 지수는 실측 개체수 -->
+                        <StackPanel Margin="0 0 24 0" MaxWidth="240"
+                                    AutomationProperties.AutomationId="BenthosDensityPanel">
+                            <TextBlock Text="개체밀도(inds./㎡)" Style="{StaticResource CaptionTextStyle}"/>
+                            <TextBlock Text="{Binding TotalDensityText}" Style="{StaticResource ValueTextStyle}"
+                                       AutomationProperties.AutomationId="BenthosDensityValue"/>
+                            <TextBlock Text="{Binding DensityBasis}" Style="{StaticResource CaptionTextStyle}"
+                                       TextWrapping="Wrap" AutomationProperties.AutomationId="BenthosDensityBasis"/>
+                        </StackPanel>
                         <StackPanel Margin="0 0 24 0">
                             <TextBlock Text="우점종" Style="{StaticResource CaptionTextStyle}"/>
                             <StackPanel Orientation="Horizontal">

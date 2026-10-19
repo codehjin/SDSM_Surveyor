@@ -398,6 +398,13 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 - 조사불가 사유(접근불가·건천화·준설·공사중)가 있으면 등급 `"-"`
 - 유효 개체가 0이면 지수를 계산하지 않고 `-` 표시(0건인데 FAI 37.5 같은 오해 방지)
 
+### 저서 개체밀도 — 표시만 (H1 · 2026-10-19)
+- 면적표는 `Models\BenthosDensity.cs` **한 곳**(Surber 30×30 0.09㎡ · 50×50 0.25㎡ · 에크만 0.0225㎡ = 15×15cm 기본값 · 드렛지/D-Net 없음). 화면 VM(`BenthosEntryViewModel.DensitySampling`/`TotalDensity`)과 보고서(`BenthosReportExporter`)가 같은 것을 부른다.
+- **지수 계산(`SDSM_Core`)·일괄입력용·세션에는 들어가지 않는다.** BMI 는 출현도 h 를 조사 안 순위로 매겨 환산과 관계없이 같고, 환산으로 값이 달라지는 지수는 R1(=(S−1)/ln N)뿐이라 섞으면 관리자 계산과 어긋난다.
+- 드렛지/D-Net 이 하나라도 있으면 환산하지 않는다 — 종별 개체수가 채집기 구분 없이 합쳐져 있어 정량 채집기 몫만 떼어 낼 수 없다.
+- 총 개체밀도는 총 개체수 ÷ 면적. 종별 값(소수 1자리로 반올림)을 더하면 어긋난다(37.0+25.9=62.9 ≠ 63.0).
+- 보고서 열이 끼어들어 출현종·건강성평가 시트의 열 번호가 밀렸다(출현종 L열 · 건강성평가 J·K열). 여러 지점 일괄 보고서(`CombinedReport`)는 머리줄·각주를 첫 지점 것으로 쓰므로 그대로 동작한다.
+
 ### 계산식 일치 검증 결과 (2026-08-20) — 상세는 `_calc_parity_20260820.md`
 
 관리자 `GB.cs` ↔ 조사자 `Ecology\` 를 **1,379건 대조**했다(경계값 중심, DB·관리자 앱 미실행).
@@ -512,6 +519,8 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 
 ## 7. 개발 환경 주의
 
+- **배포 압축 맨 위 폴더(H2 · 2026-10-19)** — `publish.ps1` 4단계는 게시 폴더를 `tools\_publish_zip\SDSM_Surveyor_v<exe 파일 버전 앞 두 자리>` 로 옮겨 `CreateFromDirectory(…, includeBaseDirectory: $true, UTF8)` 로 압축한다. 압축이 끝나면 `_publish_zip` 을 지운다(실패하면 남는다 — `.gitignore`).
+- 작업 사본의 `.ps1`·`.gitignore` 가 CRLF 로 남아 있는 경우가 있다(저장소는 `eol=lf`). 고칠 때 LF 로 맞춰야 `git diff` 에 CRLF 경고가 안 난다(`.ps1` 은 BOM 유지).
 - F: 드라이브 마운트에서 **bash로 방금 쓴 파일을 읽으면 내용이 오래된 경우가 있다.** 파일 도구(Read/Edit/Write)를 신뢰할 것. 특히 `.git/config`를 bash로 판단하지 말 것.
 - CS8826 경고(부분 메서드 시그니처 차이)는 `On○○Changed(T v)` 매개변수명을 소스 생성기 규약인 **`value`** 로 바꾸면 사라진다. 동작에는 영향 없음.
 

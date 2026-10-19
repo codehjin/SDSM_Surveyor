@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Microsoft.Win32;
 using SDSM_Core.Ecology;
+using SDSM_Surveyor_App.Models;
 using SDSM_Surveyor_App.ViewModels;
 using Telerik.Documents.Spreadsheet.FormatProviders.OpenXml.Xlsx;
 using Telerik.Documents.Spreadsheet.Model;
@@ -49,6 +50,10 @@ public static class BenthosReportExporter
         s.Kv("Surber 50×50 (회)", vm.Surbernet50);
         s.Kv("드렛지/D-Net (회)", vm.Dredge);
         s.Kv("에크만 (회)", vm.Ekman);
+        // H1 : 채집 면적과 계산 근거(드렛지/D-Net 이 섞이면 '환산 불가', 횟수가 없으면 계산하지 않음)
+        var sampling = vm.DensitySampling;
+        s.Kv("채집 면적(㎡)", sampling.Area is double area ? BenthosDensity.Num(area) : null);
+        s.Kv("개체밀도 계산", sampling.Text);
         s.Blank();
         s.Head("[ 서식처(하천 이용·식생) ]");
         s.Kv("유역이용", vm.Watershed);
@@ -98,9 +103,11 @@ public static class BenthosReportExporter
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("저서동물 출현종 목록"); row += 2;
 
         int headerRow = row;
-        WriteHeader(ws, row, SiteColumns.With("문", "강", "목", "과", "국명", "학명", "개체수", "오탁치", "지표가중치", "보호종"));
+        // H1 : 개수 옆에 개체밀도(표시용 · 환산할 수 없으면 빈칸 — 까닭은 조사개황 '개체밀도 계산'·각주)
+        WriteHeader(ws, row, SiteColumns.With("문", "강", "목", "과", "국명", "학명", "개체수", "개체밀도(inds./㎡)", "오탁치", "지표가중치", "보호종"));
         row++;
 
+        var sampling = vm.DensitySampling;
         foreach (var e in vm.SpeciesEntries)
         {
             var ko = e.SelectedSpecies?.SpeciesKo ?? e.SpeciesKo;
@@ -115,13 +122,14 @@ public static class BenthosReportExporter
             ws.Cells[row, 8].SetValue(ko);
             Str(ws, row, 9, sp?.SpeciesEn);
             Num(ws, row, 10, e.IndividualCount!.Value);
-            Num(ws, row, 11, sp?.SaprobicValue);
-            if (sp?.IndicatorWeight is int iw) Num(ws, row, 12, iw);
+            Num(ws, row, 11, sampling.Density(e.IndividualCount));
+            Num(ws, row, 12, sp?.SaprobicValue);
+            if (sp?.IndicatorWeight is int iw) Num(ws, row, 13, iw);
             if (e.IsProtected)
             {
-                ws.Cells[row, 13].SetValue("보호종");
-                ws.Cells[row, 13].SetForeColor(new ThemableColor(Accent));
-                ws.Cells[row, 13].SetIsBold(true);
+                ws.Cells[row, 14].SetValue("보호종");
+                ws.Cells[row, 14].SetForeColor(new ThemableColor(Accent));
+                ws.Cells[row, 14].SetIsBold(true);
             }
             row++;
         }
@@ -129,9 +137,13 @@ public static class BenthosReportExporter
         int lastRow = row - 1;
         SiteColumns.Widths(ws);
         Width(ws, 3, 110); Width(ws, 4, 95); Width(ws, 5, 95); Width(ws, 6, 110); Width(ws, 7, 120);
-        Width(ws, 8, 150); Width(ws, 9, 220); Width(ws, 10, 75); Width(ws, 11, 70); Width(ws, 12, 85); Width(ws, 13, 70);
-        TryAutoFilter(ws, headerRow, lastRow, 13);
-        FontAll(ws, lastRow, 13);
+        Width(ws, 8, 150); Width(ws, 9, 220); Width(ws, 10, 75); Width(ws, 11, 120); Width(ws, 12, 70); Width(ws, 13, 85); Width(ws, 14, 70);
+        TryAutoFilter(ws, headerRow, lastRow, 14);
+
+        // 각주 — 자료 아래 빈 줄 다음(여러 지점 일괄 보고서는 첫 지점 것을 한 번만 붙인다)
+        row++;
+        foreach (var f in BenthosDensity.Footnotes) ws.Cells[row++, 0].SetValue(f);
+        FontAll(ws, row - 1, 14);
     }
 
     // ── 시트3 : 건강성평가(BMI) — 계산과정 → 결과 → 등급 ──
@@ -156,7 +168,7 @@ public static class BenthosReportExporter
         int headerRow = row;
         WriteHeader(ws, row, SiteColumns.With(
             "연도차수", "하천명", "조사일",
-            "총출현종수", "총개체수", "우점종",
+            "총출현종수", "총개체수", "채집 면적(㎡)", "총 개체밀도(inds./㎡)", "우점종",
             "우점도 DI", "다양도 H'", "풍부도 R1", "균등도 J'",
             "Σ(s·g·h)", "Σ(g·h)", "BMI점수", "등급"));
         row++;
@@ -167,30 +179,37 @@ public static class BenthosReportExporter
         Str(ws, row, 6, m.SurveyDate?.ToString("yyyy-MM-dd"));
         Num(ws, row, 7, b.TotalSpecies);
         Num(ws, row, 8, b.TotalIndiv);
-        Str(ws, row, 9, vm.DominantSpecies);
-        Num(ws, row, 10, Math.Round(b.DI, 3));
-        Num(ws, row, 11, Math.Round(b.H, 3));
-        Num(ws, row, 12, Math.Round(b.R1, 3));
-        Num(ws, row, 13, Math.Round(b.J, 3));
-        Num(ws, row, 14, Math.Round(b.SumSGH, 3));
-        Num(ws, row, 15, Math.Round(b.SumGH, 3));
-        Num(ws, row, 16, b.Score);
+        // H1 : 총 개체밀도 = 총 개체수 ÷ 면적(반올림한 종별 값을 더하지 않는다) · 환산할 수 없으면 그 까닭을 적는다
+        var sampling = vm.DensitySampling;
+        Num(ws, row, 9, sampling.Area);
+        // 종이 하나도 없으면 '미입력'과 구분할 수 없다 — 화면과 같이 출현종 없음(0종) 선언일 때만 0
+        if (sampling.CanConvert) Num(ws, row, 10, b.TotalSpecies == 0 && !vm.NoSpeciesDeclared ? null : sampling.Density(b.TotalIndiv));
+        else ws.Cells[row, 10].SetValue(sampling.Text);
+        Str(ws, row, 11, vm.DominantSpecies);
+        Num(ws, row, 12, Math.Round(b.DI, 3));
+        Num(ws, row, 13, Math.Round(b.H, 3));
+        Num(ws, row, 14, Math.Round(b.R1, 3));
+        Num(ws, row, 15, Math.Round(b.J, 3));
+        Num(ws, row, 16, Math.Round(b.SumSGH, 3));
+        Num(ws, row, 17, Math.Round(b.SumGH, 3));
+        Num(ws, row, 18, b.Score);
         var g = b.Grade ?? "-";
-        ws.Cells[row, 17].SetValue(g);
-        GradeCell(ws.Cells[row, 17], b.Grade);
+        ws.Cells[row, 19].SetValue(g);
+        GradeCell(ws.Cells[row, 19], b.Grade);
 
         int lastRow = row;
         SiteColumns.Widths(ws);
         Width(ws, 3, 110); Width(ws, 4, 100); Width(ws, 5, 100); Width(ws, 6, 95);
-        Width(ws, 7, 90); Width(ws, 8, 80); Width(ws, 9, 130);
-        Width(ws, 10, 80); Width(ws, 11, 80); Width(ws, 12, 80); Width(ws, 13, 80);
-        Width(ws, 14, 95); Width(ws, 15, 90); Width(ws, 16, 80); Width(ws, 17, 60);
-        TryAutoFilter(ws, headerRow, lastRow, 17);
+        Width(ws, 7, 90); Width(ws, 8, 80); Width(ws, 9, 95); Width(ws, 10, 150); Width(ws, 11, 130);
+        Width(ws, 12, 80); Width(ws, 13, 80); Width(ws, 14, 80); Width(ws, 15, 80);
+        Width(ws, 16, 95); Width(ws, 17, 90); Width(ws, 18, 80); Width(ws, 19, 60);
+        TryAutoFilter(ws, headerRow, lastRow, 19);
 
         row += 2;
         ws.Cells[row, 0].SetValue("※ BMI = (4 − Σ(s·g·h)/Σ(g·h)) × 25.  s=오탁치, g=지표가중치, h=개체수 순위점수.");
         row++;
         ws.Cells[row, 0].SetValue("※ 등급 A≥80·B≥65·C≥50·D≥35·E<35. 채집불가(접근불가/건천화/준설/공사중) 시 등급 '-'.");
-        FontAll(ws, row, 17);
+        foreach (var f in BenthosDensity.Footnotes) ws.Cells[++row, 0].SetValue(f);
+        FontAll(ws, row, 19);
     }
 }
