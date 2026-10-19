@@ -352,11 +352,11 @@
                             </TextBlock>
 
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                <!-- C-2 : 새 지점 — 저장 확인(B-5) → 7개 분류군 입력·지점 비움 → 압정 칸 유지 → 지점 칸으로 -->
+                                <!-- C-2 : 새 지점 — 저장 확인(B-5) → 7개 분류군 입력·지점 비움 → 6칸 유지(압정과 무관 · E4) → 지점 칸으로 -->
                                 <Button x:Name="NewSiteButton" Content="새 지점" Style="{StaticResource SmallOutlineButtonStyle}"
                                         Margin="0 0 8 0" Click="NewSite_Click"
                                         AutomationProperties.Name="새 지점"
-                                        ToolTipService.ToolTip="입력을 비우고 다른 지점을 새로 시작합니다. 압정으로 고정한 칸(대분류·연도차수·조사일자·날씨·조사자·조사기관)은 그대로 둡니다."/>
+                                        ToolTipService.ToolTip="입력과 지점을 비우고 다른 지점을 새로 시작합니다. 대분류·연도차수·조사일자·날씨·조사자·조사기관은 압정과 관계없이 그대로 둡니다."/>
                                 <Button Content="지도" Style="{StaticResource SmallOutlineButtonStyle}"
                                         Click="Map_Click"
                                         ToolTipService.ToolTip="등록된 지도를 보고 지도를 추가·교체합니다"/>

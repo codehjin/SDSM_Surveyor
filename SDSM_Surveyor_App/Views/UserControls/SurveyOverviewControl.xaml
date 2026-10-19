@@ -158,7 +158,8 @@
             <!-- D4 ② : 표에 없는 하천(생태현황 목록 밖 지점 등)은 목록에서 고르거나 직접 적는다(편집 가능 콤보) -->
             <telerik:RadComboBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                  AutomationProperties.AutomationId="MajorRegionCombo"
-                                 IsEditable="True" EmptyText="지점 선택 시 자동 · 직접 고름"
+                                 ToolTipService.ToolTip="곡교천·오산천·원천리천 하천의 지점을 고르면 자동으로 채워집니다. 생태현황의 그 밖의 하천(진위천·안성천 등)은 목록에서 고르거나 직접 적습니다."
+                                 IsEditable="True" EmptyText="지점에 따라 자동 · 직접 고름"
                                  ItemsSource="{x:Static data:RegionTable.Majors}"
                                  Text="{Binding MajorRegion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
@@ -167,7 +168,8 @@
             <TextBlock Text="중권역명" Style="{StaticResource FormLabelStyle}"/>
             <telerik:RadComboBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                  AutomationProperties.AutomationId="MiddleRegionCombo"
-                                 IsEditable="True" EmptyText="지점 선택 시 자동 · 직접 고름"
+                                 ToolTipService.ToolTip="곡교천·오산천·원천리천 하천의 지점을 고르면 자동으로 채워집니다. 생태현황의 그 밖의 하천(진위천·안성천 등)은 목록에서 고르거나 직접 적습니다."
+                                 IsEditable="True" EmptyText="지점에 따라 자동 · 직접 고름"
                                  ItemsSource="{x:Static data:RegionTable.Middles}"
                                  Text="{Binding MiddleRegion, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>

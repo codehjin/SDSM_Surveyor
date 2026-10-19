@@ -94,13 +94,13 @@ public partial class MainSurveyWindow : Window, ISingletonService
         => new MapPopupWindow { Owner = this }.ShowDialog();
 
     /// <summary>
-    /// [새 지점](C-2) — 저장 확인(B-5) → 7개 분류군 입력과 지점을 비움 → 압정 칸은 그대로 → 지점 칸에 포커스.
+    /// [새 지점](C-2) — 저장 확인(B-5) → 7개 분류군 입력과 지점을 비움 → 조사개황 6칸은 압정과 관계없이 그대로(E4) → 지점 칸에 포커스.
     /// </summary>
     private async void NewSite_Click(object sender, RoutedEventArgs e)
     {
         var sessions = App.Current.Services.GetRequiredService<ISessionService>();
         if (!await UnsavedChangesPrompt.ConfirmAsync(this, sessions,
-                "새 지점으로 시작하면 지금 화면의 입력과 지점이 비워집니다(압정으로 고정한 칸은 그대로).")) return;
+                "새 지점으로 시작하면 지금 화면의 입력과 지점이 비워집니다(대분류·연도차수·조사일자·날씨·조사자·조사기관은 압정과 관계없이 그대로).")) return;
         sessions.StartNewSite(null);
         FocusSiteBox();
     }

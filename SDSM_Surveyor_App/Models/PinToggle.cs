@@ -36,10 +36,13 @@ public partial class PinToggle : ObservableObject
     /// <summary>고정된 값이 실제로 있는지(빈 값을 고정해 두면 안내가 이상해진다).</summary>
     public bool HasValue => !string.IsNullOrWhiteSpace(ValueText);
 
-    /// <summary>도움말 — `대분류 값 고정`.</summary>
+    /// <summary>
+    /// 도움말 — 압정은 <b>앱을 다시 켤 때</b> 빈 조사개황에 값을 채우는 기능이다.
+    /// [새 지점]은 압정과 관계없이 6칸을 모두 남긴다(E4) — 그 일과 섞어 말하지 않는다.
+    /// </summary>
     public string ToolTipText => IsOn
-        ? $"{Label} 고정됨 · 새 야장에 이 값이 들어갑니다. 누르면 해제됩니다."
-        : $"{Label} 값을 고정합니다. 앱을 다시 켜도 새 야장에 자동으로 들어갑니다.";
+        ? $"{Label} 고정됨 · 앱을 다시 켜면 이 값이 자동으로 들어갑니다. 누르면 해제됩니다."
+        : $"{Label} 값을 고정합니다 — 앱을 다시 켜면 이 값이 자동으로 들어갑니다. ([새 지점]은 압정과 관계없이 이 칸을 남깁니다)";
 
     partial void OnIsOnChanged(bool value)
     {

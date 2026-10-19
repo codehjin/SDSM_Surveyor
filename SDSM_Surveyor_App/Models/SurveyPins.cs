@@ -81,7 +81,7 @@ public partial class SurveyPins : ObservableObject, ISingletonService
 
             var head = $"고정된 값 {shown.Count}개 — {string.Join(" · ", shown.Select(p => $"{p.Label} {p.ValueText}"))}";
             return stale.Count == 0
-                ? $"{head} (새 야장에 그대로 들어갑니다)"
+                ? $"{head} (앱을 다시 켜면 이 값이 들어갑니다)"
                 : $"{head} · ⚠ 지금 야장의 {string.Join(" · ", stale)} 은(는) 고정값과 다릅니다";
         }
     }
