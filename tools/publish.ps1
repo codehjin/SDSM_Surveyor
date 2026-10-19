@@ -2,6 +2,10 @@
   SDSM_Surveyor 게시 스크립트
     .\publish.ps1 -Test      테스트 배포본(자료함 예시 자료 포함)
     .\publish.ps1            실제 배포본(예시 자료 없음)
+    .\publish.ps1 -Test -CheckOnly   1~3단계 검사만(압축하지 않음)
+
+  ⚠ 압축(4단계)까지 가는 실행은 커밋하지 않은 변경이 있으면 시작하자마자 멈춘다(2026-10-19).
+     제품 버전에 박히는 커밋 해시가 압축 내용과 같아야 하기 때문이다. -CheckOnly 는 경고만 하고 계속한다.
 
   ⚠ 한글이 들어가는 일은 전부 여기(PowerShell)에서 한다.
      .cmd 는 UTF-8 로 저장하면 cmd.exe 가 멀티바이트 글자에서 읽는 위치를 잃고
@@ -10,7 +14,7 @@
   ⚠ 이 파일은 UTF-8 with BOM 으로 저장한다. BOM 이 없으면 Windows PowerShell 5.1 이
      한글을 CP949 로 읽어 깨진다.
 #>
-param([switch]$Test)
+param([switch]$Test, [switch]$CheckOnly)
 
 $ErrorActionPreference = 'Stop'
 # 콘솔을 UTF-8 로. 없거나 실패해도 진행한다(출력 글자만 영향).
@@ -39,6 +43,29 @@ $kind  = if ($Test) { '테스트' } else { '실배포' }
 $stage = Join-Path $tools ('_publish_' + $(if ($Test) { 'test' } else { 'release' }))
 
 Write-Host "=== SDSM_Surveyor $kind 배포본 만들기 ===" -ForegroundColor Cyan
+
+# ── 0 커밋 확인 ────────────────────────────────────────────────────────────
+# 2026-10-19 : 커밋하기 전 작업 폴더로 압축을 만들어, 제품 버전의 커밋 해시(b942e46)가 압축 내용(8250bc1)과 달랐다.
+#   압축까지 가는 실행은 커밋하지 않은 변경이 있으면 멈춘다. -CheckOnly(1~3단계 검사만)는 경고만 하고 계속한다.
+#   .gitignore 로 빠지는 파일은 git status 에 나오지 않는다(게시 임시 폴더 · 빌드 로그 등).
+try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }   # 한글 파일 이름이 깨지지 않게
+$eap = $ErrorActionPreference; $ErrorActionPreference = 'Continue'   # git 이 stderr 에 쓰는 안내로 멈추지 않게
+$dirty = @(& git -C $root -c core.quotepath=off status --porcelain 2>$null)
+$gitOk = ($LASTEXITCODE -eq 0)
+$ErrorActionPreference = $eap
+if (-not $gitOk) { Fail 'git 상태를 읽지 못했습니다(git 이 없거나 저장소가 아닙니다).' 5 }
+if ($dirty.Count -gt 0) {
+    Write-Host ''
+    Write-Host '[!] 커밋하지 않은 변경이 있습니다 — 먼저 커밋하세요' -ForegroundColor Yellow
+    foreach ($line in $dirty) { Write-Host "      $line" }
+    if ($CheckOnly) {
+        Write-Host '    -CheckOnly : 1~3단계 검사만 하므로 계속합니다(압축은 만들지 않습니다).' -ForegroundColor Yellow
+    } else {
+        Fail "커밋하지 않은 변경 $($dirty.Count)건 — 배포본을 만들지 않았습니다. 커밋한 뒤 다시 실행하세요." 5
+    }
+} else {
+    Write-Host '    작업 폴더 깨끗함(커밋하지 않은 변경 없음)'
+}
 
 # 앱이 떠 있으면 exe 가 잠겨 게시가 실패한다.
 if (Get-Process -Name 'SDSM_Surveyor_App' -ErrorAction SilentlyContinue) {
@@ -115,6 +142,12 @@ if ($Test) {
 } else {
     if (Test-Path $seedDir) { Fail '실배포본에 예시 자료가 섞였습니다' 3 }
     Write-Host "    지도 $nMap 장 확인 · 예시 자료 없음 확인"
+}
+
+if ($CheckOnly) {
+    Write-Host ''
+    Write-Host '=== 1~3단계 통과 (-CheckOnly : 4단계 압축은 하지 않음) ===' -ForegroundColor Green
+    exit 0
 }
 
 # ── 4/4 압축 ───────────────────────────────────────────────────────────────
