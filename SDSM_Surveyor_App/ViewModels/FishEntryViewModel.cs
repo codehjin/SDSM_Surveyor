@@ -33,6 +33,50 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         SpeciesListSource = speciesProvider.GetFishSpecies();
         _speciesCatalogVersion = speciesProvider.Version ?? "-";
         // 종 추가는 상단 '빠른 추가' 바로 하므로 초기 빈 행을 넣지 않는다(빈 행 누적 방지).
+        meta.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(SurveyMeta.SelectedSite)) PrefillRiverChasu(Meta.SelectedSite);
+        };
+    }
+
+    // ── 하천차수 = 지점 고정값(2026-10-20 결정 · 문제 7·10) ─────────────────────
+    // sites.json 의 지점 하천차수로 미리 채우고 고칠 수 있게 둔다. 지점을 바꾸면 — 조사자가 직접 고친 값이 아니면 — 새 지점 값으로 바꾼다.
+
+    /// <summary>마지막으로 지점에서 채운 값(조사자가 고친 값인지 가리는 데 쓴다).</summary>
+    private double? _siteChasu;
+
+    /// <summary>지점 하천차수로 채운다. 비어 있거나 앞서 지점에서 채운 그대로일 때만(조사자가 고친 값은 둔다).</summary>
+    private void PrefillRiverChasu(SurveySite? site)
+    {
+        double? next = site?.Chasu is int c && c > 0 ? c : null;
+        if (RiverChasu is null || RiverChasu == _siteChasu) RiverChasu = next;
+        _siteChasu = next;
+    }
+
+    /// <summary>
+    /// 하천차수가 비어 FAI 를 낼 수 없는가 — FAI M1·M2·M3·M7 은 하천차수별 구간표라 0차로 계산하면 낮게 나온다(문제 10).
+    /// 조사불가 사유가 있거나 출현종 없음(0종) 선언이면 하천차수 없이도 결과가 정해지므로 묻지 않는다.
+    /// </summary>
+    public bool NeedsRiverChasu => RiverChasu is not (> 0) && !IsUnavailable && !NoSpeciesDeclared
+                                   && SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0);   // 낼 자료가 없는 빈 탭에는 묻지 않는다
+
+    public const string RiverChasuNeededText = "하천차수 필요 — 조사환경에 하천차수를 넣으세요(지점 하천차수가 없음)";
+
+    public string RiverChasuNeeded => NeedsRiverChasu ? RiverChasuNeededText : string.Empty;
+
+    /// <summary>
+    /// 일괄입력용을 만들 수 없는 까닭(없으면 빈 문자열) — 관리자 일괄등록이 막는 값을 미리 막는다.
+    /// 하천차수 빈칸(문제 7) · 비정상종 개체수가 정수가 아님(문제 8·11).
+    /// </summary>
+    public string BulkBlockReason
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (NeedsRiverChasu) parts.Add("하천차수가 비어 있습니다(관리자 일괄등록 필수 칸) — 조사환경에 하천차수를 넣으세요");
+            if (AbnormalInvalid.Length > 0) parts.Add($"비정상종 개체수가 정수가 아닙니다: {AbnormalInvalid} — 정수로 고치고 종명은 비고에 적으세요");
+            return string.Join("\n", parts);
+        }
     }
 
 
@@ -69,6 +113,16 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     /// <summary>비정상종 개체수 파싱 — 미입력은 **0**으로 본다(합산 대상).
     /// 기반 클래스의 <c>Pi</c> 는 미입력을 null 로 두므로 이름을 갈라 둔다.</summary>
     private static int PiOrZero(string? s) => int.TryParse(s, out var n) ? n : 0;
+
+    /// <summary>
+    /// 비정상종(DE·EF·LE·TU) 칸 중 0 이상 정수가 아닌 것(예전 세션의 '붕어(2)' · '1.5' 등) — 지우지 않고 '양식에 없는 값'으로 알린다(문제 8·11).
+    /// 관리자 일괄등록은 정수만 받는다(형변환실패). FAI 는 지금처럼 그 칸을 0 으로 본다.
+    /// </summary>
+    public string AbnormalInvalid => string.Join(" · ", new[] { ("기형(DE)", DeCount), ("지느러미손상(EF)", EfCount), ("피부손상(LE)", LeCount), ("종양(TU)", TuCount) }
+        .Where(f => !string.IsNullOrWhiteSpace(f.Item2) && !(int.TryParse(f.Item2.Trim(), out var n) && n >= 0))
+        .Select(f => $"{f.Item1} '{f.Item2!.Trim()}'"));
+
+    public string AbnormalWarning => AbnormalInvalid.Length == 0 ? string.Empty : $"양식에 없는 값(개체수 정수만): {AbnormalInvalid}";
 
     // 위 헤더 값 변경 시에도 FAI 재계산
     partial void OnRiverChasuChanged(double? value) { RaiseEnvironmentSummary(); Recalculate(); }
@@ -305,7 +359,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
 
     /// <summary>접힌 요약줄에 띄우는 조사환경 경고(하상구성 + 채집소요시간 + 하천차수).</summary>
     public string EnvironmentWarning =>
-        string.Join(" · ", new[] { SubstrateWarning, CollectionTimeWarning, RiverChasuWarning, ChoiceWarning }.Where(s => s.Length > 0));
+        string.Join(" · ", new[] { RiverChasuNeeded, SubstrateWarning, CollectionTimeWarning, RiverChasuWarning, AbnormalWarning, ChoiceWarning }.Where(s => s.Length > 0));
 
     /// <summary>비정상종(DE·EF·LE·TU) 합계 개체수. FAI M8 의 분자다.</summary>
     public int AbnormalTotal => PiOrZero(DeCount) + PiOrZero(EfCount) + PiOrZero(LeCount) + PiOrZero(TuCount);
@@ -326,6 +380,11 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         OnPropertyChanged(nameof(EnvironmentWarning));
         OnPropertyChanged(nameof(AbnormalSummary));
         OnPropertyChanged(nameof(RiverChasuText));
+        OnPropertyChanged(nameof(AbnormalInvalid));
+        OnPropertyChanged(nameof(AbnormalWarning));
+        OnPropertyChanged(nameof(NeedsRiverChasu));
+        OnPropertyChanged(nameof(RiverChasuNeeded));
+        OnPropertyChanged(nameof(BulkBlockReason));
     }
 
     // ── 상태바(Bottom) ──
@@ -500,12 +559,27 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
             imports, SurveyUnavailableReason, abnormalCount: abnormal,
             chasu: (int)(RiverChasu ?? 0), noSpeciesDeclared: NoSpeciesDeclared);
 
-        FaiDetail = detail;
-        FaiScore = detail.Score;
-        FaiGrade = detail.Grade ?? "-";
+        if (NeedsRiverChasu)
+        {
+            // 문제 10 : 하천차수 없이 낸 FAI 는 M1·M2·M3·M7 이 0 이 되어 낮게 나온다 — 값을 보이지 않고 '하천차수 필요'를 알린다.
+            //   계산식(SDSM_Core)은 그대로다. 화면·보고서에서 쓰지 않을 뿐이다.
+            FaiDetail = null;
+            FaiScore = null;
+            FaiGrade = "-";
+        }
+        else
+        {
+            FaiDetail = detail;
+            FaiScore = detail.Score;
+            FaiGrade = detail.Grade ?? "-";
+        }
 
         RaiseHealthSummary();
         OnPropertyChanged(nameof(HasNoRows));
+        OnPropertyChanged(nameof(NeedsRiverChasu));
+        OnPropertyChanged(nameof(RiverChasuNeeded));
+        OnPropertyChanged(nameof(BulkBlockReason));
+        OnPropertyChanged(nameof(EnvironmentWarning));
 
         ExportExcelCommand.NotifyCanExecuteChanged();
         ExportBulkCommand.NotifyCanExecuteChanged();
@@ -556,6 +630,13 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     [RelayCommand(CanExecute = nameof(CanExport))]
     private void ExportBulk()
     {
+        // 관리자 일괄등록이 막을 값(하천차수 빈칸 · 비정상종 개체수가 정수 아님)이면 만들지 않고 까닭을 알린다(문제 7·8·11)
+        if (BulkBlockReason is { Length: > 0 } block)
+        {
+            StatusText = "일괄입력용을 만들지 않았습니다 — " + block.Replace("\n", " · ");
+            WeakReferenceMessenger.Default.Send(new NotifyMessage(($"일괄입력용을 만들지 않았습니다.\n{block}", false)));
+            return;
+        }
         try
         {
             var saved = Export.FishExcelExporter.Export(this);

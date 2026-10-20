@@ -94,10 +94,19 @@ public abstract partial class TaxonEntryViewModelBase : ObservableObject
     private async Task SaveTemporary()
     {
         var idx = await _sessions.SaveCurrentAsync();
+        if (idx is null)
+        {
+            // 같은 키 세션이 있어 [취소]를 골랐다(문제 1) — 아무것도 저장하지 않았다
+            StatusText = "저장하지 않았습니다(같은 자료가 있어 취소)";
+            WeakReferenceMessenger.Default.Send(new NotifyMessage((StatusText, false)));
+            return;
+        }
 
         LastSavedTime = DateTime.Now;
         StatusText = $"자료함 저장됨 · {idx.Site} {idx.YearChsu} · {LastSavedTime:HH:mm:ss}";
         var notice = SaveNoticeText();   // 개체수·흔적이 빈 행 · 양식에 없는 값 — 알리기만 한다(D3·D5~D7)
+        if (_sessions.LastSaveNotice is { } merge)   // 같은 자료에 합치거나 바꿨다 — 그 결과를 앞에
+            notice = notice == "자료함에 저장되었습니다." ? merge : $"{merge}\n{notice}";
         WeakReferenceMessenger.Default.Send(new NotifyMessage((notice, notice == "자료함에 저장되었습니다.")));
     }
 }

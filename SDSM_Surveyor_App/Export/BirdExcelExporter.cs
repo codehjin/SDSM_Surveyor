@@ -47,13 +47,14 @@ public static class BirdExcelExporter
             Set(6, e.SpeciesKo);
             Set(7, e.SpeciesEn);
             Set(8, e.Feature);
-            BulkTemplate.Put(ws, r, 15, e.Lat);
-            BulkTemplate.Put(ws, r, 16, e.Lng);
+            var (lat, lng) = ObservationReportCommon.RowOrSite(e.Lat, e.Lng, m);   // 행 좌표가 비면 지점 좌표(문제 6)
+            BulkTemplate.Put(ws, r, 15, lat);
+            BulkTemplate.Put(ws, r, 16, lng);
             BulkTemplate.Put(ws, r, 18, (double?)e.IndividualCount);
             Set(19, Models.FormChoices.MigratoryCode(e.MigratoryType));   // 출력은 코드(D5 · 이름이 남아 있어도 코드로)
             Set(20, e.Category);
             Set(21, e.CategoryDetail);
-            Set(22, e.HabitatType);
+            Set(22, Models.FormChoices.BirdHabitatName(e.HabitatType));   // 번호 1~6 → 이름(문제 18)
             Set(23, m.Surveyor);
             Set(24, e.Note);
             r++;

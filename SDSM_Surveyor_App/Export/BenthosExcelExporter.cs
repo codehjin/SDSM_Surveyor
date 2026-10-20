@@ -21,7 +21,9 @@ public static class BenthosExcelExporter
     private const int SpeciesFirstRow = 46; // 행47(0-based)
     private const int NameCol = 10;         // 국명 K
 
+    /// <summary>저장 대화상자 → 내보내기. 개체수 0·빈칸 종은 내보내지 않는다 — 있으면 먼저 묻는다(문제 5).</summary>
     public static string? Export(BenthosEntryViewModel vm) =>
+        !BulkSkippedSpecies.Confirm(BulkSkippedSpecies.Of(vm)) ? null :
         ReportExporterBase.SaveWithDialog(
             "저서동물 일괄입력 엑셀 내보내기",
             ReportExporterBase.BulkFileName(vm.Meta, "저서동물"),

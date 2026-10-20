@@ -77,8 +77,9 @@ public static class AmphibianReptileReportExporter
             foreach (var t in Traces(e)) { Num(ws, row, col, t); col++; }   // 미입력(null)은 빈 칸
 
             Num(ws, row, col, e.HasNoCount && Traces(e).All(t => t is null) ? null : e.TraceSum); col++;
-            Num(ws, row, col, e.Lat); col++;
-            Num(ws, row, col, e.Lng); col++;
+            var (lat, lng) = ObservationReportCommon.RowOrSite(e.Lat, e.Lng, vm.Meta);   // 행 좌표가 비면 지점 좌표(문제 6)
+            Num(ws, row, col, lat); col++;
+            Num(ws, row, col, lng); col++;
             Str(ws, row, col, e.Feature); col++;
             Str(ws, row, col, e.Note); col++;
             var tag = e.ProtectionText;

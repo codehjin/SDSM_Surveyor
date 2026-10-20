@@ -45,7 +45,10 @@ public static class UnsavedChangesPrompt
 
         try
         {
-            await sessions.SaveCurrentAsync();
+            // 같은 키 세션이 있어 [취소]를 고르면 저장하지 않았다 — 하던 동작도 멈춘다(문제 1)
+            if (await sessions.SaveCurrentAsync() is null) return false;
+            if (sessions.LastSaveNotice is { } notice)
+                MessageBox.Show(owner, notice, "저장", MessageBoxButton.OK, MessageBoxImage.Information);
             return true;
         }
         catch (Exception ex)

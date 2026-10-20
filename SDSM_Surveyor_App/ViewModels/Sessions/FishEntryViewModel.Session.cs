@@ -53,6 +53,8 @@ public partial class FishEntryViewModel : ITaxonSession
         NoSpeciesDeclared = d.NoSpeciesDeclared;
         IsEnvironmentExpanded = d.IsEnvironmentExpanded; IsHealthExpanded = d.IsHealthExpanded;
         DeCount = d.DeCount; EfCount = d.EfCount; LeCount = d.LeCount; TuCount = d.TuCount;
+        // 문제 7·10 : 저장된 하천차수가 없으면(예전 세션) 지점 값으로 채운다 — 저장된 값이 있으면 그대로
+        if (RiverChasu is null) PrefillRiverChasu(Meta.SelectedSite);
 
         SpeciesEntries.Clear();
         foreach (var r in d.Rows)
@@ -74,6 +76,7 @@ public partial class FishEntryViewModel : ITaxonSession
         SpeciesEntries.Clear();
         CollectionTime = CollectionTool = CollectionFlowState = null;
         RiverChasu = null;
+        PrefillRiverChasu(Meta.SelectedSite);   // 하천차수는 지점 고정값 — 빈 화면에도 지점 값을 미리 채운다(문제 7·10)
         Bedrock = Concrete = Mud = Sand = FineGravel = Gravel = SmallStone = BigStone = null;
         HabitatRiverType = HabitatFlowState = null;
         SurveyUnavailableReason = Note = null;

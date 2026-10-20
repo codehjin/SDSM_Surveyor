@@ -52,8 +52,9 @@ public static class AmphibianReptileExcelExporter
             var traces = new[] { e.Trace1, e.Trace2, e.Trace3, e.Trace4, e.Trace5, e.Trace6 };
             for (int i = 0; i < traces.Length; i++) BulkTemplate.Put(ws, r, TraceFirstCol + i, (double?)traces[i]);  // 미입력은 빈 칸
 
-            BulkTemplate.Put(ws, r, 21, e.Lat);
-            BulkTemplate.Put(ws, r, 22, e.Lng);
+            var (lat, lng) = ObservationReportCommon.RowOrSite(e.Lat, e.Lng, m);   // 행 좌표가 비면 지점 좌표(문제 6)
+            BulkTemplate.Put(ws, r, 21, lat);
+            BulkTemplate.Put(ws, r, 22, lng);
             Set(24, e.MajorCategory);
             Set(25, e.MiddleCategory);
             Set(26, m.Surveyor);

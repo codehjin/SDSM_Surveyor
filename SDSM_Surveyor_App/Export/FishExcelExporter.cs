@@ -17,8 +17,10 @@ public static class FishExcelExporter
     private const int RecordCol = 16;       // Q열(0-based) : 조사자 1개 레코드를 이 열에 기록
     private const int SpeciesFirstRow = 78; // 행79(0-based 78)부터 종 목록
 
-    /// <summary>저장 대화상자 → 내보내기. 저장 경로 반환(취소 시 null).</summary>
+    /// <summary>저장 대화상자 → 내보내기. 저장 경로 반환(취소 시 null).
+    /// 개체수 0·빈칸 종은 내보내지 않는다 — 있으면 먼저 묻는다(문제 5).</summary>
     public static string? Export(FishEntryViewModel vm) =>
+        !BulkSkippedSpecies.Confirm(BulkSkippedSpecies.Of(vm)) ? null :
         ReportExporterBase.SaveWithDialog(
             "어류 일괄입력 엑셀 내보내기",
             ReportExporterBase.BulkFileName(vm.Meta, "어류"),

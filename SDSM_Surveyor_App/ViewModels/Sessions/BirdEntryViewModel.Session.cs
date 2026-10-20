@@ -33,6 +33,7 @@ public partial class BirdEntryViewModel : ITaxonSession
                 if (ScientificNameRule.Differs(e, savedEn)) fixedEn++;
             }
             e.MigratoryType = FormChoices.MigratoryCode(e.MigratoryType);   // 예전 이름(텃새…) → 양식 코드(D5 · 모르는 값은 그대로)
+            e.HabitatType = FormChoices.BirdHabitatName(e.HabitatType);     // 서식유형 번호 1~6 → 이름(문제 18 · 모르는 값은 그대로)
             Entries.Add(e);
         }
         NotifyScientificFixed(fixedEn);

@@ -10,6 +10,20 @@ namespace SDSM_Surveyor_App.Export;
 /// </summary>
 internal static class ObservationReportCommon
 {
+    /// <summary>
+    /// 관찰 행 좌표 — 행의 위도·경도가 <b>둘 다</b> 비면 조사개황 지점 좌표로 채운다(2026-10-20 결정 · 문제 6).
+    /// 관리자 DB 는 행 좌표만 받는다 — 목록 밖 지점에 지점 좌표만 적고 행 좌표를 비우면 DB 위경도가 비었다.
+    /// 한쪽만 빈 행은 입력 실수일 수 있어 그대로 둔다. 일괄입력용·보고서가 같은 규칙을 쓴다.
+    /// </summary>
+    public static (double? Lat, double? Lng) RowOrSite(double? lat, double? lng, SurveyMeta m)
+    {
+        if (lat is not null || lng is not null) return (lat, lng);
+        static double? P(string? v) =>
+            double.TryParse(v?.Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : null;
+        var (sl, sg) = (P(m.Lat), P(m.Lng));
+        return sl is not null && sg is not null ? (sl, sg) : (null, null);
+    }
+
     /// <summary>시트1 : 조사개황(항목 | 값). 관리자 테이블에 없는 열은 안내 문구로 남긴다.</summary>
     public static void WriteOverview(Workbook wb, SurveyMeta m, string title)
     {

@@ -203,6 +203,11 @@
                                Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
                     <TextBlock Text="{Binding TotalObservations, StringFormat= · 흔적 {0}건}" Margin="4 0 0 0"
                                Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
+                    <!-- 문제 6 : 행 좌표가 비면(위도·경도 둘 다) 조사개황 지점 좌표로 채워 내보낸다 -->
+                    <TextBlock Text="· 행 좌표가 비면 지점 좌표로 내보냄" Margin="12 0 0 0" VerticalAlignment="Center"
+                               Style="{StaticResource CaptionTextStyle}" TextTrimming="CharacterEllipsis"
+                               AutomationProperties.AutomationId="RowCoordHint"
+                               ToolTipService.ToolTip="위도·경도를 둘 다 비운 행은 조사개황 지점 좌표(위도·경도)로 채워 일괄입력용·보고서 엑셀에 냅니다. 관리자 자료에는 행 좌표만 들어갑니다."/>
                 </StackPanel>
             </ctrl:TaxonStatusBar.Summary>
             <ctrl:TaxonStatusBar.Actions>

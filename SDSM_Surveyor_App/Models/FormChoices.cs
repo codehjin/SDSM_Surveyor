@@ -66,6 +66,28 @@ public static class FormChoices
         return v;
     }
 
+    // ── 조류 W열 서식유형 — 양식 W3 '1) 번식확실, 2) 번식추축, 3) 월동확실, 4) 채식 및 휴식, 5) 소리, 6) 이동'(2026-10-20 · 문제 18) ──
+    /// <summary>서식유형 이름(번호 순). 2번은 양식 글자 '번식추축' 이 아니라 관리자 DB 에 쓰인 '번식추측'(169건)으로 둔다.</summary>
+    public static IReadOnlyList<string> BirdHabitatTypes { get; } = new[] { "번식확실", "번식추측", "월동확실", "채식 및 휴식", "소리", "이동" };
+
+    /// <summary>
+    /// 서식유형 번호(`3` · `3)` · `3.`) → 이름. 이름은 띄어쓰기를 무시하고 양식 이름으로 맞춘다(`번식 추측`·양식 오타 `번식추축` → `번식추측`).
+    /// 그 밖의 값은 앞뒤 공백만 지우고 그대로 둔다(지우지 않는다). 빈 값은 null.
+    /// ⚠ 대항목(U)·세부(V)의 번호는 바꾸지 않는다 — 양식 U3·V3 의 번호 순서가 서로 달라 발주처 확인 전까지 그대로.
+    /// </summary>
+    public static string? BirdHabitatName(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        var v = value.Trim();
+        var num = v.TrimEnd(')', '.', ' ');
+        if (num.Length == 1 && num[0] is >= '1' and <= '6') return BirdHabitatTypes[num[0] - '1'];
+        var flat = v.Replace(" ", string.Empty);
+        if (flat == "번식추축") return "번식추측";
+        foreach (var n in BirdHabitatTypes)
+            if (flat == n.Replace(" ", string.Empty)) return n;
+        return v;
+    }
+
     // ── 양서파충류 Y·Z열 서식지 유형(D6) ──
     /// <summary>서식지 유형 대분류(Y열) — '①농림지역, ②산림지역, ③습지대, ④기타 지역' · 단일 · 이름.</summary>
     public static IReadOnlyList<FormChoice> AmphHabitatMajor { get; } = Names("농림지역", "산림지역", "습지대", "기타 지역");

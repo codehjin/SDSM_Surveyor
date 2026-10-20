@@ -127,7 +127,7 @@
                             <TextBlock Text="하천차수" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadNumericUpDown BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
                                                       Minimum="0" Maximum="7" IsInteger="True" Value="{Binding RiverChasu, Mode=TwoWay}"
-                                                      ToolTipService.ToolTip="FAI M1·M2·M3·M7 의 구간표를 고르는 값입니다. 비어 있으면 지수가 산출되지 않습니다."/>
+                                                      ToolTipService.ToolTip="FAI M1·M2·M3·M7 의 구간표를 고르는 값입니다. 지점을 고르면 지점 하천차수가 들어갑니다(고칠 수 있음). 비어 있으면 FAI 를 내지 않고 일괄입력용을 만들지 않습니다."/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXlStyle}">
                             <TextBlock Text="조사불가 사유" Style="{StaticResource FormLabelStyle}"/>
@@ -142,6 +142,9 @@
                     <TextBlock Text="{Binding CollectionTimeWarning}" Margin="0 0 0 4"
                                Style="{StaticResource InlineWarnTextStyle}"/>
                     <TextBlock Text="{Binding RiverChasuWarning}" Margin="0 0 0 4"
+                               Style="{StaticResource InlineWarnTextStyle}"/>
+                    <!-- 문제 7·10 : 하천차수가 비면 FAI 를 내지 않고 일괄입력용을 막는다(조사불가·0종 선언 제외) -->
+                    <TextBlock Text="{Binding RiverChasuNeeded}" Margin="0 0 0 4"
                                Style="{StaticResource InlineWarnTextStyle}"/>
 
                     <!-- 2행 : 하상구성 (%) — 합계 100 -->
@@ -206,28 +209,35 @@
                     <!-- 3행 : 비정상종(개체수) — FAI M8 · 비고 -->
                     <StackPanel Orientation="Horizontal" Margin="0 4 0 8">
                         <Border Style="{StaticResource GroupHeaderBarStyle}"/>
-                        <TextBlock Text="비정상종 (개체수) — FAI M8" Style="{StaticResource GroupHeaderTextStyle}"/>
+                        <TextBlock Text="비정상종 (개체수) — FAI M8 · 종명은 비고에" Style="{StaticResource GroupHeaderTextStyle}"/>
+                        <!-- 문제 8·11 : 예전 세션의 정수가 아닌 값('붕어(2)' 등)은 지우지 않고 '양식에 없는 값'으로 알린다 -->
+                        <TextBlock Text="{Binding AbnormalWarning}" Margin="12 0 0 0"
+                                   Style="{StaticResource InlineWarnTextStyle}"/>
                     </StackPanel>
                     <WrapPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                            <TextBlock Text="기형 (DE)" Style="{StaticResource FormLabelStyle}"/>
+                            <TextBlock Text="DE 개체수" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="0"
-                                                         Text="{Binding DeCount, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         ToolTipService.ToolTip="기형(DE) 개체수 — 정수만. 종명은 비고에 적으세요"
+                                                         core:IntegerInput.IsEnabled="True" Text="{Binding DeCount, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                            <TextBlock Text="지느러미 (EF)" Style="{StaticResource FormLabelStyle}"/>
+                            <TextBlock Text="EF 개체수" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="0"
-                                                         Text="{Binding EfCount, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         ToolTipService.ToolTip="지느러미 손상(EF) 개체수 — 정수만. 종명은 비고에 적으세요"
+                                                         core:IntegerInput.IsEnabled="True" Text="{Binding EfCount, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                            <TextBlock Text="피부 (LE)" Style="{StaticResource FormLabelStyle}"/>
+                            <TextBlock Text="LE 개체수" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="0"
-                                                         Text="{Binding LeCount, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         ToolTipService.ToolTip="피부 손상(LE) 개체수 — 정수만. 종명은 비고에 적으세요"
+                                                         core:IntegerInput.IsEnabled="True" Text="{Binding LeCount, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                            <TextBlock Text="종양 (TU)" Style="{StaticResource FormLabelStyle}"/>
+                            <TextBlock Text="TU 개체수" Style="{StaticResource FormLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="0"
-                                                         Text="{Binding TuCount, UpdateSourceTrigger=PropertyChanged}"/>
+                                                         ToolTipService.ToolTip="종양(TU) 개체수 — 정수만. 종명은 비고에 적으세요"
+                                                         core:IntegerInput.IsEnabled="True" Text="{Binding TuCount, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         <StackPanel Style="{StaticResource FormFieldXlStyle}">
                             <TextBlock Text="비고" Style="{StaticResource FormLabelStyle}"/>
@@ -277,6 +287,10 @@
                         <TextBlock Text="{Binding FaiGrade, TargetNullValue='-'}" FontSize="13"
                                    Style="{StaticResource GradeBadgeTextStyle}"/>
                     </Border>
+                    <TextBlock Text="하천차수 필요" Margin="0 0 12 0" VerticalAlignment="Center"
+                               FontSize="{StaticResource SummaryFontSize}" Foreground="{StaticResource DangerOnSurfaceBrush}"
+                               AutomationProperties.AutomationId="FishChasuNeededSummary"
+                               Visibility="{Binding NeedsRiverChasu, Converter={StaticResource BoolToVisibility}}"/>
 
                     <Border Style="{StaticResource VerticalDividerStyle}"/>
                     <TextBlock Text="낮은 항목" Style="{StaticResource SummaryLabelTextStyle}"/>
@@ -350,6 +364,10 @@
                             <TextBlock Text="어류 건강성" Margin="12 0 0 0" VerticalAlignment="Bottom"
                                        Style="{StaticResource CaptionTextStyle}"/>
                         </StackPanel>
+                        <TextBlock Text="{Binding RiverChasuNeeded}" Margin="0 6 0 0" TextWrapping="Wrap"
+                                   Style="{StaticResource InlineWarnTextStyle}"
+                                   AutomationProperties.AutomationId="FishChasuNeeded"
+                                   Visibility="{Binding NeedsRiverChasu, Converter={StaticResource BoolToVisibility}}"/>
 
                         <!-- M1~M8 막대. 낮은 항목은 색을 달리하고 **이름도 아래에 적는다**(§11) -->
                         <ItemsControl ItemsSource="{Binding MetricBars}" Margin="0 10 0 0">

@@ -63,9 +63,10 @@ public static class BirdReportExporter
             Str(ws, row, 9, Models.FormChoices.MigratoryCode(e.MigratoryType));   // 출력은 코드(D5)
             Str(ws, row, 10, e.Category);
             Str(ws, row, 11, e.CategoryDetail);
-            Str(ws, row, 12, e.HabitatType);
-            Num(ws, row, 13, e.Lat);
-            Num(ws, row, 14, e.Lng);
+            Str(ws, row, 12, Models.FormChoices.BirdHabitatName(e.HabitatType));   // 번호 1~6 → 이름(문제 18)
+            var (lat, lng) = ObservationReportCommon.RowOrSite(e.Lat, e.Lng, vm.Meta);   // 행 좌표가 비면 지점 좌표(문제 6)
+            Num(ws, row, 13, lat);
+            Num(ws, row, 14, lng);
             Str(ws, row, 15, e.Feature);
             Str(ws, row, 16, e.Note);
             var tag = e.ProtectionText;

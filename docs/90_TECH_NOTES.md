@@ -273,7 +273,7 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 
 관리자 `SDSM_App\ViewModels\BulkRegisters\Bulk*ControlViewModel.cs` 기준. 인덱스는 **0-based `Cells[row,col]`**.
 
-**공통**: 파일명에 `방류하천` 또는 `생태현황` 키워드가 있어야 import가 시작된다.
+**공통**: 파일명에 `방류하천` 또는 `생태현황` 키워드가 있어야 import가 시작된다. 조사자 파일명은 `대분류_연도차수_지점_분류군_DB_v1.xlsx`(2026-10-20 · 문제 14 — 관리자 `f672c2a` Import 변환으로 판별 확인).
 
 ### 배치 유형
 | 분류군 | 시트명 | 배치 | 레코드 열 시작 | 종목록 시작 행 |
@@ -516,6 +516,17 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
   거를 때는 `SurveyMeta.PreviewSiteChoice(null)`(미리보기 켬 · 강조 없음)로 콤보 `SelectedItem` 을 비워 둔 채 항목만 바꾼다 — 칸 글자를 건드리지 않아 한글 조합이 깨지지 않는다.
   강조·선택을 떼는 일(`PrepareTyping`)은 키를 누르는 순간 먼저 한다. 한글 조합 중 글자도 WPF 글상자가 칸 글자에 넣어 보이는 방식이라 TextChanged 로 함께 걸러지게 했다(실제 입력기 확인은 사용자 · 하네스는 완성된 글자만 보낸다).
 - **G2** — 관찰형 3종 보고서 조사개황은 하천유형 행이 없다(`WriteSurveyMeta(m, null, withRiverType: false)` · 14행). 각주에서도 '하천유형'을 뺌. 일괄입력용·다른 보고서는 그대로.
+
+### 관리자 연계 시험 반영(v0.3 · 2026-10-20 §17)
+- **같은 키 세션 저장(문제 1)** — `SessionService.SaveCurrentAsync` 가 저장 키를 다른 세션이 쓰고 있으면(`CurrentSessionId` ≠ 키) `ResolveSaveConflict` 에 묻는다.
+  합친 뒤에는 그 세션을 **다시 불러온다** — 화면에 기존 분류군이 없으면 다음 저장(이제 같은 세션)이 그 분류군을 지운다. 반환값 null = [취소].
+  `ISessionService` 를 구현하는 곳이 앱 밖에도 있다(`tools\BaselineGen\RepoProviders.cs`) — 멤버를 더하면 함께 고친다(빌드가 깨지면 regress 가 옛 빌드로 돈다).
+- **하천차수(문제 7·10)** — `FishEntryViewModel.PrefillRiverChasu` : 비었거나 지점에서 채운 그대로일 때만 지점 값으로. 세션 복원 순서(조사개황 → `ClearData` → `RestoreState`)에서도 맞도록 `ClearData`·`RestoreState` 끝에서도 부른다.
+  `NeedsRiverChasu` 면 FAI 계산 결과(`SDSM_Core`)를 쓰지 않는다(계산식은 그대로). 일괄입력용 막기는 명령에서(버튼은 살려 두고 까닭을 알린다).
+  `sites.json` 의 채운 값은 `build_sites_json.py` 로 방류하천을 다시 만들면 사라진다 → `tools\fill_chasu_from_db.py` 를 다시 돌린다.
+- **수질 등급 칸(문제 16)** — 내장본 F열의 등급 수식은 같은 열 측정값 칸 하나를 본다. 수식 글자에서 그 칸을 찾아 비었으면 `Clear(ClearType.Contents)`.
+- **여러 지점 일괄(문제 5·7)** — 두 번 돈다: 세션을 훑어 막을 파일·빠지는 종을 모은 뒤 한 번 묻고, 다시 돌며 쓴다.
+- **하네스** — 자동 응답(`ChoiceAuto`)은 응답이 없으면 창을 닫는다(=[취소]). `MessageBox` 자동 응답은 3초 뒤 IDCANCEL 을 보내므로 [예/아니요] 상자는 닫히지 않을 수 있다 → 새 확인 상자는 [확인/취소].
 
 ## 7. 개발 환경 주의
 

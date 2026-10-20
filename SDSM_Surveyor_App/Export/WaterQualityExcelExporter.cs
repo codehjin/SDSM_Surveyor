@@ -105,8 +105,32 @@ public static class WaterQualityExcelExporter
             BulkTemplate.Put(ws, row.Value, RecordCol, value);
         }
 
+        ClearGradesOfMissing(ws);
         ReportExporterBase.Save(wb, path);
         return appended;
+    }
+
+    /// <summary>
+    /// 측정값이 빈 항목의 등급 칸(양식 수식)을 비운다 — 2026-10-20 결정(문제 16).
+    /// 양식 수식(`=IF(F22&lt;=50,"1a",…)`)은 빈칸을 0 으로 보아 대장균군 미입력이 '1a', pH 미입력이 4 로 찍혔다.
+    /// 등급 칸은 레코드 열에서 같은 열의 측정값 칸 하나를 보는 수식이다 — 수식이 보는 칸을 읽어 그 칸이 비었으면 수식을 지운다.
+    /// 관리자는 이 칸을 읽지 않고 다시 계산한다(값이 바뀌는 것은 파일에 보이는 글자뿐).
+    /// </summary>
+    private static void ClearGradesOfMissing(Worksheet ws)
+    {
+        var col = BulkTemplate.Address(0, RecordCol).TrimEnd('1');   // 'F'
+        var refRx = new System.Text.RegularExpressions.Regex($@"(?<![A-Z]){col}(\d+)(?!\d)");
+        var used = ws.UsedCellRange;
+        for (int r = 0; r <= used.ToIndex.RowIndex; r++)
+        {
+            var raw = ws.Cells[r, RecordCol].GetValue().Value;
+            if (raw is not FormulaCellValue f) continue;
+            var refs = refRx.Matches(f.RawValue).Select(m => int.Parse(m.Groups[1].Value) - 1).Distinct().ToList();
+            if (refs.Count != 1) continue;   // 등급 수식은 측정값 칸 하나만 본다 — 그 밖의 수식은 두지 않는다
+            var src = ws.Cells[refs[0], RecordCol].GetValue().Value;
+            if (src is EmptyCellValue || string.IsNullOrWhiteSpace(src.RawValue))
+                ws.Cells[r, RecordCol].Clear(ClearType.Contents);
+        }
     }
 
     /// <summary>관리자와 같은 규칙 — 행22부터 C+D 글자(공백 제거·소문자)에 검색어가 들어 있는 첫 행. C 가 비면 건너뛴다.</summary>

@@ -48,8 +48,9 @@ public static class MammalExcelExporter
             Set(6, e.SpeciesKo);
             Set(7, e.SpeciesEn);
             Set(8, e.Feature);
-            BulkTemplate.Put(ws, r, 15, e.Lat);
-            BulkTemplate.Put(ws, r, 16, e.Lng);
+            var (lat, lng) = ObservationReportCommon.RowOrSite(e.Lat, e.Lng, m);   // 행 좌표가 비면 지점 좌표(문제 6)
+            BulkTemplate.Put(ws, r, 15, lat);
+            BulkTemplate.Put(ws, r, 16, lng);
             Set(ObservationSiteCol, e.ObservationSite);
 
             var traces = new[]

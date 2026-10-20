@@ -36,9 +36,37 @@ public partial class MainSurveyWindow : Window, ISingletonService
         meta.SiteChangeGuard = guard;
         Closed += (_, _) => { if (meta.SiteChangeGuard == guard) meta.SiteChangeGuard = null; };
 
+        // 문제 1(2026-10-20) : 같은 키(대분류·연도차수·지점) 세션이 이미 있으면 덮어쓰지 않고 묻는다
+        var sessionService = App.Current.Services.GetRequiredService<ISessionService>();
+        Func<SessionSaveConflict, SessionConflictChoice> resolver = AskSaveConflict;
+        sessionService.ResolveSaveConflict = resolver;
+        Closed += (_, _) => { if (sessionService.ResolveSaveConflict == resolver) sessionService.ResolveSaveConflict = null; };
+
         StateChanged += (_, _) => HandleMaximized();
         Loaded += (_, _) => MigrateLegacyDrafts();
         Closing += OnClosing;
+    }
+
+    /// <summary>
+    /// 같은 키 세션 저장 확인(문제 1). 기본은 [합치기] — 자료를 잃지 않는 쪽.
+    /// 자료함 창에서 저장할 때도 이 창이 묻는다(앞에 떠 있는 창을 주인으로).
+    /// </summary>
+    private SessionConflictChoice AskSaveConflict(SessionSaveConflict c)
+    {
+        var owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) ?? this;
+        static string List(IReadOnlyList<string> v) => v.Count == 0 ? "없음" : string.Join(" · ", v);
+        var pick = ChoiceDialog.Ask(owner, "같은 자료가 이미 있습니다",
+            $"자료함에 같은 대분류·연도차수·지점의 자료가 이미 있습니다 — {c.Display}\n" +
+            $"이미 있는 자료: {List(c.ExistingTaxa)} (마지막 저장 {c.ExistingUpdatedAt:yyyy-MM-dd HH:mm})\n" +
+            $"지금 화면: {List(c.CurrentTaxa)}\n\n" +
+            "· 합치기 — 지금 화면에 자료가 있는 분류군만 새 값으로 바꾸고, 나머지 분류군은 그대로 둡니다.\n" +
+            "   조사개황은 지금 값으로 하되 빈칸이면 이미 있는 값을 남깁니다.\n" +
+            "· 바꾸기 — 이미 있는 자료를 모두 지우고 지금 화면으로 바꿉니다.\n" +
+            "· 취소 — 저장하지 않습니다.",
+            new ChoiceDialog.Option("취소", IsCancel: true),
+            new ChoiceDialog.Option("바꾸기", ToolTip: "이미 있는 분류군 자료가 지워집니다"),
+            new ChoiceDialog.Option("합치기", IsPrimary: true, ToolTip: "이미 있는 분류군 자료를 살립니다"));
+        return pick switch { 2 => SessionConflictChoice.Merge, 1 => SessionConflictChoice.Replace, _ => SessionConflictChoice.Cancel };
     }
 
     // 확인을 마치고 다시 닫는 중인가(재진입 방지).

@@ -154,22 +154,26 @@ public static class FishReportExporter
         Str(4, m.YearChsu);
         Str(5, m.River);
         Str(6, m.SurveyDate?.ToString("yyyy-MM-dd"));
-        Num(7, chasu);
+        // 문제 10 : 하천차수가 비면(조사불가·0종 선언 제외) M1·M2·M3·M7 이 0 이 되어 FAI 가 낮게 나온다 — 점수 칸은 비우고 까닭을 적는다
+        bool noChasu = vm.NeedsRiverChasu;
+        if (chasu > 0) Num(7, chasu);
         Num(8, f.TotalSpecies);
         Num(9, f.TotalIndiv);
         Str(10, vm.DominantSpecies);
-        Num(11,  f.DomesticSpecies);                       Num(12,  f.M1);
-        Num(13, f.RiffleBenthic);                         Num(14, f.M2);
-        Num(15, f.Sensitive);                             Num(16, f.M3);
-        Num(17, System.Math.Round(f.TolerantRatio, 1));   Num(18, f.M4);
-        Num(19, System.Math.Round(f.OmnivoreRatio, 1));   Num(20, f.M5);
-        Num(21, System.Math.Round(f.InsectRatio, 1));     Num(22, f.M6);
-        Num(23, f.DomesticIndiv);                         Num(24, f.M7);
-        Num(25, System.Math.Round(f.AbnormalRatio, 1));   Num(26, f.M8);
-        if (f.Score is double sc) Num(27, sc);
-        var g = f.Grade ?? "-";
-        ws.Cells[row, 28].SetValue(g);
-        GradeCell(ws.Cells[row, 28], f.Grade);
+        void Pt(int col, double v) { if (!noChasu) Num(col, v); }
+        Num(11,  f.DomesticSpecies);                       Pt(12,  f.M1);
+        Num(13, f.RiffleBenthic);                         Pt(14, f.M2);
+        Num(15, f.Sensitive);                             Pt(16, f.M3);
+        Num(17, System.Math.Round(f.TolerantRatio, 1));   Pt(18, f.M4);
+        Num(19, System.Math.Round(f.OmnivoreRatio, 1));   Pt(20, f.M5);
+        Num(21, System.Math.Round(f.InsectRatio, 1));     Pt(22, f.M6);
+        Num(23, f.DomesticIndiv);                         Pt(24, f.M7);
+        Num(25, System.Math.Round(f.AbnormalRatio, 1));   Pt(26, f.M8);
+        if (noChasu) ws.Cells[row, 27].SetValue("하천차수 필요");
+        else if (f.Score is double sc) Num(27, sc);
+        var grade = noChasu ? null : f.Grade;
+        ws.Cells[row, 28].SetValue(grade ?? "-");
+        GradeCell(ws.Cells[row, 28], grade);
 
         int lastRow = row;
         SiteColumns.Widths(ws);
@@ -179,6 +183,8 @@ public static class FishReportExporter
 
         row += 2;
         ws.Cells[row, 0].SetValue("※ 각 M = 산출값→배점(0/6.25/12.5), 합산=FAI총점. 등급 A≥80·B≥60·C≥40·D≥20·E<20.");
+        row++;
+        ws.Cells[row, 0].SetValue("※ 하천차수가 비면 M1·M2·M3·M7 구간표를 고를 수 없어 FAI 를 내지 않는다('하천차수 필요' · 조사불가·출현종 없음 선언 제외).");
         FontAll(ws, row, 28);
     }
 

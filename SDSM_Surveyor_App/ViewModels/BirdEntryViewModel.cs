@@ -46,7 +46,7 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
             MigratoryType = FormChoices.MigratoryCode(Cell(cells, 5)),   // 이름·코드 어느 쪽을 붙여넣어도 코드로(D5)
             Category = Cell(cells, 6),
             CategoryDetail = Cell(cells, 7),
-            HabitatType = Cell(cells, 8),
+            HabitatType = FormChoices.BirdHabitatName(Cell(cells, 8)),   // 서식유형 번호 1~6 → 이름(문제 18)
             Lat = Pd(Cell(cells, 9)),
             Lng = Pd(Cell(cells, 10)),
             Feature = Cell(cells, 11),
@@ -167,6 +167,12 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
     {
         if (propertyName == nameof(BirdEntry.SpeciesKo)) ResolveSpecies(row);
         else if (propertyName == nameof(BirdEntry.SpeciesEn) && ScientificNameRule.Enforce(row)) NotifyScientificFixed(1);   // D2 직접 수정
+        else if (propertyName == nameof(BirdEntry.HabitatType))
+        {
+            // 문제 18 : 서식유형 번호(1~6)를 치면 이름으로 바꾼다 — 바뀐 값이 같으면 다시 들어오지 않는다
+            var name = FormChoices.BirdHabitatName(row.HabitatType);
+            if (name is not null && !string.Equals(name, row.HabitatType, StringComparison.Ordinal)) row.HabitatType = name;
+        }
     }
 
     // ── 저장·내보내기 알림(2026-10-18 결정 D3 · 학명 D2) ──

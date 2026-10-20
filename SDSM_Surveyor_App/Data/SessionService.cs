@@ -117,9 +117,20 @@ public sealed class SessionService : ISessionService, ISingletonService
         }
     }
 
-    /// <summary>현재 화면 전체를 세션으로 저장한다. 지점·차수가 바뀌었으면 파일 키도 옮긴다.</summary>
-    public async Task<SessionIndexEntry> SaveCurrentAsync()
+    public Func<SessionSaveConflict, SessionConflictChoice>? ResolveSaveConflict { get; set; }
+
+    public string? LastSaveNotice { get; private set; }
+
+    /// <summary>
+    /// 현재 화면 전체를 세션으로 저장한다. 지점·차수가 바뀌었으면 파일 키도 옮긴다.
+    /// ⚠ 같은 키(대분류·연도차수·지점)를 <b>다른</b> 세션이 이미 쓰고 있으면 통째로 덮어쓰지 않고 묻는다(2026-10-20 · 문제 1 —
+    ///   포유류를 저장한 지점에 [새 지점]으로 서식수변을 저장하자 포유류 5행이 사라졌다).
+    ///   [합치기] = 지금 화면에 자료가 있는 분류군만 새 값 · 나머지 분류군은 기존 자료 · 조사개황은 지금 값(빈칸이면 기존 값).
+    ///   합친 뒤에는 그 세션을 화면에 다시 불러온다 — 그러지 않으면 다음 저장에서 기존 분류군이 또 지워진다.
+    /// </summary>
+    public async Task<SessionIndexEntry?> SaveCurrentAsync()
     {
+        LastSaveNotice = null;
         // 저장하는 바로 그 내용을 기준으로 삼는다(파일 쓰는 동안 화면이 바뀌어도 그 변경은 '저장 안 함' 으로 남는다).
         var snapshot = CaptureSnapshot();
 
@@ -129,19 +140,42 @@ public sealed class SessionService : ISessionService, ISingletonService
             Meta = SurveyMetaSnapshot.From(_meta)
         };
 
-        var filled = new List<string>();
+        var current = new List<string>();
         foreach (var t in Taxa)
         {
             if (!t.HasData) continue;
             var json = JsonSerializer.SerializeToElement(t.CaptureState(), SessionJson.Options);
             session.Taxa[t.Key] = json;
-            filled.Add(TaxonNames.Korean(t.Key));
+            current.Add(t.Key);
         }
 
         // 기존 파일이 있으면 만든 시각을 유지한다.
         var prev = await _store.LoadAsync(session.SessionId);
+        var merged = false;
+        if (prev is not null && !string.Equals(CurrentSessionId, session.SessionId, StringComparison.Ordinal))
+        {
+            var existing = OrderedTaxa(prev.Taxa.Keys);
+            var choice = ResolveSaveConflict?.Invoke(new SessionSaveConflict(
+                             session.SessionId, KeyDisplay(session.Meta),
+                             existing.Select(TaxonNames.Korean).ToList(), current.Select(TaxonNames.Korean).ToList(),
+                             prev.UpdatedAt))
+                         ?? SessionConflictChoice.Merge;
+            if (choice == SessionConflictChoice.Cancel) return null;
+            if (choice == SessionConflictChoice.Merge)
+            {
+                LastSaveNotice = Merge(session, prev, current);
+                merged = true;
+            }
+            else
+            {
+                var dropped = existing.Where(k => !current.Contains(k)).Select(TaxonNames.Korean).ToList();
+                LastSaveNotice = $"이미 있던 자료({KeyDisplay(session.Meta)})를 지금 화면으로 바꿔 저장했습니다"
+                                 + (dropped.Count > 0 ? $" — 지운 분류군: {string.Join(" · ", dropped)}" : string.Empty);
+            }
+        }
         if (prev is not null) session.CreatedAt = prev.CreatedAt;
 
+        var filled = OrderedTaxa(session.Taxa.Keys).Select(TaxonNames.Korean).ToList();
         var index = new SessionIndexEntry
         {
             SessionId = session.SessionId,
@@ -160,8 +194,70 @@ public sealed class SessionService : ISessionService, ISingletonService
             await _store.SaveAsync(session, index);
 
         CurrentSessionId = session.SessionId;
-        _baseline = snapshot;
+        if (merged) await LoadAsync(session.SessionId);   // 합친 결과를 화면에(기존 분류군도 보이게 · 저장 안 한 변경 없음)
+        else _baseline = snapshot;
         return index;
+    }
+
+    /// <summary>분류군 키를 7개 분류군 순서로.</summary>
+    private List<string> OrderedTaxa(IEnumerable<string> keys)
+    {
+        var set = keys.ToHashSet(StringComparer.Ordinal);
+        var order = Taxa.Select(t => t.Key).ToList();
+        return order.Where(set.Contains).Concat(set.Where(k => !order.Contains(k))).ToList();
+    }
+
+    private static string KeyDisplay(SurveyMetaSnapshot m) =>
+        string.Join(" · ", new[] { m.Project, m.YearChsu, string.IsNullOrWhiteSpace(m.Site) ? m.River : m.Site }
+                              .Where(v => !string.IsNullOrWhiteSpace(v)));
+
+    /// <summary>조사개황 칸 이름(합치기 알림용).</summary>
+    private static readonly (string Label, Func<SurveyMetaSnapshot, object?> Get, Action<SurveyMetaSnapshot, object?> Set)[] MetaFields =
+    {
+        ("연도", m => m.SurveyYear, (m, v) => m.SurveyYear = (string?)v),
+        ("조사일자", m => m.SurveyDate, (m, v) => m.SurveyDate = (DateTime?)v),
+        ("대권역명", m => m.MajorRegion, (m, v) => m.MajorRegion = (string?)v),
+        ("중권역명", m => m.MiddleRegion, (m, v) => m.MiddleRegion = (string?)v),
+        ("하천명", m => m.River, (m, v) => m.River = (string?)v),
+        ("하천유형(어류·저서)", m => m.RiverType, (m, v) => m.RiverType = (string?)v),
+        ("하천유형(수질·서식수변)", m => m.RiverTypeWater, (m, v) => m.RiverTypeWater = (string?)v),
+        ("사업장", m => m.Workplace, (m, v) => m.Workplace = (string?)v),
+        ("위도", m => m.Lat, (m, v) => m.Lat = (string?)v),
+        ("경도", m => m.Lng, (m, v) => m.Lng = (string?)v),
+        ("날씨", m => m.Weather, (m, v) => m.Weather = (string?)v),
+        ("조사기관", m => m.SurveyAgency, (m, v) => m.SurveyAgency = (string?)v),
+        ("조사자", m => m.Surveyor, (m, v) => m.Surveyor = (string?)v),
+    };
+
+    private static bool IsBlank(object? v) => v is null || (v is string s && string.IsNullOrWhiteSpace(s));
+
+    /// <summary>
+    /// [합치기] — 지금 화면에 자료가 있는 분류군은 새 값, 없는 분류군은 기존 자료를 그대로 옮긴다.
+    /// 조사개황은 지금 값으로 하되 빈칸이면 기존 값을 남긴다(하천유형 두 칸 포함). 키를 이루는 칸(대분류·연도차수·지점)은 같다.
+    /// </summary>
+    private string Merge(SurveySession session, SurveySession prev, IReadOnlyCollection<string> current)
+    {
+        var kept = new List<string>();
+        foreach (var (key, json) in prev.Taxa)
+        {
+            if (current.Contains(key)) continue;
+            session.Taxa[key] = json;
+            kept.Add(key);
+        }
+        var filledMeta = new List<string>();
+        foreach (var (label, get, set) in MetaFields)
+        {
+            if (!IsBlank(get(session.Meta)) || IsBlank(get(prev.Meta))) continue;
+            set(session.Meta, get(prev.Meta));
+            filledMeta.Add(label);
+        }
+        var parts = new List<string>
+        {
+            $"새 값: {(current.Count > 0 ? string.Join(" · ", OrderedTaxa(current).Select(TaxonNames.Korean)) : "없음")}",
+            $"그대로 둔 분류군: {(kept.Count > 0 ? string.Join(" · ", OrderedTaxa(kept).Select(TaxonNames.Korean)) : "없음")}",
+        };
+        if (filledMeta.Count > 0) parts.Add($"조사개황 빈칸은 기존 값: {string.Join(" · ", filledMeta)}");
+        return $"같은 자료({KeyDisplay(session.Meta)})에 합쳐 저장했습니다 — {string.Join(" / ", parts)}";
     }
 
     /// <summary>세션을 화면 전체에 되돌린다.</summary>

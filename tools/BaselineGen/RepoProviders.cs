@@ -98,7 +98,9 @@ internal sealed class NoSessionService : ISessionService
     public string? CurrentSessionId => null;
     public string CurrentKey => "baseline";
     public Task<List<SessionIndexEntry>> ListAsync() => throw Fail();
-    public Task<SessionIndexEntry> SaveCurrentAsync() => throw Fail();
+    public Task<SessionIndexEntry?> SaveCurrentAsync() => throw Fail();
+    public Func<SessionSaveConflict, SessionConflictChoice>? ResolveSaveConflict { get; set; }
+    public string? LastSaveNotice => null;
     public Task<bool> LoadAsync(string sessionId) => throw Fail();
     public Task DeleteAsync(string sessionId) => throw Fail();
     public void CopyToSite(SurveySite site) => throw Fail();

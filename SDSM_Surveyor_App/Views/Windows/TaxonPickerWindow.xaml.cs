@@ -32,7 +32,7 @@ public partial class TaxonPickerWindow : Window, ITransientService
 
     /// <summary>캡션 바 버전 표기(셸과 같은 값).</summary>
     public string Version { get; } =
-        $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(2) ?? "0.2"}";
+        $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(2) ?? "0.3"}";
 
     private void OnRequestClose(object? sender, bool open)
     {

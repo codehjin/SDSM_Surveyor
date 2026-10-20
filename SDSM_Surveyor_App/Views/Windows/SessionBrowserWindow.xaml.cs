@@ -86,6 +86,8 @@ public partial class SessionBrowserWindow : Window
         };
         // 저장 뒤 안내는 단건 저장과 같다 — [닫기] · [폴더 열기] · [파일 열기](기본 · C-1)
         _vm.ShowReportResult = (path, text) => Export.ReportExporterBase.OfferToOpen(path, text);
+        // 문제 5 : 일괄입력용 일괄에서 빠지는 종(개체수 0·빈칸) 요약을 한 번만 묻는다
+        _vm.ConfirmSkippedSpecies = text => Export.BulkSkippedSpecies.Ask(this, text);
         _vm.ShowBatchResult = (folder, text) =>
         {
             if (ChoiceDialog.Ask(this, "일괄 출력 완료", $"{folder}\n\n{text}",

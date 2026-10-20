@@ -14,8 +14,17 @@ public interface ISessionService
 
     Task<List<SessionIndexEntry>> ListAsync();
 
-    /// <summary>현재 화면 전체를 세션으로 저장.</summary>
-    Task<SessionIndexEntry> SaveCurrentAsync();
+    /// <summary>
+    /// 현재 화면 전체를 세션으로 저장. 같은 키를 다른 세션이 이미 쓰고 있으면 <see cref="ResolveSaveConflict"/> 에 묻는다
+    /// ([합치기]·[바꾸기]·[취소] · 문제 1). [취소]면 null(아무것도 저장하지 않음).
+    /// </summary>
+    Task<SessionIndexEntry?> SaveCurrentAsync();
+
+    /// <summary>같은 키 세션이 있을 때 묻는 창(화면이 꽂는다). 없으면 [합치기](자료를 잃지 않는 쪽).</summary>
+    Func<SessionSaveConflict, SessionConflictChoice>? ResolveSaveConflict { get; set; }
+
+    /// <summary>마지막 저장에서 합치기·바꾸기를 했으면 그 결과 한 줄(알림용). 그 밖에는 null.</summary>
+    string? LastSaveNotice { get; }
 
     /// <summary>세션을 7개 탭에 복원.</summary>
     Task<bool> LoadAsync(string sessionId);

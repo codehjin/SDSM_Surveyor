@@ -146,17 +146,17 @@ internal static class ReportExporterBase
         $"{FileToken(m.Project)}{FileToken(m.YearChsu)}{FileToken(m.SiteKey)}{taxon}_조사결과.xlsx";
 
     /// <summary>
-    /// 일괄입력용 파일명 — `대분류_지점_분류군_DB_v1.xlsx`.
-    /// ⚠ 관리자 Import 가 **파일명 키워드로 대분류를 판별**한다. 형식을 바꾸지 말 것.
+    /// 일괄입력용 파일명 — `대분류_연도차수_지점_분류군_DB_v1.xlsx`(예: `방류하천_2025분기1차_곡교천1_어류_DB_v1.xlsx`).
+    /// 2026-10-20 결정(문제 14) : 연도차수를 넣는다 — 없을 때는 같은 지점의 다른 차수 파일 이름이 같아 관리자가 '저장된 기록이 있는 파일명' 거짓 경고를 냈다.
+    /// ⚠ 관리자 Import 가 **파일명 키워드로 대분류(방류하천·생태현황)·분류군을 판별**한다 — 대분류로 시작하고 분류군 이름을 담는 형식은 지킨다.
     /// </summary>
-    public static string BulkFileName(SurveyMeta m, string taxon) => BulkFileName(m.Project, m.SiteKey, taxon);   // 지점 자리 = SiteKey(D4 ②)
+    public static string BulkFileName(SurveyMeta m, string taxon) => BulkFileName(m.Project, m.YearChsu, m.SiteKey, taxon);   // 지점 자리 = SiteKey(D4 ②)
 
     /// <summary>위와 같은 이름 — 세션 목록 항목으로 미리 계산할 때(C-8 일괄 출력).</summary>
-    public static string BulkFileName(string? project, string? site, string taxon)
+    public static string BulkFileName(string? project, string? yearChsu, string? site, string taxon)
     {
-        var p = string.IsNullOrWhiteSpace(project) ? "방류하천" : project!;
-        var s = string.IsNullOrWhiteSpace(site) ? "" : $"_{site}";
-        return $"{p}{s}_{taxon}_DB_v1.xlsx";
+        var p = string.IsNullOrWhiteSpace(project) ? "방류하천" : FileToken(project).TrimEnd('_');
+        return $"{p}_{FileToken(yearChsu)}{FileToken(site)}{taxon}_DB_v1.xlsx";
     }
 
     /// <summary>통합문서를 xlsx 로 저장한다. 3번째 인자 null(타임아웃 무제한)은 Telerik 필수 인자다.</summary>

@@ -102,11 +102,14 @@ public partial class SessionBrowserViewModel : ObservableObject, ITransientServi
     public Func<IReadOnlyList<string>, bool>? ConfirmOverwriteFiles { get; set; }
     /// <summary>결과 안내(폴더 · 본문). View 가 [폴더 열기]를 붙인다.</summary>
     public Action<string, string>? ShowBatchResult { get; set; }
+    /// <summary>일괄입력용 일괄에서 빠지는 종(개체수 0·빈칸) 요약을 한 번 묻는다(문제 5). false 면 멈춘다.</summary>
+    public Func<string, bool>? ConfirmSkippedSpecies { get; set; }
 
     /// <summary>
     /// [일괄입력용 일괄](C-8) — 고른 세션 × 자료가 있는 분류군의 일괄입력용 파일을 고른 폴더에 만든다.
     /// 세션을 차례로 화면에 불러와 쓰므로 시작 전에 저장 확인(B-5)을 거치고, 끝나면 보던 화면을 그대로 되돌린다.
-    /// 같은 이름(같은 지점·다른 연도차수)이 생기면 그 파일들은 연도차수 하위 폴더로 나눈다.
+    /// 파일명에 연도차수가 들어가므로(문제 14) 하위 폴더로 나누지 않는다. 개체수 0·빈칸 종이 빠지면 요약을 한 번 묻고(문제 5),
+    /// 관리자 일괄등록이 막을 어류(하천차수 빈칸 등)는 그 파일만 만들지 않고 까닭을 알린다(문제 7·8).
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanExport))]
     private async Task BatchBulk()
@@ -128,13 +131,14 @@ public partial class SessionBrowserViewModel : ObservableObject, ITransientServi
         Export.BatchExporter.Result r;
         try
         {
-            r = await _sessions.PreserveScreenAsync(() => Export.BatchExporter.WriteBulkAsync(_sessions, plan, folder));
+            r = await _sessions.PreserveScreenAsync(() => Export.BatchExporter.WriteBulkAsync(_sessions, plan, folder, ConfirmSkippedSpecies));
         }
         finally { System.Windows.Input.Mouse.OverrideCursor = previousCursor; }
+        if (r.Cancelled) { StatusText = "일괄입력용 일괄을 멈췄습니다(내보내지 않는 종 확인에서 [취소])."; return; }
 
-        var sub = r.Written.Where(w => w.Contains(System.IO.Path.DirectorySeparatorChar)).ToList();
-        var lines = new List<string> { $"세션 {r.Sessions}건 · 파일 {r.Written.Count}개" + (r.Failed.Count > 0 ? $" · 실패 {r.Failed.Count}개" : "") };
-        if (sub.Count > 0) lines.Add($"같은 이름이 생겨 연도차수 폴더로 나눈 파일 {sub.Count}개: " + string.Join(", ", sub));
+        var lines = new List<string> { $"세션 {r.Sessions}건 · 파일 {r.Written.Count}개" + (r.Blocked.Count > 0 ? $" · 만들지 않음 {r.Blocked.Count}개" : "") + (r.Failed.Count > 0 ? $" · 실패 {r.Failed.Count}개" : "") };
+        if (r.Blocked.Count > 0) lines.Add("만들지 않은 파일(관리자 일괄등록이 막는 값): " + string.Join(" / ", r.Blocked));
+        if (r.Skipped.Count > 0) lines.Add("내보내지 않은 종(개체수 0·빈칸): " + string.Join(" / ", r.Skipped));
         if (r.Notes.Count > 0) lines.Add("안내: " + string.Join(" / ", r.Notes));
         if (r.Failed.Count > 0) lines.Add("실패: " + string.Join(" / ", r.Failed));
         lines.Add("지금 화면은 일괄 출력 전 그대로입니다.");
@@ -304,9 +308,10 @@ public partial class SessionBrowserViewModel : ObservableObject, ITransientServi
     private async Task SaveCurrent()
     {
         var idx = await _sessions.SaveCurrentAsync();
+        if (idx is null) { Notify("저장하지 않았습니다(같은 자료가 있어 취소)."); return; }
         await RefreshAsync();
         Selected = Sessions.FirstOrDefault(e => e.SessionId == idx.SessionId);
-        Notify("현재 화면을 세션으로 저장했습니다.");
+        Notify(_sessions.LastSaveNotice ?? "현재 화면을 세션으로 저장했습니다.");
     }
 
     /// <summary>선택 세션을 지운다. 확인은 View에서 받는다(<see cref="ConfirmDelete"/>).</summary>

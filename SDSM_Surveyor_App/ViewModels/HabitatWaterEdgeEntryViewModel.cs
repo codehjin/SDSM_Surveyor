@@ -229,9 +229,14 @@ public partial class HabitatWaterEdgeEntryViewModel : TaxonEntryViewModelBase, I
         catch (Exception ex) { StatusText = $"엑셀 내보내기 실패: {ex.Message}"; }
     }
 
+    /// <summary>
+    /// 점수가 하나라도 있거나 조사불가 사유가 있으면 내보낼 수 있다(문제 12 — 조사불가만 있는 서식수변은 등급 '-' 로 등록되는 정상 자료다.
+    /// 어류·저서의 조사불가와 같은 규칙).
+    /// </summary>
     private bool CanExport() =>
         new[] { S1, B2L, B2R, S3, S4, B5L, B5R, B6L, B6R, S7, S8, B9L, B9R, B10L, B10R }
-            .Any(x => x is not null);
+            .Any(x => x is not null)
+        || !string.IsNullOrWhiteSpace(SurveyUnavailableReason);
 }
 
 /// <summary>서식수변 평가항목 드롭다운 옵션(점수 + 설명).</summary>

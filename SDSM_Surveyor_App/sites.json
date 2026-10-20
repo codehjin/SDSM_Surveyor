@@ -1,6 +1,6 @@
 {
-  "Version": "sites-20261018",
-  "GeneratedAt": "2026-10-18T16:00:54",
+  "Version": "sites-20261020",
+  "GeneratedAt": "2026-10-20T08:07:54",
   "Sites": [
     {
       "Project": "방류하천",
@@ -10,7 +10,7 @@
       "SiteName": "곡교천1",
       "StNo": "St.1",
       "Desc": "배방야구장",
-      "Chasu": null,
+      "Chasu": 4,
       "Lat": 36.763081,
       "Lng": 127.090606,
       "YearAliases": {
@@ -59,7 +59,7 @@
       "SiteName": "곡교천3",
       "StNo": "St.3",
       "Desc": "봉강교",
-      "Chasu": null,
+      "Chasu": 4,
       "Lat": 36.778333,
       "Lng": 127.083492,
       "YearAliases": {
@@ -84,7 +84,7 @@
       "SiteName": "곡교천4",
       "StNo": "St.4",
       "Desc": "곡교천교",
-      "Chasu": null,
+      "Chasu": 5,
       "Lat": 36.785222,
       "Lng": 127.074064,
       "YearAliases": {
@@ -233,7 +233,7 @@
       "SiteName": "천안천3",
       "StNo": "St.9",
       "Desc": "아산배방LH 15단지",
-      "Chasu": null,
+      "Chasu": 4,
       "Lat": 36.774789,
       "Lng": 127.094947,
       "YearAliases": {
@@ -258,7 +258,7 @@
       "SiteName": "회룡천1",
       "StNo": "St.5",
       "Desc": "북수초등학교",
-      "Chasu": null,
+      "Chasu": 2,
       "Lat": 36.769614,
       "Lng": 127.080356,
       "YearAliases": {
@@ -893,7 +893,7 @@
       "SiteName": "원천리천0",
       "StNo": null,
       "Desc": "황구지천 상류",
-      "Chasu": null,
+      "Chasu": 4,
       "Lat": 37.231783,
       "Lng": 126.991783,
       "YearAliases": {},
@@ -915,7 +915,7 @@
       "SiteName": "원천리천1",
       "StNo": null,
       "Desc": "원천천 상류",
-      "Chasu": null,
+      "Chasu": 3,
       "Lat": 37.231092,
       "Lng": 127.029386,
       "YearAliases": {
@@ -939,7 +939,7 @@
       "SiteName": "원천리천2",
       "StNo": null,
       "Desc": "방류구",
-      "Chasu": null,
+      "Chasu": 3,
       "Lat": 37.230664,
       "Lng": 127.028722,
       "YearAliases": {
@@ -963,7 +963,7 @@
       "SiteName": "원천리천3",
       "StNo": null,
       "Desc": "대황교",
-      "Chasu": null,
+      "Chasu": 3,
       "Lat": 37.226406,
       "Lng": 127.023433,
       "YearAliases": {
@@ -987,7 +987,7 @@
       "SiteName": "원천리천4",
       "StNo": null,
       "Desc": "황구지천 합류부(황계교 하류)",
-      "Chasu": null,
+      "Chasu": 4,
       "Lat": 37.222694,
       "Lng": 127.021186,
       "YearAliases": {
@@ -1011,7 +1011,7 @@
       "SiteName": "원천리천5",
       "StNo": null,
       "Desc": "화산교",
-      "Chasu": null,
+      "Chasu": 4,
       "Lat": 37.217672,
       "Lng": 127.020597,
       "YearAliases": {
@@ -1035,7 +1035,7 @@
       "SiteName": "원천리천6",
       "StNo": null,
       "Desc": "하수처리장(송산교 상류)",
-      "Chasu": null,
+      "Chasu": 4,
       "Lat": 37.209078,
       "Lng": 127.020567,
       "YearAliases": {
@@ -1059,7 +1059,7 @@
       "SiteName": "원천리천7",
       "StNo": null,
       "Desc": "세마교",
-      "Chasu": null,
+      "Chasu": 4,
       "Lat": 37.167194,
       "Lng": 126.997589,
       "YearAliases": {},
@@ -1081,7 +1081,7 @@
       "SiteName": "원천리천8",
       "StNo": null,
       "Desc": "향남 IC 하류 보행교",
-      "Chasu": null,
+      "Chasu": 4,
       "Lat": 37.124908,
       "Lng": 127.000436,
       "YearAliases": {},
@@ -1103,7 +1103,7 @@
       "SiteName": "원천리천9",
       "StNo": null,
       "Desc": "서탄대교",
-      "Chasu": null,
+      "Chasu": 4,
       "Lat": 37.092894,
       "Lng": 126.999519,
       "YearAliases": {

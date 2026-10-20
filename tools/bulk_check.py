@@ -167,6 +167,33 @@ def mig_code(v):
     return head.upper() if head.upper() in MIG_CODES else v
 
 
+BIRD_HABITATS = ("번식확실", "번식추측", "월동확실", "채식 및 휴식", "소리", "이동")
+
+
+def bird_habitat_name(v):
+    """조류 서식유형 번호 1~6 → 이름(앱 FormChoices.BirdHabitatName 과 같은 규칙 · 2026-10-20 문제 18). 모르는 값은 그대로."""
+    if v is None or not str(v).strip():
+        return None
+    v = str(v).strip()
+    num = v.rstrip(").  ")
+    if len(num) == 1 and "1" <= num <= "6":
+        return BIRD_HABITATS[int(num) - 1]
+    flat = v.replace(" ", "")
+    if flat == "번식추축":
+        return "번식추측"
+    for n in BIRD_HABITATS:
+        if flat == n.replace(" ", ""):
+            return n
+    return v
+
+
+def to_float(v):
+    try:
+        return float(str(v).strip())
+    except (TypeError, ValueError):
+        return None
+
+
 def check_column(ws, col, expected, label):
     """전치 양식 : {0-based 행: 기대값} 을 한 열(1-based col)에서 대조."""
     bad = []
@@ -188,14 +215,20 @@ def check_files(session_path, folder, tdir):
     meta, taxa = d["Meta"], d["Taxa"]
     m = meta_rows(meta)
 
-    # 파일명 형식 : 대분류_지점_분류군_DB_v1.xlsx — 지점 자리는 앱 SiteKeys.Of 와 같다
-    #   (생태현황에서 지점명이 비고 하천명만 있으면 `하천명(지점명 없음)` · 2026-10-18 D4)
+    # 파일명 형식 : 대분류_연도차수_지점_분류군_DB_v1.xlsx(2026-10-20 결정 · 문제 14) — 지점 자리는 앱 SiteKeys.Of 와 같다
+    #   (생태현황에서 지점명이 비고 하천명만 있으면 `하천명(지점명 없음)` · 2026-10-18 D4). 파일 이름에 못 쓰는 글자는 '_'.
+    def token(v):
+        v = (v or "").strip()
+        for c in '<>:"/\\|?*':
+            v = v.replace(c, "_")
+        return v
     site_key = (meta.get("Site") or "").strip()
     if not site_key and (meta.get("Project") or "").strip() == "생태현황" and (meta.get("River") or "").strip():
         site_key = f"{meta['River'].strip()}(지점명 없음)"
+    head = "_".join(t for t in (token(meta.get("Project")), token(meta.get("YearChsu")), token(site_key)) if t)
     for f in glob.glob(os.path.join(folder, "*.xlsx")):
         n = os.path.basename(f)
-        check(re.fullmatch(rf"{re.escape(meta['Project'])}_{re.escape(site_key)}_[^_]+_DB_v1\.xlsx", n) is not None, f"파일명 형식 {n}")
+        check(re.fullmatch(rf"{re.escape(head)}_[^_]+_DB_v1\.xlsx", n) is not None, f"파일명 형식 {n}")
 
     # 어류 ────────────────────────────────────────────────────────────
     if file_for(folder, "어류") is None:
@@ -326,6 +359,14 @@ def check_files(session_path, folder, tdir):
                 want[8] = names.get(r["SpeciesKo"])
             if key == "Bird":
                 want[20] = mig_code(r.get("MigratoryType"))   # D5 : 출력은 코드
+                want[23] = bird_habitat_name(r.get("HabitatType"))   # 2026-10-20(문제 18) : 서식유형 번호 1~6 → 이름
+            # 2026-10-20(문제 6) : 행의 위도·경도가 둘 다 비면 조사개황 지점 좌표로 채워 낸다
+            if r.get("Lat") in (None, "") and r.get("Lng") in (None, ""):
+                lat_c = next(c for c, k in cols.items() if k == "Lat") + 1
+                lng_c = next(c for c, k in cols.items() if k == "Lng") + 1
+                site_lat, site_lng = to_float(meta.get("Lat")), to_float(meta.get("Lng"))
+                if site_lat is not None and site_lng is not None:
+                    want[lat_c], want[lng_c] = site_lat, site_lng
             for c, v in want.items():
                 if norm(ws.cell(xr, c).value) != norm(v):
                     bad.append((xr, c, v, ws.cell(xr, c).value))
@@ -345,7 +386,19 @@ def check_files(session_path, folder, tdir):
         ws = wb["수질"]
         tw = openpyxl.load_workbook(os.path.join(tdir, "water.xlsx"))
         check(wb.sheetnames == tw.sheetnames, f"시트 = 내장본 {wb.sheetnames} (License 없음)")
-        check(formula_count(wb) == formula_count(tw), f"수식 개수 {formula_count(wb)} = 내장본 {formula_count(tw)}")
+        # 2026-10-20(문제 16) : F열 등급 수식(측정값 칸 하나를 보는 수식) 중 그 측정값이 비면 수식을 지운다(빈칸을 0 으로 보아 '1a' 등이 찍히던 것)
+        tws0 = tw["수질"]
+        grade = {}
+        for r in range(1, tws0.max_row + 1):
+            fv = tws0.cell(r, 6).value
+            if isinstance(fv, str) and fv.startswith("="):
+                refs = set(int(x) for x in re.findall(r"(?<![A-Z])F(\d+)(?!\d)", fv))
+                if len(refs) == 1:
+                    grade[r] = refs.pop()
+        cleared = [g for g, src in grade.items() if ws.cell(src, 6).value in (None, "")]
+        check(all(ws.cell(g, 6).value is None for g in cleared) and all(isinstance(ws.cell(g, 6).value, str) and str(ws.cell(g, 6).value).startswith("=") for g in grade if g not in cleared),
+              f"등급 수식 {len(grade)}칸 — 측정값이 빈 {len(cleared)}칸은 비우고 나머지는 수식 그대로")
+        check(formula_count(wb) == formula_count(tw) - len(cleared), f"수식 개수 {formula_count(wb)} = 내장본 {formula_count(tw)} − 비운 등급 {len(cleared)}")
         wx = taxa["WaterQuality"]
         exp = meta_rows(meta, water=True)   # 하천유형 = 수질·서식수변 칸(E1)
         exp.update({13: wx.get("PH"), 14: wx.get("Bod"), 15: wx.get("Cod"), 16: wx.get("Toc"), 17: wx.get("Ss"), 18: wx.get("Dox"),
