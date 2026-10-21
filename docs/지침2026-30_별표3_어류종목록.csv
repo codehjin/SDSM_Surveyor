@@ -1,0 +1,258 @@
+﻿관리번호,국명,학명,목,과,내성도(TS/IS/SS),섭식(I/O/H/C),서식지(RB),외래종(O),쪽(PDF)
+1,칠성장어,Lethenteron japonicus,칠성장어목 Petromyzonti formes,칠성장어과 Petromyzontidae,IS,O,,,86
+2,다묵장어,Lethenteron reissneri,칠성장어목 Petromyzonti formes,칠성장어과 Petromyzontidae,SS,O,,,86
+3,홍어,Okamejei kenojei,홍어목 Rajiformes,홍어과 Rajidae,IS,C,,,86
+4,당멸치,Elops hawaiensis,당멸치목 Elopiformes,당멸치과 Elopidae,IS,C,,,86
+5,갯장어,Muraenesox cinereus,뱀장어목 Anguilliformes,갯장어과 Muraenesocidae,IS,C,,,86
+6,붕장어,Conger myriaster,뱀장어목 Anguilliformes,붕장어과 Congridae,IS,C,,,86
+7,뱀장어,Anguilla japonica,뱀장어목 Anguilliformes,뱀장어과 Anguillidae,IS,C,,,86
+8,무태장어,Anguilla marmorata,뱀장어목 Anguilliformes,뱀장어과 Anguillidae,IS,C,,,86
+9,웅어,Coilia nasus,청어목 Clupeiformes,멸치과 Engraulidae,IS,C,,,86
+10,멸치,Engraulis japonicus,청어목 Clupeiformes,멸치과 Engraulidae,IS,I,,,86
+11,반지,Setipinna tenuifilis,청어목 Clupeiformes,멸치과 Engraulidae,IS,I,,,86
+12,풀반댕이,Thryssa adelae,청어목 Clupeiformes,멸치과 Engraulidae,IS,I,,,86
+13,청멸,Thryssa kammalensis,청어목 Clupeiformes,멸치과 Engraulidae,IS,I,,,86
+14,전어,Konosirus punctatus,청어목 Clupeiformes,청어과 Clupeidae,IS,H,,,86
+15,밴댕이,Sardinella zunasi,청어목 Clupeiformes,청어과 Clupeidae,IS,I,,,86
+16,갯농어,Chanos chanos,청어목 Clupeiformes,갯농어과 Chanidae,IS,O,,,86
+17,붕어,Carassius auratus,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,O,,,86
+18,떡붕어,Carassius cuvieri,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,O,,O,86
+19,잉어,Cyprinus carpio,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,O,,,86
+20,이스라엘잉어,Cyprinus carpio (nude type),잉어목 Cypriniformes,잉어과 Cyprinidae,TS,O,,O,86
+21,초어,Ctenopharyngodon idellus,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,H,,O,86
+22,가시납지리,Acheilognathus chankaensis,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,86
+23,큰납지리,Acheilognathus macropterus,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,86
+24,칼납자루,Acheilognathus koreensis,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,86
+25,납자루,Acheilognathus lanceolata intermedia,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,86
+26,큰줄납자루,Acheilognathus majusculus,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,86
+27,납지리,Acheilognathus rhombeus,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,86
+28,묵납자루,Acheilognathus signifer,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,O,,,86
+29,임실납자루,Acheilognathus somjinensis,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,86
+30,줄납자루,Acheilognathus yamatsutae,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,86
+31,떡납줄갱이,Rhodeus notatus,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,86
+32,흰줄납줄개,Rhodeus ocellatus,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,86
+33,한강납줄개,Rhodeus pseudosericeus,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,O,,,86
+34,각시붕어,Rhodeus uyekii,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,86
+35,버들매치,Abbottina rivularis,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,O,,,86
+36,왜매치,Abbottina springeri,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,O,,,86
+37,참쉬리,Coreoleuciscus aeruginos,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,RB,,86
+38,쉬리,Coreoleuciscus splendidus,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,RB,,86
+39,줄몰개,Gnathopogon strigatus,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,I,,,86
+40,돌상어,Gobiobotia brevibarba,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,RB,,86
+41,꾸구리,Gobiobotia macrocephala,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,RB,,86
+42,흰수마자,Gobiobotia naktongensis,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,RB,,86
+43,누치,Hemibarbus labeo,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,I,,,86
+44,참마자,Hemibarbus longirostris,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,I,,,86
+45,어름치,Hemibarbus mylodon,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,,,86
+46,새미,Ladislavia taczanowskii,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,H,RB,,86
+47,모래주사,Microphysogobio koreensis,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,O,RB,,86
+48,됭경모치,Microphysogobio jeoni,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,I,,,86
+49,배가사리,Microphysogobio longidorsalis,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,H,RB,,86
+50,여울마자,Microphysogobio rapidus,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,O,RB,,86
+51,돌마자,Microphysogobio yaluensis,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,RB,,86
+52,모래무지,Pseudogobio esocinus,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,I,,,87
+53,감돌고기,Pseudopungtungia nigra,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,,,87
+54,가는돌고기,Pseudopungtungia tenuicorpa,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,RB,,87
+55,참붕어,Pseudorasbora parva,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,O,,,87
+56,돌고기,Pungtungia herzi,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,I,,,87
+57,중고기,Sarcocheilichthys nigripinnis morii,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,I,,,87
+58,참중고기,Sarcocheilichthys variegatus wakiyae,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,I,,,87
+59,두우쟁이,Saurogobio dabryi,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,87
+60,참몰개,Squalidus chankaensis tsuchigae,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,87
+61,긴몰개,Squalidus gracilis majimae,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,I,,,87
+62,몰개,Squalidus japonicus coreanus,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,O,,,87
+63,점몰개,Squalidus multimaculatus,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,87
+64,대두어,Aristichthys nobilis,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,H,,O,87
+65,백련어,Hypophthalmichthys molitrix,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,H,,O,87
+66,연준모치,Phoxinus phoxinus,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,,,87
+67,금강모치,Rhynchocypris kumgangensis,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,,,87
+68,버들치,Rhynchocypris oxycephalus,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,,,87
+69,버들가지,Rhynchocypris semotilus,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,,,87
+70,버들개,Rhynchocypris steindachneri,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,,,87
+71,대황어,Tribolodon brandti,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,I,,,87
+72,황어,Tribolodon hakonensis,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,87
+73,왜몰개,Aphyocypris chinensis,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,O,,,87
+74,끄리,Opsariichthys uncirostris amurensis,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,C,,,87
+75,눈불개,Squaliobarbus curriculus,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,87
+76,피라미,Zacco platypus,잉어목 Cypriniformes,잉어과 Cyprinidae,IS,O,,,87
+77,갈겨니,Zacco temminckii,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,,,87
+78,참갈겨니,Zacco koreanus,잉어목 Cypriniformes,잉어과 Cyprinidae,SS,I,,,87
+79,백조어,Culter brevicauda,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,C,,,87
+80,강준치,Erythroculter erythropterus,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,C,,,87
+81,치리,Hemiculter eigenmanni,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,O,,,87
+82,살치,Hemiculter leucisculus,잉어목 Cypriniformes,잉어과 Cyprinidae,TS,I,,,87
+83,기름종개,Cobitis hankugensis,잉어목 Cypriniformes,미꾸리과 Cobitidae,IS,I,,,87
+84,점줄종개,Cobitis nalbanti,잉어목 Cypriniformes,미꾸리과 Cobitidae,IS,I,,,87
+85,북방종개,Iksookimia pacifica,잉어목 Cypriniformes,미꾸리과 Cobitidae,IS,I,,,87
+86,줄종개,Cobitis tetralineata,잉어목 Cypriniformes,미꾸리과 Cobitidae,IS,I,,,87
+87,미호종개,Cobitis choii,잉어목 Cypriniformes,미꾸리과 Cobitidae,SS,I,,,87
+88,남방종개,Iksookimia hugowolfeldi,잉어목 Cypriniformes,미꾸리과 Cobitidae,SS,I,,,87
+89,참종개,Iksookimia koreensis,잉어목 Cypriniformes,미꾸리과 Cobitidae,IS,I,,,87
+90,왕종개,Iksookimia longicorpa,잉어목 Cypriniformes,미꾸리과 Cobitidae,IS,I,,,87
+91,부안종개,Iksookimia pumila,잉어목 Cypriniformes,미꾸리과 Cobitidae,SS,O,,,87
+92,동방종개,Iksookimia yongdokensis,잉어목 Cypriniformes,미꾸리과 Cobitidae,IS,I,,,87
+93,좀수수치,Kichulchoia brevifasciata,잉어목 Cypriniformes,미꾸리과 Cobitidae,SS,I,RB,,87
+94,얼룩새코미꾸리,Koreocobitis naktongensis,잉어목 Cypriniformes,미꾸리과 Cobitidae,SS,O,RB,,87
+95,새코미꾸리,Koreocobitis rotundicaudata,잉어목 Cypriniformes,미꾸리과 Cobitidae,SS,O,RB,,87
+96,미꾸리,Misgurnus anguillicaudatus,잉어목 Cypriniformes,미꾸리과 Cobitidae,TS,O,,,87
+97,미꾸라지,Misgurnus mizolepis,잉어목 Cypriniformes,미꾸리과 Cobitidae,TS,O,,,87
+98,수수미꾸리,Kichulchoia multifasciata,잉어목 Cypriniformes,미꾸리과 Cobitidae,SS,O,RB,,87
+99,쌀미꾸리,Lefua costata,잉어목 Cypriniformes,종개과 Balitoridae,IS,I,,,87
+100,대륙종개,Orthrias nudus,잉어목 Cypriniformes,종개과 Balitoridae,SS,I,RB,,87
+101,종개,Orthrias toni,잉어목 Cypriniformes,종개과 Balitoridae,SS,I,RB,,87
+102,미유기,Silurus microdorsalis,메기목 Siluriformes,메기과 Siluridae,SS,C,RB,,87
+103,메기,Silurus asotus,메기목 Siluriformes,메기과 Siluridae,TS,C,,,87
+104,쏠종개,Plotosus lineatus,메기목 Siluriformes,쏠종개과 Plotosidae,IS,I,,,87
+105,밀자개,Leiocassis nitidus,메기목 Siluriformes,동자개과 Bagridae,TS,I,,,87
+106,대농갱이,Leiocassis ussuriensis,메기목 Siluriformes,동자개과 Bagridae,IS,I,,,87
+107,꼬치동자개,Pseudobagrus brevicorpus,메기목 Siluriformes,동자개과 Bagridae,SS,I,RB,,87
+108,동자개,Pseudobagrus fulvidraco,메기목 Siluriformes,동자개과 Bagridae,TS,I,,,88
+109,눈동자개,Pseudobagrus koreanus,메기목 Siluriformes,동자개과 Bagridae,IS,I,RB,,88
+110,퉁가리,Liobagrus andersoni,메기목 Siluriformes,퉁가리과 Amblycipitidae,SS,I,RB,,88
+111,동방자가사리,Liobagrus hyeongsanensis,메기목 Siluriformes,퉁가리과 Amblycipitidae,SS,I,RB,,88
+112,자가사리,Liobagrus mediadiposalis,메기목 Siluriformes,퉁가리과 Amblycipitidae,SS,I,RB,,88
+113,섬진자가사리,Liobagrus somjinensis,메기목 Siluriformes,퉁가리과 Amblycipitidae,SS,I,RB,,88
+114,퉁사리,Liobagrus obesus,메기목 Siluriformes,퉁가리과 Amblycipitidae,SS,I,RB,,88
+115,열목어,Brachymystax lenok tsinlingensis,연어목 Salmoniformes,연어과 Salmonidae,SS,C,,,88
+116,연어,Oncorhynchus keta,연어목 Salmoniformes,연어과 Salmonidae,SS,C,,,88
+117,산천어/송어,Oncorhynchus masou masou,연어목 Salmoniformes,연어과 Salmonidae,SS,C,,,88
+118,브라운송어,Salmo trutta,연어목 Salmoniformes,연어과 Salmonidae,IS,C,,O,88
+119,무지개송어,Oncorhynchus mykiss,연어목 Salmoniformes,연어과 Salmonidae,SS,C,,O,88
+120,빙어,Hypomesus nipponensis,바다빙어목 Osmeriformes,바다빙어과 Osmeridae,IS,I,,,88
+121,바다빙어,Osmerus mordax,바다빙어목 Osmeriformes,바다빙어과 Osmeridae,IS,I,,,88
+122,은어,Plecoglossus altivelis,바다빙어목 Osmeriformes,바다빙어과 Osmeridae,IS,H,,,88
+123,뱅어,Salangichthys microdon,바다빙어목 Osmeriformes,바다빙어과 Osmeridae,IS,I,,,88
+124,히메치,Hime japonicus,홍메치목 Aulopiformes,홍메치과 Aulopidae,IS,C,,,88
+125,샛비늘치,Myctophum affine,샛비늘치목 Myctophiformes,샛비늘치과 Myctophidae,IS,I,,,88
+126,세줄얼게비늘,Apogon doederleini,농어목 Perciformes,동갈돔과 Apogonidae,IS,O,,,88
+127,좀구굴치,Micropercops swinhonis,농어목 Perciformes,동사리과 Odontobutidae,TS,O,,,88
+128,얼록동사리,Odontobutis interrupta,농어목 Perciformes,동사리과 Odontobutidae,IS,C,,,88
+129,남방동사리,Odontobutis obscura,농어목 Perciformes,동사리과 Odontobutidae,IS,C,,,88
+130,동사리,Odontobutis platycephala,농어목 Perciformes,동사리과 Odontobutidae,SS,C,,,88
+131,구굴무치,Eleotris oxycephala,농어목 Perciformes,구굴무치과 Eleotridae,IS,C,,,88
+132,왜풀망둑,Acanthogobius elongata,농어목 Perciformes,망둑어과 Gobiidae,TS,I,,,88
+133,문절망둑,Acanthogobius flavimanus,농어목 Perciformes,망둑어과 Gobiidae,TS,I,,,88
+134,흰발망둑,Acanthogobius lactipes,농어목 Perciformes,망둑어과 Gobiidae,IS,O,,,88
+135,비늘흰발망둑,Acanthogobius luridus,농어목 Perciformes,망둑어과 Gobiidae,IS,O,,,88
+136,점줄망둑,Acentrogobius pellidebilis,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+137,줄망둑,Acentrogobius pflaumii,농어목 Perciformes,망둑어과 Gobiidae,IS,C,,,88
+138,숨이망둑,Apocryptodon punctatus,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+139,무늬망둑,Bathygobius fuscus,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+140,짱뚱어,Boleophthalmus pectinirostris,농어목 Perciformes,망둑어과 Gobiidae,IS,H,,,88
+141,점망둑,Chaenogobius annularis,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+142,별망둑,Chaenogobius gulosus,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+143,빨갱이,Ctenotrypauchen microcephalus,농어목 Perciformes,망둑어과 Gobiidae,TS,O,,,88
+144,댕기망둑,Eutaeniichthys gilli,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+145,날개망둑,Favonigobius gymnauchen,농어목 Perciformes,망둑어과 Gobiidae,TS,I,,,88
+146,날망둑,Gymnogobius breunigii,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+147,살망둑,Gymnogobius heptacanthus,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+148,얼룩망둑,Gymnogobius mororanus,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+149,무늬꾹저구,Gymnogobius opperiens,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+150,검정꾹저구,Gymnogobius petschiliensis,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+151,꾹저구,Gymnogobius urotaenia,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+152,미끈망둑,Luciogobius guttatus,농어목 Perciformes,망둑어과 Gobiidae,IS,O,,,88
+153,모치망둑,Mugilogobius abei,농어목 Perciformes,망둑어과 Gobiidae,TS,I,,,88
+154,큰볏말뚝망둥어,Periophthalmus magnuspinnatus,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+155,말뚝망둥어,Periophthalmus modestus,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+156,일곱동갈망둑,Pterogobius elapoides,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,88
+157,밀어,Rhinogobius brunneus,농어목 Perciformes,망둑어과 Gobiidae,IS,I,RB,,88
+158,갈문망둑,Rhinogobius giurinus,농어목 Perciformes,망둑어과 Gobiidae,TS,O,,,88
+159,바닥문절,Sagamia geneionema,농어목 Perciformes,망둑어과 Gobiidae,TS,I,,,88
+160,풀망둑,Synechogobius hasta,농어목 Perciformes,망둑어과 Gobiidae,TS,I,,,88
+161,개소겡,Odontamblyopus lacepedii,농어목 Perciformes,망둑어과 Gobiidae,TS,C,,,89
+162,민물두줄망둑,Tridentiger bifasciatus,농어목 Perciformes,망둑어과 Gobiidae,TS,I,,,89
+163,민물검정망둑,Tridentiger brevispinis,농어목 Perciformes,망둑어과 Gobiidae,IS,I,RB,,89
+164,황줄망둑,Tridentiger nudicervicus,농어목 Perciformes,망둑어과 Gobiidae,IS,I,,,89
+165,검정망둑,Tridentiger obscurus,농어목 Perciformes,망둑어과 Gobiidae,TS,I,,,89
+166,두줄망둑,Tridentiger trigonocephalus,농어목 Perciformes,망둑어과 Gobiidae,TS,I,,,89
+167,꼬마청황,Parioglossus dotui,농어목 Perciformes,청황문절과 Ptereleotridae,IS,I,,,89
+168,망상어,Ditrema temminckii,농어목 Perciformes,망상어과 Embiotocidae,TS,O,,,89
+169,인상어,Neoditrema ransonnetii,농어목 Perciformes,망상어과 Embiotocidae,TS,O,,,89
+170,자리돔,Chromis notata,농어목 Perciformes,자리돔과 Pomacentridae,IS,I,,,89
+171,나일틸라피아/역돔,Oreochromis niloticus,농어목 Perciformes,시클리과 Cichlidae,TS,O,,O,89
+172,저울베도라치,Entomacrodus stellifer,농어목 Perciformes,청베도라치과 Blenniidae,IS,C,,,89
+173,앞동갈베도라치,Omobranchus elegans,농어목 Perciformes,청베도라치과 Blenniidae,IS,C,,,89
+174,골베도라치,Omobranchus punctatus,농어목 Perciformes,청베도라치과 Blenniidae,IS,O,,,89
+175,유전갱이,Carangoides uii,농어목 Perciformes,전갱이과 Carangidae,IS,C,,,89
+176,줄전갱이,Caranx sexfasciatus,농어목 Perciformes,전갱이과 Carangidae,IS,C,,,89
+177,전갱이,Trachurus japonicus,농어목 Perciformes,전갱이과 Carangidae,IS,C,,,89
+178,꼬치고기,Sphyraena pinguis,농어목 Perciformes,꼬치고기과 Sphyraenidae,IS,C,,,89
+179,버들붕어,Macropodus ocellatus,농어목 Perciformes,버들붕어과 Osphronemidae,TS,I,,,89
+180,가물치,Channa argus,농어목 Perciformes,가물치과 Channidae,TS,C,,,89
+181,날돛양태,Repomucenus beniteguri,농어목 Perciformes,돛양태과 Callionymidae,IS,I,,,89
+182,동갈양태,Repomucenus curvicornis,농어목 Perciformes,돛양태과 Callionymidae,IS,I,,,89
+183,돛양태,Repomucenus lunatus,농어목 Perciformes,돛양태과 Callionymidae,IS,I,,,89
+184,강주걱양태,Repomucenus olidus,농어목 Perciformes,돛양태과 Callionymidae,TS,I,,,89
+185,황놀래기,Pseudolabrus sieboldi,농어목 Perciformes,놀래기과 Labridae,IS,I,,,89
+186,꺽지,Coreoperca herzi,농어목 Perciformes,꺽지과 Centropomidae,SS,C,,,89
+187,꺽저기,Coreoperca kawamebari,농어목 Perciformes,꺽지과 Centropomidae,IS,C,,,89
+188,쏘가리,Siniperca scherzeri,농어목 Perciformes,꺽지과 Centropomidae,IS,C,,,89
+189,게레치,Gerres oyena,농어목 Perciformes,게레치과 Gerreidae,IS,O,,,89
+190,돌돔,Oplegnathus fasciatus,농어목 Perciformes,돌돔과 Oplegnathidae,IS,H,,,89
+191,벵에돔,Girella punctata,농어목 Perciformes,황줄깜정이과 Kyphosidae,IS,O,,,89
+192,범돔,Microcanthus strigatus,농어목 Perciformes,황줄깜정이과 Kyphosidae,IS,C,,,89
+193,줄벤자리,Rhynchopelates oxyrhynchus,농어목 Perciformes,살벤자리과 Terapontidae,IS,C,,,89
+194,살벤자리,Terapon jarbua,농어목 Perciformes,살벤자리과 Terapontidae,IS,C,,,89
+195,네줄벤자리,Terapon theraps,농어목 Perciformes,살벤자리과 Terapontidae,IS,C,,,89
+196,블루길,Lepomis macrochirus,농어목 Perciformes,검정우럭과 Centrarchidae,TS,I,,O,89
+197,배스,Micropterus salmoides,농어목 Perciformes,검정우럭과 Centrarchidae,TS,C,,O,89
+198,게르치,Scombrops boops,농어목 Perciformes,게르치과 Pomatomidae,IS,C,,,89
+199,주둥치,Nuchequula nuchalis,농어목 Perciformes,주둥치과 Leiognathidae,IS,I,,,89
+200,납작돔,Scatophagus argus,농어목 Perciformes,납작돔과 Scatophagidae,IS,O,,,89
+201,독가시치,Siganus fuscescens,농어목 Perciformes,독가시치과 Siganidae,IS,H,,,89
+202,그물베도라치,Dictyosoma burgeri,농어목 Perciformes,장갱이과 Stichaeidae,IS,C,,,89
+203,민베도라치,Zoarchias glaber,농어목 Perciformes,장갱이과 Stichaeidae,IS,C,,,89
+204,우베도라치,Zoarchias uchidai,농어목 Perciformes,장갱이과 Stichaeidae,IS,C,,,89
+205,점베도라치,Pholis crassispina,농어목 Perciformes,황줄베도라치과 Pholidae,IS,C,,,89
+206,베도라치,Pholis nebulosa,농어목 Perciformes,황줄베도라치과 Pholidae,IS,C,,,89
+207,농어,Lateolabrax japonicus,농어목 Perciformes,농어과 Moronidae,IS,C,,,89
+208,점농어,Lateolabrax maculatus,농어목 Perciformes,농어과 Moronidae,IS,C,,,89
+209,참조기,Larimichthys polyactis,농어목 Perciformes,민어과 Sciaenidae,IS,I,,,90
+210,보구치,Argyrosomus argentatus,농어목 Perciformes,민어과 Sciaenidae,IS,I,,,90
+211,청보리멸,Sillago japonica,농어목 Perciformes,보리멸과 Sillaginidae,IS,O,,,90
+212,보리멸,Sillago sihama,농어목 Perciformes,보리멸과 Sillaginidae,IS,C,,,90
+213,감성돔,Acanthopagrus schlegelii,농어목 Perciformes,도미과 Sparidae,TS,C,,,90
+214,참돔,Pagrus major,농어목 Perciformes,도미과 Sparidae,IS,C,,,90
+215,등줄숭어,Chelon affinis,숭어목 Mugiliformes,숭어과 Mugilidae,IS,H,,,90
+216,가숭어,Chelon haematocheilus,숭어목 Mugiliformes,숭어과 Mugilidae,TS,H,,,90
+217,숭어,Mugil cephalus,숭어목 Mugiliformes,숭어과 Mugilidae,TS,H,,,90
+218,송사리,Oryzias latipes,동갈치목 Beloniformes,송사리과 Adrianichthyidae,TS,O,,,90
+219,대륙송사리,Oryzias sinensis,동갈치목 Beloniformes,송사리과 Adrianichthyidae,TS,O,,,90
+220,줄공치,Hyporhamphus intermedius,동갈치목 Beloniformes,학공치과 Hemiramphidae,IS,H,,,90
+221,학공치,Hyporhamphus sajori,동갈치목 Beloniformes,학공치과 Hemiramphidae,IS,H,,,90
+222,동갈치,Strongylura anastomella,동갈치목 Beloniformes,동갈치과 Belonidae,IS,C,,,90
+223,드렁허리,Monopterus albus,드렁허리목 Synbranchifo rmes,드렁허리과 Synbranchidae,TS,C,,,90
+224,넙치,Paralichthys olivaceus,가자미목 Pleuronectifo rmes,넙치과 Paralichthyidae,IS,C,,,90
+225,점넙치,Pseudorhombus pentophthalmus,가자미목 Pleuronectifo rmes,넙치과 Paralichthyidae,IS,C,,,90
+226,왜넙치,Tarphops oligolepis,가자미목 Pleuronectifo rmes,넙치과 Paralichthyidae,IS,C,,,90
+227,줄가자미,Clidoderma asperrimum,가자미목 Pleuronectifo rmes,가자미과 Pleuronectidae,IS,C,,,90
+228,눈가자미,Dexistes rikuzenius,가자미목 Pleuronectifo rmes,가자미과 Pleuronectidae,IS,C,,,90
+229,돌가자미,Kareius bicoloratus,가자미목 Pleuronectifo rmes,가자미과 Pleuronectidae,IS,C,,,90
+230,강도다리,Platichthys stellatus,가자미목 Pleuronectifo rmes,가자미과 Pleuronectidae,IS,C,,,90
+231,참가자미,Pleuronectes herzensteini,가자미목 Pleuronectifo rmes,가자미과 Pleuronectidae,IS,C,,,90
+232,문치가자미,Pleuronectes yokohamae,가자미목 Pleuronectifo rmes,가자미과 Pleuronectidae,IS,C,,,90
+233,참서대,Cynoglossus joyneri,가자미목 Pleuronectifo rmes,참서대과 Cynoglossidae,IS,C,,,90
+234,박대,Cynoglossus semilaevis,가자미목 Pleuronectifo rmes,참서대과 Cynoglossidae,IS,C,,,90
+235,흑대기,Paraplagusia japonica,가자미목 Pleuronectifo rmes,참서대과 Cynoglossidae,IS,C,,,90
+236,실고기,Syngnathus schlegeli,큰가시고기목 Gasterosteifo rmes,실고기과 Syngnathidae,IS,I,,,90
+237,큰가시고기,Gasterosteus aculeatus,큰가시고기목 Gasterosteifo rmes,큰가시고기과 Gasterosteidae,IS,I,,,90
+238,잔가시고기,Pungitius kaibarae,큰가시고기목 Gasterosteifo rmes,큰가시고기과 Gasterosteidae,IS,I,,,90
+239,가시고기,Pungitius sinensis,큰가시고기목 Gasterosteifo rmes,큰가시고기과 Gasterosteidae,IS,I,,,90
+240,미역치,Hypodytes rubripinnis,쏨뱅이목 Scorpaeniformes,양볼락과 Scorpaenidae,IS,I,,,90
+241,조피볼락,Sebastes schlegelii,쏨뱅이목 Scorpaeniformes,양볼락과 Scorpaenidae,IS,C,,,90
+242,성대,Chelidonichthys spinosus,쏨뱅이목 Scorpaeniformes,성대과 Triglidae,IS,I,,,90
+243,점양태,Inegocia japonica,쏨뱅이목 Scorpaeniformes,양태과 Platycephalidae,IS,I,,,90
+244,양태,Platycephalus indicus,쏨뱅이목 Scorpaeniformes,양태과 Platycephalidae,IS,I,,,90
+245,봉오리양태,Ratabulus megacephalus,쏨뱅이목 Scorpaeniformes,양태과 Platycephalidae,IS,I,,,90
+246,노래미,Hexagrammos agrammus,쏨뱅이목 Scorpaeniformes,쥐노래미과 Hexagrammidae,IS,C,,,90
+247,쥐노래미,Hexagrammos otakii,쏨뱅이목 Scorpaeniformes,쥐노래미과 Hexagrammidae,IS,C,,,90
+248,임연수어,Pleurogrammus azonus,쏨뱅이목 Scorpaeniformes,쥐노래미과 Hexagrammidae,IS,C,,,90
+249,한둑중개,Cottus hangiongensis,쏨뱅이목 Scorpaeniformes,둑중개과 Cottidae,SS,I,RB,,90
+250,둑중개,Cottus koreanus,쏨뱅이목 Scorpaeniformes,둑중개과 Cottidae,SS,I,RB,,90
+251,무늬횟대,Furcina osimae,쏨뱅이목 Scorpaeniformes,둑중개과 Cottidae,IS,I,,,90
+252,개구리꺽정이,Myoxocephalus stelleri,쏨뱅이목 Scorpaeniformes,둑중개과 Cottidae,IS,C,,,90
+253,꺽정이,Trachidermus fasciatus,쏨뱅이목 Scorpaeniformes,둑중개과 Cottidae,TS,I,,,90
+254,복섬,Takifugu niphobles,복어목 Tetraodontif ormes,참복과 Tetraodontidae,IS,I,,,90
+255,황복,Takifugu obscurus,복어목 Tetraodontif ormes,참복과 Tetraodontidae,IS,I,,,90
+256,졸복,Takifugu pardalis,복어목 Tetraodontif ormes,참복과 Tetraodontidae,IS,I,,,90
+257,까치복,Takifugu xanthopterus,복어목 Tetraodontif ormes,참복과 Tetraodontidae,IS,I,,,90
