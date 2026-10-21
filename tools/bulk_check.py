@@ -274,7 +274,8 @@ def check_files(session_path, folder, tdir):
         exp = dict(m)
         exp.update({13: bx.get("Surbernet30"), 14: bx.get("Surbernet50"), 15: bx.get("Dredge"), 16: bx.get("Ekman"),
                     17: bx.get("Watershed"), 18: bx.get("PollutionSource"), 19: bx.get("CanopyCover"), 20: bx.get("Floodplain"),
-                    21: bx.get("LeveeLeft"), 22: bx.get("LeveeRight"), 23: bx.get("Bedrock"), 24: bx.get("Concrete"), 25: bx.get("Mud"),
+                    # §20(2026-10-21) : 저서 하상은 지침 6칸 — 양식의 암반(24행)·콘크리트(25행)는 늘 빈칸
+                    21: bx.get("LeveeLeft"), 22: bx.get("LeveeRight"), 23: None, 24: None, 25: bx.get("Mud"),
                     26: bx.get("Sand"), 27: bx.get("FineGravel"), 28: bx.get("Gravel"), 29: bx.get("SmallStone"), 30: bx.get("BigStone"),
                     32: bx.get("HabitatRiverType"), 33: bx.get("RiverWidth"), 34: bx.get("WaterWidth"), 35: bx.get("AverageDepth"),
                     36: bx.get("AverageVelocity"), 37: bx.get("AirTemperature"), 38: bx.get("WaterTemperature"), 39: bx.get("FlowState"),

@@ -31,6 +31,12 @@ public interface ITaxonSession
     void ClearData();
 
     /// <summary>
+    /// 마지막 <see cref="RestoreState"/> 가 세션 파일과 다른 화면을 만들었는가 — 예: 저서 예전 암반·콘크리트 → 특이사항(§20).
+    /// 그러면 <see cref="SessionService.LoadAsync"/> 가 불러온 직후를 '저장 안 한 변경'으로 둔다. <see cref="ClearData"/> 가 되돌린다.
+    /// </summary>
+    bool RestoreAdjusted => false;
+
+    /// <summary>
     /// 분류군 조사일(2026-10-20 연계 시험 2차 N3). 비어 있으면 조사개황 조사일을 따른다.
     /// 세션 파일에는 그 분류군 자료 안의 <c>TaxonSurveyDate</c> 칸으로 들어간다(<see cref="SessionService"/> 가 넣고 뺀다 — 분류군 DTO 는 그대로).
     /// </summary>

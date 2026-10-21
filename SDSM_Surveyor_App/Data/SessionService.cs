@@ -353,8 +353,14 @@ public sealed class SessionService : ISessionService, ISingletonService
         ApplyToScreen(session);
         CurrentSessionId = session.SessionId;
         MarkClean();   // 불러온 직후 닫으면 묻지 않는다(B-5)
+        // 단, 불러오며 예전 값을 옮긴 분류군이 있으면(§20 저서 암반·콘크리트 → 특이사항) 화면이 파일과 다르다 —
+        // '저장 안 한 변경'으로 두어 닫거나 다른 세션으로 넘어갈 때 저장 확인을 묻는다(G2). 기준을 어떤 화면과도 같지 않은 값으로.
+        if (Taxa.Any(t => t.RestoreAdjusted)) _baseline = AdjustedOnLoad;
         return true;
     }
+
+    /// <summary>불러오며 값을 옮겨 화면이 파일과 다를 때의 저장 기준(어떤 스냅샷과도 같지 않다 · <see cref="HasUnsavedChanges"/> = true).</summary>
+    private const string AdjustedOnLoad = "(불러오며 옮긴 값 — 아직 저장 안 함)";
 
     /// <summary>세션 내용을 조사개황 + 7개 탭에 올린다(열린 세션 키·저장 기준은 부르는 쪽이 정한다).</summary>
     private void ApplyToScreen(SurveySession session)

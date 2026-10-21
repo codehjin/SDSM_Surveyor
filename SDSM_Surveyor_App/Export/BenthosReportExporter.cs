@@ -63,15 +63,14 @@ public static class BenthosReportExporter
         s.Kv("제방(좌안)", vm.LeveeLeft);
         s.Kv("제방(우안)", vm.LeveeRight);
         s.Blank();
+        // §20(2026-10-21) : 지침(제2026-30호) [서식 2] · <표 1> 6칸 — 암반·콘크리트 없음
         s.Head("[ 서식지 하상구성(%) ]");
-        s.Kv("암반", vm.Bedrock);
-        s.Kv("콘크리트", vm.Concrete);
-        s.Kv("진흙이하(<0.063mm)", vm.Mud);
-        s.Kv("모래(0.063-2mm)", vm.Sand);
-        s.Kv("잔자갈(2-16mm)", vm.FineGravel);
-        s.Kv("자갈(16-64mm)", vm.Gravel);
-        s.Kv("작은돌(64-256mm)", vm.SmallStone);
-        s.Kv("큰돌(>256mm)", vm.BigStone);
+        s.Kv("진흙 이하(<0.063mm)", vm.Mud);
+        s.Kv("모래(0.063~2mm)", vm.Sand);
+        s.Kv("왕모래(2~16mm)", vm.FineGravel);
+        s.Kv("자갈(16~64mm)", vm.Gravel);
+        s.Kv("작은돌(64~256mm)", vm.SmallStone);
+        s.Kv("큰돌 이상(>256mm)", vm.BigStone);
         s.Blank();
         s.Head("[ 서식처(수리·환경) ]");
         // 양식 33행. 조사개황의 '하천유형'(8행)과 이름이 같아 화면처럼 (서식처)를 붙인다

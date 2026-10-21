@@ -60,7 +60,9 @@ public static class BenthosExcelExporter
         Set(13, vm.Surbernet30); Set(14, vm.Surbernet50); Set(15, vm.Dredge); Set(16, vm.Ekman);
         Set(17, vm.Watershed); Set(18, vm.PollutionSource); Set(19, vm.CanopyCover);
         Set(20, vm.Floodplain); Set(21, vm.LeveeLeft); Set(22, vm.LeveeRight);
-        Set(23, vm.Bedrock); Set(24, vm.Concrete); Set(25, vm.Mud); Set(26, vm.Sand);
+        // §20(2026-10-21) : 저서 하상은 지침 6칸 — 양식의 암반(24행)·콘크리트(25행)는 빈칸(칸 배치·라벨은 그대로).
+        //   왕모래(2~16mm) = 양식 '잔자갈(2-16mm)'(28행).
+        Set(25, vm.Mud); Set(26, vm.Sand);
         Set(27, vm.FineGravel); Set(28, vm.Gravel); Set(29, vm.SmallStone); Set(30, vm.BigStone);
         Set(32, vm.HabitatRiverType); Set(33, vm.RiverWidth); Set(34, vm.WaterWidth);
         Set(35, vm.AverageDepth); Set(36, vm.AverageVelocity);

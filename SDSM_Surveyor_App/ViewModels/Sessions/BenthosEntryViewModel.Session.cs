@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using CommunityToolkit.Mvvm.Messaging;
 using SDSM_Surveyor_App.Data;
 using SDSM_Surveyor_App.Models;
 
@@ -42,8 +43,13 @@ public partial class BenthosEntryViewModel : ITaxonSession
 
     object ITaxonSession.CaptureState() => ToDraft();
 
+    /// <summary>마지막 불러오기에서 예전 암반·콘크리트를 특이사항으로 옮겼는가(§20 · G2).</summary>
+    private bool _restoreAdjusted;
+    bool ITaxonSession.RestoreAdjusted => _restoreAdjusted;
+
     void ITaxonSession.RestoreState(JsonElement json)
     {
+        _restoreAdjusted = false;
         var d = json.Deserialize<BenthosDraft>(SessionJson.Options);
         if (d is null) return;
 
@@ -60,6 +66,14 @@ public partial class BenthosEntryViewModel : ITaxonSession
         NoSpeciesDeclared = d.NoSpeciesDeclared;
         IsEnvironmentExpanded = d.IsEnvironmentExpanded; IsHealthExpanded = d.IsHealthExpanded;
 
+        // §20(2026-10-21) : 저서 하상은 지침 6칸 — 예전 세션의 암반·콘크리트 값(0 보다 큼)은 특이사항으로 옮기고 칸은 비운다.
+        // 세션 파일의 칸(Bedrock·Concrete)은 지우지 않는다(읽기 호환). 저장은 조사자가 한다 —
+        // 옮겼으면 불러온 직후를 '저장 안 한 변경'으로 두어 닫기·다른 세션으로 넘어갈 때 묻게 한다(G2 · SessionService.LoadAsync).
+        _restoreAdjusted = MoveRockConcreteToNote();
+        if (_restoreAdjusted)
+            WeakReferenceMessenger.Default.Send(new Messengers.NotifyMessage((
+                "저서 하상 암반·콘크리트 값을 특이사항으로 옮겼습니다(지침 저서 하상 6칸 밖) — [임시 저장]을 누르면 반영됩니다", false)));
+
         SpeciesEntries.Clear();
         foreach (var r in d.Rows)
         {
@@ -75,6 +89,7 @@ public partial class BenthosEntryViewModel : ITaxonSession
 
     void ITaxonSession.ClearData()
     {
+        _restoreAdjusted = false;
         SpeciesEntries.Clear();
         Surbernet30 = Surbernet50 = Dredge = Ekman = null;
         Watershed = PollutionSource = CanopyCover = Floodplain = LeveeLeft = LeveeRight = null;

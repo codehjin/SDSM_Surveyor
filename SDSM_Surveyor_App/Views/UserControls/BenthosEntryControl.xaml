@@ -143,7 +143,9 @@
                             </StackPanel>
                         </WrapPanel>
 
-                        <!-- 서식지 하상구성 (%) 8 — 어류와 같은 항목·같은 폭 -->
+                        <!-- 서식지 하상구성 (%) 6 — 지침(제2026-30호) [서식 2] · <표 1> 퇴적물 분류(Cummins, 1962) 순서·이름(§20 · 2026-10-21).
+                             암반·콘크리트는 저서 조사표에 없어 뺐다(어류 [서식 3]은 8칸 그대로). 왕모래(2~16mm) = 일괄입력 양식의 '잔자갈(2-16mm)' 행.
+                             칸 폭 Md — 지침 이름이 길어 Sm(128)에서는 두 줄로 꺾여 칸 높이가 어긋난다. -->
                         <StackPanel Orientation="Horizontal" Margin="0 4 0 8">
                             <Border Style="{StaticResource GroupHeaderBarStyle}"/>
                             <TextBlock Text="서식지 하상구성 (%) — 합계 100" Style="{StaticResource GroupHeaderTextStyle}"/>
@@ -151,43 +153,33 @@
                                        Style="{StaticResource InlineWarnTextStyle}"/>
                         </StackPanel>
                         <WrapPanel>
-                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                                <TextBlock Text="암반" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
-                                                             core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding Bedrock, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldXsStyle}">
-                                <TextBlock Text="콘크리트" Style="{StaticResource FormLabelStyle}"/>
-                                <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
-                                                             core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding Concrete, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                <TextBlock Text="진흙(&lt;0.063mm)" Style="{StaticResource FormLabelStyle}"/>
+                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                                <TextBlock Text="진흙 이하(&lt;0.063mm)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                              core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding Mud, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                <TextBlock Text="모래(0.063-2mm)" Style="{StaticResource FormLabelStyle}"/>
+                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                                <TextBlock Text="모래(0.063~2mm)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                              core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding Sand, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                <TextBlock Text="잔자갈(2-16mm)" Style="{StaticResource FormLabelStyle}"/>
+                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                                <TextBlock Text="왕모래(2~16mm)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                              core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding FineGravel, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                <TextBlock Text="자갈(16-64mm)" Style="{StaticResource FormLabelStyle}"/>
+                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                                <TextBlock Text="자갈(16~64mm)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                              core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding Gravel, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                <TextBlock Text="작은돌(64-256mm)" Style="{StaticResource FormLabelStyle}"/>
+                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                                <TextBlock Text="작은돌(64~256mm)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                              core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding SmallStone, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource FormFieldSmStyle}">
-                                <TextBlock Text="큰돌(&gt;256mm)" Style="{StaticResource FormLabelStyle}"/>
+                            <StackPanel Style="{StaticResource FormFieldMdStyle}">
+                                <TextBlock Text="큰돌 이상(&gt;256mm)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}" WatermarkContent="%"
                                                              core:IntegerInput.IsEnabled="True" core:IntegerInput.Maximum="100" Text="{Binding BigStone, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>

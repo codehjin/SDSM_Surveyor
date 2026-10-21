@@ -530,7 +530,7 @@ using ThemableFontFamily = Telerik.Documents.Common.Model.ThemableFontFamily; //
 
 ## 7. 개발 환경 주의
 
-- **배포 압축 맨 위 폴더(H2 · 2026-10-19)** — `publish.ps1` 4단계는 게시 폴더를 `tools\_publish_zip\SDSM_Surveyor_v<exe 파일 버전 앞 두 자리>` 로 옮겨 `CreateFromDirectory(…, includeBaseDirectory: $true, UTF8)` 로 압축한다. 압축이 끝나면 `_publish_zip` 을 지운다(실패하면 남는다 — `.gitignore`).
+- **배포 압축 맨 위 폴더(H2 · 2026-10-19)** — `publish.ps1` 4단계는 게시 폴더를 `tools\_publish_zip\SDSM_Surveyor_v<exe 파일 버전 앞 세 자리>`(v0.4.1 · G2 2026-10-21 부터 세 자리 · 압축 파일 이름에도 `_v0.4.1_` · `-CheckOnly` 가 미리 보임)로 옮겨 `CreateFromDirectory(…, includeBaseDirectory: $true, UTF8)` 로 압축한다. 압축이 끝나면 `_publish_zip` 을 지운다(실패하면 남는다 — `.gitignore`).
 - 작업 사본의 `.ps1`·`.gitignore` 가 CRLF 로 남아 있는 경우가 있다(저장소는 `eol=lf`). 고칠 때 LF 로 맞춰야 `git diff` 에 CRLF 경고가 안 난다(`.ps1` 은 BOM 유지).
 - F: 드라이브 마운트에서 **bash로 방금 쓴 파일을 읽으면 내용이 오래된 경우가 있다.** 파일 도구(Read/Edit/Write)를 신뢰할 것. 특히 `.git/config`를 bash로 판단하지 말 것.
 - CS8826 경고(부분 메서드 시그니처 차이)는 `On○○Changed(T v)` 매개변수명을 소스 생성기 규약인 **`value`** 로 바꾸면 사라진다. 동작에는 영향 없음.

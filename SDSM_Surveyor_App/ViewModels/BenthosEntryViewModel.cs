@@ -164,13 +164,12 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     private readonly string _speciesCatalogVersion;
 
     // ── 조사환경 요약줄 ──────────────────────────────────────────────────
-    /// <summary>하상구성 8칸 중 값이 들어간 칸 수.</summary>
+    /// <summary>하상구성 6칸(지침 · §20) 중 값이 들어간 칸 수.</summary>
     public string SubstrateSummary
     {
         get
         {
-            var filled = new[] { Bedrock, Concrete, Mud, Sand, FineGravel, Gravel, SmallStone, BigStone }
-                         .Count(v => !string.IsNullOrWhiteSpace(v));
+            var filled = SubstrateFields.Count(f => !string.IsNullOrWhiteSpace(f.Value));
             return filled == 0 ? "·" : $"{filled}칸 입력됨";
         }
     }
@@ -189,12 +188,38 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         }
     }
 
-    /// <summary>하상구성 8칸(화면 이름, 값). 합계·정수 점검이 같이 쓴다.</summary>
+    /// <summary>
+    /// 하상구성 6칸(화면 이름, 값) — 지침(제2026-30호) [서식 2] · <표 1> 순서·이름(§20 · 2026-10-21). 합계·정수 점검이 같이 쓴다.
+    /// 암반·콘크리트(<see cref="Bedrock"/>·<see cref="Concrete"/>)는 저서 조사표에 없어 뺐다 — 칸은 세션 호환으로만 남는다(예전 값은 불러올 때 특이사항으로 옮김).
+    /// 왕모래(2~16mm) = <see cref="FineGravel"/>(일괄입력 양식 '잔자갈(2-16mm)' 행).
+    /// </summary>
     private (string Label, string? Value)[] SubstrateFields => new[]
     {
-        ("암반", Bedrock), ("콘크리트", Concrete), ("진흙", Mud), ("모래", Sand),
-        ("잔자갈", FineGravel), ("자갈", Gravel), ("작은돌", SmallStone), ("큰돌", BigStone),
+        ("진흙 이하", Mud), ("모래", Sand), ("왕모래", FineGravel),
+        ("자갈", Gravel), ("작은돌", SmallStone), ("큰돌 이상", BigStone),
     };
+
+    /// <summary>예전 세션의 암반·콘크리트를 특이사항으로 옮길 때 붙이는 꼬리(§20).</summary>
+    public const string RockNoteTail = "(지침 저서 하상 6칸 밖 · 옮김)";
+
+    /// <summary>
+    /// 예전 세션의 저서 암반·콘크리트(지침 하상 6칸 밖 · §20) — 0 보다 큰 값은 특이사항 끝에 '하상 암반 n% · 콘크리트 n%(지침 저서 하상 6칸 밖 · 옮김)' 로 덧붙이고
+    /// (특이사항에 글이 있으면 ' / ' 로 잇는다) 두 칸을 비운다. 0 이나 빈칸은 그냥 비운다. 옮겼으면 true(부르는 쪽이 한 번 알린다). 저장은 조사자가 한다.
+    /// </summary>
+    internal bool MoveRockConcreteToNote()
+    {
+        static bool Keeps(string? v) =>
+            !string.IsNullOrWhiteSpace(v) && !(double.TryParse(v.Trim(), out var d) && d == 0);
+        var parts = new List<string>();
+        if (Keeps(Bedrock)) parts.Add($"암반 {Bedrock!.Trim()}%");
+        if (Keeps(Concrete)) parts.Add($"콘크리트 {Concrete!.Trim()}%");
+        Bedrock = null;
+        Concrete = null;
+        if (parts.Count == 0) return false;
+        var moved = $"하상 {string.Join(" · ", parts)}{RockNoteTail}";
+        Note = string.IsNullOrWhiteSpace(Note) ? moved : $"{Note.TrimEnd()} / {moved}";
+        return true;
+    }
 
     /// <summary>하상구성 합계(%). 지침상 100 이어야 한다. 전부 비면 null. (어류와 같은 규칙 · B-6)</summary>
     public double? SubstrateTotal
@@ -208,7 +233,7 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
 
     /// <summary>
     /// 하상구성 경고 — 합계가 100 이 아니거나, 0~100 정수가 아닌 칸이 있으면.
-    /// 최종본 실제 제출 자료에 합계 90% 가 있었다(B-6). 막지 않고 알리기만 한다. 8칸이 모두 비면 경고하지 않는다.
+    /// 최종본 실제 제출 자료에 합계 90% 가 있었다(B-6). 막지 않고 알리기만 한다. 6칸이 모두 비면 경고하지 않는다.
     /// </summary>
     public string SubstrateWarning
     {

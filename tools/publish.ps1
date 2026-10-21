@@ -144,6 +144,16 @@ if ($Test) {
     Write-Host "    지도 $nMap 장 확인 · 예시 자료 없음 확인"
 }
 
+# 판 — 게시한 exe 의 파일 버전 앞 세 자리(v0.4.1 · G2 2026-10-21 · 종전 두 자리).
+#   압축 안 맨 위 폴더 SDSM_Surveyor_v<판>\ (2026-10-19 결정 H2)와 압축 파일 이름에 쓴다. -CheckOnly 에서도 미리 보인다.
+$exeVer = [System.Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $stage 'SDSM_Surveyor_App.exe')).FileVersion
+if (-not $exeVer) { Fail 'exe 파일 버전을 읽지 못했습니다' 3 }
+$ver  = ([version]$exeVer).ToString(3)
+$top  = 'SDSM_Surveyor_v' + $ver
+$name = $(if ($Test) { 'SDSM_Surveyor_테스트_' } else { 'SDSM_Surveyor_' }) + 'v' + $ver + '_'
+$zipName = $name + (Get-Date -Format 'yyyyMMdd') + '.zip'
+Write-Host "    판 v$ver (exe 파일 버전 $exeVer) · 압축 파일 $zipName · 맨 위 폴더 $top\"
+
 if ($CheckOnly) {
     Write-Host ''
     Write-Host '=== 1~3단계 통과 (-CheckOnly : 4단계 압축은 하지 않음) ===' -ForegroundColor Green
@@ -160,15 +170,11 @@ $outRoot = (Resolve-Path $outRoot).Path
 $dest = Join-Path $outRoot (Get-Date -Format 'yyyy-MM-dd')
 if (-not (Test-Path $dest)) { New-Item -ItemType Directory -Path $dest | Out-Null }
 
-$name = if ($Test) { 'SDSM_Surveyor_테스트_' } else { 'SDSM_Surveyor_' }
-$zip  = Join-Path $dest ($name + (Get-Date -Format 'yyyyMMdd') + '.zip')
+$zip  = Join-Path $dest $zipName
 if (Test-Path $zip) { Remove-Item $zip -Force }
 
-# 압축 안 맨 위 폴더 — SDSM_Surveyor_v<버전>\ (2026-10-19 결정 H2). 버전은 게시한 exe 의 파일 버전(앞 두 자리)에서 읽는다.
-#   압축을 풀면 이 폴더 하나가 생기고 그 안에 실행 파일이 있다(맨 위 폴더가 없으면 '여기에 풀기'로 파일 400여 개가 흩어진다).
-$exeVer = [System.Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $stage 'SDSM_Surveyor_App.exe')).FileVersion
-if (-not $exeVer) { Fail 'exe 파일 버전을 읽지 못했습니다' 4 }
-$top = 'SDSM_Surveyor_v' + (([version]$exeVer).ToString(2))
+# 압축 안 맨 위 폴더 $top(위에서 정함) — 압축을 풀면 이 폴더 하나가 생기고 그 안에 실행 파일이 있다
+#   (맨 위 폴더가 없으면 '여기에 풀기'로 파일 400여 개가 흩어진다).
 
 # 게시 폴더를 '맨 위 폴더 이름'으로 잠시 옮겨 그 폴더째 압축한다(includeBaseDirectory = $true).
 $wrap = Join-Path $tools '_publish_zip'
