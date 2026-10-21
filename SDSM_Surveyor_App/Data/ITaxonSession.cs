@@ -29,4 +29,10 @@ public interface ITaxonSession
 
     /// <summary>분류군 고유 입력을 모두 비운다(지점 간 값 복사에서 사용).</summary>
     void ClearData();
+
+    /// <summary>
+    /// 분류군 조사일(2026-10-20 연계 시험 2차 N3). 비어 있으면 조사개황 조사일을 따른다.
+    /// 세션 파일에는 그 분류군 자료 안의 <c>TaxonSurveyDate</c> 칸으로 들어간다(<see cref="SessionService"/> 가 넣고 뺀다 — 분류군 DTO 는 그대로).
+    /// </summary>
+    DateTime? TaxonSurveyDate { get; set; }
 }

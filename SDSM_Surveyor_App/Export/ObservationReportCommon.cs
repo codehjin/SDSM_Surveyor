@@ -25,13 +25,13 @@ internal static class ObservationReportCommon
     }
 
     /// <summary>시트1 : 조사개황(항목 | 값). 관리자 테이블에 없는 열은 안내 문구로 남긴다.</summary>
-    public static void WriteOverview(Workbook wb, SurveyMeta m, string title)
+    public static void WriteOverview(Workbook wb, SurveyMeta m, DateTime? surveyDate, string title)
     {
         var s = ReportExporterBase.BeginOverview(wb, title);
         s.Head("[ 조사개황 ]");
 
         // G2(2026-10-18 (3)) : 관찰형 3종 양식에는 하천유형이 없다 — 조사개황에 하천유형 행을 내지 않는다(어류·저서 값이 찍히던 것)
-        s.WriteSurveyMeta(m, null, withRiverType: false);
+        s.WriteSurveyMeta(m, surveyDate, null, withRiverType: false);
 
         s.Blank();
         s.Note("※ 관리자 테이블에 대권역·중권역·조사기관 컬럼이 없어 일괄입력 시에는 해당 열이 비워진다.");

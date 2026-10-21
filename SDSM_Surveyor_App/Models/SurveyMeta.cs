@@ -422,6 +422,8 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
     partial void OnSelectedSiteChanged(SurveySite? value)
     {
         OnPropertyChanged(nameof(SelectedSiteChoice));
+        OnPropertyChanged(nameof(RiverMasterHint));
+        OnPropertyChanged(nameof(HasRiverMasterHint));
         if (value is not null) SiteEntryNotice = null;
         // 후보를 보여 주던 중에 하나를 골랐다 — 전체 목록으로 되돌린다(선택은 유지된다).
         if (value is not null && IsShowingCandidates) SetChoices(SiteOptions, null);
@@ -583,8 +585,21 @@ public partial class SurveyMeta : ObservableObject, ISingletonService
         OnPropertyChanged(nameof(SiteKey));
         OnPropertyChanged(nameof(SiteDesc));
         OnPropertyChanged(nameof(SiteHint));
+        OnPropertyChanged(nameof(RiverMasterHint));
+        OnPropertyChanged(nameof(HasRiverMasterHint));
         RaiseSummary();
     }
+
+    /// <summary>
+    /// 하천명을 지점 목록(sites.json) 하천과 다르게 고쳤으면 칸 아래에 '지점 목록: 원천리천' 을 작게 보인다(N4 · 2026-10-20 (2) 결정).
+    /// 하천명은 조사자가 세부 하천명(예: 원천리천 하류 '황구지천')으로 고칠 수 있고, 일괄입력·보고서는 고친 값을 쓴다.
+    /// 지점을 다시 고르면 지점 목록 하천이 기본으로 들어간다. 세션 키·지점 매칭은 지점명으로 하므로 영향이 없다.
+    /// </summary>
+    public string? RiverMasterHint =>
+        SelectedSite?.River is { } r && !string.IsNullOrWhiteSpace(r)
+        && !string.Equals(r.Trim(), River?.Trim(), StringComparison.Ordinal) ? $"지점 목록: {r.Trim()}" : null;
+
+    public bool HasRiverMasterHint => RiverMasterHint is not null;
 
     // ── 값 고정(압정) 연결 ────────────────────────────────────────────────────
     // 사람이 친 값과 프로그램이 넣은 값을 구분해야 한다. 구분하지 않으면

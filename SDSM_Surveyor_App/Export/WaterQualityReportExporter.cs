@@ -73,7 +73,7 @@ public static class WaterQualityReportExporter
         var m = vm.Meta;
         var s = ReportExporterBase.BeginOverview(wb, "수질 조사결과 — 조사개황");
         s.Head("[ 조사개황 ]");
-        s.WriteSurveyMeta(m, m.RiverTypeWater);   // 하천유형 = 수질·서식수변 칸(E1)
+        s.WriteSurveyMeta(m, vm.EffectiveSurveyDate, m.RiverTypeWater);   // 하천유형 = 수질·서식수변 칸(E1)
 
         s.Finish();
     }
@@ -145,7 +145,7 @@ public static class WaterQualityReportExporter
         SiteColumns.Write(ws, row, m);
         Str(ws, row, 4, m.YearChsu);
         Str(ws, row, 5, m.River);
-        Str(ws, row, 6, m.SurveyDate?.ToString("yyyy-MM-dd"));
+        Str(ws, row, 6, vm.EffectiveSurveyDate?.ToString("yyyy-MM-dd"));
 
         int col = 7;
         foreach (var (_, value, grade) in graded)

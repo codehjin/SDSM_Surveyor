@@ -41,7 +41,7 @@ public static class MammalReportExporter
     {
         var m = vm.Meta;
         var wb = new Workbook();
-        ObservationReportCommon.WriteOverview(wb, m, "포유류 조사결과 — 조사개황");
+        ObservationReportCommon.WriteOverview(wb, m, vm.EffectiveSurveyDate, "포유류 조사결과 — 조사개황");
         WriteSpecies(wb, vm);
         WriteSummary(wb, vm);
 
@@ -135,7 +135,7 @@ public static class MammalReportExporter
         SiteColumns.Write(ws, row, m);
         Str(ws, row, 4, m.YearChsu);
         Str(ws, row, 5, m.River);
-        Str(ws, row, 6, m.SurveyDate?.ToString("yyyy-MM-dd"));
+        Str(ws, row, 6, vm.EffectiveSurveyDate?.ToString("yyyy-MM-dd"));
         Num(ws, row, 7, observed.Select(e => e.SpeciesKo).Distinct().Count());
         Num(ws, row, 8, observed.Sum(e => e.TraceSum));
         Num(ws, row, 9, observed.Count);

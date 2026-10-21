@@ -43,7 +43,7 @@ public static class BenthosReportExporter
         var m = vm.Meta;
         var s = ReportExporterBase.BeginOverview(wb, "저서동물 조사결과 — 조사개황");
         s.Head("[ 조사개황 ]");
-        s.WriteSurveyMeta(m);
+        s.WriteSurveyMeta(m, vm.EffectiveSurveyDate);
         s.Blank();
         s.Head("[ 채집방법 ]");
         s.Kv("Surber 30×30 (회)", vm.Surbernet30);
@@ -176,7 +176,7 @@ public static class BenthosReportExporter
         SiteColumns.Write(ws, row, m);
         Str(ws, row, 4, m.YearChsu);
         Str(ws, row, 5, m.River);
-        Str(ws, row, 6, m.SurveyDate?.ToString("yyyy-MM-dd"));
+        Str(ws, row, 6, vm.EffectiveSurveyDate?.ToString("yyyy-MM-dd"));
         Num(ws, row, 7, b.TotalSpecies);
         Num(ws, row, 8, b.TotalIndiv);
         // H1 : 총 개체밀도 = 총 개체수 ÷ 면적(반올림한 종별 값을 더하지 않는다) · 환산할 수 없으면 그 까닭을 적는다
@@ -186,10 +186,12 @@ public static class BenthosReportExporter
         if (sampling.CanConvert) Num(ws, row, 10, b.TotalSpecies == 0 && !vm.NoSpeciesDeclared ? null : sampling.Density(b.TotalIndiv));
         else ws.Cells[row, 10].SetValue(sampling.Text);
         Str(ws, row, 11, vm.DominantSpecies);
-        Num(ws, row, 12, Math.Round(b.DI, 3));
-        Num(ws, row, 13, Math.Round(b.H, 3));
-        Num(ws, row, 14, Math.Round(b.R1, 3));
-        Num(ws, row, 15, Math.Round(b.J, 3));
+        // N6(2026-10-20 연계 시험 2차) : 출현종(개체수 > 0)이 없으면(조사불가 · 0종) 화면처럼 DI·H′·R1·J′ 빈칸 — 관리자 DB 도 NULL
+        double? Idx(double v) => b.TotalSpecies == 0 ? null : Math.Round(v, 3);
+        Num(ws, row, 12, Idx(b.DI));
+        Num(ws, row, 13, Idx(b.H));
+        Num(ws, row, 14, Idx(b.R1));
+        Num(ws, row, 15, Idx(b.J));
         Num(ws, row, 16, Math.Round(b.SumSGH, 3));
         Num(ws, row, 17, Math.Round(b.SumGH, 3));
         Num(ws, row, 18, b.Score);

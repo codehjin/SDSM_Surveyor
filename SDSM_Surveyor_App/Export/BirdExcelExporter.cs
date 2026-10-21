@@ -40,7 +40,7 @@ public static class BirdExcelExporter
             void Set(int col, string? val) => BulkTemplate.Put(ws, r, col, val);
 
             Set(1, m.YearChsu);                            // 앵커(비면 그 행은 무시된다)
-            Set(2, m.SurveyDate?.ToString("yyyyMMdd"));
+            Set(2, vm.EffectiveSurveyDate?.ToString("yyyyMMdd"));
             Set(3, m.Weather);
             Set(4, m.River);
             Set(5, m.Site);

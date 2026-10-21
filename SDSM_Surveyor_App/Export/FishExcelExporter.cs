@@ -47,7 +47,7 @@ public static class FishExcelExporter
 
         Set(1, m.YearChsu);                        // 연도차수(앵커·필수)
         Set(2, m.Site);                            // 지점명
-        Set(3, m.SurveyDate?.ToString("yyyyMMdd")); // 조사일
+        Set(3, vm.EffectiveSurveyDate?.ToString("yyyyMMdd")); // 조사일
         Set(4, m.MajorRegion);
         Set(5, m.MiddleRegion);
         Set(6, m.River);

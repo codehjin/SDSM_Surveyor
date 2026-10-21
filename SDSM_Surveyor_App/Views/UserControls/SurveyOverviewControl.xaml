@@ -113,8 +113,14 @@
         <StackPanel Grid.Row="1" Grid.Column="2" Style="{StaticResource FormFieldStyle}">
             <TextBlock Text="하천명" Style="{StaticResource FormLabelStyle}"/>
             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
-                                         WatermarkContent="지점 선택 시 자동 · 목록 밖 지점은 직접"
+                                         WatermarkContent="지점 선택 시 자동 · 고칠 수 있음"
+                                         AutomationProperties.AutomationId="RiverBox"
+                                         ToolTipService.ToolTip="지점을 고르면 지점 목록 하천이 들어갑니다. 세부 하천명(예: 원천리천 하류 '황구지천')으로 고칠 수 있고, 일괄입력·보고서에 고친 값이 들어갑니다."
                                          Text="{Binding River, UpdateSourceTrigger=PropertyChanged}"/>
+            <!-- N4 : 지점 목록 하천과 다르게 고쳤으면 목록 값을 작게 보인다 -->
+            <TextBlock Text="{Binding RiverMasterHint}" Style="{StaticResource CaptionTextStyle}" Margin="0 4 0 0"
+                       AutomationProperties.AutomationId="RiverMasterHint"
+                       Visibility="{Binding HasRiverMasterHint, Converter={StaticResource BoolToVisibility}}"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Grid.Column="3" Style="{StaticResource FormFieldStyle}">

@@ -41,7 +41,7 @@ public static class AmphibianReptileExcelExporter
             Set(1, m.YearChsu);                            // 앵커
             // ⚠ 양식의 조사일(C) 칸은 날짜 서식(mm-dd-yy)이다. 숫자 20250923 을 넣으면 날짜로 읽혀 깨진다 →
             //   종전과 같은 글자 `yyyyMMdd` 로 쓴다(관리자 Import 는 8자리 숫자 글자를 날짜로 바꾼다).
-            if (m.SurveyDate is DateTime d) BulkTemplate.PutText(ws, r, 2, d.ToString("yyyyMMdd"));
+            if (vm.EffectiveSurveyDate is DateTime d) BulkTemplate.PutText(ws, r, 2, d.ToString("yyyyMMdd"));
             Set(3, m.Weather);
             Set(4, m.River);
             Set(5, m.Site);

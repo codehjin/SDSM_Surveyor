@@ -54,6 +54,10 @@
                 <TextBlock Text="{Binding InvasiveCount}" VerticalAlignment="Center"
                            FontSize="{StaticResource SummaryFontSize}" FontWeight="SemiBold"
                            Foreground="{StaticResource DangerTextBrush}"/>
+
+                <!-- N3 : 분류군 조사일(비면 조사개황 조사일) — 좁은 요약줄이라 안내는 툴팁으로 -->
+                <Border Style="{StaticResource VerticalDividerStyle}" Margin="12 0 12 0"/>
+                <ctrl:TaxonDateBar ShowHint="False"/>
             </StackPanel>
         </Border>
 

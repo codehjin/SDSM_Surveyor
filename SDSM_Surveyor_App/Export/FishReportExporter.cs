@@ -43,7 +43,7 @@ public static class FishReportExporter
         var m = vm.Meta;
         var s = ReportExporterBase.BeginOverview(wb, "어류 조사결과 — 조사개황");
         s.Head("[ 조사개황 ]");
-        s.WriteSurveyMeta(m);
+        s.WriteSurveyMeta(m, vm.EffectiveSurveyDate);
         s.Blank();
         s.Head("[ 채집방법 ]");
         s.Kv("채집소요시간(분)", vm.CollectionTime);
@@ -153,7 +153,7 @@ public static class FishReportExporter
         SiteColumns.Write(ws, row, m);
         Str(4, m.YearChsu);
         Str(5, m.River);
-        Str(6, m.SurveyDate?.ToString("yyyy-MM-dd"));
+        Str(6, vm.EffectiveSurveyDate?.ToString("yyyy-MM-dd"));
         // 문제 10 : 하천차수가 비면(조사불가·0종 선언 제외) M1·M2·M3·M7 이 0 이 되어 FAI 가 낮게 나온다 — 점수 칸은 비우고 까닭을 적는다
         bool noChasu = vm.NeedsRiverChasu;
         if (chasu > 0) Num(7, chasu);

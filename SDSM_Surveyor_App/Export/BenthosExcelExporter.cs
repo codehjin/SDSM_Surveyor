@@ -47,7 +47,7 @@ public static class BenthosExcelExporter
 
         Set(1, m.YearChsu);
         Set(2, m.Site);
-        Set(3, m.SurveyDate?.ToString("yyyyMMdd"));
+        Set(3, vm.EffectiveSurveyDate?.ToString("yyyyMMdd"));
         Set(4, m.MajorRegion);
         Set(5, m.MiddleRegion);
         Set(6, m.River);

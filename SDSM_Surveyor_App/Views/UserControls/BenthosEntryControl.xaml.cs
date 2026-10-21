@@ -49,10 +49,11 @@ public partial class BenthosEntryControl : UserControl
         if (ObservationGrid.IsNavigationKey(e.Key)) _vm.LastTouchedRow = null;
 
         if (e.Key != Key.V || (Keyboard.Modifiers & ModifierKeys.Control) != ModifierKeys.Control) return;
-        if (!Clipboard.ContainsText()) return;
+        // N1 : 다른 프로그램이 클립보드를 잡고 있으면 다시 시도하고, 그래도 못 읽으면 안내만(앱을 닫지 않는다)
+        if (!Helpers.ClipboardText.TryRead(out var text)) { e.Handled = true; return; }
+        if (text is null) return;
 
         if (sender is Telerik.Windows.Controls.RadGridView grid) grid.CancelEdit();
-        var text = Clipboard.GetText();
         Dispatcher.BeginInvoke(new Action(() => _vm.PasteRows(text)), DispatcherPriority.Background);
         e.Handled = true;
     }

@@ -426,10 +426,13 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
         int pasted = 0, dup = 0;
         var touched = new List<TEntry>();
         PasteScientificFixed = 0;
+        _pasteRejects.Clear();
 
         var lines = clipboard.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
-        foreach (var line in lines)
+        for (int li = 0; li < lines.Length; li++)
         {
+            var line = lines[li];
+            _pasteLine = li + 1;   // 붙여넣은 글의 몇째 줄(정수가 아닌 칸 안내용)
             if (string.IsNullOrWhiteSpace(line)) continue;
 
             var cells = line.Split('\t');
@@ -468,6 +471,14 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
                 ? $"붙여넣기 {pasted}행 · 같은 종 {dup}건 합산"
                 : $"붙여넣기 {pasted}행 · 이미 있는 종 {dup}건";
         if (PasteScientificFixed > 0) label += " · " + ScientificNameRule.Notice(PasteScientificFixed);   // D2
+        if (_pasteRejects.Count > 0)
+        {
+            // N2 : 정수 칸에 정수가 아닌 값('1.5'·'약간' 등)이 온 칸은 넣지 않았다(행은 넣음) — 행·열을 알린다
+            var list = string.Join(" · ", _pasteRejects.Take(6)) + (_pasteRejects.Count > 6 ? $" 외 {_pasteRejects.Count - 6}칸" : string.Empty);
+            var reject = $"{_pasteRejects.Count}칸은 정수가 아니라 넣지 않았습니다({list})";
+            label += " · " + reject;
+            WeakReferenceMessenger.Default.Send(new Messengers.NotifyMessage(($"{NoticeTaxon} 붙여넣기 — {reject}".Trim(), false)));
+        }
         MarkJustAdded(touched, label);
     }
 
@@ -538,5 +549,19 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
     }
 
     protected static int? Pi(string? s) => int.TryParse(s, out var n) ? n : null;
+
+    // N2(2026-10-20 연계 시험 2차) : 붙여넣기의 정수 칸 — 0 이상 정수만 넣고, 아니면 넣지 않고 행·열을 모은다(끝에 한 번 알림)
+    private int _pasteLine;
+    private readonly List<string> _pasteRejects = new();
+
+    /// <summary>붙여넣은 줄의 <paramref name="i"/> 번째 칸(0부터)을 개체수 등 정수로. 비면 null, 정수가 아니면 null + 안내 목록에 '3행 7열 '1.5''.</summary>
+    protected int? PasteInt(string[] cells, int i)
+    {
+        var v = Cell(cells, i);
+        if (v is null) return null;
+        if (v.Length <= 9 && v.All(char.IsAsciiDigit)) return int.Parse(v);
+        _pasteRejects.Add($"{_pasteLine}행 {i + 1}열 '{v}'");
+        return null;
+    }
     protected static double? Pd(string? s) => double.TryParse(s, out var d) ? d : null;
 }

@@ -108,8 +108,9 @@ public sealed class SurveyMetaSnapshot
         else
         {
             // D4 : 마스터에 비어 있는 칸(생태현황 조류·포유류 지점의 좌표 · 사업장)은 조사자가 적어 저장한 값을 되살린다.
+            // N4(2026-10-20 (2)) : 하천명은 조사자가 고칠 수 있다 — 저장된 하천명이 있으면 지점 목록 하천보다 그것을 쓴다.
             var site = m.SelectedSite;
-            if (string.IsNullOrWhiteSpace(site.River)) m.River = River;
+            if (!string.IsNullOrWhiteSpace(River) || string.IsNullOrWhiteSpace(site.River)) m.River = River;
             if (string.IsNullOrWhiteSpace(site.Workplace)) m.Workplace = Workplace;
             if (site.Lat is null) m.Lat = Lat;
             if (site.Lng is null) m.Lng = Lng;

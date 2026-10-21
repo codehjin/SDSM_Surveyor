@@ -19,6 +19,7 @@ public enum SessionConflictChoice
 /// <param name="ExistingTaxa">이미 있는 세션의 분류군(한글 이름 · 7개 분류군 순서).</param>
 /// <param name="CurrentTaxa">지금 화면에 자료가 있는 분류군(한글 이름).</param>
 /// <param name="ExistingUpdatedAt">이미 있는 세션을 마지막으로 저장한 때.</param>
+/// <param name="MergeNotes">[합치기]를 고르면 생기는 일(N3) — '포유류 조사일 2025-09-06 유지' · '날씨 · 맑음 → 흐림' 등. 없으면 빈 목록.</param>
 public sealed record SessionSaveConflict(string SessionId, string Display,
                                          IReadOnlyList<string> ExistingTaxa, IReadOnlyList<string> CurrentTaxa,
-                                         DateTime ExistingUpdatedAt);
+                                         DateTime ExistingUpdatedAt, IReadOnlyList<string>? MergeNotes = null);

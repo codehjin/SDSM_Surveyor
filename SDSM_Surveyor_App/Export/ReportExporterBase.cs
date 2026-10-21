@@ -221,16 +221,17 @@ internal sealed class OverviewSheet
     /// 모든 분류군이 똑같이 쓰는 조사개황 15행(관찰형 3종은 하천유형을 뺀 14행 · G2).
     /// ⚠ 순서·문구를 바꾸면 7개 보고서 엑셀이 한꺼번에 달라진다. 기준 파일 대조로 확인할 것.
     /// </summary>
-    public void WriteSurveyMeta(SurveyMeta m) => WriteSurveyMeta(m, m.RiverType);
+    public void WriteSurveyMeta(SurveyMeta m, DateTime? surveyDate) => WriteSurveyMeta(m, surveyDate, m.RiverType);
 
     /// <summary>하천유형 칸에 쓸 값을 정해서(E1 — 수질·서식수변 보고서는 수질·서식수변 칸 값).
-    /// <paramref name="withRiverType"/> 이 false 면 하천유형 행을 쓰지 않는다(G2 — 관찰형 3종 양식에는 하천유형이 없다).</summary>
-    public void WriteSurveyMeta(SurveyMeta m, string? riverType, bool withRiverType = true)
+    /// <paramref name="withRiverType"/> 이 false 면 하천유형 행을 쓰지 않는다(G2 — 관찰형 3종 양식에는 하천유형이 없다).
+    /// <paramref name="surveyDate"/> = 그 분류군 조사일(없으면 조사개황 조사일 · N3).</summary>
+    public void WriteSurveyMeta(SurveyMeta m, DateTime? surveyDate, string? riverType, bool withRiverType = true)
     {
         Kv("대분류", m.Project);
         Kv("연도", m.SurveyYear);
         Kv("연도차수", m.YearChsu);
-        Kv("조사일자", m.SurveyDate?.ToString("yyyy-MM-dd"));
+        Kv("조사일자", surveyDate?.ToString("yyyy-MM-dd"));
         Kv("대권역명", m.MajorRegion);
         Kv("중권역명", m.MiddleRegion);
         Kv("하천명", m.River);

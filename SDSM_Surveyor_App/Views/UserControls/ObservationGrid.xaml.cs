@@ -110,12 +110,14 @@ public partial class ObservationGrid : UserControl
         if (_host is not null && IsNavigationKey(e.Key)) _host.LastTouchedRow = null;
 
         if (e.Key != Key.V || (Keyboard.Modifiers & ModifierKeys.Control) != ModifierKeys.Control) return;
-        if (_host is null || !Clipboard.ContainsText()) return;
+        if (_host is null) return;
+        // N1 : 다른 프로그램이 클립보드를 잡고 있으면 다시 시도하고, 그래도 못 읽으면 안내만(앱을 닫지 않는다)
+        if (!Helpers.ClipboardText.TryRead(out var text)) { e.Handled = true; return; }
+        if (text is null) return;
 
         // 인서트 행이 편집 상태면 컬렉션에 추가돼도 화면이 안 그려진다
         // → 편집 종료 후 다음 레이아웃 사이클에서 추가한다.
         Grid.CancelEdit();
-        var text = Clipboard.GetText();
         var host = _host;
         Dispatcher.BeginInvoke(new Action(() => host.PasteRows(text)), DispatcherPriority.Background);
         e.Handled = true;

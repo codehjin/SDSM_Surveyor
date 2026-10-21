@@ -89,7 +89,7 @@ public sealed class SessionService : ISessionService, ISingletonService
         foreach (var t in Taxa)
         {
             if (!t.HasData) continue;
-            taxa[t.Key] = JsonSerializer.SerializeToNode(t.CaptureState(), SessionJson.Options);
+            taxa[t.Key] = JsonSerializer.SerializeToNode(Capture(t), SessionJson.Options);
         }
         var root = new JsonObject
         {
@@ -117,6 +117,46 @@ public sealed class SessionService : ISessionService, ISingletonService
         }
     }
 
+    // ── 분류군 조사일(N3) — 분류군 자료 JSON 안의 칸 하나로 넣고 뺀다 ───────────────────
+    // 분류군 DTO(FishDraft 등)는 바꾸지 않는다. 어류·저서 DTO 에는 예전부터 조사개황 사본 'SurveyDate' 가 있어 이름을 달리 한다.
+    // 칸이 없는 예전 세션 = 분류군 조사일 없음(조사개황 조사일을 따름).
+
+    internal const string TaxonDateProperty = "TaxonSurveyDate";
+
+    /// <summary>분류군 상태 + 분류군 조사일(있으면).</summary>
+    private static JsonElement Capture(ITaxonSession t)
+    {
+        var node = JsonSerializer.SerializeToNode(t.CaptureState(), SessionJson.Options);
+        if (node is JsonObject o && t.TaxonSurveyDate is DateTime d)
+            o[TaxonDateProperty] = d.Date;
+        return JsonSerializer.SerializeToElement(node, SessionJson.Options);
+    }
+
+    private static void Restore(ITaxonSession t, JsonElement json)
+    {
+        t.RestoreState(json);
+        t.TaxonSurveyDate = TaxonDateOf(json);
+    }
+
+    private static void Clear(ITaxonSession t)
+    {
+        t.ClearData();
+        t.TaxonSurveyDate = null;
+    }
+
+    /// <summary>세션 파일의 분류군 자료에서 분류군 조사일을 읽는다(없으면 null).</summary>
+    public static DateTime? TaxonDateOf(JsonElement json) =>
+        json.ValueKind == JsonValueKind.Object && json.TryGetProperty(TaxonDateProperty, out var p)
+        && p.ValueKind == JsonValueKind.String && p.TryGetDateTime(out var d) ? d.Date : null;
+
+    /// <summary>분류군 자료에 분류군 조사일을 적는다.</summary>
+    private static JsonElement WithTaxonDate(JsonElement json, DateTime date)
+    {
+        var o = JsonNode.Parse(json.GetRawText()) as JsonObject ?? new JsonObject();
+        o[TaxonDateProperty] = date.Date;
+        return JsonSerializer.SerializeToElement(o, SessionJson.Options);
+    }
+
     public Func<SessionSaveConflict, SessionConflictChoice>? ResolveSaveConflict { get; set; }
 
     public string? LastSaveNotice { get; private set; }
@@ -134,20 +174,8 @@ public sealed class SessionService : ISessionService, ISingletonService
         // 저장하는 바로 그 내용을 기준으로 삼는다(파일 쓰는 동안 화면이 바뀌어도 그 변경은 '저장 안 함' 으로 남는다).
         var snapshot = CaptureSnapshot();
 
-        var session = new SurveySession
-        {
-            SessionId = CurrentKey,
-            Meta = SurveyMetaSnapshot.From(_meta)
-        };
-
-        var current = new List<string>();
-        foreach (var t in Taxa)
-        {
-            if (!t.HasData) continue;
-            var json = JsonSerializer.SerializeToElement(t.CaptureState(), SessionJson.Options);
-            session.Taxa[t.Key] = json;
-            current.Add(t.Key);
-        }
+        var session = CaptureCurrentSession();
+        var current = session.Taxa.Keys.ToList();
 
         // 기존 파일이 있으면 만든 시각을 유지한다.
         var prev = await _store.LoadAsync(session.SessionId);
@@ -158,7 +186,7 @@ public sealed class SessionService : ISessionService, ISingletonService
             var choice = ResolveSaveConflict?.Invoke(new SessionSaveConflict(
                              session.SessionId, KeyDisplay(session.Meta),
                              existing.Select(TaxonNames.Korean).ToList(), current.Select(TaxonNames.Korean).ToList(),
-                             prev.UpdatedAt))
+                             prev.UpdatedAt, MergePreview(session.Meta, prev, current)))
                          ?? SessionConflictChoice.Merge;
             if (choice == SessionConflictChoice.Cancel) return null;
             if (choice == SessionConflictChoice.Merge)
@@ -199,6 +227,22 @@ public sealed class SessionService : ISessionService, ISingletonService
         return index;
     }
 
+    /// <summary>지금 화면 → 세션(조사개황 + 자료가 있는 분류군 · 분류군 조사일 포함). 저장하지 않는다.</summary>
+    public SurveySession CaptureCurrentSession()
+    {
+        var session = new SurveySession
+        {
+            SessionId = CurrentKey,
+            Meta = SurveyMetaSnapshot.From(_meta)
+        };
+        foreach (var t in Taxa)
+        {
+            if (!t.HasData) continue;
+            session.Taxa[t.Key] = Capture(t);
+        }
+        return session;
+    }
+
     /// <summary>분류군 키를 7개 분류군 순서로.</summary>
     private List<string> OrderedTaxa(IEnumerable<string> keys)
     {
@@ -231,17 +275,56 @@ public sealed class SessionService : ISessionService, ISingletonService
 
     private static bool IsBlank(object? v) => v is null || (v is string s && string.IsNullOrWhiteSpace(s));
 
+    private static string MetaText(object? v) => v is DateTime d ? d.ToString("yyyy-MM-dd") : (v?.ToString() ?? string.Empty).Trim();
+
+    /// <summary>
+    /// 합치면 그대로 둘 기존 분류군 중 실제 조사일이 새 조사개황 조사일과 다른 것 — 그 분류군 조사일 칸에 옮겨 적는다(N3).
+    /// 새 조사개황 조사일은 지금 값(빈칸이면 기존 값 — <see cref="Merge"/> 와 같은 규칙).
+    /// </summary>
+    private static List<(string Key, DateTime Date, bool AlreadySet)> KeptTaxonDates(SurveyMetaSnapshot now, SurveySession prev, IReadOnlyCollection<string> current)
+    {
+        var newDate = (now.SurveyDate ?? prev.Meta.SurveyDate)?.Date;
+        var list = new List<(string, DateTime, bool)>();
+        foreach (var (key, json) in prev.Taxa)
+        {
+            if (current.Contains(key)) continue;
+            var own = TaxonDateOf(json);
+            if ((own ?? prev.Meta.SurveyDate?.Date) is DateTime d && d != newDate) list.Add((key, d, own is not null));
+        }
+        return list;
+    }
+
+    /// <summary>[합치기]를 고르면 생기는 일 — 확인 창에 보인다(N3). 분류군 조사일 유지 · 값이 바뀌는 조사개황 칸(전 → 후).</summary>
+    private List<string> MergePreview(SurveyMetaSnapshot now, SurveySession prev, IReadOnlyCollection<string> current)
+    {
+        var notes = KeptTaxonDates(now, prev, current)
+            .OrderBy(x => Array.FindIndex(Taxa, t => t.Key == x.Key))
+            .Select(x => $"{TaxonNames.Korean(x.Key)} 조사일 {x.Date:yyyy-MM-dd} 유지")
+            .ToList();
+        foreach (var (label, get, _) in MetaFields)
+        {
+            var (a, b) = (get(prev.Meta), get(now));
+            if (IsBlank(a) || IsBlank(b) || MetaText(a) == MetaText(b)) continue;
+            notes.Add($"{label} · {MetaText(a)} → {MetaText(b)}");
+        }
+        return notes;
+    }
+
     /// <summary>
     /// [합치기] — 지금 화면에 자료가 있는 분류군은 새 값, 없는 분류군은 기존 자료를 그대로 옮긴다.
     /// 조사개황은 지금 값으로 하되 빈칸이면 기존 값을 남긴다(하천유형 두 칸 포함). 키를 이루는 칸(대분류·연도차수·지점)은 같다.
     /// </summary>
     private string Merge(SurveySession session, SurveySession prev, IReadOnlyCollection<string> current)
     {
+        var preview = MergePreview(session.Meta, prev, current);
+        var keptDates = KeptTaxonDates(session.Meta, prev, current);
         var kept = new List<string>();
         foreach (var (key, json) in prev.Taxa)
         {
             if (current.Contains(key)) continue;
-            session.Taxa[key] = json;
+            // N3 : 기존 분류군의 실제 조사일이 새 조사개황 조사일과 다르면 그 분류군 조사일 칸에 옮겨 적는다
+            var keep = keptDates.FirstOrDefault(x => x.Key == key);
+            session.Taxa[key] = keep.Key is not null && !keep.AlreadySet ? WithTaxonDate(json, keep.Date) : json;
             kept.Add(key);
         }
         var filledMeta = new List<string>();
@@ -257,6 +340,7 @@ public sealed class SessionService : ISessionService, ISingletonService
             $"그대로 둔 분류군: {(kept.Count > 0 ? string.Join(" · ", OrderedTaxa(kept).Select(TaxonNames.Korean)) : "없음")}",
         };
         if (filledMeta.Count > 0) parts.Add($"조사개황 빈칸은 기존 값: {string.Join(" · ", filledMeta)}");
+        if (preview.Count > 0) parts.Add(string.Join(" · ", preview));
         return $"같은 자료({KeyDisplay(session.Meta)})에 합쳐 저장했습니다 — {string.Join(" / ", parts)}";
     }
 
@@ -266,21 +350,33 @@ public sealed class SessionService : ISessionService, ISingletonService
         var session = await _store.LoadAsync(sessionId);
         if (session is null) return false;
 
+        ApplyToScreen(session);
+        CurrentSessionId = session.SessionId;
+        MarkClean();   // 불러온 직후 닫으면 묻지 않는다(B-5)
+        return true;
+    }
+
+    /// <summary>세션 내용을 조사개황 + 7개 탭에 올린다(열린 세션 키·저장 기준은 부르는 쪽이 정한다).</summary>
+    private void ApplyToScreen(SurveySession session)
+    {
         session.Meta.ApplyTo(_meta);
         foreach (var t in Taxa)
         {
-            t.ClearData();                                    // 이전 세션 잔상 제거
+            Clear(t);                                         // 이전 세션 잔상 제거
             if (!session.Taxa.TryGetValue(t.Key, out var json)) continue;
 
             // ⚠ 값 타입이 어긋난 세션 파일 하나가 앱을 통째로 죽이지 않게 한다
             //    (손으로 고친 json · 옛 판 파일). 그 분류군만 비워 두고 나머지는 살린다.
-            try { t.RestoreState(json); }
-            catch { t.ClearData(); }
+            try { Restore(t, json); }
+            catch { Clear(t); }
         }
+    }
 
-        CurrentSessionId = session.SessionId;
-        MarkClean();   // 불러온 직후 닫으면 묻지 않는다(B-5)
-        return true;
+    public void ApplyRecovered(SurveySession session)
+    {
+        ApplyToScreen(session);
+        CurrentSessionId = null;   // 새 세션 — 저장할 때 같은 키가 있으면 묻는다
+        _baseline = string.Empty;  // 아직 저장하지 않았다 — 닫을 때 저장을 묻는다(B-5)
     }
 
     public async Task DeleteAsync(string sessionId)
@@ -295,7 +391,7 @@ public sealed class SessionService : ISessionService, ISingletonService
     /// </summary>
     public void CopyToSite(SurveySite site)
     {
-        foreach (var t in Taxa) t.ClearData();
+        foreach (var t in Taxa) Clear(t);
 
         _meta.SelectedSite = null;
         _meta.SelectedSite = site;     // 지점명·하천·사업장·좌표가 함께 채워진다
@@ -310,7 +406,7 @@ public sealed class SessionService : ISessionService, ISingletonService
     /// </summary>
     public void StartNewSite(SurveySite? site)
     {
-        foreach (var t in Taxa) t.ClearData();
+        foreach (var t in Taxa) Clear(t);
 
         _meta.ClearSite();
         _meta.RiverType = null;        // 하천유형은 지점마다 다르다 — 두 칸 모두 다음 지점으로 따라가지 않게(D7 · E1)
@@ -331,8 +427,7 @@ public sealed class SessionService : ISessionService, ISingletonService
     public async Task<T> PreserveScreenAsync<T>(Func<Task<T>> work)
     {
         var meta = SurveyMetaSnapshot.From(_meta);
-        var taxa = Taxa.Where(t => t.HasData)
-                       .ToDictionary(t => t.Key, t => JsonSerializer.SerializeToElement(t.CaptureState(), SessionJson.Options));
+        var taxa = Taxa.Where(t => t.HasData).ToDictionary(t => t.Key, Capture);
         var id = CurrentSessionId;
         var baseline = _baseline;
         try
@@ -344,10 +439,10 @@ public sealed class SessionService : ISessionService, ISingletonService
             meta.ApplyTo(_meta);
             foreach (var t in Taxa)
             {
-                t.ClearData();
+                Clear(t);
                 if (!taxa.TryGetValue(t.Key, out var json)) continue;
-                try { t.RestoreState(json); }
-                catch { t.ClearData(); }
+                try { Restore(t, json); }
+                catch { Clear(t); }
             }
             CurrentSessionId = id;
             _baseline = baseline;
@@ -362,6 +457,7 @@ public sealed class SessionService : ISessionService, ISingletonService
     {
         if (!await LoadAsync(sessionId)) return false;
 
+        foreach (var t in Taxa) t.TaxonSurveyDate = null;   // N3 : 지난 차수의 분류군 조사일은 새 차수로 따라가지 않는다
         _meta.YearChsu = newYearChsu;
         if (newDate is not null) _meta.SurveyDate = newDate;
         CurrentSessionId = null;       // 새 회차이므로 별도 세션으로 저장된다

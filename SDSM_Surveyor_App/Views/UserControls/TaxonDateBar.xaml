@@ -1,0 +1,27 @@
+<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.TaxonDateBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             mc:Ignorable="d" d:DesignWidth="600"
+             x:Name="Root">
+
+    <!-- 분류군 조사일(2026-10-20 연계 시험 2차 N3) — 7개 분류군 탭 위쪽에 둔다. DataContext = 그 분류군 VM.
+         비워 두면 조사개황 조사일을 따른다(칸에는 조사개황 날짜가 흐리게 보인다).
+         일괄입력용 · 보고서 엑셀의 조사일 = 이 칸, 비었으면 조사개황 조사일. -->
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <TextBlock Text="조사일" Style="{StaticResource SummaryLabelTextStyle}"/>
+        <telerik:RadDatePicker Width="210" Height="28" Margin="4 0 0 0" VerticalAlignment="Center"
+                               BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}"
+                               SelectedValue="{Binding TaxonSurveyDate, Mode=TwoWay}"
+                               DateTimeWatermarkContent="{Binding TaxonDateWatermark}"
+                               AutomationProperties.AutomationId="TaxonDatePicker"
+                               AutomationProperties.Name="분류군 조사일"
+                               ToolTipService.ToolTip="{Binding TaxonDateHint}"/>
+        <TextBlock Text="{Binding TaxonDateHint}" Margin="8 0 0 0" VerticalAlignment="Center"
+                   TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                   Style="{StaticResource CaptionTextStyle}"
+                   Visibility="{Binding ShowHint, ElementName=Root, Converter={StaticResource BoolToVisibility}}"/>
+    </StackPanel>
+</UserControl>

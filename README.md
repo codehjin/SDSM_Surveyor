@@ -39,6 +39,7 @@ git clone https://github.com/codehjin/SDSM_Surveyor.git
 | 대상 | 위치 |
 |---|---|
 | 조사 세션(작업본) | `%AppData%\SDSM_Surveyor\sessions\` |
+| 오류 기록 · 복구본(v0.4) | 자료함 아래 `logs\error_yyMMdd.log` · `_recovery\`(불러온 것은 `_recovery\loaded\`) |
 | 종목록·기준자료·지점 마스터 | 실행 폴더 번들, `%AppData%\SDSM_Surveyor\` 로 교체 가능 |
 
 > ⚠ `%AppData%\SDSM_Surveyor\` 는 **사용자의 실제 조사 자료**입니다.
@@ -54,6 +55,13 @@ python tools\baseline_diff.py docs\_baseline C:\Temp\after
 ```
 
 자세한 내용은 `docs\_baseline\README.md`.
+
+## 변경 기록
+
+| 판 | 날짜 | 내용 |
+|---|---|---|
+| 0.4.0 | 2026-10-21 | 관리자 연계 시험 2차 새 문제(지시서 §18) — 분류군별 조사일(N3) · 하천명 고치기(N4) · 정수 칸 거부·안내와 붙여넣기 요약(N2) · 클립보드 다시 시도와 앱 전역 예외 처리·복구본(N1) · 저서 보고서 조사불가·0종 지수 빈칸(N6). 세션 형식에 칸 하나 추가(`TaxonSurveyDate` — 없으면 조사개황 조사일). `docs\작업보고_v04.md` |
+| 0.3.0 | 2026-10-20 | 관리자 연계 시험 1차 문제 중 조사자 몫(§17) — 같은 키 세션 합치기 · 하천차수 · DE~TU 정수 · 파일명 연도차수 등 |
 
 ## 문서
 

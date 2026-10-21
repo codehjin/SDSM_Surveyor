@@ -42,7 +42,7 @@ public partial class BirdEntryViewModel : SpeciesEntryViewModelBase<BirdEntry, O
         var entry = new BirdEntry
         {
             SpeciesKo = ko,
-            IndividualCount = Pi(Cell(cells, 1)),
+            IndividualCount = PasteInt(cells, 1),
             MigratoryType = FormChoices.MigratoryCode(Cell(cells, 5)),   // 이름·코드 어느 쪽을 붙여넣어도 코드로(D5)
             Category = Cell(cells, 6),
             CategoryDetail = Cell(cells, 7),

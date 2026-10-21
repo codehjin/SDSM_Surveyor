@@ -174,7 +174,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         if (match is not null) entry.SelectedSpecies = match;   // 학명·길드 자동 연결
         else entry.SpeciesKo = ko;
 
-        if (cells.Length > 1 && int.TryParse(cells[1].Trim(), out var n))
+        if (PasteInt(cells, 1) is int n)   // N2 : 정수가 아니면 넣지 않고 끝에 행·열을 알린다
             entry.IndividualCount = n;
 
         return entry;

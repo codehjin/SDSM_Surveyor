@@ -114,4 +114,7 @@ internal sealed class NoSessionService : ISessionService
     public void MarkClean() { }
     public bool HasUnsavedChanges() => false;
     public IReadOnlyList<string> MissingKeyFields() => Array.Empty<string>();
+    // 복구본(N1) — 기준 파일 생성에는 오류 복구가 없다
+    public SurveySession CaptureCurrentSession() => throw Fail();
+    public void ApplyRecovered(SurveySession session) => throw Fail();
 }

@@ -29,7 +29,7 @@ public static class BirdReportExporter
     {
         var m = vm.Meta;
         var wb = new Workbook();
-        ObservationReportCommon.WriteOverview(wb, m, "조류 조사결과 — 조사개황");
+        ObservationReportCommon.WriteOverview(wb, m, vm.EffectiveSurveyDate, "조류 조사결과 — 조사개황");
         WriteSpecies(wb, vm);
         WriteSummary(wb, vm);
 
@@ -122,7 +122,7 @@ public static class BirdReportExporter
         SiteColumns.Write(ws, row, m);
         Str(ws, row, 4, m.YearChsu);
         Str(ws, row, 5, m.River);
-        Str(ws, row, 6, m.SurveyDate?.ToString("yyyy-MM-dd"));
+        Str(ws, row, 6, vm.EffectiveSurveyDate?.ToString("yyyy-MM-dd"));
         Num(ws, row, 7, observed.Select(e => e.SpeciesKo).Distinct().Count());
         Num(ws, row, 8, observed.Sum(e => e.IndividualCount ?? 0));
         Num(ws, row, 9, protectedList.Count);

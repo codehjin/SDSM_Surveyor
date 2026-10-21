@@ -26,7 +26,41 @@ public abstract partial class TaxonEntryViewModelBase : ObservableObject
         _sessions = sessions;
         Meta = meta;
         lock (Instances) Instances.Add(new WeakReference<TaxonEntryViewModelBase>(this));
+        // 조사개황 조사일이 바뀌면 분류군 조사일이 빈 탭은 따라간다(N3)
+        meta.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName != nameof(SurveyMeta.SurveyDate)) return;
+            OnPropertyChanged(nameof(EffectiveSurveyDate));
+            OnPropertyChanged(nameof(TaxonDateWatermark));
+            OnPropertyChanged(nameof(TaxonDateHint));
+        };
     }
+
+    // ── 분류군 조사일(2026-10-20 연계 시험 2차 N3) ───────────────────────────────
+    // 같은 지점·차수라도 분류군마다 다른 날 조사할 수 있다. 비워 두면 조사개황 조사일을 따른다.
+    // 일괄입력용 · 보고서 엑셀 · 화면의 조사일은 모두 EffectiveSurveyDate 를 쓴다.
+
+    /// <summary>이 분류군만의 조사일. 비면 조사개황 조사일(<see cref="EffectiveSurveyDate"/>).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EffectiveSurveyDate), nameof(TaxonDateHint))]
+    private DateTime? _taxonSurveyDate;
+
+    partial void OnTaxonSurveyDateChanged(DateTime? value)
+    {
+        if (value is DateTime d && d.TimeOfDay != TimeSpan.Zero) TaxonSurveyDate = d.Date;   // 날짜만 쓴다
+    }
+
+    /// <summary>이 분류군의 조사일 = 분류군 조사일, 없으면 조사개황 조사일.</summary>
+    public DateTime? EffectiveSurveyDate => TaxonSurveyDate ?? Meta.SurveyDate;
+
+    /// <summary>분류군 조사일 칸이 비었을 때 흐리게 보이는 글자(조사개황 날짜).</summary>
+    public string TaxonDateWatermark => Meta.SurveyDate is DateTime d ? $"{d:yyyy-MM-dd} (조사개황)" : "조사개황 조사일";
+
+    /// <summary>분류군 조사일 칸 옆 안내.</summary>
+    public string TaxonDateHint =>
+        TaxonSurveyDate is not DateTime d ? "비우면 조사개황 조사일을 씁니다 — 이 분류군만 다른 날 조사했으면 넣으세요"
+        : Meta.SurveyDate is DateTime m && m.Date != d.Date ? $"이 분류군만 {d:yyyy-MM-dd} (조사개황 {m:yyyy-MM-dd}) — 일괄입력용·보고서에 이 날짜가 들어갑니다"
+        : "조사개황 조사일과 같습니다";
 
     // ── 저장·내보내기 때 함께 알릴 것(2026-10-18 결정 D3·D5~D7) ─────────────────────
     // 7개 분류군 VM 은 싱글턴이다. [임시 저장]은 세션 전체를 저장하므로 모든 분류군의 알림을 모은다.

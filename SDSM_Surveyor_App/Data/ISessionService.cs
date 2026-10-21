@@ -65,4 +65,13 @@ public interface ISessionService
 
     /// <summary>저장 키를 만드는 칸(대분류·연도차수·지점) 중 비어 있는 것.</summary>
     IReadOnlyList<string> MissingKeyFields();
+
+    /// <summary>지금 화면을 세션 형식으로 만든다(저장하지 않음 · N1 복구본).</summary>
+    SurveySession CaptureCurrentSession();
+
+    /// <summary>
+    /// 복구본을 화면에 올린다(N1). 저장하지 않는다 — 새 세션으로 열리고 '저장 안 한 변경' 이 있는 상태가 된다.
+    /// 같은 키 세션이 자료함에 있으면 저장할 때 [합치기/바꾸기/취소]를 묻는다.
+    /// </summary>
+    void ApplyRecovered(SurveySession session);
 }

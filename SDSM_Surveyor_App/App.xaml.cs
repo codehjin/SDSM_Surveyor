@@ -162,6 +162,9 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // N1(2026-10-20 연계 시험 2차) : 미처리 예외 — 오류 기록 + 지금 화면 임시 저장(자료함 _recovery) + 안내. 화면 예외로 앱을 닫지 않는다.
+        Services.GetRequiredService<Data.CrashGuard>().Install(this);
+
         // ⚠ 선택 창이 닫히는 순간 열린 창이 0개가 된다.
         //    기본 ShutdownMode(OnLastWindowClose)면 메인 창을 띄우기 전에 앱이 끝난다.
         ShutdownMode = ShutdownMode.OnExplicitShutdown;

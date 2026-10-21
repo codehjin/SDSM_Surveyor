@@ -61,6 +61,8 @@ public partial class MainSurveyWindow : Window, ISingletonService
             $"지금 화면: {List(c.CurrentTaxa)}\n\n" +
             "· 합치기 — 지금 화면에 자료가 있는 분류군만 새 값으로 바꾸고, 나머지 분류군은 그대로 둡니다.\n" +
             "   조사개황은 지금 값으로 하되 빈칸이면 이미 있는 값을 남깁니다.\n" +
+            // N3 : 합치면 생기는 일 — 기존 분류군 조사일 유지 · 바뀌는 조사개황 칸(전 → 후)
+            (c.MergeNotes is { Count: > 0 } notes ? $"   합치면: {string.Join(" / ", notes)}\n" : string.Empty) +
             "· 바꾸기 — 이미 있는 자료를 모두 지우고 지금 화면으로 바꿉니다.\n" +
             "· 취소 — 저장하지 않습니다.",
             new ChoiceDialog.Option("취소", IsCancel: true),
@@ -219,6 +221,40 @@ public partial class MainSurveyWindow : Window, ISingletonService
             // 압정 주입·예시 시드가 끝난 지금 화면이 '저장 안 한 변경' 의 출발점이다(B-5).
             // 첫 화면에서 자료함 세션을 열고 들어왔으면 그 세션이 곧 이 상태다.
             App.Current.Services.GetRequiredService<ISessionService>().MarkClean();
+        }
+        OfferRecovery();
+    }
+
+    /// <summary>
+    /// 지난 실행에서 오류로 남긴 복구본이 있으면 묻는다(N1). [불러오기] = 화면에 올리기만 한다(저장은 조사자가) ·
+    /// 불러온 복구본은 자료함 <c>_recovery\loaded\</c> 로 옮겨 다시 묻지 않는다. [나중에] = 그대로 두고 다음 실행에 또 묻는다.
+    /// </summary>
+    private void OfferRecovery()
+    {
+        try
+        {
+            var store = App.Current.Services.GetRequiredService<ISessionStore>();
+            var names = store.ListRecovery();
+            if (names.Count == 0) return;
+            var latest = store.LoadRecovery(names[0]);
+            if (latest is null) return;
+            var taxa = string.Join(" · ", latest.Taxa.Keys.Select(TaxonNames.Korean));
+            var pick = ChoiceDialog.Ask(this, "복구본이 있습니다",
+                $"지난번 오류 때 임시 저장한 화면이 있습니다 — {latest.SessionId} ({latest.UpdatedAt:yyyy-MM-dd HH:mm}) · {(taxa.Length > 0 ? taxa : "분류군 자료 없음")}" +
+                (names.Count > 1 ? $"\n(복구본 {names.Count}개 중 가장 최근 것)" : string.Empty) + "\n\n" +
+                "· 불러오기 — 화면에 올리기만 합니다. 자료함에 저장하려면 [임시 저장]을 누르세요(같은 자료가 있으면 합칠지 묻습니다).\n" +
+                $"· 나중에 — 그대로 두고 다음 실행 때 다시 묻습니다(위치: {System.IO.Path.Combine(store.Location, "_recovery")}).",
+                new ChoiceDialog.Option("나중에", IsCancel: true),
+                new ChoiceDialog.Option("불러오기", IsPrimary: true));
+            if (pick != 1) return;
+            App.Current.Services.GetRequiredService<ISessionService>().ApplyRecovered(latest);
+            store.SetRecoveryAside(names[0]);
+            WeakReferenceMessenger.Default.Send(new NotifyMessage(("복구본을 화면에 올렸습니다 — 아직 저장하지 않았습니다. [임시 저장]으로 저장하세요.", false)));
+        }
+        catch (Exception ex)
+        {
+            // 복구본 확인이 앱 시작을 막아서는 안 된다 — 오류만 남긴다
+            try { App.Current.Services.GetRequiredService<ISessionStore>().AppendErrorLog($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 복구본 확인 실패\n{ex}"); } catch { }
         }
     }
 

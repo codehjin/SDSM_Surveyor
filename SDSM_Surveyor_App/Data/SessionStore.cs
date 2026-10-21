@@ -236,6 +236,58 @@ public sealed class SessionStore : ISessionStore, ISingletonService
         await using var fs = File.Create(IndexPath);
         await JsonSerializer.SerializeAsync(fs, list, Write);
     }
+
+    // ── 오류 기록 · 복구본(N1) — 자료함 아래 하위 폴더. 세션 목록(최상위 *.json)과 섞이지 않는다 ──
+
+    public string Location => Root;
+
+    private static string Sub(string name)
+    {
+        var dir = Path.Combine(Root, name);
+        Directory.CreateDirectory(dir);
+        return dir;
+    }
+
+    private static string RecoveryDir => Sub("_recovery");
+
+    public string AppendErrorLog(string text)
+    {
+        var path = Path.Combine(Sub("logs"), $"error_{DateTime.Now:yyMMdd}.log");
+        File.AppendAllText(path, text.TrimEnd() + Environment.NewLine + Environment.NewLine);
+        return path;
+    }
+
+    public string SaveRecovery(SurveySession session)
+    {
+        session.UpdatedAt = DateTime.Now;
+        var path = Path.Combine(RecoveryDir, $"{session.SessionId}_{DateTime.Now:yyMMdd_HHmmss}.json");
+        File.WriteAllText(path, JsonSerializer.Serialize(session, Write));
+        return path;
+    }
+
+    public IReadOnlyList<string> ListRecovery() =>
+        Directory.GetFiles(RecoveryDir, "*.json")
+                 .OrderByDescending(File.GetLastWriteTime)
+                 .Select(Path.GetFileName)
+                 .ToList()!;
+
+    public SurveySession? LoadRecovery(string name)
+    {
+        try
+        {
+            var path = Path.Combine(RecoveryDir, name);
+            return File.Exists(path) ? JsonSerializer.Deserialize<SurveySession>(File.ReadAllText(path), Read) : null;
+        }
+        catch { return null; }   // 깨진 복구본은 없는 것으로 본다(앱 시작을 막지 않는다)
+    }
+
+    public void SetRecoveryAside(string name)
+    {
+        var src = Path.Combine(RecoveryDir, name);
+        if (!File.Exists(src)) return;
+        var dst = Path.Combine(Sub(Path.Combine("_recovery", "loaded")), name);
+        File.Move(src, dst, overwrite: true);
+    }
 }
 
 /// <summary>분류군키 ↔ 한글 이름. 자료함 목록과 상태 문구에 쓴다.</summary>
