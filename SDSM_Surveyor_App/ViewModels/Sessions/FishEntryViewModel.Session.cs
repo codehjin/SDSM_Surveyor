@@ -34,7 +34,7 @@ public partial class FishEntryViewModel : ITaxonSession
         IsEnvironmentExpanded = IsEnvironmentExpanded, IsHealthExpanded = IsHealthExpanded,
         DeCount = DeCount, EfCount = EfCount, LeCount = LeCount, TuCount = TuCount,
         Rows = SpeciesEntries.Select(r => new FishDraftRow(r.SelectedSpecies?.SpeciesKo ?? r.SpeciesKo,
-                                                           r.IndividualCount, r.Note)).ToList()
+                                                           r.IndividualCount, r.Note, r.SelectedSpecies?.SpeciesEn)).ToList()
     };
 
     object ITaxonSession.CaptureState() => ToDraft();
@@ -62,7 +62,8 @@ public partial class FishEntryViewModel : ITaxonSession
             if (string.IsNullOrWhiteSpace(r.SpeciesKo)) continue;
             var e = new FishSpeciesEntry();
             // 공식 종목록에서 다시 찾아 길드·오탁치를 잇는다(지수 계산이 저장본에 의존하지 않게).
-            var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == r.SpeciesKo);
+            // v0.5.0 : 학명(옛 표기는 지침 표기로 읽음)이 있으면 국명 + 학명으로, 없으면 국명으로(Helpers.SpeciesLookup).
+            var match = Helpers.SpeciesLookup.Fish(SpeciesListSource, r.SpeciesKo, r.SpeciesEn);
             if (match is not null) e.SelectedSpecies = match;
             else e.SpeciesKo = r.SpeciesKo;
             e.IndividualCount = r.IndividualCount;

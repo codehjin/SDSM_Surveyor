@@ -199,7 +199,7 @@
                                    Foreground="{StaticResource ShellMutedForegroundBrush}"/>
                     </StackPanel>
 
-                    <!-- 우측 : 자료함 · 동기화 pill + 창 버튼 -->
+                    <!-- 우측 : 자료함 · 동기화 · 정보(v0.5.0) pill + 창 버튼 -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0 14 0">
                             <Button Click="Sessions_Click" Style="{StaticResource ShellPillButtonStyle}"
@@ -219,6 +219,17 @@
                                     <icon:PackIconMaterial Kind="CloudSyncOutline" Width="13" Height="13"
                                                            VerticalAlignment="Center"/>
                                     <TextBlock Text="{Binding SyncPillText}" Margin="6 0 0 0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Click="Info_Click" Style="{StaticResource ShellPillButtonStyle}"
+                                    Margin="8 0 0 0"
+                                    WindowChrome.IsHitTestVisibleInChrome="True"
+                                    AutomationProperties.Name="프로그램 정보"
+                                    ToolTipService.ToolTip="판 · 적용 지침(원본 보기) · 종목록 판 · 개발 · 연락처">
+                                <StackPanel Orientation="Horizontal">
+                                    <icon:PackIconMaterial Kind="InformationOutline" Width="13" Height="13"
+                                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="정보" Margin="6 0 0 0" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>

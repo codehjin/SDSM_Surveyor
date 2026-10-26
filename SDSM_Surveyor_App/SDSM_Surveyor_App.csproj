@@ -7,7 +7,8 @@
     <UseWPF>true</UseWPF>
     <RootNamespace>SDSM_Surveyor_App</RootNamespace>
     <AssemblyName>SDSM_Surveyor_App</AssemblyName>
-    <Version>0.4.1</Version>
+    <!-- 판 — 창 제목 옆 · 프로그램 정보 창(Helpers\AppInfo). 제품 버전 뒤 +커밋 해시는 빌드 때 SDK 가 붙인다 -->
+    <Version>0.5.0</Version>
     <!-- Telerik·MahApps 의 다국어 위성 리소스 46개 폴더를 빼서 배포본을 가볍게 한다.
          조사자앱은 한국어 전용이다. -->
     <SatelliteResourceLanguages>ko;en</SatelliteResourceLanguages>
@@ -53,11 +54,21 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <!-- 빌드 날짜 — 프로그램 정보 창(v0.5.0) -->
+    <AssemblyMetadata Include="BuildDate" Value="$([System.DateTime]::Now.ToString('yyyy-MM-dd'))" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- 지침 원본(국립환경과학원고시 제2026-30호 · 5_자료 PDF 복사 · 관리자 동봉본과 같은 파일) —
+         프로그램 정보 창 [지침 원본 보기]가 기본 PDF 프로그램으로 연다(v0.5.0 · §21-5). -->
+    <Content Include="guideline\guideline_2026-30.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <!-- 기준자료(관리자 DB에서 내보낸 종별 범위) 번들 -->
     <Content Include="reference.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <!-- 종목록 카탈로그(관리자 마스터 내보내기). AppData\SDSM_Surveyor\species.json으로 교체 가능 -->
+    <!-- 종목록 카탈로그 — 어류 · 저서 = 관리자 종목록(정리본 DB · tools\build_species_json.py 의 admin-db 옵션), 관찰형 = 국가생물종목록.
+         AppData\SDSM_Surveyor\species.json(교체본)이 있으면 부분별로 더 새 판을 쓴다(SpeciesListProvider · v0.5.0) -->
     <Content Include="species.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

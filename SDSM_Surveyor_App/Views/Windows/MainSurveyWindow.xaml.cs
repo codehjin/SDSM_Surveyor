@@ -115,6 +115,10 @@ public partial class MainSurveyWindow : Window, ISingletonService
     private void Sync_Click(object sender, RoutedEventArgs e)
         => new SyncWindow { Owner = this }.ShowDialog();
 
+    // 프로그램 정보(판 · 적용 지침 · 종목록 판 · 개발 · 연락처 — v0.5.0)
+    private void Info_Click(object sender, RoutedEventArgs e)
+        => new AppInfoWindow { Owner = this }.ShowDialog();
+
     // 자료함(조사 세션 목록 · 불러오기 · 복제 · 삭제)
     private void Sessions_Click(object sender, RoutedEventArgs e)
         => new SessionBrowserWindow { Owner = this }.ShowDialog();

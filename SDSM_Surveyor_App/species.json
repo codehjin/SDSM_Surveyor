@@ -1,6 +1,6 @@
 {
-  "Version": "nibr-20260820",
-  "GeneratedAt": "2026-08-20T15:02:45",
+  "Version": "jichim2026-30+admin-261022+nibr-20260820",
+  "GeneratedAt": "2026-10-26T11:52:03",
   "Fish": [
     {
       "FishTrait": "O",
@@ -85,7 +85,7 @@
       "OrderKo": "잉어목",
       "FamilyKo": "잉어과",
       "SpeciesKo": "가시납지리",
-      "SpeciesEn": "Acanthorhodeus chankaensis"
+      "SpeciesEn": "Acheilognathus chankaensis"
     },
     {
       "FishTrait": "O",
@@ -256,6 +256,23 @@
       "FamilyKo": "망둑어과",
       "SpeciesKo": "개소겡",
       "SpeciesEn": "Odontamblyopus lacepedii"
+    },
+    {
+      "FishTrait": "O",
+      "ToleranceGuild": "IS",
+      "FeedingGuild": "O",
+      "HabitatGuild": "",
+      "Exotic": "",
+      "Endemic": "",
+      "Endangered1": "",
+      "Endangered2": "",
+      "NaturalMonument": "",
+      "LineageOrder": 253,
+      "ClassKo": "조기강",
+      "OrderKo": "청어목",
+      "FamilyKo": "갯농어과",
+      "SpeciesKo": "갯농어",
+      "SpeciesEn": "Chanos chanos"
     },
     {
       "FishTrait": "O",
@@ -743,6 +760,23 @@
       "Endangered1": "",
       "Endangered2": "",
       "NaturalMonument": "",
+      "LineageOrder": 255,
+      "ClassKo": "조기강",
+      "OrderKo": "농어목",
+      "FamilyKo": "납작돔과",
+      "SpeciesKo": "납작돔",
+      "SpeciesEn": "Scatophagus argus"
+    },
+    {
+      "FishTrait": "O",
+      "ToleranceGuild": "IS",
+      "FeedingGuild": "O",
+      "HabitatGuild": "",
+      "Exotic": "",
+      "Endemic": "",
+      "Endangered1": "",
+      "Endangered2": "",
+      "NaturalMonument": "",
       "LineageOrder": 26,
       "ClassKo": "조기강",
       "OrderKo": "잉어목",
@@ -1140,6 +1174,23 @@
       "FamilyKo": "돛양태과",
       "SpeciesKo": "동갈양태",
       "SpeciesEn": "Repomucenus curvicornis"
+    },
+    {
+      "FishTrait": "O",
+      "ToleranceGuild": "IS",
+      "FeedingGuild": "C",
+      "HabitatGuild": "",
+      "Exotic": "",
+      "Endemic": "",
+      "Endangered1": "",
+      "Endangered2": "",
+      "NaturalMonument": "",
+      "LineageOrder": 256,
+      "ClassKo": "조기강",
+      "OrderKo": "동갈치목",
+      "FamilyKo": "동갈치과",
+      "SpeciesKo": "동갈치",
+      "SpeciesEn": "Strongylura anastomella"
     },
     {
       "FishTrait": "O",
@@ -1547,7 +1598,7 @@
       "OrderKo": "쏨뱅이목",
       "FamilyKo": "둑중갯과",
       "SpeciesKo": "무늬횟대",
-      "SpeciesEn": "Furcina oshimai"
+      "SpeciesEn": "Furcina osimae"
     },
     {
       "FishTrait": "O",
@@ -2296,6 +2347,23 @@
       "FamilyKo": "붕장어과",
       "SpeciesKo": "붕장어",
       "SpeciesEn": "Conger myriaster"
+    },
+    {
+      "FishTrait": "O",
+      "ToleranceGuild": "IS",
+      "FeedingGuild": "C",
+      "HabitatGuild": "",
+      "Exotic": "O",
+      "Endemic": "",
+      "Endangered1": "",
+      "Endangered2": "",
+      "NaturalMonument": "",
+      "LineageOrder": 254,
+      "ClassKo": "조기강",
+      "OrderKo": "연어목",
+      "FamilyKo": "연어과",
+      "SpeciesKo": "브라운송어",
+      "SpeciesEn": "Salmo trutta"
     },
     {
       "FishTrait": "O",
@@ -4267,7 +4335,7 @@
       "OrderKo": "잉어목",
       "FamilyKo": "잉어과",
       "SpeciesKo": "흰수마자",
-      "SpeciesEn": "Gobiobotia nakdongensis"
+      "SpeciesEn": "Gobiobotia naktongensis"
     },
     {
       "FishTrait": "O",
@@ -4306,6 +4374,110 @@
   ],
   "Benthos": [
     {
+      "SaprobicValue": 2.8,
+      "IndicatorWeight": 4,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "환형동물문",
+      "ClassKo": "환대강",
+      "OrderKo": "턱거머리목",
+      "FamilyKo": "돌거머리과",
+      "SpeciesKo": "-",
+      "SpeciesEn": "Babronia sp."
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "파리목",
+      "FamilyKo": "깔다구과",
+      "SpeciesKo": "-",
+      "SpeciesEn": "Chironomidae sp."
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "파리목",
+      "FamilyKo": "깔다구과",
+      "SpeciesKo": "-",
+      "SpeciesEn": "Chironomidae sp. A"
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "파리목",
+      "FamilyKo": "깔다구과",
+      "SpeciesKo": "-",
+      "SpeciesEn": "Chironomidae sp. B"
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "파리목",
+      "FamilyKo": "깔다구과",
+      "SpeciesKo": "-",
+      "SpeciesEn": "Chironomidae sp. C"
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "파리목",
+      "FamilyKo": "깔다구과",
+      "SpeciesKo": "-",
+      "SpeciesEn": "Chironomidae sp. D"
+    },
+    {
+      "SaprobicValue": 0.5,
+      "IndicatorWeight": 3,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "딱정벌레목",
+      "FamilyKo": "물삿갓벌레과",
+      "SpeciesKo": "-",
+      "SpeciesEn": "Homoeogenus coreanicum"
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "파리목",
+      "FamilyKo": "깔다구과",
+      "SpeciesKo": "-",
+      "SpeciesEn": "Tanypodinae sp."
+    },
+    {
       "SaprobicValue": 3.0,
       "IndicatorWeight": 2,
       "Endangered1": "",
@@ -4343,6 +4515,19 @@
       "FamilyKo": "청실잠자리과",
       "SpeciesKo": "가는실잠자리",
       "SpeciesEn": "Indolestes peregrinus"
+    },
+    {
+      "SaprobicValue": 2.9,
+      "IndicatorWeight": 3,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "딱정벌레목",
+      "FamilyKo": "물땡땡이과",
+      "SpeciesKo": "가는점물땡땡이",
+      "SpeciesEn": "Laccobius (Microlaccobius) formosus"
     },
     {
       "SaprobicValue": null,
@@ -4681,6 +4866,19 @@
       "FamilyKo": "각다귀과",
       "SpeciesKo": "각다귀류",
       "SpeciesEn": "Tipula sp."
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "파리목",
+      "FamilyKo": "각다귀과",
+      "SpeciesKo": "각다귀류",
+      "SpeciesEn": "Tipulidae sp."
     },
     {
       "SaprobicValue": null,
@@ -5970,6 +6168,19 @@
       "SpeciesEn": "Plumatella sp."
     },
     {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "태형동물문",
+      "ClassKo": "피후강",
+      "OrderKo": "깃털이끼벌레목",
+      "FamilyKo": "-",
+      "SpeciesKo": "깃털이끼벌레류 (휴면아)",
+      "SpeciesEn": "Plumatellida sp."
+    },
+    {
       "SaprobicValue": 0.0,
       "IndicatorWeight": 5,
       "Endangered1": "",
@@ -6085,6 +6296,19 @@
       "FamilyKo": "깨알소금쟁이과",
       "SpeciesKo": "깨알소금쟁이류",
       "SpeciesEn": "Microvelia sp."
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "노린재목",
+      "FamilyKo": "깨알소금쟁이과",
+      "SpeciesKo": "깨알소금쟁이류",
+      "SpeciesEn": "Veliidae sp."
     },
     {
       "SaprobicValue": 0.7,
@@ -6256,8 +6480,8 @@
       "SpeciesEn": "Micronecta (Micronecta) guttata"
     },
     {
-      "SaprobicValue": 2.9,
-      "IndicatorWeight": 3,
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
       "Endangered1": "",
       "Endangered2": "",
       "Endemic": "",
@@ -6490,6 +6714,19 @@
       "SpeciesEn": "Psychoda sp."
     },
     {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "파리목",
+      "FamilyKo": "나방파리과",
+      "SpeciesKo": "나방파리류",
+      "SpeciesEn": "Psychodidae sp."
+    },
+    {
       "SaprobicValue": 0.6,
       "IndicatorWeight": 3,
       "Endangered1": "",
@@ -6540,6 +6777,19 @@
       "FamilyKo": "나비날도래과",
       "SpeciesKo": "나비날도래류",
       "SpeciesEn": "Ceraclea sp."
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "날도래목",
+      "FamilyKo": "나비날도래과",
+      "SpeciesKo": "나비날도래류",
+      "SpeciesEn": "Leptoceridae sp."
     },
     {
       "SaprobicValue": null,
@@ -7358,7 +7608,7 @@
       "OrderKo": "노린재목",
       "FamilyKo": "물벌레과",
       "SpeciesKo": "닮은물벌레",
-      "SpeciesEn": "Hesperocorixa mandsshurica"
+      "SpeciesEn": "Hesperocorixa mandshurica"
     },
     {
       "SaprobicValue": null,
@@ -7397,7 +7647,7 @@
       "OrderKo": "백합목",
       "FamilyKo": "재첩과",
       "SpeciesKo": "대륙재첩",
-      "SpeciesEn": "Corbicula (Corbicula) fluminalis"
+      "SpeciesEn": "Corbicula fluminalis"
     },
     {
       "SaprobicValue": 2.5,
@@ -8021,6 +8271,19 @@
       "OrderKo": "파리목",
       "FamilyKo": "등에과",
       "SpeciesKo": "등에류",
+      "SpeciesEn": "Tabanidae sp."
+    },
+    {
+      "SaprobicValue": 1.7,
+      "IndicatorWeight": 2,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "파리목",
+      "FamilyKo": "등에과",
+      "SpeciesKo": "등에류",
       "SpeciesEn": "Tabanus sp."
     },
     {
@@ -8164,7 +8427,7 @@
       "OrderKo": "흡강목",
       "FamilyKo": "다슬기과",
       "SpeciesKo": "띠구슬다슬기",
-      "SpeciesEn": "Koreoleptoxis globus ovalis"
+      "SpeciesEn": "Koreoleptoxis globus"
     },
     {
       "SaprobicValue": 0.0,
@@ -8982,6 +9245,19 @@
       "ClassKo": "곤충강",
       "OrderKo": "딱정벌레목",
       "FamilyKo": "물방개과",
+      "SpeciesKo": "물방개류",
+      "SpeciesEn": "Dytiscidae sp."
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "딱정벌레목",
+      "FamilyKo": "물방개과",
       "SpeciesKo": "물방개붙이",
       "SpeciesEn": "Dytiscus dauricus dauricus"
     },
@@ -9010,6 +9286,19 @@
       "FamilyKo": "물벌레과(연갑강)",
       "SpeciesKo": "물벌레(연갑강)",
       "SpeciesEn": "Asellus hilgendorfii"
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "노린재목",
+      "FamilyKo": "물벌레과",
+      "SpeciesKo": "물벌레류",
+      "SpeciesEn": "Corixidae sp."
     },
     {
       "SaprobicValue": 2.9,
@@ -9805,6 +10094,19 @@
       "SpeciesEn": "Dixa sp."
     },
     {
+      "SaprobicValue": 2.8,
+      "IndicatorWeight": 3,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "파리목",
+      "FamilyKo": "별모기과",
+      "SpeciesKo": "별모기류",
+      "SpeciesEn": "Dixidae sp."
+    },
+    {
       "SaprobicValue": null,
       "IndicatorWeight": null,
       "Endangered1": "",
@@ -10517,7 +10819,7 @@
       "OrderKo": "백합목",
       "FamilyKo": "재첩과",
       "SpeciesKo": "섬재첩",
-      "SpeciesEn": "Corbicula (Corbiculina) insularis"
+      "SpeciesEn": "Corbicula insularis"
     },
     {
       "SaprobicValue": 0.4,
@@ -10570,6 +10872,19 @@
       "FamilyKo": "소금쟁이과",
       "SpeciesKo": "소금쟁이",
       "SpeciesEn": "Aquarius paludum paludum"
+    },
+    {
+      "SaprobicValue": null,
+      "IndicatorWeight": null,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "절지동물문",
+      "ClassKo": "곤충강",
+      "OrderKo": "노린재목",
+      "FamilyKo": "소금쟁이과",
+      "SpeciesKo": "소금쟁이류",
+      "SpeciesEn": "Gerridae sp."
     },
     {
       "SaprobicValue": null,
@@ -11349,7 +11664,7 @@
       "OrderKo": "파리목",
       "FamilyKo": "각다귀과",
       "SpeciesKo": "애아이노각다귀",
-      "SpeciesEn": "Tipula (Yamatotipula) latemarginata latemarginata"
+      "SpeciesEn": "Tipula (Yamatotipula) latemarginata"
     },
     {
       "SaprobicValue": 0.7,
@@ -11830,7 +12145,7 @@
       "OrderKo": "흡강목",
       "FamilyKo": "다슬기과",
       "SpeciesKo": "염주알다슬기",
-      "SpeciesEn": "Koreanomelania nodifila"
+      "SpeciesEn": "Koreoleptoxis nodifila"
     },
     {
       "SaprobicValue": null,
@@ -12714,7 +13029,7 @@
       "OrderKo": "백합목",
       "FamilyKo": "재첩과",
       "SpeciesKo": "점박이재첩",
-      "SpeciesEn": "Corbicula (Corbiculina) portentosa"
+      "SpeciesEn": "Corbicula portentosa"
     },
     {
       "SaprobicValue": null,
@@ -12974,7 +13289,7 @@
       "OrderKo": "흡강목",
       "FamilyKo": "다슬기과",
       "SpeciesKo": "주머니알다슬기",
-      "SpeciesEn": "Koreanomelania paucicincta"
+      "SpeciesEn": "Semisulcospira calculus"
     },
     {
       "SaprobicValue": 0.0,
@@ -13367,6 +13682,19 @@
       "SpeciesEn": "Hediste sp."
     },
     {
+      "SaprobicValue": 1.7,
+      "IndicatorWeight": 4,
+      "Endangered1": "",
+      "Endangered2": "",
+      "Endemic": "",
+      "PhylumKo": "환형동물문",
+      "ClassKo": "다모강",
+      "OrderKo": "부채발갯지렁이목",
+      "FamilyKo": "참갯지렁이과",
+      "SpeciesKo": "참갯지렁이류",
+      "SpeciesEn": "Nereididae sp."
+    },
+    {
       "SaprobicValue": 3.3,
       "IndicatorWeight": 3,
       "Endangered1": "",
@@ -13494,7 +13822,7 @@
       "OrderKo": "백합목",
       "FamilyKo": "재첩과",
       "SpeciesKo": "참재첩",
-      "SpeciesEn": "Corbicula (Corbiculina) leana"
+      "SpeciesEn": "Corbicula leana"
     },
     {
       "SaprobicValue": null,

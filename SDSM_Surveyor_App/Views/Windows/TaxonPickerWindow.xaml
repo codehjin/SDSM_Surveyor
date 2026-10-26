@@ -72,6 +72,19 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
+                        <!-- 프로그램 정보(v0.5.0) — 야장 창과 같은 pill -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0 14 0">
+                            <Button Click="Info_Click" Style="{StaticResource ShellPillButtonStyle}"
+                                    WindowChrome.IsHitTestVisibleInChrome="True"
+                                    AutomationProperties.Name="프로그램 정보"
+                                    ToolTipService.ToolTip="판 · 적용 지침(원본 보기) · 종목록 판 · 개발 · 연락처">
+                                <StackPanel Orientation="Horizontal">
+                                    <icon:PackIconMaterial Kind="InformationOutline" Width="13" Height="13"
+                                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="정보" Margin="6 0 0 0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
                         <Button Click="Minimize_Click" Style="{StaticResource CaptionButtonStyle}"
                                 WindowChrome.IsHitTestVisibleInChrome="True"
                                 AutomationProperties.Name="최소화">

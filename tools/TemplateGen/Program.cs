@@ -20,6 +20,10 @@ using Telerik.Documents.Spreadsheet.Model;
 //   3. 라벨 열·예시 열·종 행의 분류·형질·국명은 그대로.
 //   4. 필독·보조 시트는 남긴다.
 //
+//   5. (v0.5.0 · 2026-10-26) 저서 종 행(47행~ A~K)을 앱 종목록(species.json · 관리자 1.1.0 목록)에 맞춘다 —
+//      오탁치 · 가중치 · 보호종 · 분류 · 학명을 종목록 값으로, 양식에 없는 종목록 종은 같은 과 아래에 끼워 넣는다.
+//      양식 행 짝 = 국명 + 학명(옛 학명은 SpeciesNameMap 으로 지침 표기). `--only benthos` 로 저서만 다시 만든다.
+//
 // ⚠ 원본 폴더에는 쓰지 않는다. 출력은 저장소의 SDSM_Surveyor_App\templates\bulk\ 에만 쓴다.
 // ⚠ 이 도구는 Telerik.Licensing 을 참조한다 — 없으면 출력 끝에 'License' 시트가 붙는다.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -29,10 +33,14 @@ Console.OutputEncoding = Encoding.UTF8;
 var repoRoot = FindRepoRoot();
 var src = @"F:\17_한국환경지리연구소\2_삼성DS\2026년\5_보낸파일\20260305\일괄입력자료";
 var outDir = Path.Combine(repoRoot, "SDSM_Surveyor_App", "templates", "bulk");
+var speciesPath = Path.Combine(repoRoot, "SDSM_Surveyor_App", "species.json");
+string? only = null;
 for (int i = 0; i < args.Length - 1; i++)
 {
     if (args[i] == "--src") src = Path.GetFullPath(args[i + 1]);
     if (args[i] == "--out") outDir = Path.GetFullPath(args[i + 1]);
+    if (args[i] == "--species") speciesPath = Path.GetFullPath(args[i + 1]);
+    if (args[i] == "--only") only = args[i + 1];   // 예: --only benthos — 그 내장본만 다시 만들고 README 의 그 줄 · 종 행 절만 바꾼다
 }
 Directory.CreateDirectory(outDir);
 Console.WriteLine($"원본 : {src}  (읽기만 한다)");
@@ -82,7 +90,8 @@ readme.AppendLine("| 내장본 | 원본 | 원본 크기 | 원본 수정일 | 입
 readme.AppendLine("|---|---|---:|---|---|---|---:|---:|---:|---:|---|---:|");
 
 int fail = 0;
-foreach (var s in specs)
+string speciesSection = string.Empty;
+foreach (var s in specs.Where(x => only is null || x.Name == only))
 {
     var path = Path.Combine(src, s.Source);
     var fi = new FileInfo(path);
@@ -109,6 +118,9 @@ foreach (var s in specs)
         ws.Cells[r, c].ClearValue();   // 값만 지운다 — 서식·유효성은 남는다
         cleared++;
     }
+
+    // ⑤ 저서 종 행을 앱 종목록에 맞춘다(v0.5.0)
+    if (s.Name == "benthos") speciesSection = SyncBenthosSpecies(ws, speciesPath);
 
     // 잔존 검사(같은 규칙으로 다시 센다) — 저장 전에 한 번, 저장본을 다시 열어 한 번
     int Remaining(Worksheet w)
@@ -140,6 +152,31 @@ foreach (var s in specs)
     if (clearedFormulas > 0) Console.WriteLine($"         자료 행 수식 {clearedFormulas}칸 지움(열 {string.Join(",", s.ClearFormulaCols!.Select(c => (char)('A' + c)))})");
     Console.WriteLine($"{s.Name,-8} 지운 상수 {cleared,6} · 남은 상수 {remaining} · 수식 {formulas,5} · 조사지점 제거 {removedSite} · {sw.Elapsed.TotalSeconds:F1}s · {size / 1024:N0} KB · 시트 {sheets}");
     readme.AppendLine($"| `{s.Name}.xlsx` | `{s.Source}` | {fi.Length / 1024:N0} KB | {fi.LastWriteTime:yyyy-MM-dd HH:mm} | `{s.Sheet}` | 행 {s.RowFrom}·열 {s.ColFrom} | {cleared:N0} | {clearedFormulas:N0} | **{remaining}** | {formulas:N0} | {sheets} | {size / 1024:N0} KB |");
+}
+
+// --only : 그 내장본 줄 · 저서 종 행 절만 README 에서 바꾸고 끝낸다(다른 내장본 · 어류 라벨 · 서식수변 평가내용은 그대로)
+if (only is not null)
+{
+    var readmePath = Path.Combine(outDir, "README.md");
+    var lines = File.ReadAllLines(readmePath).ToList();
+    var fresh = readme.ToString().Split('\n').Select(l => l.TrimEnd('\r')).Where(l => l.StartsWith($"| `{only}.xlsx`")).ToList();
+    for (int i = 0; i < lines.Count && fresh.Count == 1; i++)
+        if (lines[i].StartsWith($"| `{only}.xlsx`")) lines[i] = fresh[0];
+    var text = string.Join("\n", lines).TrimEnd() + "\n";
+    if (speciesSection.Length > 0)
+    {
+        const string Mark = "## 저서 — 종 행";
+        int at = text.IndexOf(Mark, StringComparison.Ordinal);
+        if (at >= 0)
+        {
+            int end = text.IndexOf("\n## ", at + Mark.Length, StringComparison.Ordinal);
+            text = text[..at] + speciesSection.TrimEnd() + "\n" + (end >= 0 ? "\n" + text[(end + 1)..] : "");
+        }
+        else text = text.TrimEnd() + "\n\n" + speciesSection;
+    }
+    File.WriteAllText(readmePath, text.Replace("\r\n", "\n"), new UTF8Encoding(false));
+    Console.WriteLine(fail == 0 ? "\n완료 — 남은 상수 0 · License·조사지점 시트 없음" : $"\n⚠ 확인 필요 {fail}건");
+    return fail == 0 ? 0 : 1;
 }
 
 // ── 어류 : 라벨·예시·필독 글자만 뽑는다 ───────────────────────────────────────
@@ -181,6 +218,7 @@ const string FishSource = "2602_방류하천_곡교천_어류_DB_v1.xlsx";
 
 readme.AppendLine();
 readme.Append(WriteHabitatCriteria(src, outDir));
+if (speciesSection.Length > 0) readme.AppendLine().Append(speciesSection);
 
 File.WriteAllText(Path.Combine(outDir, "README.md"), readme.ToString(), new UTF8Encoding(false));
 Console.WriteLine(fail == 0 ? "\n완료 — 남은 상수 0 · License·조사지점 시트 없음" : $"\n⚠ 확인 필요 {fail}건");
@@ -219,6 +257,131 @@ static string WriteHabitatCriteria(string src, string outDir)
     return "## 서식수변 — 평가내용 (화면 표시용 · 10-17)\n\n" +
            $"`{Source}`({fi.Length / 1024:N0} KB · {fi.LastWriteTime:yyyy-MM-dd HH:mm})의 `서식 및 수변환경` 시트 17~26행 A·B·C·D 글자를 `habitat_criteria.json` 에 둔다" +
            $"(생성 {DateTime.Now:yyyy-MM-dd HH:mm}). 서식수변 화면의 '평가 내용' 열(넓은 창)·항목 툴팁(C열)·선택지 툴팁(D열)이 이 글자를 그대로 쓴다. 출력 엑셀에는 쓰지 않는다.\n";
+}
+
+// ── 저서 종 행 ↔ 앱 종목록(v0.5.0) ─────────────────────────────────────────────
+// 양식 `입력` 시트 47행(0-based 46)~ : A 오탁치 · B 지표가중치 · C 멸종위기 I · D II · E 고유 · F 문 · G 강 · H 목 · I 과 · J 학명 · K 국명.
+// 짝 = 국명 + 학명(양식의 옛 학명은 SpeciesNameMap.Benthos 로 지침 표기). 짝이 맞으면 A~K 를 종목록 값으로 쓰고,
+// 종목록에 있는데 양식에 없는 종은 같은 과(없으면 같은 목)의 마지막 행 아래에 끼워 넣는다(위 행 서식 복사 · 아래 행은 내려감). 양식에만 있는 행은 지우지 않고 알린다.
+static string SyncBenthosSpecies(Worksheet ws, string speciesPath)
+{
+    const int First = 46, NameCol = 10, EnCol = 9;
+    var cat = JsonSerializer.Deserialize<SDSM_Models.SpeciesCatalog>(File.ReadAllText(speciesPath),
+                  new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+    var list = cat.Benthos;
+    string Key(string? ko, string? en) => $"{ko?.Trim()}\u001F{en?.Trim()}";
+    var byKey = list.GroupBy(b => Key(b.SpeciesKo, b.SpeciesEn)).ToDictionary(g => g.Key, g => g.First());
+
+    string T(int r, int c) => ws.Cells[r, c].GetValue().Value.RawValue ?? string.Empty;
+    var used = ws.UsedCellRange;
+    int last = First - 1;
+    var matched = new HashSet<SDSM_Models.BenthosSpeciesList>(ReferenceEqualityComparer.Instance);
+    var templateOnly = new List<string>();
+    int valueRows = 0, enRows = 0, cells = 0;
+    var changedNames = new List<string>();
+    for (int r = First; r <= used.ToIndex.RowIndex; r++)
+    {
+        var ko = T(r, NameCol).Trim();
+        if (ko.Length == 0) continue;
+        last = r;
+        var en = SDSM_Surveyor_App.Helpers.SpeciesNameMap.Benthos(T(r, EnCol).Trim());
+        if (!byKey.TryGetValue(Key(ko, en), out var sp) || matched.Contains(sp)) { templateOnly.Add($"{r + 1}행 {ko} {T(r, EnCol)}"); continue; }
+        matched.Add(sp);
+        var (n, vals, enChanged) = WriteSpeciesRow(ws, r, sp);
+        cells += n;
+        if (vals) { valueRows++; changedNames.Add($"{ko} {sp.SpeciesEn}"); }
+        if (enChanged) enRows++;
+    }
+    // 양식에 없는 종목록 종 — 같은 과(없으면 같은 목)의 마지막 행 바로 아래에 행을 끼워 넣는다.
+    // 종 행 아래의 빈 줄과 '> 새로운 종 추가' 안내 줄(A열)은 그대로 한 줄씩 내려간다(덮어쓰지 않는다).
+    var added = new List<string>();
+    foreach (var sp in list.Where(b => !matched.Contains(b)))
+    {
+        int after = last;
+        for (int r = First; r <= last; r++)
+            if (T(r, NameCol).Trim().Length > 0 && T(r, 8) == (sp.FamilyKo ?? "") && T(r, 5) == (sp.PhylumKo ?? "")) after = r;
+        if (after == last)
+            for (int r = First; r <= last; r++)
+                if (T(r, NameCol).Trim().Length > 0 && T(r, 7) == (sp.OrderKo ?? "") && T(r, 5) == (sp.PhylumKo ?? "")) after = r;
+        int at = after + 1;
+        ws.Rows.Insert(at, 1);
+        CopyRowFormat(ws, after, at, NameCol);   // 위 종 행 서식(A~K) — Copy/Paste 는 이 양식의 도형 때문에 예외가 나서 칸마다 옮긴다
+        WriteSpeciesRow(ws, at, sp);
+        last++;
+        added.Add($"{at + 1}행 {sp.SpeciesKo} {sp.SpeciesEn}(위 {after + 1}행 {T(after, NameCol)} · {T(after, 8)})");
+    }
+    int rowsNow = Enumerable.Range(First, last - First + 1).Count(r => T(r, NameCol).Trim().Length > 0);
+    Console.WriteLine($"benthos  종 행 ↔ {cat.Version}: 양식 {matched.Count + templateOnly.Count}행 · 짝 {matched.Count} · 값 고친 행 {valueRows} · 학명 고친 행 {enRows} · 칸 {cells} · 더한 행 {added.Count} · 양식에만 {templateOnly.Count} → 종 행 {rowsNow}");
+    foreach (var a in added) Console.WriteLine($"         더함 {a}");
+    foreach (var t in templateOnly) Console.WriteLine($"         ⚠ 종목록에 없음 {t}");
+
+    var sb = new StringBuilder();
+    sb.AppendLine("## 저서 — 종 행(앱 종목록에 맞춤 · v0.5.0)");
+    sb.AppendLine();
+    sb.AppendLine($"`benthos.xlsx` `입력` 시트 47행~ 종 행 A~K(오탁치 · 지표가중치 · 보호종 · 분류 · 학명 · 국명)를 앱 종목록 `species.json`(**{cat.Version}** · 저서 {list.Count}종)에 맞췄다(생성 {DateTime.Now:yyyy-MM-dd HH:mm}).");
+    sb.AppendLine("짝은 국명 + 학명(양식의 옛 학명은 `Helpers\\SpeciesNameMap` 으로 지침 표기). 종목록에 있는데 양식에 없는 종은 같은 과(없으면 같은 목)의 마지막 행 아래에 끼워 넣었다(위 행 서식 · 그 아래 행과 '> 새로운 종 추가' 안내 줄은 한 줄씩 내려감).");
+    sb.AppendLine();
+    sb.AppendLine("| 양식 종 행 | 짝 | 값(A~I) 고친 행 | 학명(J) 고친 행 | 바뀐 칸 | 더한 행 | 양식에만 있는 행 | 결과 종 행 |");
+    sb.AppendLine("|---:|---:|---:|---:|---:|---:|---:|---:|");
+    sb.AppendLine($"| {matched.Count + templateOnly.Count} | {matched.Count} | {valueRows} | {enRows} | {cells} | {added.Count} | {templateOnly.Count} | **{rowsNow}** |");
+    sb.AppendLine();
+    if (changedNames.Count > 0) sb.AppendLine($"값을 고친 종: {string.Join(" · ", changedNames)}").AppendLine();
+    if (added.Count > 0) sb.AppendLine($"더한 종: {string.Join(" · ", added)}").AppendLine();
+    if (templateOnly.Count > 0) sb.AppendLine($"⚠ 종목록에 없는 양식 행: {string.Join(" · ", templateOnly)}").AppendLine();
+    return sb.ToString().Replace("\r\n", "\n");
+}
+
+// 행 서식 옮기기(A~to) — 스타일 이름 · 테두리 · 채우기 · 글꼴 · 정렬 · 표시 형식 · 줄바꿈.
+static void CopyRowFormat(Worksheet ws, int from, int to, int toCol)
+{
+    for (int c = 0; c <= toCol; c++)
+    {
+        var src = ws.Cells[from, c];
+        var dst = ws.Cells[to, c];
+        dst.SetStyleName(src.GetStyleName().Value);
+        dst.SetBorders(src.GetBorders());
+        dst.SetFill(src.GetFill().Value);
+        dst.SetFontFamily(src.GetFontFamily().Value);
+        dst.SetFontSize(src.GetFontSize().Value);
+        dst.SetIsBold(src.GetIsBold().Value);
+        dst.SetIsItalic(src.GetIsItalic().Value);
+        dst.SetForeColor(src.GetForeColor().Value);
+        dst.SetHorizontalAlignment(src.GetHorizontalAlignment().Value);
+        dst.SetVerticalAlignment(src.GetVerticalAlignment().Value);
+        dst.SetFormat(src.GetFormat().Value);
+        dst.SetIsWrapped(src.GetIsWrapped().Value);
+    }
+}
+
+// 종목록 1종 → 그 행 A~K. (바뀐 칸 수, A~I 값이 바뀌었는지, 학명이 바뀌었는지)
+static (int Cells, bool Values, bool En) WriteSpeciesRow(Worksheet ws, int r, SDSM_Models.BenthosSpeciesList sp)
+{
+    int n = 0; bool vals = false, enChanged = false;
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    void Put(int c, object? v)
+    {
+        var cur = ws.Cells[r, c].GetValue().Value;
+        string now = cur.ValueType == CellValueType.Empty ? string.Empty : cur.RawValue ?? string.Empty;
+        string want = v switch { null => string.Empty, double d => d.ToString(inv), int i => i.ToString(inv), _ => v.ToString() ?? string.Empty };
+        bool same = now == want
+                    || (double.TryParse(now, System.Globalization.NumberStyles.Float, inv, out var a)
+                        && double.TryParse(want, System.Globalization.NumberStyles.Float, inv, out var b) && a == b);
+        if (same) return;
+        if (string.IsNullOrEmpty(want)) ws.Cells[r, c].ClearValue();
+        else if (v is double d2) ws.Cells[r, c].SetValue(d2);
+        else if (v is int i2) ws.Cells[r, c].SetValue(i2);
+        else ws.Cells[r, c].SetValueAsText(want);
+        n++;
+        if (c <= 8) vals = true;
+        if (c == 9) enChanged = true;
+    }
+    Put(0, sp.SaprobicValue); Put(1, sp.IndicatorWeight);
+    Put(2, Blank(sp.Endangered1)); Put(3, Blank(sp.Endangered2)); Put(4, Blank(sp.Endemic));
+    Put(5, Blank(sp.PhylumKo)); Put(6, Blank(sp.ClassKo)); Put(7, Blank(sp.OrderKo)); Put(8, Blank(sp.FamilyKo));
+    Put(9, Blank(sp.SpeciesEn)); Put(10, Blank(sp.SpeciesKo));
+    return (n, vals, enChanged);
+
+    static string? Blank(string? t) => string.IsNullOrWhiteSpace(t) ? null : t;
 }
 
 // [행, 열, 값] — 값은 글자면 string, 숫자면 double. 수식 칸은 건너뛴다.

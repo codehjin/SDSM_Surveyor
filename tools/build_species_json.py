@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-국가생물종목록(`docs/_input/생물종 일괄입력.xlsx`) → `species.json` 의 조류·포유류·양서파충류 갱신.
+r"""
+species.json 만들기 — 두 가지 일을 한다.
 
-- 어류·저서동물은 관리자 마스터(FishSpeciesList·BenthosSpeciesList)가 기준이므로 **기존 값을 그대로 보존**한다.
-- 원본 목록이 갱신되면 이 스크립트를 다시 실행한다(재실행 가능).
-- 종명은 앞뒤 공백만 제거하고 원문을 변형하지 않는다(CLAUDE.md §7.3).
+① 관찰형(국가생물종목록 `docs/_input/생물종 일괄입력.xlsx`) → 조류·포유류·양서파충류 갱신(어류·저서는 그대로 보존).
+② 관리자 종목록 → 어류·저서 갱신(2026-10-22 §21-3 · §22-3 ②) — `--admin-db` 또는 `--admin-json` 을 주면 이 일만 한다.
+   - 어류·저서 = 관리자 목록 **그대로**(종 수 · 칸 이름 · 칸 순서 · 값 · 정렬 = 관리자 [종목록 내보내기]
+     `SDSM_App\Commons\SpeciesCatalogExporter.cs` 와 같게 — 국명 서수 순 → 학명). 국명이 같은 종도 줄이지 않는다.
+   - 조류·포유류·양서파충류 = 지금 번들(`--output` 파일) 그대로.
+   - Version = '<관리자 판>+<관찰형 판>' 예: 'jichim2026-30+admin-261022+nibr-20260820'.
+   - `--admin-db` 이면 만든 뒤 DB 와 종마다 · 칸마다 다시 대조한다(차이가 있으면 실패 코드 1).
+- 종명은 앞뒤 공백만 제거하고 원문을 변형하지 않는다(CLAUDE.md §7.3) — 관리자 목록은 공백도 그대로 둔다.
+- DB 는 읽기 전용(mode=ro)으로만 연다.
 
 사용법:
     python tools/build_species_json.py
     python tools/build_species_json.py --input <xlsx> --output <species.json> --version nibr-20260820
+    python tools/build_species_json.py --admin-db <정리본 SDSMDB.sqlite> [--admin-date 261022]
+    python tools/build_species_json.py --admin-json <관리자 [종목록 내보내기] species.json>
 """
 from __future__ import annotations
 
@@ -244,13 +252,143 @@ def apply_flags(species: list[dict], entries: list[dict], taxon: str,
     )
 
 
+# ── ② 관리자 종목록(어류·저서) ───────────────────────────────────────────────────
+# 칸 이름 · 순서 = 관리자 SpeciesCatalogExporter(= SDSM_Models FishSpeciesList · BenthosSpeciesList, Id 제외)
+FISH_FIELDS = ["FishTrait", "ToleranceGuild", "FeedingGuild", "HabitatGuild", "Exotic", "Endemic",
+               "Endangered1", "Endangered2", "NaturalMonument", "LineageOrder",
+               "ClassKo", "OrderKo", "FamilyKo", "SpeciesKo", "SpeciesEn"]
+BENTHOS_FIELDS = ["SaprobicValue", "IndicatorWeight", "Endangered1", "Endangered2", "Endemic",
+                  "PhylumKo", "ClassKo", "OrderKo", "FamilyKo", "SpeciesKo", "SpeciesEn"]
+
+
+def admin_order(items: list[dict]) -> list[dict]:
+    """관리자 내보내기와 같은 정렬 — 국명 서수 순 → 학명 서수 순(null 이 앞)."""
+    def key(it):
+        ko, en = it.get("SpeciesKo"), it.get("SpeciesEn")
+        return ((0, "") if ko is None else (1, ko), (0, "") if en is None else (1, en))
+    return sorted(items, key=key)
+
+
+def read_admin_db(path: Path) -> tuple[list[dict], list[dict]]:
+    """정리본 DB 의 FishSpeciesList · BenthosSpeciesList 를 읽기 전용으로 읽는다(값은 DB 그대로)."""
+    import sqlite3
+    con = sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True)
+    con.row_factory = sqlite3.Row
+    try:
+        fish = [{k: r[k] for k in FISH_FIELDS} for r in con.execute("select * from FishSpeciesList")]
+        benthos = [{k: r[k] for k in BENTHOS_FIELDS} for r in con.execute("select * from BenthosSpeciesList")]
+    finally:
+        con.close()
+    return admin_order(fish), admin_order(benthos)
+
+
+def read_admin_json(path: Path) -> tuple[list[dict], list[dict], str | None]:
+    """관리자 [종목록 내보내기] 파일(Version · GeneratedAt · Fish · Benthos)."""
+    d = json.loads(io.open(path, encoding="utf-8-sig").read())
+    fish = [{k: it.get(k) for k in FISH_FIELDS} for it in d.get("Fish", [])]
+    benthos = [{k: it.get(k) for k in BENTHOS_FIELDS} for it in d.get("Benthos", [])]
+    return admin_order(fish), admin_order(benthos), d.get("Version")
+
+
+def same_value(a, b) -> bool:
+    """칸 값 비교 — 수는 값으로(3.0 == 3), 나머지는 그대로(빈 글자 '' 와 null 은 다르다)."""
+    if isinstance(a, bool) or isinstance(b, bool):
+        return a == b
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        return float(a) == float(b)
+    return a == b
+
+
+def compare_lists(name: str, got: list[dict], want: list[dict], fields: list[str]) -> list[str]:
+    """종 순서대로 칸마다 대조 — 다른 칸 목록을 돌려준다."""
+    diffs = []
+    if len(got) != len(want):
+        diffs.append(f"{name}: 종 수 {len(got)} ≠ {len(want)}")
+    for i, (g, w) in enumerate(zip(got, want)):
+        if list(g.keys()) != fields:
+            diffs.append(f"{name}[{i}] 칸 이름·순서 {list(g.keys())}")
+        for k in fields:
+            if not same_value(g.get(k), w.get(k)):
+                diffs.append(f"{name}[{i}] {w.get('SpeciesKo')} {w.get('SpeciesEn')} · {k}: {g.get(k)!r} ≠ {w.get(k)!r}")
+    return diffs
+
+
+def observed_version(version: str | None) -> str:
+    """번들 Version 에서 관찰형 판(nibr-YYYYMMDD)만 — 없으면 Version 그대로."""
+    m = re.search(r"nibr-\d{8}", version or "")
+    return m.group(0) if m else (version or "unknown")
+
+
+def build_from_admin(args, dst: Path) -> int:
+    if not dst.exists():
+        return int(bool(sys.stderr.write(f"기존 species.json(관찰형 원본)이 없습니다: {dst}\n")))
+    data = json.loads(io.open(dst, encoding="utf-8-sig").read())
+    obs = observed_version(data.get("Version"))
+
+    db_fish = db_benthos = js_fish = js_benthos = None
+    admin_part = None
+    if args.admin_db:
+        db = Path(args.admin_db)
+        db_fish, db_benthos = read_admin_db(db)
+        date = args.admin_date or (re.search(r"(\d{6})", str(db)) or [None, None])[1] \
+            or _dt.datetime.fromtimestamp(db.stat().st_mtime).strftime("%y%m%d")
+        admin_part = f"jichim2026-30+admin-{date}"
+        print(f"관리자 DB : {db}  (읽기 전용) · 어류 {len(db_fish)} · 저서 {len(db_benthos)}")
+    if args.admin_json:
+        js_fish, js_benthos, js_ver = read_admin_json(Path(args.admin_json))
+        print(f"관리자 내보내기 : {args.admin_json} · {js_ver} · 어류 {len(js_fish)} · 저서 {len(js_benthos)}")
+        admin_part = admin_part or js_ver or "jichim2026-30+admin-unknown"
+
+    fish, benthos = (db_fish, db_benthos) if db_fish is not None else (js_fish, js_benthos)
+    version = args.version or f"{admin_part}+{obs}"
+
+    out = {"Version": version, "GeneratedAt": _dt.datetime.now().replace(microsecond=0).isoformat(),
+           "Fish": fish, "Benthos": benthos}
+    for k in ("Bird", "Mammal", "Amphibian"):
+        out[k] = data.get(k, [])
+    with io.open(dst, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(out, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+
+    # 만든 파일을 다시 읽어 대조한다
+    back = json.loads(io.open(dst, encoding="utf-8").read())
+    diffs = []
+    if db_fish is not None:
+        diffs += compare_lists("Fish(파일↔DB)", back["Fish"], db_fish, FISH_FIELDS)
+        diffs += compare_lists("Benthos(파일↔DB)", back["Benthos"], db_benthos, BENTHOS_FIELDS)
+    if js_fish is not None:
+        diffs += compare_lists("Fish(파일↔내보내기)", back["Fish"], js_fish, FISH_FIELDS)
+        diffs += compare_lists("Benthos(파일↔내보내기)", back["Benthos"], js_benthos, BENTHOS_FIELDS)
+    for k in ("Bird", "Mammal", "Amphibian"):
+        if back[k] != data.get(k, []):
+            diffs.append(f"{k}: 번들과 다름")
+
+    print(f"결과 : {dst}")
+    print(f"  Version   {version}")
+    print(f"  Fish      {len(back['Fish']):>4}종  (관리자)")
+    print(f"  Benthos   {len(back['Benthos']):>4}종  (관리자 · 지표값 있는 종 {sum(1 for b in back['Benthos'] if b['SaprobicValue'] is not None)})")
+    for k in ("Bird", "Mammal", "Amphibian"):
+        print(f"  {k:<9} {len(back[k]):>4}종  (번들 {obs} 그대로)")
+    checked = sum(len(x) * len(f) for x, f in [(back["Fish"], FISH_FIELDS), (back["Benthos"], BENTHOS_FIELDS)])
+    print(f"대조 : {'DB ' if db_fish is not None else ''}{'내보내기 ' if js_fish is not None else ''}— 칸 {checked:,}개 · 차이 {len(diffs)}")
+    for d in diffs[:40]:
+        print("  ✗", d)
+    return 1 if diffs else 0
+
+
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
-    ap = argparse.ArgumentParser(description="국가생물종목록 → species.json (조류·포유류·양서파충류)")
+    ap = argparse.ArgumentParser(description="species.json — 관찰형(국가생물종목록) 또는 어류·저서(관리자 종목록)")
     ap.add_argument("--input", default=str(root / "docs" / "_input" / "생물종 일괄입력.xlsx"))
     ap.add_argument("--output", default=str(root / "SDSM_Surveyor_App" / "species.json"))
-    ap.add_argument("--version", default=None, help="기본값: nibr-YYYYMMDD (오늘)")
+    ap.add_argument("--version", default=None, help="기본값: nibr-YYYYMMDD (오늘) · 관리자 모드는 '<관리자 판>+<관찰형 판>'")
+    ap.add_argument("--admin-db", default=None, help="관리자 정리본 DB(SDSMDB.sqlite · 읽기만) — 어류·저서를 이 목록으로")
+    ap.add_argument("--admin-json", default=None, help="관리자 [종목록 내보내기] species.json — 어류·저서를 이 목록으로(--admin-db 와 함께 주면 대조만)")
+    ap.add_argument("--admin-date", default=None, help="관리자 판 날짜 yyMMdd(기본: DB 경로의 6자리 숫자)")
     args = ap.parse_args()
+
+    if args.admin_db or args.admin_json:
+        return build_from_admin(args, Path(args.output))
 
     src = Path(args.input)
     dst = Path(args.output)

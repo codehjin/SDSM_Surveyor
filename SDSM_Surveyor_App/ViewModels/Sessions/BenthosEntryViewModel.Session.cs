@@ -38,7 +38,7 @@ public partial class BenthosEntryViewModel : ITaxonSession
         NoSpeciesDeclared = NoSpeciesDeclared,
         IsEnvironmentExpanded = IsEnvironmentExpanded, IsHealthExpanded = IsHealthExpanded,
         Rows = SpeciesEntries.Select(r => new BenthosDraftRow(r.SelectedSpecies?.SpeciesKo ?? r.SpeciesKo,
-                                                              r.IndividualCount, r.Note)).ToList()
+                                                              r.IndividualCount, r.Note, r.SelectedSpecies?.SpeciesEn)).ToList()
     };
 
     object ITaxonSession.CaptureState() => ToDraft();
@@ -79,7 +79,8 @@ public partial class BenthosEntryViewModel : ITaxonSession
         {
             if (string.IsNullOrWhiteSpace(r.SpeciesKo)) continue;
             var e = new BenthosSpeciesEntry { Note = r.Note };
-            var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == r.SpeciesKo);
+            // v0.5.0 : 학명(옛 표기는 지침 표기로 읽음)이 있으면 국명 + 학명으로, 없으면 국명으로 — 국명이 같은 종이면 예전 번들 행(Helpers.SpeciesLookup)
+            var match = Helpers.SpeciesLookup.Benthos(SpeciesListSource, r.SpeciesKo, r.SpeciesEn);
             if (match is not null) e.SelectedSpecies = match;   // 오탁치·지표가중치 자동 연결
             else e.SpeciesKo = r.SpeciesKo;
             e.IndividualCount = r.IndividualCount;

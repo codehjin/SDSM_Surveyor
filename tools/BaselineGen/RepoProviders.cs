@@ -30,17 +30,22 @@ internal static class RepoJson
     }
 }
 
-/// <summary>저장소 번들 `species.json` 만 읽는 종목록 제공자.</summary>
+/// <summary>
+/// 저장소 번들 `species.json` 만 읽는 종목록 제공자 — 운영과 같은 로더(<see cref="SpeciesListProvider"/>)에
+/// 교체본 경로 없이 번들 경로만 준다(%AppData% 를 읽지 않는다).
+/// </summary>
 internal sealed class RepoSpeciesProvider(string path) : ISpeciesListProvider
 {
-    private readonly SpeciesCatalog _cat = RepoJson.Load<SpeciesCatalog>(path);
+    private readonly SpeciesListProvider _inner = new(appDataPath: null, bundlePath: path);
 
-    public string? Version => _cat.Version;
-    public List<FishSpeciesList> GetFishSpecies() => _cat.Fish;
-    public List<BenthosSpeciesList> GetBenthosSpecies() => _cat.Benthos;
-    public List<ObservedSpecies> GetBirdSpecies() => _cat.Bird;
-    public List<ObservedSpecies> GetMammalSpecies() => _cat.Mammal;
-    public List<ObservedSpecies> GetAmphibianSpecies() => _cat.Amphibian;
+    public string? Version => _inner.Version;
+    public IReadOnlyList<SpeciesListPart> Parts => _inner.Parts;
+    public string? PartVersion(string taxonKey) => _inner.PartVersion(taxonKey);
+    public List<FishSpeciesList> GetFishSpecies() => _inner.GetFishSpecies();
+    public List<BenthosSpeciesList> GetBenthosSpecies() => _inner.GetBenthosSpecies();
+    public List<ObservedSpecies> GetBirdSpecies() => _inner.GetBirdSpecies();
+    public List<ObservedSpecies> GetMammalSpecies() => _inner.GetMammalSpecies();
+    public List<ObservedSpecies> GetAmphibianSpecies() => _inner.GetAmphibianSpecies();
 }
 
 /// <summary>저장소 번들 `reference.json` 만 읽는 기준자료 제공자.</summary>

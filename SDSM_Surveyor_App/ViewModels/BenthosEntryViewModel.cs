@@ -32,7 +32,7 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     {
         _reference = reference;
         SpeciesListSource = speciesProvider.GetBenthosSpecies();
-        _speciesCatalogVersion = speciesProvider.Version ?? "-";
+        _speciesCatalogVersion = speciesProvider.PartVersion("Benthos") ?? speciesProvider.Version ?? "-";   // 이 분류군 부분의 판(v0.5.0)
         // 종 추가는 상단 '빠른 추가' 바로 하므로 초기 빈 행을 넣지 않는다(빈 행 누적 방지).
     }
 
@@ -88,7 +88,7 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     protected override BenthosSpeciesEntry CreateRowFromCells(string ko, string[] cells)
     {
         var entry = new BenthosSpeciesEntry();
-        var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko);
+        var match = Helpers.SpeciesLookup.Benthos(SpeciesListSource, ko);   // 국명이 같은 종이 여럿이면 예전 번들 행(v0.5.0)
         if (match is not null) entry.SelectedSpecies = match;   // 학명·길드 자동 연결
         else entry.SpeciesKo = ko;
 
@@ -333,8 +333,8 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     {
         var ko = row.SpeciesKo?.Trim();
         if (string.IsNullOrEmpty(ko)) return;
-        if (row.SelectedSpecies?.SpeciesKo == ko) return;
-        var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko);
+        if (row.SelectedSpecies?.SpeciesKo == ko) return;   // 이미 그 국명의 종(국명이 같은 다른 종을 골랐으면 그대로 둔다)
+        var match = Helpers.SpeciesLookup.Benthos(SpeciesListSource, ko);
         if (match is not null)
         {
             if (!ReferenceEquals(match, row.SelectedSpecies)) row.SelectedSpecies = match;
@@ -590,8 +590,22 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
 
     protected override DuplicateSpeciesMode DuplicateMode => DuplicateSpeciesMode.Merge;
 
-    protected override string? SpeciesKeyOf(BenthosSpeciesEntry row) =>
-        (row.SelectedSpecies?.SpeciesKo ?? row.SpeciesKo)?.Trim();
+    /// <summary>
+    /// 같은 종 판정 키 — 국명. 관리자 목록에는 국명이 같은 종이 있어(예 '물벌레류' 2종 · v0.5.0) 그런 국명은
+    /// '국명 (학명)' 으로 가른다 — 다른 종을 한 행으로 합치지 않게.
+    /// </summary>
+    protected override string? SpeciesKeyOf(BenthosSpeciesEntry row)
+    {
+        var ko = (row.SelectedSpecies?.SpeciesKo ?? row.SpeciesKo)?.Trim();
+        var en = row.SelectedSpecies?.SpeciesEn;
+        return ko is not null && en is not null && SharedNames.Contains(ko) ? $"{ko} ({en})" : ko;
+    }
+
+    /// <summary>종목록에서 두 종 이상이 쓰는 국명.</summary>
+    private HashSet<string> SharedNames => _sharedNames ??= SpeciesListSource
+        .GroupBy(s => s.SpeciesKo ?? string.Empty, StringComparer.Ordinal).Where(g => g.Count() > 1)
+        .Select(g => g.Key).ToHashSet(StringComparer.Ordinal);
+    private HashSet<string>? _sharedNames;
 
     protected override (string Before, string Added, string After) MergeInto(BenthosSpeciesEntry target, BenthosSpeciesEntry source)
     {
@@ -605,7 +619,8 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
 
 // ── 임시 저장용 DTO ──
 /// <summary>세션에 저장되는 종 행. <c>Note</c> 는 선택 매개변수라 옛 세션 파일도 그대로 읽힌다.</summary>
-public record BenthosDraftRow(string? SpeciesKo, double? IndividualCount, string? Note = null);
+/// <summary>종 행. <c>SpeciesEn</c> 은 v0.5.0 에 더한 칸(추가만 · 예전 세션은 없음 = 국명으로 찾음 · 국명이 같은 종이면 예전 번들 행) — 옛 학명도 지침 표기로 읽는다.</summary>
+public record BenthosDraftRow(string? SpeciesKo, double? IndividualCount, string? Note = null, string? SpeciesEn = null);
 
 public sealed class BenthosDraft
 {

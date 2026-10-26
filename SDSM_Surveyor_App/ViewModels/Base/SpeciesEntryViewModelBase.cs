@@ -145,7 +145,7 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
 
     /// <summary>
     /// 같은 종 판정 키 — 국명 <c>Trim()</c> 후 <see cref="StringComparison.Ordinal"/>(대소문자·내부 공백 보존 · CLAUDE.md §5).
-    /// <see cref="AddFromCatalog"/> 의 "이미 있음" 판정과 같은 키다.
+    /// <see cref="AddFromCatalog"/> 의 "이미 있음" 판정과 같은 키다(저서는 국명이 같은 종을 학명으로 가른다 · v0.5.0).
     /// </summary>
     protected virtual string? SpeciesKeyOf(TEntry row) => RowSpeciesKo(row)?.Trim();
 
@@ -227,9 +227,12 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
         if (species is not TSpecies s) return;
 
         var ko = SpeciesKoOf(s)?.Trim();
-        var existing = string.IsNullOrEmpty(ko)
+        // v0.5.0 : 같은 종 판정 키(SpeciesKeyOf)로 본다 — 저서는 국명이 같은 다른 종을 가른다
+        var row = CreateRow(s, null);
+        var key = SpeciesKeyOf(row);
+        var existing = string.IsNullOrEmpty(key)
             ? null
-            : Rows.FirstOrDefault(r => string.Equals(RowSpeciesKo(r)?.Trim(), ko, StringComparison.Ordinal));
+            : Rows.FirstOrDefault(r => string.Equals(SpeciesKeyOf(r), key, StringComparison.Ordinal));
 
         if (existing is not null)
         {
@@ -237,7 +240,6 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
             return;
         }
 
-        var row = CreateRow(s, null);
         Rows.Add(row);
         MarkJustAdded(new[] { row }, ko ?? string.Empty);
     }

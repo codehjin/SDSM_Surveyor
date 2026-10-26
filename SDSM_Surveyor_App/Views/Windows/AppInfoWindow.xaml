@@ -1,0 +1,124 @@
+<Window x:Class="SDSM_Surveyor_App.Views.Windows.AppInfoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Title="프로그램 정보" Width="640" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+        FontFamily="{StaticResource DefaultFontFamily}"
+        FontSize="{StaticResource DefaultFontSize}"
+        Background="{telerik:Windows11Resource ResourceKey=PrimaryBackgroundBrush}">
+
+    <!-- 프로그램 정보(v0.5.0 · §21-5) — 글은 Helpers\AppInfo 한 곳(관리자 정보 창과 같은 내용).
+         항목 이름(왼쪽 · 보조색) | 값(오른쪽). Esc · [닫기] 로 닫는다. -->
+    <Window.Resources>
+        <Style x:Key="InfoLabel" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Margin" Value="0 2 16 8"/>
+        </Style>
+        <Style x:Key="InfoValue" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0 0 0 8"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24 20 24 20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 머리 : 앱 마크 + 이름 + 판 -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0 0 0 16">
+            <Border Width="{StaticResource AppMarkSize}" Height="{StaticResource AppMarkSize}"
+                    CornerRadius="{StaticResource AppMarkRadius}"
+                    Background="{StaticResource AppAccentBrush}" VerticalAlignment="Center"/>
+            <StackPanel Margin="12 0 0 0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding ProgramName}" Style="{StaticResource SectionTitleTextStyle}"/>
+                <TextBlock Text="{Binding ProgramKind}" Style="{StaticResource CaptionTextStyle}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="판" Style="{StaticResource InfoLabel}"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding VersionLine}" Style="{StaticResource InfoValue}"/>
+
+            <TextBlock Grid.Row="1" Text="빌드 날짜" Style="{StaticResource InfoLabel}"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding BuildDate}" Style="{StaticResource InfoValue}"/>
+
+            <TextBlock Grid.Row="2" Text="적용 지침" Style="{StaticResource InfoLabel}"/>
+            <StackPanel Grid.Row="2" Grid.Column="1" Margin="0 0 0 8">
+                <TextBlock Text="{Binding GuidelineTitle}" Style="{StaticResource InfoValue}" Margin="0"/>
+                <TextBlock Text="{Binding GuidelineNotice}" Style="{StaticResource InfoValue}" Margin="0 0 0 6"/>
+                <Button x:Name="GuidelineButton" Command="{Binding OpenGuidelineCommand}" HorizontalAlignment="Left"
+                        Style="{StaticResource SmallOutlineButtonStyle}" AutomationProperties.Name="지침 원본 보기">
+                    <StackPanel Orientation="Horizontal">
+                        <icon:PackIconMaterial Kind="FilePdfBox" Width="14" Height="14" VerticalAlignment="Center"/>
+                        <TextBlock Text="지침 원본 보기" Margin="6 0 0 0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <TextBlock Text="{Binding OpenStatus}" Style="{StaticResource InlineWarnTextStyle}" TextWrapping="Wrap" Margin="0 6 0 0"
+                           Visibility="{Binding HasOpenStatus, Converter={StaticResource BoolToVisibility}}"/>
+            </StackPanel>
+
+            <TextBlock Grid.Row="3" Text="종목록" Style="{StaticResource InfoLabel}"/>
+            <StackPanel Grid.Row="3" Grid.Column="1" Margin="0 0 0 8">
+                <TextBlock Text="{Binding SpeciesVersion}" Style="{StaticResource InfoValue}" Margin="0"/>
+                <TextBlock Text="{Binding SpeciesBasis}" Style="{StaticResource CaptionTextStyle}" Margin="0 2 0 6"/>
+                <ItemsControl x:Name="SpeciesPartList" ItemsSource="{Binding SpeciesParts}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0 0 0 2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="64"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Taxon}" Style="{StaticResource BodyTextStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Count}" Style="{StaticResource BodyTextStyle}" HorizontalAlignment="Right" Margin="0 0 12 0"/>
+                                <TextBlock Grid.Column="2" Style="{StaticResource CaptionTextStyle}" VerticalAlignment="Center">
+                                    <Run Text="{Binding Version, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding Origin, Mode=OneWay}"/>
+                                </TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <TextBlock Grid.Row="4" Text="개발" Style="{StaticResource InfoLabel}"/>
+            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Developer}" Style="{StaticResource InfoValue}"/>
+
+            <TextBlock Grid.Row="5" Text="연락처" Style="{StaticResource InfoLabel}"/>
+            <ItemsControl Grid.Row="5" Grid.Column="1" ItemsSource="{Binding ContactLines}" Margin="0 0 0 8">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" Style="{StaticResource BodyTextStyle}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+
+        <Border Grid.Row="2" Height="1" Background="{StaticResource CardDividerBrush}" Margin="0 8 0 16"/>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="닫기" IsDefault="True" IsCancel="True" Click="Close_Click"
+                    Style="{StaticResource PrimaryActionButtonStyle}"/>
+        </StackPanel>
+    </Grid>
+</Window>

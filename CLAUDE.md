@@ -31,6 +31,7 @@
 App.xaml(.cs)          진입점(Windows11 테마 + DI)
 InjectableServices/    DI 마커 인터페이스
 Helpers/               SpeciesNameRank(후보 순서 같음→앞부분→포함 · D1) · GridSpeciesCommit · GridRowPicker 등 (초성 검색은 SDSM_Core.Helpers.ChosungHelper)
+                       · SpeciesNameMap(옛 학명 → 지침 표기 · 관리자와 같은 표) · SpeciesLookup(국명 + 학명으로 종 찾기) · AppInfo(프로그램 정보 한 곳 · v0.5.0)
 Behaviors/             ChosungFilteringBehavior · ExactNameHighlightBehavior(그리드 국명 칸 Enter = 똑같은 이름만 · D1)
                        · IntegerInput · NestedWheelScroll(바깥 스크롤 휠 넘김)
                        · DropDownWheelGuard(목록 열린 채 휠 = 목록만 · 밖이면 닫기 · 닫힌 콤보 휠로 값 안 바뀜 · 앱 전체)
@@ -44,7 +45,7 @@ Messengers/            NotifyMessage (토스트)
 ViewModels/            분류군별 EntryViewModel (+ Sessions/*.Session.cs 저장·복원)
 Export/                분류군별 exporter 14종 · ExcelStyle · SiteColumns(구분 4열) · BulkTemplate(일괄입력 내장본)
                        · BatchExporter · CombinedReport(여러 지점 일괄 출력 · C-8)
-Views/Windows/         MainSurveyWindow · SyncWindow · SessionBrowserWindow(자료함) · ChoiceDialog(버튼=동작 확인창)
+Views/Windows/         MainSurveyWindow · SyncWindow · SessionBrowserWindow(자료함) · ChoiceDialog(버튼=동작 확인창) · AppInfoWindow(프로그램 정보)
 Views/UserControls/    분류군별 EntryControl · FillPanel(화면 전체 스크롤 · C-3) · MultiChoiceBox · SingleChoiceBox
 ```
 > 생태 계산은 **`..\SDSM\SDSM_Core\Ecology\` 로 이관 완료**(2026-08-21 · R1).
@@ -102,8 +103,17 @@ Views/UserControls/    분류군별 EntryControl · FillPanel(화면 전체 스�
   첫 후보로 자동 치환하지 않는다(`ExactNameHighlightBehavior`). 후보 순서는 같은 이름 → 앞부분 일치 → 포함(`SpeciesNameRank` · 빠른추가도 같음).
 - **종명은 원문 그대로**(`Trim`만, 대소문자·띄어쓰기 보존; CLAUDE 규칙). 길드/보호종 코드성 값만 정규화.
 - 종목록형은 모델 기반 목록(`FishSpeciesList`/`BenthosSpeciesList`), **관찰형은 `ObservedSpecies`**(국명·학명·목·과·보호종·교란종).
-- `SpeciesListProvider`는 `species.json`을 읽는다(AppData 교체본 → 실행폴더 번들 순). 파일이 없을 때만 최소 시드로 대체.
-  - 어류·저서동물 = 관리자 마스터 내보내기, **관찰형 3종 = 국가생물종목록**(`tools\build_species_json.py`로 생성).
+- `SpeciesListProvider`는 `species.json`을 읽는다(AppData 교체본 · 실행폴더 번들). 파일이 없을 때만 최소 시드로 대체.
+  - **부분별로 고른다(v0.5.0)** — 어류 · 저서 · 조류 · 포유류 · 양서파충류마다, 교체본에 그 부분이 있고 판이 번들보다 오래되지 않았으면 교체본, 아니면 번들.
+    판 비교: 어류 · 저서 = Version 의 `admin-yyMMdd` · 관찰형 = `nibr-yyyyMMdd`(표기 없으면 가장 오래됨). 관리자 [종목록 내보내기](어류 · 저서만)를 그대로 두어도 관찰형은 번들로 채운다.
+    쓰고 있는 판 · 종 수 · 출처는 `ISpeciesListProvider.Parts` → 프로그램 정보 창.
+  - 어류·저서동물 = **관리자 종목록 그대로**(정리본 DB · `tools\build_species_json.py --admin-db <SDSMDB.sqlite>` 또는 `--admin-json <관리자 내보내기>` — 종 수 · 칸 이름 · 순서 · 값 · 정렬 = 관리자 `SpeciesCatalogExporter` · 만든 뒤 DB 와 칸마다 대조),
+    **관찰형 3종 = 국가생물종목록**(`tools\build_species_json.py` 기본 모드). Version = `jichim2026-30+admin-yyMMdd+nibr-yyyyMMdd`.
+  - **관리자 저서 목록에는 국명이 같은 종이 있다**(19 · 예 '-' 9종 · '물벌레류' 2종). 국명만 있는 자료(예전 세션 종 행 · 붙여넣기 · 국명 칸 입력)는
+    `Helpers\SpeciesLookup` 이 예전 번들(nibr-20260820 · 국명마다 관리자 번호가 가장 작은 행)과 같은 종으로 읽는다(`SpeciesNameMap.BenthosDefaultFor`) — 지수가 그대로다.
+    저서 같은 종 판정 키는 그런 국명이면 '국명 (학명)'(다른 종을 합치지 않음). 일괄입력용 양식 행은 국명 + 학명으로 찾는다.
+  - 세션 종 행(어류 · 저서)에 `SpeciesEn` 칸을 더했다(v0.5.0 · 추가만 · 없으면 국명으로). 읽을 때 옛 학명은 `Helpers\SpeciesNameMap`(관리자와 같은 표 · 어류 3 · 저서 9)으로 지침 표기.
+  - 일괄입력용 저서 내장 양식 종 행은 `species.json` 과 같아야 한다 — 종목록을 바꾸면 `tools\TemplateGen --only benthos` 를 다시 돌린다(어류는 양식을 내장하지 않고 종 행을 종목록 값으로 쓴다).
   - 구형 `species.json`(관찰형이 국명 문자열 배열)도 하위 호환으로 읽힌다.
 - 관찰형은 종 선택·붙여넣기 시 학명·목·과가 자동으로 채워진다. **학명은 종목록대로(2026-10-18 결정 D2)** —
   종목록 국명이면 학명 칸이 잠기고, 붙여넣기·직접 수정·예전 세션 불러오기에서 다른 학명이 들어오면 종목록 학명으로 바꾸고
@@ -194,6 +204,14 @@ Views/UserControls/    분류군별 EntryControl · FillPanel(화면 전체 스�
 - 관리자 지점 관리 화면 구현됨(2026-08-21) — 관리자 앱 [설정] → [조사지점 관리]. 등록·수정·삭제·병합·사진·연도구간 + `sites.json` 내보내기.
 - 데이터 기준: `SiteDivision`(Project=프로젝트명, Workplace=사업장, WorkplaceRiver=과업대표하천, WorkplaceSite=지점명).
   내보내기 보고서 시트는 이 4단계를 표 앞머리 4열로 싣는다(`Export/SiteColumns.cs`).
+
+---
+
+## 7-1. 프로그램 정보(v0.5.0 · §21-5)
+- `Helpers\AppInfo` 한 곳 — 이름 · 판(`<Version>`) · 커밋(제품 버전 +해시) · 빌드 날짜(`AssemblyMetadata BuildDate`) · 적용 지침 · 개발 · 연락처.
+  지침 · 개발 · 연락처 글자는 **관리자 `Commons\AppInfo` 와 같게** 둔다(고치면 둘 다). 창 제목 옆 판도 `AppInfo.VersionText`.
+- 지침 원본 PDF 는 `guideline\guideline_2026-30.pdf`(Content · 5_자료 원본 복사 · 관리자 동봉본과 같은 파일) — [지침 원본 보기]가 기본 PDF 프로그램으로 연다(`AppInfo.OpenWithShell` · 시험은 바꿔 끼움).
+- [정보] 단추: 야장 창 위쪽 pill · 분류군 고르기 창 위쪽.
 
 ---
 

@@ -111,6 +111,7 @@ $must = @(
     'sites.json',
     'maps\maps.json',
     'Assets\Fonts\OFL.txt',     # Pretendard 재배포 의무(SIL OFL 1.1)
+    'guideline\guideline_2026-30.pdf',   # 지침 원본 — 프로그램 정보 창 [지침 원본 보기](v0.5.0)
     # 일괄입력용 양식 내장본 6개 + 어류 라벨 글자(B-7). 없으면 일괄입력용 내보내기가 멈춘다.
     'templates\bulk\benthos.xlsx',
     'templates\bulk\bird.xlsx',

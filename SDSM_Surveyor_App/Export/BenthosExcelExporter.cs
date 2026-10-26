@@ -70,17 +70,22 @@ public static class BenthosExcelExporter
         Set(39, vm.FlowState); Set(40, vm.Transparency); Set(41, vm.Smell);
         Set(42, vm.Note); Set(43, vm.SurveyUnavailableReason);
 
-        // 양식 종목록 : 국명(K) → 첫 행. 같은 국명이 두 번 있으면 첫 행에 쓴다(작업로그 B-7).
+        // 양식 종목록 : 국명(K) + 학명(J) → 행(v0.5.0 — 관리자 목록에는 국명이 같은 종이 있어 학명으로 가른다).
+        // 종목록 밖 국명(학명 없음)은 국명(K) → 첫 행(작업로그 B-7). 학명은 옛 표기도 지침 표기로 읽는다(Helpers.SpeciesNameMap).
         var rows = new Dictionary<string, int>(StringComparer.Ordinal);
+        var rowsByName = new Dictionary<string, int>(StringComparer.Ordinal);
         int lastSpeciesRow = SpeciesFirstRow - 1;
         var used = ws.UsedCellRange;
         for (int r = SpeciesFirstRow; r <= used.ToIndex.RowIndex; r++)
         {
             var name = ws.Cells[r, NameCol].GetValue().Value.RawValue?.Trim();
             if (string.IsNullOrEmpty(name)) continue;
-            rows.TryAdd(name, r);
+            var en = Helpers.SpeciesNameMap.Benthos(ws.Cells[r, NameCol - 1].GetValue().Value.RawValue?.Trim());
+            rows.TryAdd(Key(name, en), r);
+            rowsByName.TryAdd(name, r);
             lastSpeciesRow = r;
         }
+        static string Key(string ko, string? en) => $"{ko}\u001F{en}";
 
         // 종 : 관측된 종(개체수>0)만. 개체수는 레코드 열(M, double).
         var appended = new List<string>();
@@ -91,7 +96,9 @@ public static class BenthosExcelExporter
             var ko = (e.SelectedSpecies?.SpeciesKo ?? e.SpeciesKo)?.Trim();
             if (string.IsNullOrWhiteSpace(ko) || (e.IndividualCount ?? 0) <= 0) continue;
 
-            if (rows.TryGetValue(ko, out var row))
+            // 종목록 종은 국명 + 학명으로, 목록 밖 국명은 국명으로 양식 행을 찾는다
+            var key = e.SelectedSpecies is { } sel ? Key(ko, sel.SpeciesEn?.Trim()) : null;
+            if (key is not null ? rows.TryGetValue(key, out var row) : rowsByName.TryGetValue(ko, out row))
             {
                 // 불러온 세션에 같은 종이 두 행 남아 있으면(B-1 경고 대상) 한 행에 더한다 — 덮어써 잃지 않는다.
                 written[row] = written.GetValueOrDefault(row) + e.IndividualCount!.Value;
@@ -117,7 +124,7 @@ public static class BenthosExcelExporter
             ws.Cells[r, NameCol].SetValueAsText(ko);   // 국명 K
             written[r] = e.IndividualCount!.Value;
             BulkTemplate.Put(ws, r, RecordCol, written[r]);  // 개체수 M (double)
-            rows[ko] = r;   // 같은 종이 다시 나오면 이 행에 더한다
+            if (key is not null) rows[key] = r; else rowsByName[ko] = r;   // 같은 종이 다시 나오면 이 행에 더한다
             appended.Add(ko);
         }
 

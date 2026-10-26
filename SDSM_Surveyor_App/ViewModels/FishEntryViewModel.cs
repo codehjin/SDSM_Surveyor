@@ -31,7 +31,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     {
         _reference = reference;
         SpeciesListSource = speciesProvider.GetFishSpecies();
-        _speciesCatalogVersion = speciesProvider.Version ?? "-";
+        _speciesCatalogVersion = speciesProvider.PartVersion("Fish") ?? speciesProvider.Version ?? "-";   // 이 분류군 부분의 판(v0.5.0)
         // 종 추가는 상단 '빠른 추가' 바로 하므로 초기 빈 행을 넣지 않는다(빈 행 누적 방지).
         meta.PropertyChanged += (_, e) =>
         {
@@ -170,7 +170,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     protected override FishSpeciesEntry CreateRowFromCells(string ko, string[] cells)
     {
         var entry = new FishSpeciesEntry();
-        var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko);
+        var match = Helpers.SpeciesLookup.Fish(SpeciesListSource, ko);
         if (match is not null) entry.SelectedSpecies = match;   // 학명·길드 자동 연결
         else entry.SpeciesKo = ko;
 
@@ -397,7 +397,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         var ko = row.SpeciesKo?.Trim();
         if (string.IsNullOrEmpty(ko)) return;
         if (row.SelectedSpecies?.SpeciesKo == ko) return;   // 이미 일치(자동완성 선택 등)
-        var match = SpeciesListSource.FirstOrDefault(s => s.SpeciesKo == ko);
+        var match = Helpers.SpeciesLookup.Fish(SpeciesListSource, ko);
         if (match is not null)
         {
             if (!ReferenceEquals(match, row.SelectedSpecies)) row.SelectedSpecies = match;
@@ -705,7 +705,8 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
 /// 세션에 저장되는 종 행. <c>Note</c> 는 나중에 붙였으므로 **선택 매개변수**로 둔다 —
 /// 옛 세션 파일(2개짜리)도 그대로 읽힌다(없으면 null).
 /// </summary>
-public record FishDraftRow(string? SpeciesKo, int? IndividualCount, string? Note = null);
+/// <summary>종 행. <c>SpeciesEn</c> 은 v0.5.0 에 더한 칸(추가만 · 예전 세션은 없음 = 국명으로 찾음) — 옛 학명도 지침 표기로 읽는다.</summary>
+public record FishDraftRow(string? SpeciesKo, int? IndividualCount, string? Note = null, string? SpeciesEn = null);
 
 public sealed class FishDraft
 {

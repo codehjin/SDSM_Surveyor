@@ -11,6 +11,15 @@ public interface ISpeciesListProvider
     /// </summary>
     string? Version { get; }
 
+    /// <summary>
+    /// 부분(어류 · 저서 · 조류 · 포유류 · 양서파충류)별 판 · 종 수 · 출처(교체본 · 번들) — 정보 창에 보인다(v0.5.0).
+    /// 교체본에 어류 · 저서만 있으면 관찰형은 번들에서 온다.
+    /// </summary>
+    IReadOnlyList<SpeciesListPart> Parts { get; }
+
+    /// <summary>그 부분의 판(Fish · Benthos · Bird · Mammal · Amphibian). 없으면 null.</summary>
+    string? PartVersion(string taxonKey);
+
     /// <summary>어류 공식 종목록.</summary>
     List<FishSpeciesList> GetFishSpecies();
 

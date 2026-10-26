@@ -31,8 +31,7 @@ public partial class TaxonPickerWindow : Window, ITransientService
     }
 
     /// <summary>캡션 바 버전 표기(셸과 같은 값).</summary>
-    public string Version { get; } =
-        $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.4.1"}";
+    public string Version { get; } = Helpers.AppInfo.VersionText;   // 판 표시 한 곳(v0.5.0)
 
     private void OnRequestClose(object? sender, bool open)
     {
@@ -49,6 +48,9 @@ public partial class TaxonPickerWindow : Window, ITransientService
         var loaded = new SessionBrowserWindow { Owner = this }.ShowDialog();
         if (loaded == true) OnRequestClose(this, true);
     }
+
+    // 프로그램 정보(v0.5.0)
+    private void Info_Click(object sender, RoutedEventArgs e) => new AppInfoWindow { Owner = this }.ShowDialog();
 
     private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
