@@ -1,6 +1,6 @@
 {
-  "Version": "sites-20261020",
-  "GeneratedAt": "2026-10-20T08:07:54",
+  "Version": "sites-20261026",
+  "GeneratedAt": "2026-10-26T13:33:38",
   "Sites": [
     {
       "Project": "방류하천",
@@ -35,7 +35,7 @@
       "SiteName": "곡교천2",
       "StNo": "St.2",
       "Desc": "배방롯데캐슬 아파트",
-      "Chasu": null,
+      "Chasu": 7,
       "Lat": 36.774158,
       "Lng": 127.083083,
       "YearAliases": {
@@ -185,7 +185,7 @@
       "SiteName": "천안천1",
       "StNo": "St.7",
       "Desc": "휴대교",
-      "Chasu": null,
+      "Chasu": 6,
       "Lat": 36.781319,
       "Lng": 127.106031,
       "YearAliases": {
@@ -209,7 +209,7 @@
       "SiteName": "천안천2",
       "StNo": "St.8",
       "Desc": "휴대근린공원",
-      "Chasu": null,
+      "Chasu": 6,
       "Lat": 36.780442,
       "Lng": 127.1015,
       "YearAliases": {
@@ -283,7 +283,7 @@
       "SiteName": "회룡천2",
       "StNo": "St.6",
       "Desc": "회룡교 인근 (방류구)",
-      "Chasu": null,
+      "Chasu": 4,
       "Lat": 36.771481,
       "Lng": 127.081819,
       "YearAliases": {

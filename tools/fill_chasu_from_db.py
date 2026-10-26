@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
+r"""
 방류하천 지점의 빈 하천차수(`Chasu`)를 게시 DB 어류 기록에서 찾는다(2026-10-20 결정 · 문제 7·10).
 
   - DB 는 **읽기 전용**(`mode=ro`)으로 연다. DB·관리자 저장소에는 아무것도 쓰지 않는다.
@@ -8,12 +8,18 @@
   - **한 값으로 일치하고 지점명이 헷갈리지 않는 곳만** 채운다. 기록이 없거나, 값이 어긋나거나,
     옛 이름이 다른 지점 이름과 겹치는 곳은 비워 두고 판정표에 적는다.
   - 생태현황 항목과 다른 칸은 건드리지 않는다. 이미 하천차수가 있는 지점도 그대로.
+  - **사용자 확정값(`--manual` CSV · 2026-10-26 §23)을 DB 후보보다 먼저 쓴다.** DB 기록이 없는 새 지점(2026년) 등.
+    CSV 칸: 지점 · 하천차수 · 근거(UTF-8 · BOM 있어도 됨). 하천차수가 비어 있는 방류하천 지점에만 채운다 —
+    이미 다른 값이 있으면 바꾸지 않고 '충돌' 로 알린다. 판정표에는 '채움(사용자 확정)' · 근거가 남는다.
 
 사용법(판정표만):
-    python tools/fill_chasu_from_db.py --db <SDSMDB.sqlite> --csv tools/chasu_fill_20261020.csv
-sites.json 에 채우기:
-    python tools/fill_chasu_from_db.py --db <SDSMDB.sqlite> --csv tools/chasu_fill_20261020.csv
-        --write SDSM_Surveyor_App/sites.json --version sites-20261020          (한 줄로 친다)
+    python tools/fill_chasu_from_db.py --db <SDSMDB.sqlite> --manual tools/chasu_manual_20261026.csv --csv tools/chasu_fill_20261026.csv
+sites.json 에 채우기(한 줄로 친다):
+    python tools/fill_chasu_from_db.py --db <SDSMDB.sqlite> --manual tools/chasu_manual_20261026.csv --csv tools/chasu_fill_20261026.csv
+        --write SDSM_Surveyor_App/sites.json --version sites-20261026
+    · 2026-10-20 판(sites-20261020)은 --manual 없이 DB 후보만으로 15곳을 채웠다(tools/chasu_fill_20261020.csv).
+    · 2026-10-26 판(sites-20261026)은 위 줄 — 사용자 확정 4곳(곡교천2 7 · 회룡천2 4 · 천안천1 6 · 천안천2 6)을 더 채웠다.
+    · 관리자 ..\SDSM\SDSM_App\sites.json 도 같은 파일로 둔다(두 파일 해시가 같아야 한다).
 
 ⚠ `build_sites_json.py` 로 방류하천 항목을 다시 만들면 여기서 채운 값이 사라진다 — 그 뒤 이 도구를 다시 돌린다.
 """
@@ -58,6 +64,23 @@ def years(key: str) -> set[int]:
     y0 = full(a)
     y1 = full(b, y0) if b else y0
     return set(range(y0, y1 + 1))
+
+
+def read_manual(path: str) -> dict[str, tuple[int, str]]:
+    """사용자 확정값 CSV — {지점: (하천차수, 근거)}. 하천차수는 1 이상 정수."""
+    out: dict[str, tuple[int, str]] = {}
+    with io.open(path, encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            name = (row.get("지점") or "").strip()
+            if not name:
+                continue
+            value = int(str(row.get("하천차수") or "").strip())
+            if value < 1:
+                raise SystemExit(f"하천차수는 1 이상이어야 합니다: {name} {value}")
+            if name in out:
+                raise SystemExit(f"사용자 확정값 CSV 에 같은 지점이 두 번 있습니다: {name}")
+            out[name] = (value, (row.get("근거") or "").strip())
+    return out
 
 
 def candidates(db_path: str, sites: list[dict]) -> list[dict]:
@@ -119,13 +142,30 @@ def main() -> int:
     ap.add_argument("--sites", default="SDSM_Surveyor_App/sites.json", help="읽을 sites.json")
     ap.add_argument("--csv", help="판정표를 쓸 CSV(UTF-8 BOM)")
     ap.add_argument("--write", help="하천차수를 채워 쓸 sites.json(보통 --sites 와 같은 파일)")
-    ap.add_argument("--version", help="--write 때 Version(예: sites-20261020)")
+    ap.add_argument("--version", help="--write 때 Version(예: sites-20261026)")
+    ap.add_argument("--manual", help="사용자 확정값 CSV(지점 · 하천차수 · 근거) — DB 후보보다 먼저 쓴다")
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
 
     with io.open(args.sites, encoding="utf-8-sig") as f:
         data = json.load(f)
     table = candidates(args.db, data["Sites"])
+
+    # 사용자 확정값 — DB 후보보다 먼저(빈 하천차수에만 · 이미 있는 다른 값은 바꾸지 않고 알림)
+    manual = read_manual(args.manual) if args.manual else {}
+    bang = {s["SiteName"]: s for s in data["Sites"] if s.get("Project") == "방류하천"}
+    unknown = [n for n in manual if n not in bang]
+    if unknown:
+        raise SystemExit("사용자 확정값 CSV 의 지점이 sites.json 방류하천에 없습니다: " + " · ".join(unknown))
+    for name, (value, basis) in manual.items():
+        current = bang[name].get("Chasu")
+        if current not in (None, "", 0):
+            note = "이미 같은 값" if int(current) == value else f"충돌 — sites.json {current} · 확정값 {value}(바꾸지 않음)"
+            print(f"  사용자 확정값 {name} {value}: {note}")
+            continue
+        t = next(t for t in table if t["지점"] == name)
+        t["판정"], t["채울값"] = "채움(사용자 확정)", value
+        t["비고"] = " / ".join(x for x in [basis, t["비고"]] if x)
     for t in table:
         print(f"{t['하천']:<5} {t['지점']:<8} 후보 {t['후보값']:<12} 기록 {t['기록수']:>3} 연도 {t['연도']:<10} → {t['판정']}"
               + (f" {t['채울값']}" if t['채울값'] is not None else "") + (f"  ({t['비고']})" if t['비고'] else ""))
@@ -137,7 +177,7 @@ def main() -> int:
             w.writerows(table)
 
     if args.write:
-        fill = {t["지점"]: t["채울값"] for t in table if t["채울값"] is not None}
+        fill = {t["지점"]: t["채울값"] for t in table if t["채울값"] is not None}   # DB 후보 + 사용자 확정값
         n = 0
         for s in data["Sites"]:
             if s.get("Project") == "방류하천" and s.get("Chasu") in (None, "", 0) and s["SiteName"] in fill:
