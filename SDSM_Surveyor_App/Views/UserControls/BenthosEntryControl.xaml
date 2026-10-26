@@ -189,6 +189,9 @@
                         <StackPanel Orientation="Horizontal" Margin="0 4 0 8">
                             <Border Style="{StaticResource GroupHeaderBarStyle}"/>
                             <TextBlock Text="서식처 (수리·환경) · 특이사항" Style="{StaticResource GroupHeaderTextStyle}"/>
+                            <!-- v0.5.1 : 소수 6칸에 숫자가 아닌 값(예전 세션)이 있으면 알린다 — [일괄입력용]도 막힌다 -->
+                            <TextBlock Text="{Binding NumberWarning}" Margin="12 0 0 0"
+                                       Style="{StaticResource InlineWarnTextStyle}"/>
                         </StackPanel>
                         <WrapPanel>
                             <!-- 양식 33행은 '하천유형(서식처)' 다(1 산간형, 2 평지형, 3 강, 4 인공구조물). 종전 화면 이름 '하천형태' 는 어류 항목 이름이었다.
@@ -202,31 +205,37 @@
                             <StackPanel Style="{StaticResource FormFieldXsStyle}">
                                 <TextBlock Text="하폭(m)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True"
                                                              Text="{Binding RiverWidth, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource FormFieldXsStyle}">
                                 <TextBlock Text="수폭(m)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True"
                                                              Text="{Binding WaterWidth, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource FormFieldXsStyle}">
                                 <TextBlock Text="평균수심(cm)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True"
                                                              Text="{Binding AverageDepth, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource FormFieldSmStyle}">
                                 <TextBlock Text="평균유속(cm/s)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True"
                                                              Text="{Binding AverageVelocity, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource FormFieldXsStyle}">
                                 <TextBlock Text="기온(℃)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True" core:DecimalInput.AllowNegative="True"
                                                              Text="{Binding AirTemperature, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource FormFieldXsStyle}">
                                 <TextBlock Text="수온(℃)" Style="{StaticResource FormLabelStyle}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True"
                                                              Text="{Binding WaterTemperature, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource FormFieldMdStyle}">
@@ -449,7 +458,7 @@
         <!--═══ ③ 빠른추가 ═══════════════════════════════════════════════-->
         <ctrl:QuickAddBar Grid.Row="2" Margin="0 8 0 0"
                           SearchWatermark="초성으로 종명 검색 (예: ㄲㅍㄹ)"
-                          CountWatermark="개체수"
+                          CountWatermark="개체수" DecimalCount="True"
                           Hint="Enter 추가 후 검색창 복귀 · Ctrl+V 엑셀 다중 행 · F2 편집"/>
 
         <!--═══ ④ 종 그리드 + 합계 행 ═══════════════════════════════════

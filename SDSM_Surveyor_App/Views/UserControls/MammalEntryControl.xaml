@@ -64,7 +64,7 @@
         <!-- ① 빠른 추가 : 개체수는 '관찰'(Trace2) 흔적으로 들어간다 -->
         <ctrl:QuickAddBar Grid.Row="1" Margin="0 8 0 8"
                           SearchWatermark="종명 초성 검색 (예: ㄱㄹㄴ)"
-                          CountWatermark="관찰 개체수"
+                          CountWatermark="관찰 개체수" IntegerCount="True"
                           Hint="개체수는 '관찰' 흔적에 들어갑니다 · 나머지 흔적은 아랫줄에서 입력 · 엑셀 Ctrl+V 가능"/>
 
         <!-- ② 관찰 그리드 : 설정·Ctrl+V·보호종 강조는 ObservationGrid 가 소유한다 -->

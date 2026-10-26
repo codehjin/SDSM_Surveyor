@@ -33,7 +33,7 @@ InjectableServices/    DI 마커 인터페이스
 Helpers/               SpeciesNameRank(후보 순서 같음→앞부분→포함 · D1) · GridSpeciesCommit · GridRowPicker 등 (초성 검색은 SDSM_Core.Helpers.ChosungHelper)
                        · SpeciesNameMap(옛 학명 → 지침 표기 · 관리자와 같은 표) · SpeciesLookup(국명 + 학명으로 종 찾기) · AppInfo(프로그램 정보 한 곳 · v0.5.0)
 Behaviors/             ChosungFilteringBehavior · ExactNameHighlightBehavior(그리드 국명 칸 Enter = 똑같은 이름만 · D1)
-                       · IntegerInput · NestedWheelScroll(바깥 스크롤 휠 넘김)
+                       · IntegerInput · DecimalInput(소수 칸 · v0.5.1) · NestedWheelScroll(바깥 스크롤 휠 넘김)
                        · DropDownWheelGuard(목록 열린 채 휠 = 목록만 · 밖이면 닫기 · 닫힌 콤보 휠로 값 안 바뀜 · 앱 전체)
 Models/                *Entry / *SpeciesEntry (화면 행 모델) · FormChoices(양식 선택지 출처 · C-4 · D5~D7)
                        · SiteKeys(세션 키·파일명의 지점 자리 · 조사연도 · D4)
@@ -150,6 +150,15 @@ Views/UserControls/    분류군별 EntryControl · FillPanel(화면 전체 스�
     다르면 `SurveyMeta.RiverMasterHint`('지점 목록: …'). 세션 키·파일명은 지점명이라 영향 없음.
   · **정수 칸(N2)** — `IntegerInput`: 숫자가 아닌 글자는 받지 않고 칸에 들어왔을 때 값으로 되돌림 + '정수만 넣습니다' 2.5초(그동안 이어 치는 숫자도 막음 · 지우기·이동 키로 풀림).
     그리드 붙여넣기는 `SpeciesEntryViewModelBase.PasteInt` — 정수가 아닌 칸은 비우고 'n칸은 정수가 아니라 넣지 않았습니다(행·열)'.
+  · **소수 칸(v0.5.1 · 5차 연계 시험 새 문제 1)** — `Behaviors\DecimalInput`(IntegerInput 의 소수판): 숫자 · 소수점 하나만, `AllowNegative` 칸(저서 기온)만 맨 앞 '-'.
+    다른 글자 · 두 번째 소수점 · 그런 붙여넣기는 N2 와 같이 받지 않고 되돌림 + '숫자만 넣습니다' 2.5초(몰래 빼고 넣지 않는다 · 한글 입력기 끔).
+    붙인 칸: 저서 환경 6칸(하폭 · 수폭 · 평균수심 · 평균유속 · 기온 · 수온) · 수질 측정 23칸(등급 9 + 추가 14) · 저서 빠른추가 개체수(`QuickAddBar.DecimalCount`).
+    예전 세션에 남은 글자는 지우지 않는다 — `ViewModels\Base\DecimalNumber`(일괄입력용이 숫자로 쓰는가 = `BulkTemplate.Put` 규칙)로 칸 경고(`NumberWarning`)
+    · [일괄입력용] 막힘(`BulkBlockReason` '저서 수온 「18.3Z」 — 숫자가 아닙니다' · 저서 · 수질 · 일괄 내보내기 `BatchExporter` 도 같음). 보고서 엑셀은 막지 않는다.
+    저서 그리드 붙여넣기 개체수는 `PasteDouble`(읽는 규칙은 종전 그대로 · 숫자가 아니면 'n칸은 숫자가 아니라 넣지 않았습니다'). 좌표 칸(도분초 허용)은 종전 규칙.
+    빠른추가 개체수 칸(§24-3): 저서 `QuickAddBar.DecimalCount` · 어류 · 조류 · 포유류 · 양서파충류 `IntegerCount`(IntegerInput) — 안내가 떠 있는 동안 Enter 는 행을 넣지 않는다(`IsShowingNotice`).
+    수질 검출한계 미만(§24-4): 측정 칸은 비우고(그 항목 등급 빈칸) 수질 탭 **비고(특이사항)**(`WaterQualityEntryViewModel.Note` · 세션 `WaterQualityDraft.Note` 추가만)에 'ND' · '<값'.
+    측정 칸 안내 `DecimalInput.Notice = WaterNdText` · 경고 · [일괄입력용] 막힘 끝 줄 `NdGuide`. 비고는 보고서 조사개황 시트 [ 특이사항 ](적었을 때만 줄을 더함 — 기준 엑셀 그대로)에만 · 일괄입력 양식 · 관리자 수질에는 칸이 없다.
   · **클립보드·전역 예외(N1)** — 클립보드 읽기는 `Helpers\ClipboardText.TryRead` 한 곳(5회 × 50ms 다시 시도 → 안내). `Data\CrashGuard`(App.OnStartup 에서 설치):
     UI·백그라운드·Task 예외 → 자료함 `logs\error_yyMMdd.log` + 화면 입력이 있으면 `_recovery\` 에 세션 형식으로(정식 파일 안 덮음) + 위치 안내 · UI 예외로 앱을 닫지 않는다.
     다음 실행 때 창이 '복구본이 있습니다 — [불러오기]/[나중에]'(불러오기 = 화면에만 · 저장은 조사자). 경로는 `ISessionStore` 를 거친다(하네스는 가짜 자료함).

@@ -50,6 +50,9 @@ public static class IntegerInput
     /// <summary>마지막 안내 글자(시험이 읽는다).</summary>
     public static string? LastNotice { get; private set; }
 
+    /// <summary>이 칸에 '받지 않음' 안내가 떠 있는가 — 빠른추가 개체수 칸은 이동안 Enter 로 행을 넣지 않는다(v0.5.1 §24-3).</summary>
+    public static bool IsShowingNotice(TextBox box) => States.TryGetValue(box, out var s) && s.Popup?.IsOpen == true;
+
     /// <summary>칸마다의 상태 — 칸에 들어왔을 때의 값 · 막힘 · 떠 있는 안내.</summary>
     private sealed class State
     {

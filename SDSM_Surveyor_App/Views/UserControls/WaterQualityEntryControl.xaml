@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:core="clr-namespace:SDSM_Surveyor_App.Behaviors"
              xmlns:ctrl="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
              xmlns:vm="clr-namespace:SDSM_Surveyor_App.ViewModels"
              mc:Ignorable="d" d:DesignWidth="1224" d:DesignHeight="620"
@@ -82,6 +83,9 @@
                                    FontSize="{StaticResource SummaryFontSize}"
                                    Foreground="{StaticResource DangerOnSurfaceBrush}"/>
                     </StackPanel>
+                    <!-- v0.5.1 : 숫자가 아닌 측정값은 접힌 줄에서도 알린다 -->
+                    <TextBlock Text="{Binding NumberWarning}" Margin="12 0 0 0"
+                               Style="{StaticResource InlineWarnTextStyle}"/>
                 </StackPanel>
             </ctrl:CollapsibleSummary.SummarySlot>
 
@@ -194,63 +198,86 @@
                         </StackPanel>
                         <TextBlock Text="입력 즉시 등급이 자동 산정됩니다 (등급은 조사자가 입력하지 않습니다)"
                                    Margin="12 0 0 12" Style="{StaticResource CaptionTextStyle}"/>
+                        <!-- v0.5.1 : 측정 칸(추가 항목 포함)에 숫자가 아닌 값(예전 세션)이 있으면 알린다 — [일괄입력용]도 막힌다 -->
+                        <TextBlock Text="{Binding NumberWarning}" Margin="12 -6 0 12" TextWrapping="Wrap"
+                                   Style="{StaticResource InlineWarnTextStyle}"
+                                   Visibility="{Binding HasNumberWarning, Converter={StaticResource BoolToVisibility}}"/>
 
                         <UniformGrid Columns="5">
                             <StackPanel Style="{StaticResource WqTile}">
                                 <TextBlock Text="pH" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                              Text="{Binding PH, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding PhGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
                                 <TextBlock Text="BOD (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                              Text="{Binding Bod, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding BodGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
                                 <TextBlock Text="COD (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                              Text="{Binding Cod, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding CodGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
                                 <TextBlock Text="TOC (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                              Text="{Binding Toc, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding TocGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
                                 <TextBlock Text="SS (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                              Text="{Binding Ss, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding SsGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
                                 <TextBlock Text="DO (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                              Text="{Binding Dox, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding DoGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
                                 <TextBlock Text="T-P (mg/L)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                              Text="{Binding Tp, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding TpGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
                                 <TextBlock Text="대장균군 (군수/100mL)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                              Text="{Binding EColi, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Style="{StaticResource WqGrade}" Text="{Binding EColiGradeText, StringFormat=등급  {0}}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource WqTile}">
                                 <TextBlock Text="생태독성 (TU)" Style="{StaticResource WqLabel}"/>
                                 <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                             core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                              Text="{Binding Ecotoxicity, UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Text="등급 없음" Margin="0 4 0 0" Style="{StaticResource CaptionTextStyle}"/>
                             </StackPanel>
                         </UniformGrid>
+
+                        <!-- §24-4 : 비고(특이사항) — 검출한계 미만(ND · <값)은 측정 칸을 비우고 여기 적는다(그 항목 등급은 빈칸).
+                             세션 · 보고서 엑셀(조사개황 시트)에만 남는다 — 일괄입력 양식 · 관리자 수질에는 칸이 없다. -->
+                        <StackPanel Margin="0 12 0 0">
+                            <TextBlock Text="비고(특이사항)" Style="{StaticResource FormLabelStyle}"/>
+                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                         WatermarkContent="검출한계 미만 · 기타 (예: BOD ND · T-P &lt;0.005)"
+                                                         AutomationProperties.Name="수질 비고(특이사항)"
+                                                         Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
@@ -277,46 +304,55 @@
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="T-N (mg/L)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding TN, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="전기전도도 (µS/cm)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding EC, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="염소이온 (mg/L)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding Cl, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="황이온 (mg/L)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding SO42, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="구리 Cu (mg/L)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding Cu, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="아연 Zn (mg/L)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding Zn, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="크롬 Cr (mg/L)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding Cr, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="탁도 (NTU)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding Turbidity, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="클로로필a (mg/m³)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding Chla, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                             </UniformGrid>
@@ -327,26 +363,31 @@
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="수온 (℃)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding WaterTemperature, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="수심 (cm)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding WaterDepth, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="유속 (cm/s)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding FlowVelocity, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="초당유량 (m³/sec)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding FlowSec, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                                 <StackPanel Style="{StaticResource WqTile}">
                                     <TextBlock Text="일당유량 (m³/day)" Style="{StaticResource WqLabel}"/>
                                     <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Height="{StaticResource InputHeight}"
+                                                                core:DecimalInput.IsEnabled="True" core:DecimalInput.Notice="{x:Static core:DecimalInput.WaterNdText}"
                                                                 Text="{Binding FlowDay, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                             </UniformGrid>

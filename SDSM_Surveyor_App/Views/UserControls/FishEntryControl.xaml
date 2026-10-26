@@ -469,7 +469,7 @@
         <!--═══ ③ 빠른추가 (56px) ═══════════════════════════════════════════-->
         <ctrl:QuickAddBar Grid.Row="2" Margin="0 8 0 0"
                           SearchWatermark="초성으로 종명 검색 (예: ㅊㄱㄱㄴ)"
-                          CountWatermark="개체수"
+                          CountWatermark="개체수" IntegerCount="True"
                           Hint="Enter 추가 후 검색창 복귀 · Ctrl+V 엑셀 다중 행 · F2 편집"/>
 
         <!--═══ ④ 종 그리드 + 합계 행 ═══════════════════════════════════════

@@ -49,6 +49,32 @@ public partial class QuickAddBar : UserControl
         set => SetValue(CountWatermarkProperty, value);
     }
 
+    /// <summary>
+    /// 수량 칸이 소수 개체수(저서)인가 — 켜면 숫자 · 소수점 하나만 받는다(<see cref="Behaviors.DecimalInput"/> · v0.5.1).
+    /// 종전에는 '3a' 를 치면 개체수 없이 행만 들어갔다(말없이 빈칸).
+    /// </summary>
+    public static readonly DependencyProperty DecimalCountProperty = DependencyProperty.Register(
+        nameof(DecimalCount), typeof(bool), typeof(QuickAddBar), new PropertyMetadata(false));
+
+    public bool DecimalCount
+    {
+        get => (bool)GetValue(DecimalCountProperty);
+        set => SetValue(DecimalCountProperty, value);
+    }
+
+    /// <summary>
+    /// 수량 칸이 정수 개체수(어류 · 조류 · 포유류 · 양서파충류)인가 — 켜면 다른 개체수 칸과 같은 <see cref="Behaviors.IntegerInput"/>(§24-3).
+    /// 종전에는 '3a' · '1.5' 를 치면 개체수 없이 행만 들어갔다(말없이 빈칸).
+    /// </summary>
+    public static readonly DependencyProperty IntegerCountProperty = DependencyProperty.Register(
+        nameof(IntegerCount), typeof(bool), typeof(QuickAddBar), new PropertyMetadata(false));
+
+    public bool IntegerCount
+    {
+        get => (bool)GetValue(IntegerCountProperty);
+        set => SetValue(IntegerCountProperty, value);
+    }
+
     /// <summary>바 오른쪽 안내 문구.</summary>
     public static readonly DependencyProperty HintProperty = DependencyProperty.Register(
         nameof(Hint), typeof(string), typeof(QuickAddBar), new PropertyMetadata("종 선택 후 수량 입력 → Enter"));
@@ -135,6 +161,13 @@ public partial class QuickAddBar : UserControl
     private void CountBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key != Key.Enter) return;
+
+        // 방금 받지 않은 글자('3a' · '1.5')가 있어 안내가 떠 있으면 행을 넣지 않는다 — 개체수 빈 행이 몰래 생기지 않게(§24-3)
+        if (Behaviors.IntegerInput.IsShowingNotice(CountBox) || Behaviors.DecimalInput.IsShowingNotice(CountBox))
+        {
+            e.Handled = true;
+            return;
+        }
 
         var cmd = _host?.AddQuickCommand;
         if (cmd?.CanExecute(null) == true) cmd.Execute(null);

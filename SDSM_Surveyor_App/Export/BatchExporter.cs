@@ -33,7 +33,7 @@ internal static class BatchExporter
         public List<string> Failed { get; } = new();
         /// <summary>exporter 가 돌려준 안내(양식 외 종 덧붙임 등) — `파일: 안내`.</summary>
         public List<string> Notes { get; } = new();
-        /// <summary>관리자 일괄등록이 막을 값이라 만들지 않은 파일 — `파일: 까닭`(어류 하천차수 빈칸 · 비정상종 정수 아님 · 문제 7·8).</summary>
+        /// <summary>관리자 일괄등록이 막을 값이라 만들지 않은 파일 — `파일: 까닭`(어류 하천차수 빈칸 · 비정상종 정수 아님 · 문제 7·8 · 저서 · 수질 소수 칸의 글자 · v0.5.1).</summary>
         public List<string> Blocked { get; } = new();
         /// <summary>내보내지 않은 종(개체수 0·빈칸) — `파일: 종…`(문제 5).</summary>
         public List<string> Skipped { get; } = new();
@@ -74,7 +74,7 @@ internal static class BatchExporter
 
     /// <summary>
     /// 계획대로 쓴다. 세션 하나를 불러와 그 세션 파일을 다 쓰고 다음 세션으로 간다. 실패는 그 파일만 건너뛴다.
-    /// 쓰기 전에 세션을 한 번 훑어 — 어류 일괄입력용을 막는 값(하천차수 빈칸 등)은 그 파일만 만들지 않고,
+    /// 쓰기 전에 세션을 한 번 훑어 — 일괄입력용을 막는 값(어류 하천차수 빈칸 등 · 저서 · 수질 소수 칸의 글자)은 그 파일만 만들지 않고,
     /// 개체수 0·빈칸 종은 요약해 <paramref name="confirmSkipped"/> 로 <b>한 번만</b> 묻는다(문제 5 · [취소]면 아무것도 쓰지 않음).
     /// </summary>
     public static async Task<Result> WriteBulkAsync(ISessionService sessions, IReadOnlyList<Planned> plan, string folder,
@@ -91,7 +91,15 @@ internal static class BatchExporter
             foreach (var p in group)
             {
                 if (!HasData(sp, p.TaxonKey)) continue;
-                if (p.TaxonKey == "Fish" && sp.GetRequiredService<FishEntryViewModel>().BulkBlockReason is { Length: > 0 } why)
+                // 관리자 일괄등록이 막을 값이면 그 파일만 만들지 않는다 — 어류(하천차수 · 비정상종) · 저서 · 수질(숫자가 아닌 소수 칸 · v0.5.1)
+                var block = p.TaxonKey switch
+                {
+                    "Fish" => sp.GetRequiredService<FishEntryViewModel>().BulkBlockReason,
+                    "Benthos" => sp.GetRequiredService<BenthosEntryViewModel>().BulkBlockReason,
+                    "WaterQuality" => sp.GetRequiredService<WaterQualityEntryViewModel>().BulkBlockReason,
+                    _ => string.Empty,
+                };
+                if (block is { Length: > 0 } why)
                 {
                     blocked.Add(p.RelativePath);
                     result.Blocked.Add($"{p.RelativePath}: {why.Replace("\n", " · ")}");

@@ -28,6 +28,7 @@ public partial class WaterQualityEntryViewModel : ITaxonSession
         Turbidity = Turbidity, Chla = Chla,
         WaterTemperature = WaterTemperature, WaterDepth = WaterDepth,
         FlowVelocity = FlowVelocity, FlowSec = FlowSec, FlowDay = FlowDay,
+        Note = Note,
         IsGradeExpanded = IsGradeExpanded, IsExtraExpanded = IsExtraExpanded
     };
 
@@ -42,6 +43,7 @@ public partial class WaterQualityEntryViewModel : ITaxonSession
         Turbidity = d.Turbidity; Chla = d.Chla;
         WaterTemperature = d.WaterTemperature; WaterDepth = d.WaterDepth;
         FlowVelocity = d.FlowVelocity; FlowSec = d.FlowSec; FlowDay = d.FlowDay;
+        Note = d.Note;   // §24-4 칸 — 예전 세션은 없음(null)
         IsGradeExpanded = d.IsGradeExpanded; IsExtraExpanded = d.IsExtraExpanded;
     }
 
@@ -50,6 +52,7 @@ public partial class WaterQualityEntryViewModel : ITaxonSession
         PH = Bod = Cod = Toc = Ss = Dox = Tp = EColi = Ecotoxicity = null;
         TN = EC = Cl = SO42 = Cu = Zn = Cr = Turbidity = Chla = null;
         WaterTemperature = WaterDepth = FlowVelocity = FlowSec = FlowDay = null;
+        Note = null;
     }
 }
 
@@ -78,6 +81,8 @@ public sealed class WaterQualityDraft
     public string? WaterDepth { get; init; }
     public string? FlowVelocity { get; init; }
     public string? FlowSec { get; init; }
+    /// <summary>비고(특이사항) — 검출한계 미만 'ND' · '&lt;값' 등(§24-4 · 2026-10-27 추가만 · 예전 세션은 없음).</summary>
+    public string? Note { get; init; }
     public string? FlowDay { get; init; }
 
     // 접힘 상태 — 다음 실행에도 유지된다(README §상태). 자료가 아니므로 HasData 에는 넣지 않는다.

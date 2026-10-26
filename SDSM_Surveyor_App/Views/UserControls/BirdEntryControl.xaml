@@ -62,7 +62,7 @@
 
         <ctrl:QuickAddBar Grid.Row="1" Margin="0 8 0 8"
                           SearchWatermark="종명 초성 검색 (예: ㅊㄷㅇㄹ)"
-                          CountWatermark="개체수"
+                          CountWatermark="개체수" IntegerCount="True"
                           Hint="종 선택 후 개체수 입력 → Enter · 엑셀에서 [국명, 개체수]를 복사해 그리드에 Ctrl+V"/>
 
         <!-- 채움 칸 : 관찰 그리드 + 빈 상태 안내(겹쳐 놓는다) -->

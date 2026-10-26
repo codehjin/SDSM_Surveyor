@@ -81,8 +81,46 @@ public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISing
     partial void OnEColiChanged(string? value) => RaiseGrades();
     partial void OnEcotoxicityChanged(string? value) => RaiseGrades();   // 등급은 없지만 내보내기 활성 여부에 영향
 
+    // ── 숫자가 아닌 측정값(v0.5.1) ─────────────────────────────────────────
+    // 관리자 WaterQuality 의 측정 칸은 모두 double? — 글자('<0.5' · 'ND' · '18.3Z' 등)가 들어가면 일괄등록이 그 기록을 '형변환실패'로 막는다.
+    // 새로 치는 값은 DecimalInput 이 막고, 예전 세션 값은 지우지 않고 경고 · [일괄입력용] 막힘으로 알린다(보고서는 그대로 낸다).
+
+    private (string Label, string? Value)[] NumberFields => new[]
+    {
+        ("pH", PH), ("BOD", Bod), ("COD", Cod), ("TOC", Toc), ("SS", Ss), ("DO", Dox), ("T-P", Tp), ("대장균군", EColi), ("생태독성", Ecotoxicity),
+        ("T-N", TN), ("전기전도도", EC), ("염소이온", Cl), ("황이온", SO42), ("구리", Cu), ("아연", Zn), ("크롬", Cr), ("탁도", Turbidity), ("클로로필a", Chla),
+        ("수온", WaterTemperature), ("수심", WaterDepth), ("유속", FlowVelocity), ("초당유량", FlowSec), ("일당유량", FlowDay),
+    };
+
+    /// <summary>숫자가 아닌 측정 칸 — `수질 BOD 「&lt;0.5」` 꼴.</summary>
+    public IReadOnlyList<string> NumberInvalid => DecimalNumber.Invalid("수질", NumberFields);
+
+    /// <summary>검출한계 미만을 적는 방법(§24-4) — 측정 칸은 비우고(그 항목 등급도 빈칸) 비고(특이사항)에 'ND' 또는 '&lt;값'.</summary>
+    public const string NdGuide = "검출한계 미만은 칸을 비우고 비고(특이사항)에 ND 또는 <값을 적으세요";
+
+    /// <summary>측정값 경고 줄(측정 항목 머리 · 접힌 요약줄) — 검출한계 미만 적는 방법을 함께.</summary>
+    public string NumberWarning => NumberInvalid.Count == 0 ? string.Empty : $"{DecimalNumber.Warning(NumberInvalid)} · {NdGuide}";
+
+    public bool HasNumberWarning => NumberInvalid.Count > 0;
+
+    /// <summary>일괄입력용을 만들 수 없는 까닭(없으면 빈 문자열 · 어류 · 저서와 같은 방식) — 끝 줄에 검출한계 미만 적는 방법(§24-4).</summary>
+    public string BulkBlockReason => NumberInvalid.Count == 0 ? string.Empty : $"{DecimalNumber.BlockReason(NumberInvalid)}\n{NdGuide}";
+
+    // ── 비고(특이사항) — 검출한계 미만 등(§24-4 · 2026-10-27) ──
+    // 일괄입력 양식 · 관리자 WaterQuality 에는 칸이 없다 → 세션 · 보고서 엑셀(조사개황 시트 [ 특이사항 ])에만 남는다.
+    [ObservableProperty] private string? _note;
+
+    private void RaiseNumberWarning()
+    {
+        OnPropertyChanged(nameof(NumberInvalid));
+        OnPropertyChanged(nameof(NumberWarning));
+        OnPropertyChanged(nameof(HasNumberWarning));
+        OnPropertyChanged(nameof(BulkBlockReason));
+    }
+
     private void RaiseGrades()
     {
+        RaiseNumberWarning();
         OnPropertyChanged(nameof(PhGradeText));
         OnPropertyChanged(nameof(BodGradeText));
         OnPropertyChanged(nameof(CodGradeText));
@@ -161,6 +199,7 @@ public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISing
 
     private void RaiseExtras()
     {
+        RaiseNumberWarning();
         OnPropertyChanged(nameof(ExtraFilledCount));
         OnPropertyChanged(nameof(ExtraSummaryText));
         OnPropertyChanged(nameof(FieldMeasureSummary));
@@ -189,6 +228,13 @@ public partial class WaterQualityEntryViewModel : TaxonEntryViewModelBase, ISing
     [RelayCommand(CanExecute = nameof(CanExport))]
     private void ExportBulk()
     {
+        // 관리자 일괄등록이 막을 값(측정 칸에 숫자가 아닌 글자)이면 만들지 않고 칸 · 값을 알린다(v0.5.1)
+        if (BulkBlockReason is { Length: > 0 } block)
+        {
+            StatusText = "일괄입력용을 만들지 않았습니다 — " + block.Replace("\n", " · ");
+            WeakReferenceMessenger.Default.Send(new NotifyMessage(($"일괄입력용을 만들지 않았습니다.\n{block}", false)));
+            return;
+        }
         try
         {
             var saved = Export.WaterQualityExcelExporter.Export(this);

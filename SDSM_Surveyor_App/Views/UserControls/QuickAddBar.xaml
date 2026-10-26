@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:core="clr-namespace:SDSM_Surveyor_App.Behaviors"
              mc:Ignorable="d" d:DesignWidth="1224"
              x:Name="Root">
 
@@ -69,6 +70,8 @@
                                              Width="{StaticResource FieldXs}" Height="{StaticResource InputHeight}"
                                              Margin="8 0 0 0"
                                              WatermarkContent="{Binding CountWatermark, ElementName=Root}"
+                                             core:DecimalInput.IsEnabled="{Binding DecimalCount, ElementName=Root}"
+                                             core:IntegerInput.IsEnabled="{Binding IntegerCount, ElementName=Root}"
                                              Text="{Binding QuickCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              PreviewKeyDown="CountBox_PreviewKeyDown"
                                              AutomationProperties.Name="개체수"/>

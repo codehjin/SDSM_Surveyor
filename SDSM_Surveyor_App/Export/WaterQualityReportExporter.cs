@@ -74,6 +74,13 @@ public static class WaterQualityReportExporter
         var s = ReportExporterBase.BeginOverview(wb, "수질 조사결과 — 조사개황");
         s.Head("[ 조사개황 ]");
         s.WriteSurveyMeta(m, vm.EffectiveSurveyDate, m.RiverTypeWater);   // 하천유형 = 수질·서식수변 칸(E1)
+        // §24-4 비고(검출한계 미만 ND · <값 등) — 적었을 때만 줄을 더한다(비고가 없는 보고서는 종전과 같은 칸 · 기준 엑셀 그대로)
+        if (!string.IsNullOrWhiteSpace(vm.Note))
+        {
+            s.Blank();
+            s.Head("[ 특이사항 ]");
+            s.Kv("비고", vm.Note);
+        }
 
         s.Finish();
     }

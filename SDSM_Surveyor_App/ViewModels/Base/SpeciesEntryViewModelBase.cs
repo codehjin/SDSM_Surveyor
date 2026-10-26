@@ -477,7 +477,7 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
         {
             // N2 : 정수 칸에 정수가 아닌 값('1.5'·'약간' 등)이 온 칸은 넣지 않았다(행은 넣음) — 행·열을 알린다
             var list = string.Join(" · ", _pasteRejects.Take(6)) + (_pasteRejects.Count > 6 ? $" 외 {_pasteRejects.Count - 6}칸" : string.Empty);
-            var reject = $"{_pasteRejects.Count}칸은 정수가 아니라 넣지 않았습니다({list})";
+            var reject = $"{_pasteRejects.Count}칸은 {_pasteRejectNoun}가 아니라 넣지 않았습니다({list})";
             label += " · " + reject;
             WeakReferenceMessenger.Default.Send(new Messengers.NotifyMessage(($"{NoticeTaxon} 붙여넣기 — {reject}".Trim(), false)));
         }
@@ -565,5 +565,22 @@ public abstract partial class SpeciesEntryViewModelBase<TEntry, TSpecies> : Taxo
         _pasteRejects.Add($"{_pasteLine}행 {i + 1}열 '{v}'");
         return null;
     }
+
+    /// <summary>
+    /// 붙여넣은 줄의 <paramref name="i"/> 번째 칸을 소수 개체수(저서)로. 비면 null, 숫자가 아니면(또는 음수면) null + 안내 목록에 넣는다(v0.5.1).
+    /// 숫자로 읽는 규칙은 종전과 같다(double.TryParse) — 종전에는 숫자가 아니면 말없이 빈칸이었다.
+    /// </summary>
+    protected double? PasteDouble(string[] cells, int i)
+    {
+        _pasteRejectNoun = "숫자";
+        var v = Cell(cells, i);
+        if (v is null) return null;
+        if (double.TryParse(v, out var d) && double.IsFinite(d) && d >= 0) return d;
+        _pasteRejects.Add($"{_pasteLine}행 {i + 1}열 '{v}'");
+        return null;
+    }
+
+    /// <summary>안내 글의 '…가 아니라' — 정수 칸은 '정수', 소수 칸(저서 개체수)은 '숫자'.</summary>
+    private string _pasteRejectNoun = "정수";
     protected static double? Pd(string? s) => double.TryParse(s, out var d) ? d : null;
 }

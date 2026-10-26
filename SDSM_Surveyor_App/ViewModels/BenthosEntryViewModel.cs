@@ -92,8 +92,8 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         if (match is not null) entry.SelectedSpecies = match;   // 학명·길드 자동 연결
         else entry.SpeciesKo = ko;
 
-        if (cells.Length > 1 && double.TryParse(cells[1].Trim(), out var n))
-            entry.IndividualCount = n;
+        // v0.5.1 : 숫자가 아닌 개체수('3a' 등)는 넣지 않고 행 · 열을 끝에 알린다(종전에는 말없이 빈칸)
+        entry.IndividualCount = PasteDouble(cells, 1);
 
         return entry;
     }
@@ -280,9 +280,28 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         }
     }
 
-    /// <summary>접힌 요약줄에 띄우는 조사환경 경고(채집기 + 하상구성 + 선택지 밖 값).</summary>
+    /// <summary>수리 · 환경 소수 6칸 — 관리자 Benthos 의 double? 칸(v0.5.1). 새로 치는 값은 DecimalInput 이 막는다.</summary>
+    private (string Label, string? Value)[] NumberFields => new[]
+    {
+        ("하폭", RiverWidth), ("수폭", WaterWidth), ("평균수심", AverageDepth),
+        ("평균유속", AverageVelocity), ("기온", AirTemperature), ("수온", WaterTemperature),
+    };
+
+    /// <summary>숫자가 아닌 소수 칸(예전 세션의 '18.3Z' 등) — 지우지 않고 알린다. `저서 수온 「18.3Z」` 꼴.</summary>
+    public IReadOnlyList<string> NumberInvalid => DecimalNumber.Invalid("저서", NumberFields);
+
+    /// <summary>소수 칸 경고 줄(서식처② 머리 · 접힌 요약줄).</summary>
+    public string NumberWarning => DecimalNumber.Warning(NumberInvalid);
+
+    /// <summary>
+    /// 일괄입력용을 만들 수 없는 까닭(없으면 빈 문자열) — 관리자 일괄등록이 '형변환실패'로 막는 값을 미리 막는다(어류와 같은 방식 · v0.5.1).
+    /// 보고서 엑셀은 막지 않는다.
+    /// </summary>
+    public string BulkBlockReason => DecimalNumber.BlockReason(NumberInvalid);
+
+    /// <summary>접힌 요약줄에 띄우는 조사환경 경고(채집기 + 하상구성 + 선택지 밖 값 + 숫자가 아닌 소수 칸).</summary>
     public string EnvironmentWarning =>
-        string.Join(" · ", new[] { GearWarning, SubstrateWarning, ChoiceWarning }.Where(s => s.Length > 0));
+        string.Join(" · ", new[] { GearWarning, SubstrateWarning, ChoiceWarning, NumberWarning }.Where(s => s.Length > 0));
 
     private void RaiseEnvironmentSummary()
     {
@@ -292,8 +311,19 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         OnPropertyChanged(nameof(SubstrateWarning));
         OnPropertyChanged(nameof(GearWarning));
         OnPropertyChanged(nameof(ChoiceWarning));
+        OnPropertyChanged(nameof(NumberInvalid));
+        OnPropertyChanged(nameof(NumberWarning));
+        OnPropertyChanged(nameof(BulkBlockReason));
         OnPropertyChanged(nameof(EnvironmentWarning));
     }
+
+    // 소수 6칸 — 숫자가 아닌 값 경고 · [일괄입력용] 막힘이 따라간다(v0.5.1)
+    partial void OnRiverWidthChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnWaterWidthChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnAverageDepthChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnAverageVelocityChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnAirTemperatureChanged(string? value) => RaiseEnvironmentSummary();
+    partial void OnWaterTemperatureChanged(string? value) => RaiseEnvironmentSummary();
 
     partial void OnCanopyCoverChanged(string? value) => RaiseEnvironmentSummary();
     partial void OnFloodplainChanged(string? value) => RaiseEnvironmentSummary();
@@ -542,6 +572,13 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     [RelayCommand(CanExecute = nameof(CanExport))]
     private void ExportBulk()
     {
+        // 관리자 일괄등록이 막을 값(소수 칸에 숫자가 아닌 글자)이면 만들지 않고 칸 · 값을 알린다(v0.5.1 · 어류와 같은 방식)
+        if (BulkBlockReason is { Length: > 0 } block)
+        {
+            StatusText = "일괄입력용을 만들지 않았습니다 — " + block.Replace("\n", " · ");
+            WeakReferenceMessenger.Default.Send(new NotifyMessage(($"일괄입력용을 만들지 않았습니다.\n{block}", false)));
+            return;
+        }
         try
         {
             var saved = Export.BenthosExcelExporter.Export(this);

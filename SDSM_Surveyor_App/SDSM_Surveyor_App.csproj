@@ -8,7 +8,7 @@
     <RootNamespace>SDSM_Surveyor_App</RootNamespace>
     <AssemblyName>SDSM_Surveyor_App</AssemblyName>
     <!-- 판 — 창 제목 옆 · 프로그램 정보 창(Helpers\AppInfo). 제품 버전 뒤 +커밋 해시는 빌드 때 SDK 가 붙인다 -->
-    <Version>0.5.0</Version>
+    <Version>0.5.1</Version>
     <!-- Telerik·MahApps 의 다국어 위성 리소스 46개 폴더를 빼서 배포본을 가볍게 한다.
          조사자앱은 한국어 전용이다. -->
     <SatelliteResourceLanguages>ko;en</SatelliteResourceLanguages>
