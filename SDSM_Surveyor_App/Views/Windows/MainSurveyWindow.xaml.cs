@@ -40,7 +40,14 @@ public partial class MainSurveyWindow : Window, ISingletonService
         var sessionService = App.Current.Services.GetRequiredService<ISessionService>();
         Func<SessionSaveConflict, SessionConflictChoice> resolver = AskSaveConflict;
         sessionService.ResolveSaveConflict = resolver;
-        Closed += (_, _) => { if (sessionService.ResolveSaveConflict == resolver) sessionService.ResolveSaveConflict = null; };
+        // §32 · S4 : 불러온 세션의 이름(대분류 · 연도차수 · 지점)이 바뀐 채 저장하면 원래 세션을 어떻게 할지 묻는다
+        Func<SessionRename, SessionRenameChoice> renamer = AskRename;
+        sessionService.ResolveRename = renamer;
+        Closed += (_, _) =>
+        {
+            if (sessionService.ResolveSaveConflict == resolver) sessionService.ResolveSaveConflict = null;
+            if (sessionService.ResolveRename == renamer) sessionService.ResolveRename = null;
+        };
 
         StateChanged += (_, _) => HandleMaximized();
         Loaded += (_, _) => MigrateLegacyDrafts();
@@ -69,6 +76,26 @@ public partial class MainSurveyWindow : Window, ISingletonService
             new ChoiceDialog.Option("바꾸기", ToolTip: "이미 있는 분류군 자료가 지워집니다"),
             new ChoiceDialog.Option("합치기", IsPrimary: true, ToolTip: "이미 있는 분류군 자료를 살립니다"));
         return pick switch { 2 => SessionConflictChoice.Merge, 1 => SessionConflictChoice.Replace, _ => SessionConflictChoice.Cancel };
+    }
+
+    /// <summary>
+    /// 세션 이름이 바뀐 저장 확인(§32 · S4). 기본은 [새 세션으로 저장] — 원래 세션을 지우지 않는 쪽.
+    /// 새 이름에 다른 세션이 이미 있으면 이어서 같은 자료 확인(<see cref="AskSaveConflict"/>)이 뜬다.
+    /// </summary>
+    private SessionRenameChoice AskRename(SessionRename r)
+    {
+        var owner = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) ?? this;
+        var pick = ChoiceDialog.Ask(owner, "세션 이름이 바뀌었습니다",
+            "불러온 세션의 대분류 · 연도차수 · 지점이 바뀌어 다른 이름으로 저장됩니다.\n" +
+            $"원래 세션: {r.OldDisplay} ({(r.OldTaxa.Count == 0 ? "자료 없음" : string.Join(" · ", r.OldTaxa))} · 마지막 저장 {r.OldUpdatedAt:yyyy-MM-dd HH:mm})\n" +
+            $"새 이름: {r.NewDisplay}\n\n" +
+            "· 새 세션으로 저장 — 지금 화면을 새 이름으로 저장하고 원래 세션은 그대로 둡니다.\n" +
+            "· 원래 세션을 바꾸기 — 원래 세션을 지우고 새 이름으로 옮깁니다(되돌릴 수 없습니다).\n" +
+            "· 취소 — 저장하지 않습니다.",
+            new ChoiceDialog.Option("취소", IsCancel: true),
+            new ChoiceDialog.Option("원래 세션을 바꾸기", ToolTip: "원래 세션이 지워집니다"),
+            new ChoiceDialog.Option("새 세션으로 저장", IsPrimary: true, ToolTip: "원래 세션은 그대로 남습니다"));
+        return pick switch { 2 => SessionRenameChoice.SaveAsNew, 1 => SessionRenameChoice.Replace, _ => SessionRenameChoice.Cancel };
     }
 
     // 확인을 마치고 다시 닫는 중인가(재진입 방지).
@@ -179,7 +206,7 @@ public partial class MainSurveyWindow : Window, ISingletonService
         var to = meta.DisplayOf(next);
         var pick = ChoiceDialog.Ask(this, "지점 변경",
             $"입력한 자료가 있습니다. 지점을 「{from}」에서 「{to}」(으)로 바꿉니다.\n\n" +
-            "· 지점명만 고침 — 입력한 자료를 그대로 두고 지점 이름만 바꿉니다(다음 저장부터 새 지점 이름으로 저장됩니다).\n" +
+            "· 지점명만 고침 — 입력한 자료를 그대로 두고 지점 이름만 바꿉니다(불러온 세션이면 저장할 때 원래 세션을 둘지 묻습니다).\n" +
             "· 새 지점으로 시작 — 지금 입력을 비우고 새 지점에서 처음부터 입력합니다.",
             new ChoiceDialog.Option("취소(바꾸지 않음)", IsCancel: true),
             new ChoiceDialog.Option("새 지점으로 시작(입력 비움)"),

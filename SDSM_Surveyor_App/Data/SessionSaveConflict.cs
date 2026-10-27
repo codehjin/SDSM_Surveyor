@@ -23,3 +23,25 @@ public enum SessionConflictChoice
 public sealed record SessionSaveConflict(string SessionId, string Display,
                                          IReadOnlyList<string> ExistingTaxa, IReadOnlyList<string> CurrentTaxa,
                                          DateTime ExistingUpdatedAt, IReadOnlyList<string>? MergeNotes = null);
+
+/// <summary>
+/// 불러온 세션의 대분류 · 연도차수 · 지점(세션 이름을 정하는 칸)이 바뀐 채 저장할 때의 선택(§32 · S4 · 작업보고 v052 8-4 #2).
+/// 종전에는 묻지 않고 새 이름으로 저장한 뒤 원래 세션을 지웠다.
+/// </summary>
+public enum SessionRenameChoice
+{
+    /// <summary>지금 화면을 새 이름으로 저장하고 원래 세션은 그대로 둔다(기본).</summary>
+    SaveAsNew,
+    /// <summary>원래 세션을 지우고 새 이름으로 옮긴다.</summary>
+    Replace,
+    /// <summary>저장하지 않는다.</summary>
+    Cancel,
+}
+
+/// <param name="OldId">원래 세션 키.</param>
+/// <param name="OldDisplay">원래 세션(대분류 · 연도차수 · 지점).</param>
+/// <param name="NewDisplay">새 이름(대분류 · 연도차수 · 지점).</param>
+/// <param name="OldTaxa">원래 세션의 분류군(한글 이름).</param>
+/// <param name="OldUpdatedAt">원래 세션을 마지막으로 저장한 때.</param>
+public sealed record SessionRename(string OldId, string OldDisplay, string NewId, string NewDisplay,
+                                   IReadOnlyList<string> OldTaxa, DateTime OldUpdatedAt);

@@ -159,7 +159,7 @@ public static class BenthosReportExporter
             e.RankScorer = BenthosCalculator.GetRankScorer(counts, (int)(e.IndividualCount ?? 0));
 
         var imports = entries.Select(e => e.ToImport()).ToList();
-        var b = BenthosCalculator.CalculateBmiDetail(imports, vm.SurveyUnavailableReason, vm.NoSpeciesDeclared);
+        var b = BenthosCalculator.CalculateBmiDetail(imports, vm.SurveyUnavailableReason, vm.EffectiveNoSpecies);
 
         int row = 0;
         Title(ws.Cells[row, 0]); ws.Cells[row, 0].SetValue("저서동물지수(BMI) 건강성평가"); row += 2;
@@ -182,7 +182,7 @@ public static class BenthosReportExporter
         var sampling = vm.DensitySampling;
         Num(ws, row, 9, sampling.Area);
         // 종이 하나도 없으면 '미입력'과 구분할 수 없다 — 화면과 같이 출현종 없음(0종) 선언일 때만 0
-        if (sampling.CanConvert) Num(ws, row, 10, b.TotalSpecies == 0 && !vm.NoSpeciesDeclared ? null : sampling.Density(b.TotalIndiv));
+        if (sampling.CanConvert) Num(ws, row, 10, b.TotalSpecies == 0 && !vm.EffectiveNoSpecies ? null : sampling.Density(b.TotalIndiv));
         else ws.Cells[row, 10].SetValue(sampling.Text);
         Str(ws, row, 11, vm.DominantSpecies);
         // N6(2026-10-20 연계 시험 2차) : 출현종(개체수 > 0)이 없으면(조사불가 · 0종) 화면처럼 DI·H′·R1·J′ 빈칸 — 관리자 DB 도 NULL

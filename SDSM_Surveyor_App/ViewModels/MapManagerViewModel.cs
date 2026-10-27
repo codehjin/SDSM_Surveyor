@@ -198,6 +198,10 @@ public partial class MapManagerViewModel : ObservableObject, ITransientService
         OnPropertyChanged(nameof(CalibrationText));
     }
 
+    /// <summary>지도 삭제 확인 글 — 지울 지도 이름 · 건수 · 되돌릴 수 없음(§32 · S4). 창 문구와 시험이 같은 글을 쓴다.</summary>
+    public static string DeleteConfirmText(SiteMap m) =>
+        $"'{m.Display}' 지도 1장을 지울까요?\n이미지 파일도 함께 지워지며 되돌릴 수 없습니다.";
+
     [RelayCommand]
     private void Delete()
     {

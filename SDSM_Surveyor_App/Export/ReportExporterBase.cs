@@ -35,9 +35,12 @@ internal static class ReportExporterBase
         {
             Title = title,
             Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
-            FileName = fileName
+            FileName = fileName,
+            // 시작 폴더를 정한다 — 지난 폴더가 네트워크 · OneDrive 면 대화상자가 '응답 없음' 이 되었다(§32 · S4)
+            InitialDirectory = Helpers.DialogFolder.Initial(),
         };
         if (dlg.ShowDialog() != true) return null;
+        Helpers.DialogFolder.Remember(dlg.FileName);
 
         // 일괄입력용은 양식(저서 내장본 약 1MB)을 열고 다시 저장하느라 몇 초 걸린다(저서 4~5초 · B-7 실측).
         // 그동안 창이 멈춘 것처럼 보이지 않게 대기 커서를 띄운다.

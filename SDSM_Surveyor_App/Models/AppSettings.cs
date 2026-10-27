@@ -18,6 +18,12 @@ public class AppSettings
     public bool RememberTaxonOnStartup { get; set; }
 
     /// <summary>
+    /// 마지막으로 내보낸 폴더 — 저장 · 폴더 고르기 대화상자의 시작 폴더(§32 · S4 · <see cref="Helpers.DialogFolder"/>).
+    /// 로컬 고정 드라이브에 실제로 있을 때만 쓴다. 옛 settings.json 에 없으면 null(→ '문서').
+    /// </summary>
+    public string? LastExportFolder { get; set; }
+
+    /// <summary>
     /// 조사개황 값 고정(압정) — 대분류·연도차수·조사일·날씨·조사자·조사기관 6개.
     /// 옛 settings.json 에 이 항목이 없어도 기본 인스턴스가 그대로 쓰이므로 하위호환은 자동이다.
     /// </summary>

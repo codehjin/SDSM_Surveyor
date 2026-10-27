@@ -7,7 +7,7 @@
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
         FontFamily="{StaticResource DefaultFontFamily}"
         FontSize="{StaticResource DefaultFontSize}"
-        Background="{telerik:Windows11Resource ResourceKey=PrimaryBackgroundBrush}">
+        Background="{StaticResource PageBackBrush}">
 
     <!-- 프로그램 정보(v0.5.0 · §21-5) — 글은 Helpers\AppInfo 한 곳(관리자 정보 창과 같은 내용).
          항목 이름(왼쪽 · 보조색) | 값(오른쪽). Esc · [닫기] 로 닫는다. -->

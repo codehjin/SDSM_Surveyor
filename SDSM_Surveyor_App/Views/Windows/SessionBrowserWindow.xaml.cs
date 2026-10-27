@@ -17,10 +17,8 @@ public partial class SessionBrowserWindow : Window
         _vm = App.Current.Services.GetRequiredService<SessionBrowserViewModel>();
         DataContext = _vm;
 
-        // 삭제는 되돌릴 수 없으므로 반드시 확인을 받는다.
-        _vm.ConfirmDelete = e => MessageBox.Show(
-            $"'{e.Site} · {e.YearChsu}' 세션을 삭제할까요?\n입력한 7개 분류군 자료가 함께 지워집니다.",
-            "세션 삭제", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK;
+        // 삭제는 되돌릴 수 없으므로 반드시 확인을 받는다. 기본 단추는 [취소] — Enter · Esc 모두 지우지 않는다(§32 · S4).
+        _vm.ConfirmDelete = e => DeleteConfirm.Ask(this, SessionBrowserViewModel.DeleteConfirmText(e), "세션 삭제");
 
         // 지금 화면을 덮어쓰는 동작([불러오기]·[지점 복사]·[차수 복제]) 전에 저장 안 한 변경을 묻는다(B-5).
         var sessions = App.Current.Services.GetRequiredService<ISessionService>();
@@ -42,12 +40,19 @@ public partial class SessionBrowserWindow : Window
                 Title = "자료함 내보내기",
                 Filter = "자료함 묶음 (*.zip)|*.zip",
                 FileName = $"자료함_{DateTime.Now:yyyyMMdd_HHmm}_{count}건.zip",
+                InitialDirectory = Helpers.DialogFolder.Initial(),   // 시작 폴더(§32 · S4)
             };
-            return dlg.ShowDialog(this) == true ? dlg.FileName : null;
+            if (dlg.ShowDialog(this) != true) return null;
+            Helpers.DialogFolder.Remember(dlg.FileName);
+            return dlg.FileName;
         };
         _vm.PickImportPath = () =>
         {
-            var dlg = new Microsoft.Win32.OpenFileDialog { Title = "자료함 가져오기", Filter = "자료함 묶음 (*.zip)|*.zip" };
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "자료함 가져오기", Filter = "자료함 묶음 (*.zip)|*.zip",
+                InitialDirectory = Helpers.DialogFolder.Initial(),
+            };
             return dlg.ShowDialog(this) == true ? dlg.FileName : null;
         };
         _vm.AskConflict = s => ChoiceDialog.Ask(this, "같은 세션이 있습니다",
@@ -67,8 +72,10 @@ public partial class SessionBrowserWindow : Window
         // C-8 : 일괄 출력 — 폴더 고르기 · 있는 파일 덮어쓰기 확인 · 결과([폴더 열기])
         _vm.PickFolder = () =>
         {
-            var dlg = new Microsoft.Win32.OpenFolderDialog { Title = "일괄 출력 폴더 고르기" };
-            return dlg.ShowDialog(this) == true ? dlg.FolderName : null;
+            var dlg = new Microsoft.Win32.OpenFolderDialog { Title = "일괄 출력 폴더 고르기", InitialDirectory = Helpers.DialogFolder.Initial() };
+            if (dlg.ShowDialog(this) != true) return null;
+            Helpers.DialogFolder.Remember(dlg.FolderName);
+            return dlg.FolderName;
         };
         _vm.ConfirmOverwriteFiles = files => ChoiceDialog.Ask(this, "같은 이름 파일이 있습니다",
                 $"고른 폴더에 같은 이름 파일이 {files.Count}개 있습니다.\n{string.Join("\n", files.Take(8))}{(files.Count > 8 ? $"\n… 외 {files.Count - 8}개" : "")}\n\n덮어쓰면 그 파일의 내용은 사라집니다.",
@@ -81,8 +88,11 @@ public partial class SessionBrowserWindow : Window
                 Title = "보고서 일괄 — 통합문서 하나로 저장",
                 Filter = "Excel 통합 문서 (*.xlsx)|*.xlsx",
                 FileName = defaultName,
+                InitialDirectory = Helpers.DialogFolder.Initial(),
             };
-            return dlg.ShowDialog(this) == true ? dlg.FileName : null;
+            if (dlg.ShowDialog(this) != true) return null;
+            Helpers.DialogFolder.Remember(dlg.FileName);
+            return dlg.FileName;
         };
         // 저장 뒤 안내는 단건 저장과 같다 — [닫기] · [폴더 열기] · [파일 열기](기본 · C-1)
         _vm.ShowReportResult = (path, text) => Export.ReportExporterBase.OfferToOpen(path, text);

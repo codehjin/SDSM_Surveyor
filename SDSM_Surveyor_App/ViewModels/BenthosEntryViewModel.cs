@@ -133,8 +133,14 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         var s = DensitySampling;
         DensityBasis = s.Text;
         // 종이 하나도 없으면 '미입력'과 구분할 수 없다 — 출현종 없음(0종) 선언일 때만 0
-        TotalDensity = TotalSpeciesCount == 0 && !NoSpeciesDeclared ? null : s.Density(TotalIndividualCount);
+        TotalDensity = TotalSpeciesCount == 0 && !EffectiveNoSpecies ? null : s.Density(TotalIndividualCount);
     }
+
+    /// <summary>종 행이 하나라도 있는가(국명이 적힌 행 · 개체수와 관계없이).</summary>
+    public bool HasSpeciesRows => SpeciesEntries.Any(r => !string.IsNullOrWhiteSpace(r.SelectedSpecies?.SpeciesKo ?? r.SpeciesKo));
+
+    /// <summary>계산 · 내보내기에 쓰는 0종 선언 — 종 행이 있으면 선언을 없는 것으로 본다(어류와 같음 · §32 · S4).</summary>
+    public bool EffectiveNoSpecies => NoSpeciesDeclared && !HasSpeciesRows;
 
     /// <summary>합계 행의 상대풍부도 칸. 개체가 없으면 100% 가 아니라 `·`(미산출).</summary>
     public string TotalShareText => TotalIndividualCount > 0 ? "100%" : "·";
@@ -400,6 +406,7 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
         get
         {
             var parts = new List<string>();
+            if (NoSpeciesDeclared && HasSpeciesRows) parts.Add(NoSpeciesConflictText);   // §32 · S4
             if (_outlierRows > 0) parts.Add($"이상치 경고 {_outlierRows}건");
             if (_unlistedRows > 0) parts.Add($"목록 밖 국명 {_unlistedRows}건");
             if (_duplicateSpecies > 0) parts.Add($"같은 종 중복 {_duplicateSpecies}종");
@@ -541,7 +548,7 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
 
         // 0종 처리는 계산기가 판단한다(12_CALC_FIX §2-3)
         //  조사불가 → "-"  /  조사 수행 + 0종 선언 → 0·E  /  미입력 → "-"
-        var (bmi, bmiGrade) = BenthosCalculator.GetBMI(imports, SurveyUnavailableReason, NoSpeciesDeclared);
+        var (bmi, bmiGrade) = BenthosCalculator.GetBMI(imports, SurveyUnavailableReason, EffectiveNoSpecies);
         BmiScore = bmi;
         BmiGrade = bmiGrade ?? "-";
 
@@ -593,7 +600,7 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     // 유효 개체가 하나라도 있거나, 0종 선언·조사불가가 선언되면 내보낼 수 있다(12_CALC_FIX §2-2).
     // 이상치 경고는 알림일 뿐 제재가 아니므로 내보내기를 막지 않는다.
     private bool CanExport() =>
-        SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0) || NoSpeciesDeclared || IsUnavailable;
+        SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0) || EffectiveNoSpecies || IsUnavailable;
 // ── 기반 클래스가 요구하는 분류군 고유 동작 ──────────────────────────────
 
     protected override string? SpeciesKoOf(BenthosSpeciesList species) => species.SpeciesKo;

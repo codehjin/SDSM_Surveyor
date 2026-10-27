@@ -12,7 +12,7 @@
         WindowStartupLocation="CenterOwner"
         FontFamily="{StaticResource DefaultFontFamily}"
         FontSize="{StaticResource DefaultFontSize}"
-        Background="{telerik:Windows11Resource ResourceKey=PrimaryBackgroundBrush}"
+        Background="{StaticResource PageBackBrush}"
         d:DataContext="{d:DesignInstance vm:MapPopupViewModel}">
 
     <!-- 지점 지도 (발주처 요구 2026-09-08 · 부사장 확정 2026-09-09)

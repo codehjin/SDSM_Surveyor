@@ -189,6 +189,18 @@ Views/UserControls/    분류군별 EntryControl · FillPanel(화면 전체 스�
     포유류 흔적 12칸 · 양서파충류 관찰 6칸(`IntegerInput`). 종전에는 '-3' 이 그대로 들어갔다.
   · 분류군 칩 팝오버 입력량(`OnIsTaxonPopupOpenChanged`) · [자료함에서 이어하기] 도 분류군 · 체크 저장(`TaxonPickerViewModel.CommitSelection`) ·
     서식수변 점수 목록 아래 [비우기](Delete · Backspace 로도 비워짐).
+  · **사용설명서 v1.0(S3 · §26~§30)** — 원고 `docs\manual\조사자_사용설명서.md`(한 파일 · 그림 `docs\manual\img\*.jpg` · 장-순번 '그림 3-5' 는 빌드가 붙임)
+    → `python tools\manual_pdf.py docs\manual\조사자_사용설명서.md SDSM_Surveyor_App\manual\surveyor_manual.pdf`(Edge 헤드리스 · 관리자와 같은 스크립트 · css).
+    원고의 [단추] · 「문구」는 `python tools\manual_check.py` 로 코드 글자와 대조(불일치 0 · 그림 34장). 화면 글자를 바꾸면 이 검사가 원고 고칠 곳을 알려 준다.
+  · 보조 창 7개(정보 · 자료함 · 확인 창 · 종목록 · 지도 · 지도 관리 · 동기화) 바탕 = `PageBackBrush`(메인 창과 같음 · §29-2).
+    같은 자료 확인 창에서 [취소] 하면 상태 바에만 남기고 알림 띠는 띄우지 않는다(자료함 [현재 화면 저장] 도 · §29-3).
+  · **S4 보완(§32 · 2026-10-27 밤)** — ① 자료함 · 지도 [삭제] 확인 기본 단추 [취소](`Views\DeleteConfirm` · 문구 = 이름 · 건수 · 되돌릴 수 없음 · 각 VM `DeleteConfirmText`) ·
+    확인 창을 꽂지 않은 자료함 VM 은 지우지 않는다. ② 불러온 세션의 이름(대분류 · 연도차수 · 지점)이 바뀐 저장은 `ISessionService.ResolveRename` 이 묻는다 —
+    [새 세션으로 저장](기본 · 원래 그대로) · [원래 세션을 바꾸기](원래 것 지움) · [취소](`LastSaveCancel`). 새 이름에 세션이 있으면 이어서 같은 자료 규칙.
+    세션을 지우는 길은 이 [원래 세션을 바꾸기] 와 자료함 [삭제]([확인]) 뿐이다(하네스 v10_s4 가 센다). ③ 어류 · 저서 `EffectiveNoSpecies` —
+    [출현종 없음(0종)] 이 켜져도 종 행이 있으면 선언을 없는 것으로(하천차수 확인 · FAI · BMI · 내보내기) · 상태 바 경고 `NoSpeciesConflictText` · 세션에는 누른 그대로.
+    ④ 저장 · 열기 · 폴더 고르기 대화상자 시작 폴더는 `Helpers\DialogFolder` 한 곳 — 지난 내보내기 폴더(`AppSettings.LastExportFolder`)가 로컬 고정 드라이브에 있으면 그곳,
+    아니면 문서. 네트워크 · OneDrive · 없는 폴더는 쓰지 않는다(지난 폴더가 그런 곳이면 Windows 저장 창이 '응답 없음' 이 되었다). 교환소 폴더 고르기만 정한 교환소에서 연다.
 - **판 표시는 세 자리(G2 · 2026-10-21)** — 제목 `v0.4.1`(`Version.ToString(3)`) · 배포 압축 맨 위 폴더 `SDSM_Surveyor_v0.4.1\` · 압축 파일 `SDSM_Surveyor_[테스트_]v0.4.1_yyyyMMdd.zip`(`tools\publish.ps1`).
 - **저서 개체밀도(inds./㎡ · 2026-10-19 결정 H1) — 표시만.** 화면 건강성과 보고서 엑셀(조사개황 채집 면적·근거 · 출현종 종별 열 · 건강성평가 면적·총 개체밀도 · 각주)에만 낸다.
   면적표는 `Models\BenthosDensity.cs` 한 곳(Surber 30×30 0.09㎡ · 50×50 0.25㎡ · 에크만 0.0225㎡ × 횟수). 드렛지/D-Net 이 섞이면 '환산 불가', 횟수가 없으면 계산하지 않는다.

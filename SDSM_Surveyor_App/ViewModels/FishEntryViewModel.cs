@@ -57,8 +57,18 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     /// 하천차수가 비어 FAI 를 낼 수 없는가 — FAI M1·M2·M3·M7 은 하천차수별 구간표라 0차로 계산하면 낮게 나온다(문제 10).
     /// 조사불가 사유가 있거나 출현종 없음(0종) 선언이면 하천차수 없이도 결과가 정해지므로 묻지 않는다.
     /// </summary>
-    public bool NeedsRiverChasu => RiverChasu is not (> 0) && !IsUnavailable && !NoSpeciesDeclared
+    public bool NeedsRiverChasu => RiverChasu is not (> 0) && !IsUnavailable && !EffectiveNoSpecies
                                    && SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0);   // 낼 자료가 없는 빈 탭에는 묻지 않는다
+
+    /// <summary>종 행이 하나라도 있는가(국명이 적힌 행 · 개체수와 관계없이).</summary>
+    public bool HasSpeciesRows => SpeciesEntries.Any(r => !string.IsNullOrWhiteSpace(r.SelectedSpecies?.SpeciesKo ?? r.SpeciesKo));
+
+    /// <summary>
+    /// 계산 · 하천차수 확인 · 내보내기에 쓰는 0종 선언(§32 · S4 · 작업보고 v052 8-4 #3) — [출현종 없음(0종)] 이 켜져 있어도
+    /// 종 행이 하나라도 있으면 선언을 없는 것으로 본다. 종전에는 선언이 하천차수 확인을 꺼서 하천차수 0 으로 낮은 FAI 가 보이고
+    /// [일괄입력용] 도 막히지 않았다. 판정은 앱 쪽에서 한다(SDSM_Core 그대로).
+    /// </summary>
+    public bool EffectiveNoSpecies => NoSpeciesDeclared && !HasSpeciesRows;
 
     public const string RiverChasuNeededText = "하천차수 필요 — 조사환경에 하천차수를 넣으세요(지점 하천차수가 없음)";
 
@@ -429,6 +439,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         get
         {
             var parts = new List<string>();
+            if (NoSpeciesDeclared && HasSpeciesRows) parts.Add(NoSpeciesConflictText);   // §32 · S4
             if (_outlierRows > 0) parts.Add($"이상치 경고 {_outlierRows}건");
             if (_unlistedRows > 0) parts.Add($"목록 밖 국명 {_unlistedRows}건");
             if (_duplicateSpecies > 0) parts.Add($"같은 종 중복 {_duplicateSpecies}종");
@@ -557,7 +568,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
         int abnormal = AbnormalTotal;
         var detail = EcologyCalculator.CalculateFaiDetail(
             imports, SurveyUnavailableReason, abnormalCount: abnormal,
-            chasu: (int)(RiverChasu ?? 0), noSpeciesDeclared: NoSpeciesDeclared);
+            chasu: (int)(RiverChasu ?? 0), noSpeciesDeclared: EffectiveNoSpecies);
 
         if (NeedsRiverChasu)
         {
@@ -653,7 +664,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     // (조사했는데 0종인 지점도 결과를 전달할 수 있어야 한다 — 12_CALC_FIX §2-2)
     // 이상치 경고는 알림일 뿐 제재가 아니므로 내보내기를 막지 않는다.
     private bool CanExport() =>
-        SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0) || NoSpeciesDeclared || IsUnavailable;
+        SpeciesEntries.Any(r => (r.IndividualCount ?? 0) > 0) || EffectiveNoSpecies || IsUnavailable;
 // ── 기반 클래스가 요구하는 분류군 고유 동작 ──────────────────────────────
 
     protected override string? SpeciesKoOf(FishSpeciesList species) => species.SpeciesKo;

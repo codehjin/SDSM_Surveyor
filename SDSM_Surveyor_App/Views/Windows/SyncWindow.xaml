@@ -12,7 +12,7 @@
         ResizeMode="NoResize"
         FontFamily="{StaticResource DefaultFontFamily}"
         FontSize="{StaticResource DefaultFontSize}"
-        Background="{telerik:Windows11Resource ResourceKey=PrimaryBackgroundBrush}"
+        Background="{StaticResource PageBackBrush}"
         d:DataContext="{d:DesignInstance vm:SyncViewModel}">
 
     <Grid Margin="16">

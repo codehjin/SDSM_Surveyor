@@ -20,8 +20,8 @@ public partial class SyncWindow : Window
     private void Browse_Click(object sender, RoutedEventArgs e)
     {
         var dlg = new Microsoft.Win32.OpenFolderDialog { Title = "교환소 폴더 선택" };
-        if (!string.IsNullOrWhiteSpace(_vm.ExchangeFolder))
-            dlg.InitialDirectory = _vm.ExchangeFolder;
+        // 교환소는 공유 · 클라우드 폴더일 수 있다 — 이미 정한 폴더가 있으면 그곳, 없으면 안전한 시작 폴더(§32 · S4)
+        dlg.InitialDirectory = !string.IsNullOrWhiteSpace(_vm.ExchangeFolder) ? _vm.ExchangeFolder : Helpers.DialogFolder.Initial();
         if (dlg.ShowDialog() == true)
             _vm.ExchangeFolder = dlg.FolderName;
     }

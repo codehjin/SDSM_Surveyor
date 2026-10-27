@@ -159,10 +159,17 @@ public sealed class SessionService : ISessionService, ISingletonService
 
     public Func<SessionSaveConflict, SessionConflictChoice>? ResolveSaveConflict { get; set; }
 
+    public Func<SessionRename, SessionRenameChoice>? ResolveRename { get; set; }
+
     public string? LastSaveNotice { get; private set; }
 
+    public string? LastSaveCancel { get; private set; }
+
+    public const string CancelSameData = "저장하지 않았습니다(같은 자료가 있어 취소)";
+    public const string CancelRename = "저장하지 않았습니다(세션 이름이 바뀐 저장을 취소)";
+
     /// <summary>
-    /// 현재 화면 전체를 세션으로 저장한다. 지점·차수가 바뀌었으면 파일 키도 옮긴다.
+    /// 현재 화면 전체를 세션으로 저장한다. 불러온 세션의 이름(대분류·지점·차수)이 바뀌었으면 원래 세션을 어떻게 할지 묻는다(§32 · S4).
     /// ⚠ 같은 키(대분류·연도차수·지점)를 <b>다른</b> 세션이 이미 쓰고 있으면 통째로 덮어쓰지 않고 묻는다(2026-10-20 · 문제 1 —
     ///   포유류를 저장한 지점에 [새 지점]으로 서식수변을 저장하자 포유류 5행이 사라졌다).
     ///   [합치기] = 지금 화면에 자료가 있는 분류군만 새 값 · 나머지 분류군은 기존 자료 · 조사개황은 지금 값(빈칸이면 기존 값).
@@ -171,11 +178,29 @@ public sealed class SessionService : ISessionService, ISingletonService
     public async Task<SessionIndexEntry?> SaveCurrentAsync()
     {
         LastSaveNotice = null;
+        LastSaveCancel = null;
         // 저장하는 바로 그 내용을 기준으로 삼는다(파일 쓰는 동안 화면이 바뀌어도 그 변경은 '저장 안 함' 으로 남는다).
         var snapshot = CaptureSnapshot();
 
         var session = CaptureCurrentSession();
         var current = session.Taxa.Keys.ToList();
+
+        // §32 · S4 : 불러온 세션의 이름(대분류 · 연도차수 · 지점)이 바뀌었다 — 종전에는 묻지 않고 원래 세션을 지웠다.
+        //   [새 세션으로 저장](기본 · 원래 세션 그대로) · [원래 세션을 바꾸기](원래 것을 지우고 새 이름으로) · [취소].
+        //   새 이름에 다른 세션이 이미 있으면 아래 같은 자료 규칙(합치기 · 바꾸기 · 취소)을 그대로 탄다.
+        string? renamedFrom = null;
+        var replaceOld = false;
+        if (!string.IsNullOrEmpty(CurrentSessionId) && !string.Equals(CurrentSessionId, session.SessionId, StringComparison.Ordinal)
+            && await _store.LoadAsync(CurrentSessionId) is { } old)
+        {
+            var choice = ResolveRename?.Invoke(new SessionRename(
+                             CurrentSessionId, KeyDisplay(old.Meta), session.SessionId, KeyDisplay(session.Meta),
+                             OrderedTaxa(old.Taxa.Keys).Select(TaxonNames.Korean).ToList(), old.UpdatedAt))
+                         ?? SessionRenameChoice.SaveAsNew;
+            if (choice == SessionRenameChoice.Cancel) { LastSaveCancel = CancelRename; return null; }
+            replaceOld = choice == SessionRenameChoice.Replace;
+            renamedFrom = KeyDisplay(old.Meta);
+        }
 
         // 기존 파일이 있으면 만든 시각을 유지한다.
         var prev = await _store.LoadAsync(session.SessionId);
@@ -188,7 +213,7 @@ public sealed class SessionService : ISessionService, ISingletonService
                              existing.Select(TaxonNames.Korean).ToList(), current.Select(TaxonNames.Korean).ToList(),
                              prev.UpdatedAt, MergePreview(session.Meta, prev, current)))
                          ?? SessionConflictChoice.Merge;
-            if (choice == SessionConflictChoice.Cancel) return null;
+            if (choice == SessionConflictChoice.Cancel) { LastSaveCancel = CancelSameData; return null; }
             if (choice == SessionConflictChoice.Merge)
             {
                 LastSaveNotice = Merge(session, prev, current);
@@ -216,10 +241,17 @@ public sealed class SessionService : ISessionService, ISingletonService
             Warnings = CountWarnings()
         };
 
-        if (!string.IsNullOrEmpty(CurrentSessionId) && CurrentSessionId != session.SessionId)
-            await _store.RenameAsync(CurrentSessionId, session, index);   // 지점·차수 변경 → re-key
+        if (replaceOld)
+            await _store.RenameAsync(CurrentSessionId!, session, index);   // [원래 세션을 바꾸기] — 새 이름으로 저장 + 원래 세션 지움
         else
-            await _store.SaveAsync(session, index);
+            await _store.SaveAsync(session, index);                       // 그 밖에는 원래 세션을 지우는 일이 없다
+        if (renamedFrom is not null)
+        {
+            var moved = replaceOld
+                ? $"원래 세션({renamedFrom})을 지우고 새 이름({KeyDisplay(session.Meta)})으로 옮겼습니다"
+                : $"새 세션({KeyDisplay(session.Meta)})으로 저장했습니다 — 원래 세션({renamedFrom})은 그대로 있습니다";
+            LastSaveNotice = LastSaveNotice is null ? moved : $"{moved}\n{LastSaveNotice}";
+        }
 
         CurrentSessionId = session.SessionId;
         if (merged) await LoadAsync(session.SessionId);   // 합친 결과를 화면에(기존 분류군도 보이게 · 저장 안 한 변경 없음)

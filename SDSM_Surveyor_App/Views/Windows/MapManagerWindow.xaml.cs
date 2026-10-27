@@ -86,7 +86,8 @@ public partial class MapManagerWindow : Window
         var dlg = new OpenFileDialog
         {
             Title = "지도 이미지 고르기",
-            Filter = "이미지 (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg"
+            Filter = "이미지 (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg",
+            InitialDirectory = Helpers.DialogFolder.Initial(),   // 시작 폴더(§32 · S4)
         };
         if (dlg.ShowDialog() != true) return;
         _vm.AddFile(dlg.FileName);
@@ -100,22 +101,20 @@ public partial class MapManagerWindow : Window
         var dlg = new OpenFileDialog
         {
             Title = "바꿀 지도 이미지 고르기",
-            Filter = "이미지 (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg"
+            Filter = "이미지 (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg",
+            InitialDirectory = Helpers.DialogFolder.Initial(),   // 시작 폴더(§32 · S4)
         };
         if (dlg.ShowDialog() != true) return;
         _vm.ReplaceFile(dlg.FileName);
         Render(force: true);
     }
 
-    // 삭제는 되돌릴 수 없으므로 반드시 확인을 받는다(자료함 삭제와 같은 방식).
+    // 삭제는 되돌릴 수 없으므로 반드시 확인을 받는다(자료함 삭제와 같은 방식 · 기본 단추 [취소] · §32 · S4).
     private void Delete_Click(object sender, RoutedEventArgs e)
     {
         if (_vm.Selected is null) return;
 
-        var ok = MessageBox.Show(
-            $"'{_vm.Selected.Display}' 지도를 지울까요?\n이미지 파일도 함께 지워집니다.",
-            "지도 삭제", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK;
-        if (!ok) return;
+        if (!DeleteConfirm.Ask(this, MapManagerViewModel.DeleteConfirmText(_vm.Selected), "지도 삭제")) return;
 
         _vm.DeleteCommand.Execute(null);
         Render(force: true);

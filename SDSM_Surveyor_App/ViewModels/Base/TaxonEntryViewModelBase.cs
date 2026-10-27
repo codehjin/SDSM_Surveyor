@@ -118,6 +118,12 @@ public abstract partial class TaxonEntryViewModelBase : ObservableObject
         WeakReferenceMessenger.Default.Send(new NotifyMessage((text, false)));
     }
 
+    /// <summary>
+    /// 어류 · 저서 [출현종 없음(0종)] 이 켜져 있는데 종 행이 있을 때의 경고(§32 · S4) — 그때는 0종 선언을 쓰지 않는다
+    /// (<c>EffectiveNoSpecies</c>). 세션에는 조사자가 누른 그대로 저장한다.
+    /// </summary>
+    public const string NoSpeciesConflictText = "종이 있어 0종 선언을 쓰지 않습니다 — [출현종 없음] 을 끄세요";
+
     /// <summary>공통 조사개황 : 모든 분류군 공유(SurveyOverviewControl에서 입력).</summary>
     public SurveyMeta Meta { get; }
 
@@ -134,9 +140,9 @@ public abstract partial class TaxonEntryViewModelBase : ObservableObject
         var idx = await _sessions.SaveCurrentAsync();
         if (idx is null)
         {
-            // 같은 키 세션이 있어 [취소]를 골랐다(문제 1) — 아무것도 저장하지 않았다
-            StatusText = "저장하지 않았습니다(같은 자료가 있어 취소)";
-            WeakReferenceMessenger.Default.Send(new NotifyMessage((StatusText, false)));
+            // 같은 키 세션이 있어 [취소](문제 1) · 세션 이름이 바뀐 저장을 [취소](§32) — 아무것도 저장하지 않았다.
+            // 방금 사용자가 고른 것이라 상태 바에만 남기고 알림 띠는 띄우지 않는다(§29-3)
+            StatusText = _sessions.LastSaveCancel ?? SessionService.CancelSameData;
             return;
         }
 

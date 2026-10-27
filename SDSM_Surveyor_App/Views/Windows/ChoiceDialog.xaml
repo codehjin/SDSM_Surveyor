@@ -7,7 +7,7 @@
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
         FontFamily="{StaticResource DefaultFontFamily}"
         FontSize="{StaticResource DefaultFontSize}"
-        Background="{telerik:Windows11Resource ResourceKey=PrimaryBackgroundBrush}">
+        Background="{StaticResource PageBackBrush}">
 
     <!-- 선택 대화창 (C-1·C-2 신설).
          ⚠ 버튼 글자가 곧 동작이다 — MessageBox 의 예/아니요에 다른 뜻을 얹지 않는다(지시서 C-1).

@@ -23,6 +23,15 @@ public interface ISessionService
     /// <summary>같은 키 세션이 있을 때 묻는 창(화면이 꽂는다). 없으면 [합치기](자료를 잃지 않는 쪽).</summary>
     Func<SessionSaveConflict, SessionConflictChoice>? ResolveSaveConflict { get; set; }
 
+    /// <summary>
+    /// 불러온 세션의 이름(대분류 · 연도차수 · 지점)이 바뀐 채 저장할 때 묻는 창(화면이 꽂는다 · §32 · S4).
+    /// 없으면 [새 세션으로 저장](원래 세션을 지우지 않는 쪽).
+    /// </summary>
+    Func<SessionRename, SessionRenameChoice>? ResolveRename { get; set; }
+
+    /// <summary>마지막 저장을 취소했으면 그 까닭 한 줄(상태 바용 · 같은 자료 [취소] · 이름 바꾸기 [취소]). 그 밖에는 null.</summary>
+    string? LastSaveCancel { get; }
+
     /// <summary>마지막 저장에서 합치기·바꾸기를 했으면 그 결과 한 줄(알림용). 그 밖에는 null.</summary>
     string? LastSaveNotice { get; }
 

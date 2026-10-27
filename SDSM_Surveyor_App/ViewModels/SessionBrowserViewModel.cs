@@ -308,7 +308,8 @@ public partial class SessionBrowserViewModel : ObservableObject, ITransientServi
     private async Task SaveCurrent()
     {
         var idx = await _sessions.SaveCurrentAsync();
-        if (idx is null) { Notify("저장하지 않았습니다(같은 자료가 있어 취소)."); return; }
+        // 같은 자료 [취소] — 방금 고른 것이라 창 상태 줄에만(알림 띠 없음 · §29-3)
+        if (idx is null) { StatusText = (_sessions.LastSaveCancel ?? SessionService.CancelSameData) + "."; return; }
         await RefreshAsync();
         Selected = Sessions.FirstOrDefault(e => e.SessionId == idx.SessionId);
         Notify(_sessions.LastSaveNotice ?? "현재 화면을 세션으로 저장했습니다.");
@@ -319,14 +320,22 @@ public partial class SessionBrowserViewModel : ObservableObject, ITransientServi
     private async Task DeleteSession()
     {
         if (Selected is null) return;
-        if (ConfirmDelete is not null && !ConfirmDelete(Selected)) return;
+        // 확인 창이 없으면 지우지 않는다 — 묻지 않고 세션이 지워지는 길을 두지 않는다(§32 · S4)
+        if (ConfirmDelete is null || !ConfirmDelete(Selected)) return;
 
         await _sessions.DeleteAsync(Selected.SessionId);
         await RefreshAsync();
         Notify("세션을 삭제했습니다.");
     }
 
-    /// <summary>삭제 확인 대화상자(View가 붙인다). null이면 확인 없이 지운다.</summary>
+    /// <summary>
+    /// 삭제 확인 글 — 지울 세션 이름 · 건수 · 되돌릴 수 없음(§32 · S4). 창 문구와 시험이 같은 글을 쓴다.
+    /// </summary>
+    public static string DeleteConfirmText(SessionIndexEntry e) =>
+        $"'{e.Site} · {e.YearChsu}'({e.Project}) 세션 1건을 지울까요?\n" +
+        (e.Taxa.Count > 0 ? $"입력한 분류군 자료({e.TaxaText})가" : "입력한 자료가") + " 함께 지워지며 되돌릴 수 없습니다.";
+
+    /// <summary>삭제 확인 대화상자(View가 붙인다). null이면 지우지 않는다(§32).</summary>
     public Func<SessionIndexEntry, bool>? ConfirmDelete { get; set; }
 
     private bool CanCopyToSite() => CopyTargetSite is not null;

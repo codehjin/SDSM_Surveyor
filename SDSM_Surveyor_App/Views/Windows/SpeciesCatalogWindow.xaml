@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterOwner"
         FontFamily="{StaticResource DefaultFontFamily}"
         FontSize="{StaticResource DefaultFontSize}"
-        Background="{telerik:Windows11Resource ResourceKey=PrimaryBackgroundBrush}"
+        Background="{StaticResource PageBackBrush}"
         d:DataContext="{d:DesignInstance vm:SpeciesCatalogViewModel}">
 
     <!-- 종목록 팝업 (발주처 요구 2026-09-08)
