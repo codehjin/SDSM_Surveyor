@@ -54,6 +54,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Text="판" Style="{StaticResource InfoLabel}"/>
@@ -62,23 +63,37 @@
             <TextBlock Grid.Row="1" Text="빌드 날짜" Style="{StaticResource InfoLabel}"/>
             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding BuildDate}" Style="{StaticResource InfoValue}"/>
 
-            <TextBlock Grid.Row="2" Text="적용 지침" Style="{StaticResource InfoLabel}"/>
-            <StackPanel Grid.Row="2" Grid.Column="1" Margin="0 0 0 8">
+            <!-- §25 : 흰 화면 대비 스위치 — 실행 폴더에 software_render 파일이 있으면 소프트웨어 -->
+            <TextBlock Grid.Row="2" Text="화면 그리기" Style="{StaticResource InfoLabel}"/>
+            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="RenderLine" Text="{Binding RenderLine}" Style="{StaticResource InfoValue}"/>
+
+            <TextBlock Grid.Row="3" Text="적용 지침" Style="{StaticResource InfoLabel}"/>
+            <StackPanel Grid.Row="3" Grid.Column="1" Margin="0 0 0 8">
                 <TextBlock Text="{Binding GuidelineTitle}" Style="{StaticResource InfoValue}" Margin="0"/>
                 <TextBlock Text="{Binding GuidelineNotice}" Style="{StaticResource InfoValue}" Margin="0 0 0 6"/>
-                <Button x:Name="GuidelineButton" Command="{Binding OpenGuidelineCommand}" HorizontalAlignment="Left"
-                        Style="{StaticResource SmallOutlineButtonStyle}" AutomationProperties.Name="지침 원본 보기">
-                    <StackPanel Orientation="Horizontal">
-                        <icon:PackIconMaterial Kind="FilePdfBox" Width="14" Height="14" VerticalAlignment="Center"/>
-                        <TextBlock Text="지침 원본 보기" Margin="6 0 0 0" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="GuidelineButton" Command="{Binding OpenGuidelineCommand}"
+                            Style="{StaticResource SmallOutlineButtonStyle}" AutomationProperties.Name="지침 원본 보기">
+                        <StackPanel Orientation="Horizontal">
+                            <icon:PackIconMaterial Kind="FilePdfBox" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="지침 원본 보기" Margin="6 0 0 0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <!-- §26-3 : 사용설명서(실행 폴더 manual\surveyor_manual.pdf) — 지침 원본과 같은 방식으로 연다 -->
+                    <Button x:Name="ManualButton" Command="{Binding OpenManualCommand}" Margin="8 0 0 0"
+                            Style="{StaticResource SmallOutlineButtonStyle}" AutomationProperties.Name="사용설명서">
+                        <StackPanel Orientation="Horizontal">
+                            <icon:PackIconMaterial Kind="BookOpenVariant" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="사용설명서" Margin="6 0 0 0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
                 <TextBlock Text="{Binding OpenStatus}" Style="{StaticResource InlineWarnTextStyle}" TextWrapping="Wrap" Margin="0 6 0 0"
                            Visibility="{Binding HasOpenStatus, Converter={StaticResource BoolToVisibility}}"/>
             </StackPanel>
 
-            <TextBlock Grid.Row="3" Text="종목록" Style="{StaticResource InfoLabel}"/>
-            <StackPanel Grid.Row="3" Grid.Column="1" Margin="0 0 0 8">
+            <TextBlock Grid.Row="4" Text="종목록" Style="{StaticResource InfoLabel}"/>
+            <StackPanel Grid.Row="4" Grid.Column="1" Margin="0 0 0 8">
                 <TextBlock Text="{Binding SpeciesVersion}" Style="{StaticResource InfoValue}" Margin="0"/>
                 <TextBlock Text="{Binding SpeciesBasis}" Style="{StaticResource CaptionTextStyle}" Margin="0 2 0 6"/>
                 <ItemsControl x:Name="SpeciesPartList" ItemsSource="{Binding SpeciesParts}">
@@ -101,11 +116,11 @@
                 </ItemsControl>
             </StackPanel>
 
-            <TextBlock Grid.Row="4" Text="개발" Style="{StaticResource InfoLabel}"/>
-            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Developer}" Style="{StaticResource InfoValue}"/>
+            <TextBlock Grid.Row="5" Text="개발" Style="{StaticResource InfoLabel}"/>
+            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Developer}" Style="{StaticResource InfoValue}"/>
 
-            <TextBlock Grid.Row="5" Text="연락처" Style="{StaticResource InfoLabel}"/>
-            <ItemsControl Grid.Row="5" Grid.Column="1" ItemsSource="{Binding ContactLines}" Margin="0 0 0 8">
+            <TextBlock Grid.Row="6" Text="연락처" Style="{StaticResource InfoLabel}"/>
+            <ItemsControl Grid.Row="6" Grid.Column="1" ItemsSource="{Binding ContactLines}" Margin="0 0 0 8">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding}" Style="{StaticResource BodyTextStyle}"/>

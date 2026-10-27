@@ -276,7 +276,8 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
                 ("하천유형(서식처)", One(FormChoices.OutOfForm(HabitatRiverType, FormChoices.HabitatRiverType))),
                 ("흐름상태", FormChoices.OutOfForm(FlowState, FormChoices.FlowState)),
                 ("투명도", One(FormChoices.OutOfForm(Transparency, FormChoices.Transparency))),
-                ("냄새", One(FormChoices.OutOfForm(Smell, FormChoices.Smell))));
+                ("냄새", One(FormChoices.OutOfForm(Smell, FormChoices.Smell))),
+                ("채집불가시(사유)", One(FormChoices.OutOfForm(SurveyUnavailableReason, FormChoices.UnavailableReason))));   // §27-4
         }
     }
 
@@ -467,9 +468,7 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     /// <summary>조사불가 사유가 선언되어 등급이 "-"가 되는 상태인지.</summary>
     private bool IsUnavailable =>
         !string.IsNullOrWhiteSpace(SurveyUnavailableReason)
-        && UnavailableReasons.Contains(SurveyUnavailableReason.Replace(" ", ""));
-
-    private static readonly string[] UnavailableReasons = { "접근불가", "건천화", "준설", "공사중" };
+        && FormChoices.UnavailableReason.Any(o => o.Value == SurveyUnavailableReason.Replace(" ", ""));   // SDSM_Core 와 같은 판정
 
     /// <summary>출현종 없음(0종) 선언 — 조사는 수행했으나 한 종도 확인되지 않았다는 뜻.
     /// 종 목록이 비었다는 사실만으로는 "아직 미입력"과 구분할 수 없어 명시적으로 선언받는다(12_CALC_FIX §2-1).</summary>
@@ -477,7 +476,7 @@ public partial class BenthosEntryViewModel : SpeciesEntryViewModelBase<BenthosSp
     partial void OnNoSpeciesDeclaredChanged(bool value) => Recalculate();
 
     // 조사불가 사유는 등급을 "-"로 바꾸므로 입력 즉시 다시 계산한다(어류와 동일).
-    partial void OnSurveyUnavailableReasonChanged(string? value) => Recalculate();
+    partial void OnSurveyUnavailableReasonChanged(string? value) { RaiseEnvironmentSummary(); Recalculate(); }
 
     protected override void Recalculate()
     {

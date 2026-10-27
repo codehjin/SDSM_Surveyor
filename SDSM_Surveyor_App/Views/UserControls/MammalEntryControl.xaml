@@ -135,43 +135,56 @@
                 <DataTemplate>
                     <Border Background="{StaticResource Row2LineBrush}" Height="{StaticResource GridRow2LineHeight}">
                         <StackPanel Style="{StaticResource RowDetailsPanelStyle}">
+                            <!-- §27-7 ④(v0.5.2) : 흔적 칸도 정수 검사(음수 · 소수점 · 글자 거부 — 빠른추가와 같은 IntegerInput) -->
                             <TextBlock Text="╰▸ 흔적" Width="66" Style="{StaticResource RowDetailsTagStyle}"/>
                             <TextBlock Text="포획" Style="{StaticResource RowDetailsLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" Margin="0 0 8 0" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="관찰" Style="{StaticResource RowDetailsLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" Margin="0 0 8 0" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="울음" Style="{StaticResource RowDetailsLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" Margin="0 0 8 0" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="사체" Style="{StaticResource RowDetailsLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" Margin="0 0 8 0" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="족적" Style="{StaticResource RowDetailsLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" Margin="0 0 8 0" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="털" Style="{StaticResource RowDetailsLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" Margin="0 0 8 0" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="식흔" Style="{StaticResource RowDetailsLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" Margin="0 0 8 0" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="굴" Style="{StaticResource RowDetailsLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" Margin="0 0 8 0" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="번식지" Style="{StaticResource RowDetailsLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" Margin="0 0 8 0" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace9, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="배설물" Style="{StaticResource RowDetailsLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" Margin="0 0 8 0" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace10, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="카메라" Style="{StaticResource RowDetailsLabelStyle}"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" Margin="0 0 8 0" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace11, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                             <TextBlock Text="기타" Style="{StaticResource RowDetailsLabelStyle}"
                                        ToolTipService.ToolTip="기타(탐문 등)"/>
                             <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" Width="{StaticResource RowDetailsCellWidth}" WatermarkContent="·"
+                                                         core:IntegerInput.IsEnabled="True"
                                                          Text="{Binding Trace12, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"/>
                         </StackPanel>
                     </Border>
@@ -203,9 +216,10 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="{Binding TotalSpeciesCount, StringFormat=총 {0}종}" FontWeight="SemiBold"
                                Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
-                    <TextBlock Text="{Binding TotalIndividualCount, StringFormat= · {0}개체}" Margin="4 0 0 0"
+                    <!-- §27-5 : 포유류 수량은 흔적 12칸의 합 — 위 요약줄과 같게 '흔적'(종전 '개체') · 행 수는 '기록 n건' -->
+                    <TextBlock Text="{Binding TotalIndividualCount, StringFormat= · {0:N0}흔적}" Margin="4 0 0 0"
                                Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
-                    <TextBlock Text="{Binding TotalObservations, StringFormat= · 흔적 {0}건}" Margin="4 0 0 0"
+                    <TextBlock Text="{Binding TotalObservations, StringFormat= · 기록 {0}건}" Margin="4 0 0 0"
                                Foreground="{telerik:Windows11Resource ResourceKey=PrimaryForegroundBrush}"/>
                     <!-- 문제 6 : 행 좌표가 비면(위도·경도 둘 다) 조사개황 지점 좌표로 채워 내보낸다 -->
                     <TextBlock Text="· 행 좌표가 비면 지점 좌표로 내보냄" Margin="12 0 0 0" VerticalAlignment="Center"

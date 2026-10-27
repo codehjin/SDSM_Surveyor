@@ -20,6 +20,9 @@ public partial class App : Application
 
     public App()
     {
+        // §25 흰 화면 대비 — 실행 폴더에 software_render 파일이 있으면 소프트웨어로 그린다. 테마·리소스·창보다 먼저.
+        Helpers.RenderModeSwitch.Apply();
+
         // 테마를 먼저 설정한 뒤 App.xaml 로드(캡션 스타일이 Windows11Resource 사용)
         StyleManager.ApplicationTheme = new Windows11Theme();
         Windows11Palette.Palette.FocusVisualMargin = new Thickness(0);
@@ -164,6 +167,9 @@ public partial class App : Application
 
         // N1(2026-10-20 연계 시험 2차) : 미처리 예외 — 오류 기록 + 지금 화면 임시 저장(자료함 _recovery) + 안내. 화면 예외로 앱을 닫지 않는다.
         Services.GetRequiredService<Data.CrashGuard>().Install(this);
+
+        // §27-2 : 알림 띠 — 고르기 창 · 자료함에서 보낸 알림도 받아 두도록 어떤 창보다 먼저 만든다
+        Services.GetRequiredService<ViewModels.NoticeBandViewModel>();
 
         // ⚠ 선택 창이 닫히는 순간 열린 창이 0개가 된다.
         //    기본 ShutdownMode(OnLastWindowClose)면 메인 창을 띄우기 전에 앱이 끝난다.

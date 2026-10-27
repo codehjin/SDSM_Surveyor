@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:local="clr-namespace:SDSM_Surveyor_App.Views.UserControls"
              mc:Ignorable="d" d:DesignWidth="1200"
              x:Name="Root">
 
@@ -12,7 +13,11 @@
          7개 화면이 같은 바를 쓴다. 좌측 총계와 우측 버튼만 화면마다 다르므로 슬롯으로 받는다.
 
          버튼 계층(§5-3) : 위험(빈 행 정리)은 **가장 왼쪽**, 주요(보고서 엑셀)는 가장 오른쪽.
-         멀리 떼어 놓아야 잘못 누르지 않는다. -->
+         멀리 떼어 놓아야 잘못 누르지 않는다.
+
+         §27-2(v0.5.2) : 바로 위에 알림 띠(NoticeBand) — 알림이 있을 때만 한 줄을 차지한다(입력 칸을 덮지 않는다). -->
+    <StackPanel>
+    <local:NoticeBand/>
     <Border Style="{StaticResource StatusBarBorderStyle}">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -48,4 +53,5 @@
                               VerticalAlignment="Center"/>
         </Grid>
     </Border>
+    </StackPanel>
 </UserControl>

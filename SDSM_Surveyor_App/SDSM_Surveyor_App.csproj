@@ -8,7 +8,7 @@
     <RootNamespace>SDSM_Surveyor_App</RootNamespace>
     <AssemblyName>SDSM_Surveyor_App</AssemblyName>
     <!-- 판 — 창 제목 옆 · 프로그램 정보 창(Helpers\AppInfo). 제품 버전 뒤 +커밋 해시는 빌드 때 SDK 가 붙인다 -->
-    <Version>0.5.1</Version>
+    <Version>0.5.2</Version>
     <!-- Telerik·MahApps 의 다국어 위성 리소스 46개 폴더를 빼서 배포본을 가볍게 한다.
          조사자앱은 한국어 전용이다. -->
     <SatelliteResourceLanguages>ko;en</SatelliteResourceLanguages>
@@ -61,6 +61,11 @@
     <!-- 지침 원본(국립환경과학원고시 제2026-30호 · 5_자료 PDF 복사 · 관리자 동봉본과 같은 파일) —
          프로그램 정보 창 [지침 원본 보기]가 기본 PDF 프로그램으로 연다(v0.5.0 · §21-5). -->
     <Content Include="guideline\guideline_2026-30.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- 사용설명서(§26-3 · v0.5.2) — 메인 창 · 정보 창 [사용설명서]가 기본 PDF 프로그램으로 연다.
+         PDF 는 docs\manual 원고에서 만들어 manual\surveyor_manual.pdf 로 둔다(S3). 파일이 없으면 아무것도 복사하지 않는다(와일드카드). -->
+    <Content Include="manual\*.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <!-- 기준자료(관리자 DB에서 내보낸 종별 범위) 번들 -->

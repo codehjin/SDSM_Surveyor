@@ -199,7 +199,7 @@
                                    Foreground="{StaticResource ShellMutedForegroundBrush}"/>
                     </StackPanel>
 
-                    <!-- 우측 : 자료함 · 동기화 · 정보(v0.5.0) pill + 창 버튼 -->
+                    <!-- 우측 : 자료함 · 동기화 · 사용설명서(v0.5.2) · 정보(v0.5.0) pill + 창 버튼 -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0 14 0">
                             <Button Click="Sessions_Click" Style="{StaticResource ShellPillButtonStyle}"
@@ -219,6 +219,18 @@
                                     <icon:PackIconMaterial Kind="CloudSyncOutline" Width="13" Height="13"
                                                            VerticalAlignment="Center"/>
                                     <TextBlock Text="{Binding SyncPillText}" Margin="6 0 0 0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <!-- §26-3 : 사용설명서 PDF(실행 폴더 manual\surveyor_manual.pdf) — 없으면 알림 띠로 알린다 -->
+                            <Button Click="Manual_Click" Style="{StaticResource ShellPillButtonStyle}"
+                                    Margin="8 0 0 0"
+                                    WindowChrome.IsHitTestVisibleInChrome="True"
+                                    AutomationProperties.Name="사용설명서"
+                                    ToolTipService.ToolTip="사용설명서(PDF)를 엽니다">
+                                <StackPanel Orientation="Horizontal">
+                                    <icon:PackIconMaterial Kind="BookOpenVariant" Width="13" Height="13"
+                                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="사용설명서" Margin="6 0 0 0" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Click="Info_Click" Style="{StaticResource ShellPillButtonStyle}"

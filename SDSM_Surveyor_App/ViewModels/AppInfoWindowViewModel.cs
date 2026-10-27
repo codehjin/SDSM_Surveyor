@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SDSM_Surveyor_App.Data;
@@ -10,7 +8,7 @@ namespace SDSM_Surveyor_App.ViewModels;
 
 /// <summary>
 /// 프로그램 정보 창(v0.5.0 · §21-5) — 글은 <see cref="AppInfo"/> 한 곳, 종목록 판 · 종 수 · 출처는 <see cref="ISpeciesListProvider"/>.
-/// [지침 원본 보기]는 앱에 함께 넣은 PDF 를 기본 PDF 프로그램으로 연다.
+/// [지침 원본 보기] · [사용설명서](v0.5.2 · §26-3)는 앱에 함께 넣은 PDF 를 기본 PDF 프로그램으로 연다.
 /// </summary>
 public partial class AppInfoWindowViewModel : ObservableObject, ITransientService
 {
@@ -29,6 +27,9 @@ public partial class AppInfoWindowViewModel : ObservableObject, ITransientServic
     public string VersionLine => $"{AppInfo.VersionText}  (커밋 {AppInfo.Commit})";
     public string BuildDate => AppInfo.BuildDate;
 
+    /// <summary>화면 그리기 — 그래픽카드 / 소프트웨어(software_render 파일)(§25).</summary>
+    public string RenderLine => RenderModeSwitch.Description;
+
     public string GuidelineTitle => AppInfo.GuidelineTitle;
     public string GuidelineNotice => AppInfo.GuidelineNotice;
 
@@ -44,36 +45,27 @@ public partial class AppInfoWindowViewModel : ObservableObject, ITransientServic
     public IReadOnlyList<string> ContactLines =>
         AppInfo.Contact.Split(" · ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-    /// <summary>[지침 원본 보기] 결과 안내(열지 못했을 때 까닭).</summary>
+    /// <summary>[지침 원본 보기] · [사용설명서] 결과 안내(열지 못했을 때 까닭).</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasOpenStatus))]
     private string? _openStatus;
 
     public bool HasOpenStatus => !string.IsNullOrEmpty(OpenStatus);
 
-    /// <summary>마지막으로 연 지침 원본 경로(시험이 확인한다).</summary>
+    /// <summary>마지막으로 연 PDF 경로(시험이 확인한다).</summary>
     public string? LastOpenedPath { get; private set; }
 
     [RelayCommand]
-    private void OpenGuideline()
+    private void OpenGuideline() =>
+        Open(AppInfo.GuidelinePdfPath, $"지침 원본 파일을 찾지 못했습니다 — {AppInfo.GuidelinePdfPath}");
+
+    [RelayCommand]
+    private void OpenManual() => Open(AppInfo.ManualPdfPath, AppInfo.ManualMissingText);
+
+    private void Open(string path, string missingText)
     {
-        var path = AppInfo.GuidelinePdfPath;
-        if (!File.Exists(path))
-        {
-            OpenStatus = $"지침 원본 파일을 찾지 못했습니다 — {path}";
-            return;
-        }
-        try
-        {
-            AppInfo.OpenWithShell(path);
-            LastOpenedPath = path;
-            OpenStatus = null;
-        }
-        catch (Win32Exception ex)
-        {
-            // PDF 를 여는 프로그램이 없는 PC — 경로를 알려 직접 열게 한다
-            OpenStatus = $"PDF 를 여는 프로그램이 없어 열지 못했습니다({ex.Message}) — 파일 위치: {path}";
-        }
+        OpenStatus = AppInfo.OpenPdf(path, missingText);
+        if (OpenStatus is null) LastOpenedPath = path;
     }
 }
 

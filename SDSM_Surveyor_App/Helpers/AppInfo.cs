@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -21,6 +22,12 @@ public static class AppInfo
 
     /// <summary>앱에 함께 넣은 지침 원본(PDF) — 실행폴더 기준. [지침 원본 보기]가 기본 PDF 프로그램으로 연다.</summary>
     public const string GuidelinePdfRelative = @"guideline\guideline_2026-30.pdf";
+
+    /// <summary>사용설명서(PDF) — 실행폴더 기준(§26-3 · §27-6). 이름에 판을 넣지 않는다(판은 표지 · 정보 창).</summary>
+    public const string ManualPdfRelative = @"manual\surveyor_manual.pdf";
+
+    /// <summary>사용설명서 파일이 없을 때 안내.</summary>
+    public const string ManualMissingText = @"사용설명서 파일이 없습니다 — 프로그램 폴더의 manual\surveyor_manual.pdf 를 확인하세요";
 
     // 종목록 기준(판 · 종 수는 정보 창이 ISpeciesListProvider 에서 읽는다)
     public const string SpeciesListBasis = "어류 · 저서동물 = 관리자 종목록(지침 별표 2 · 3 에 맞춰 정비 · 2026-10-22)과 같음 · 조류 · 포유류 · 양서파충류 = 국가생물종목록";
@@ -58,6 +65,27 @@ public static class AppInfo
 
     /// <summary>지침 원본 PDF 전체 경로(실행폴더).</summary>
     public static string GuidelinePdfPath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, GuidelinePdfRelative);
+
+    /// <summary>사용설명서 PDF 전체 경로(실행폴더).</summary>
+    public static string ManualPdfPath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ManualPdfRelative);
+
+    /// <summary>
+    /// PDF 를 기본 PDF 프로그램으로 연다(지침 원본 · 사용설명서 같은 방식). 열었으면 null, 못 열었으면 까닭.
+    /// </summary>
+    public static string? OpenPdf(string path, string missingText)
+    {
+        if (!File.Exists(path)) return missingText;
+        try
+        {
+            OpenWithShell(path);
+            return null;
+        }
+        catch (Win32Exception ex)
+        {
+            // PDF 를 여는 프로그램이 없는 PC — 경로를 알려 직접 열게 한다
+            return $"PDF 를 여는 프로그램이 없어 열지 못했습니다({ex.Message}) — 파일 위치: {path}";
+        }
+    }
 
     /// <summary>
     /// 파일을 기본 프로그램으로 연다. 시험은 이 칸을 바꿔 끼워 실제 PDF 프로그램을 띄우지 않고 경로만 받는다.

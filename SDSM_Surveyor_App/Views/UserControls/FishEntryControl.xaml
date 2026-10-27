@@ -132,12 +132,13 @@
                                                       Minimum="0" Maximum="7" IsInteger="True" Value="{Binding RiverChasu, Mode=TwoWay}"
                                                       ToolTipService.ToolTip="FAI M1·M2·M3·M7 의 구간표를 고르는 값입니다. 지점을 고르면 지점 하천차수가 들어갑니다(고칠 수 있음). 비어 있으면 FAI 를 내지 않고 일괄입력용을 만들지 않습니다."/>
                         </StackPanel>
-                        <StackPanel Style="{StaticResource FormFieldXlStyle}">
+                        <!-- §27-4(v0.5.2) : 네 낱말 고르기 — 관리자 SDSM_Core 판정 낱말과 글자까지 같다. 직접 입력은 막고 덧붙일 말은 비고에 -->
+                        <StackPanel Style="{StaticResource FormFieldSmStyle}">
                             <TextBlock Text="조사불가 사유" Style="{StaticResource FormLabelStyle}"/>
-                            <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" MinHeight="{StaticResource InputHeight}" TextWrapping="Wrap" VerticalContentAlignment="Center"
-                                                         WatermarkContent="접근불가 / 건천화 / 준설 / 공사중"
-                                                         Text="{Binding SurveyUnavailableReason, UpdateSourceTrigger=PropertyChanged}"
-                                                         ToolTipService.ToolTip="사유가 있으면 등급이 '-'(미평가)가 됩니다. 0종과는 다릅니다."/>
+                            <ctrl:SingleChoiceBox Options="{x:Static m:FormChoices.UnavailableReason}"
+                                                  Value="{Binding SurveyUnavailableReason}"
+                                                  ToolTipText="접근불가 / 건천화 / 준설 / 공사중 중 하나를 고르면 등급이 '-'(미평가)가 됩니다. 0종과는 다릅니다. 덧붙일 말은 비고에 적으세요."
+                                                  AutomationName="조사불가 사유"/>
                         </StackPanel>
                     </WrapPanel>
 
@@ -597,8 +598,10 @@
                         </telerik:GridViewDataColumn.CellEditTemplate>
                     </telerik:GridViewDataColumn>
 
-                    <!-- 학명 : 자동 상속되지만 잠기지 않는다(조사자가 덮어쓸 수 있다) -->
-                    <telerik:GridViewDataColumn Header="학명" Width="*" MinWidth="160"
+                    <!-- §27-7 ⑤(v0.5.2) : 읽기 전용 — 이 칸은 종목록 객체(SelectedSpecies)에 묶여 있어 고치면 행이 아니라
+                         메모리의 종목록이 바뀌었다(같은 종의 다른 행 · 다른 세션 · 종목록 창 · 내보내기에 번짐). 학명은 종목록 값 -->
+                    <telerik:GridViewDataColumn Header="학명" Width="*" MinWidth="160" IsReadOnly="True"
+                                                ToolTipService.ToolTip="종목록 학명(고칠 수 없음 — 종목록 값)"
                                                 DataMemberBinding="{Binding SelectedSpecies.SpeciesEn}">
                         <telerik:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
@@ -611,6 +614,12 @@
                     <!-- 개체수 : 미입력(null)과 실측 0 을 눈으로 구분한다 -->
                     <telerik:GridViewDataColumn Header="개체수" Width="96" TextAlignment="Right"
                                                 DataMemberBinding="{Binding IndividualCount}">
+                        <!-- §27-7 ④(v0.5.2) : 칸을 직접 고칠 때도 빠른추가와 같은 정수 검사(음수 · 소수점 · 글자 거부) -->
+                        <telerik:GridViewDataColumn.EditorStyle>
+                            <Style TargetType="TextBox">
+                                <Setter Property="core:IntegerInput.IsEnabled" Value="True"/>
+                            </Style>
+                        </telerik:GridViewDataColumn.EditorStyle>
                         <telerik:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
                                 <!-- ⚠ Style 을 속성과 속성요소로 함께 주면 XAML 이 중복 지정으로 막는다.
@@ -734,8 +743,7 @@
 
             <!-- 빈 상태 (README §11.4) : 빈 그리드를 그대로 두지 않는다.
                  아이콘 + 한 줄 안내 + 다음 행동을 함께 보여 준다.
-                 ⚠ Telerik 새 행 줄의 영문 안내는 이 앱에서 한글로 바꾸지 못했다 —
-                    그 문구의 리소스 키가 LocalizationManager 를 타지 않는다. 안내는 여기서 한다. -->
+                 새 행 줄 안내는 KoreanLocalizationManager(GridViewAlwaysVisibleNewRow)가 한글로 보인다(v0.5.2 하네스 확인). -->
             <StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
                         IsHitTestVisible="False" Margin="0 40 0 0"
                         Visibility="{Binding HasNoRows, Converter={StaticResource BoolToVisibility}}">
@@ -830,7 +838,7 @@
                                        ToolTipService.ToolTip="관리자 일괄입력용(전치 양식) · 현행 관리자 Import 취합용">
                         <StackPanel Orientation="Horizontal">
                             <icon:PackIconModern Kind="OfficeExcel" Width="14" Height="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="일괄입력 엑셀" Margin="4 0 0 0"/>
+                            <TextBlock Text="일괄입력용" Margin="4 0 0 0"/>
                         </StackPanel>
                     </telerik:RadButton>
                     <!-- 주요 : 가장 오른쪽 · 채운 강조색 -->

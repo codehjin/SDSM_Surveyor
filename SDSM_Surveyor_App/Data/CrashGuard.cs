@@ -93,7 +93,7 @@ public sealed class CrashGuard : ISingletonService
             LastNotice = string.Join("\n", lines);
 
             if (ShowMessage)
-                OnUi(() => MessageBox.Show(LastNotice, "오류 — SDSM 조사자 앱", MessageBoxButton.OK, MessageBoxImage.Warning));
+                OnUi(() => MessageBox.Show(LastNotice, $"오류 — {Helpers.AppInfo.ProgramName}", MessageBoxButton.OK, MessageBoxImage.Warning));
         }
         catch
         {

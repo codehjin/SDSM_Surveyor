@@ -74,6 +74,13 @@ public partial class MainSurveyWindowViewModel : ObservableObject, ISingletonSer
     /// <summary>분류군 재선택 팝오버가 열려 있는지(칩 테두리·배경이 이 값을 따라간다).</summary>
     [ObservableProperty] private bool _isTaxonPopupOpen;
 
+    // §27-7 ①(v0.5.2) : 칩은 IsChecked 를 이 값에 바로 묶는다(ToggleTaxonPopupCommand 를 거치지 않는다) —
+    // 열릴 때 입력량을 여기서 센다. 종전에는 늘 `·` 로 보였다.
+    partial void OnIsTaxonPopupOpenChanged(bool value)
+    {
+        if (value) RefreshCounts();
+    }
+
     /// <summary>
     /// 업로드 대기 건수. 업로드 큐는 아직 없다(design.md §11.3 — 🚧 부분 구현).
     /// 값이 0 이면 숫자를 지어내지 않고 「동기화」로만 표기한다.
@@ -97,11 +104,7 @@ public partial class MainSurveyWindowViewModel : ObservableObject, ISingletonSer
     /// 자료가 어디에 얼마나 있는지 보고 나서 바꾸게 하려는 것이다.
     /// </summary>
     [RelayCommand]
-    private void ToggleTaxonPopup()
-    {
-        if (!IsTaxonPopupOpen) RefreshCounts();
-        IsTaxonPopupOpen = !IsTaxonPopupOpen;
-    }
+    private void ToggleTaxonPopup() => IsTaxonPopupOpen = !IsTaxonPopupOpen;   // 열릴 때 입력량은 OnIsTaxonPopupOpenChanged 가 센다
 
     /// <summary>
     /// 담당 분류군을 바꾼다. **입력 중인 자료는 그대로 유지된다** —

@@ -119,6 +119,13 @@ public partial class MainSurveyWindow : Window, ISingletonService
     private void Info_Click(object sender, RoutedEventArgs e)
         => new AppInfoWindow { Owner = this }.ShowDialog();
 
+    // 사용설명서(§26-3 · v0.5.2) — 정보 창과 같은 방식. 못 열면 까닭을 알림 띠로
+    private void Manual_Click(object sender, RoutedEventArgs e)
+    {
+        if (Helpers.AppInfo.OpenPdf(Helpers.AppInfo.ManualPdfPath, Helpers.AppInfo.ManualMissingText) is { } why)
+            WeakReferenceMessenger.Default.Send(new NotifyMessage((why, false)));
+    }
+
     // 자료함(조사 세션 목록 · 불러오기 · 복제 · 삭제)
     private void Sessions_Click(object sender, RoutedEventArgs e)
         => new SessionBrowserWindow { Owner = this }.ShowDialog();

@@ -1,0 +1,58 @@
+<UserControl x:Class="SDSM_Surveyor_App.Views.UserControls.NoticeBand"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             Focusable="False">
+
+    <!-- 알림 띠(§27-2 · v0.5.2) — 상태 바 바로 위 한 줄. 알림이 없으면 접혀 자리를 차지하지 않는다.
+         DataContext 는 코드비하인드가 NoticeBandViewModel 싱글턴으로 넣는다(7개 화면이 같은 띠를 본다). -->
+    <Border Style="{StaticResource NoticeBandBorderStyle}"
+            Visibility="{Binding IsShown, Converter={StaticResource BoolToVisibility}}"
+            ToolTipService.ToolTip="{Binding FullText}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 색만으로 구분하지 않는다 — 성공은 체크, 주의는 느낌표 -->
+            <icon:PackIconMaterial Width="14" Height="14" VerticalAlignment="Center">
+                <icon:PackIconMaterial.Style>
+                    <Style TargetType="icon:PackIconMaterial">
+                        <Setter Property="Kind" Value="AlertCircleOutline"/>
+                        <Setter Property="Foreground" Value="{StaticResource DangerOnSurfaceBrush}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSuccess}" Value="True">
+                                <Setter Property="Kind" Value="CheckCircleOutline"/>
+                                <Setter Property="Foreground" Value="{StaticResource AccentOnSurfaceBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </icon:PackIconMaterial.Style>
+            </icon:PackIconMaterial>
+
+            <TextBlock x:Name="BandText" Grid.Column="1" Margin="8 0 8 0" Text="{Binding Text}"
+                       Style="{StaticResource NoticeBandTextStyle}"
+                       AutomationProperties.LiveSetting="Polite"/>
+
+            <!-- [×] — 포커스를 가져가지 않는다(입력 중 키보드 흐름을 끊지 않게) -->
+            <Button Grid.Column="2" Command="{Binding DismissCommand}" Focusable="False"
+                    Width="24" Height="24" Padding="0" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                    AutomationProperties.Name="알림 닫기" ToolTipService.ToolTip="알림 닫기">
+                <icon:PackIconMaterial Kind="Close" Width="10" Height="10">
+                    <icon:PackIconMaterial.Style>
+                        <Style TargetType="icon:PackIconMaterial">
+                            <Setter Property="Foreground" Value="{StaticResource DangerOnSurfaceBrush}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSuccess}" Value="True">
+                                    <Setter Property="Foreground" Value="{StaticResource AccentOnSurfaceBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </icon:PackIconMaterial.Style>
+                </icon:PackIconMaterial>
+            </Button>
+        </Grid>
+    </Border>
+</UserControl>

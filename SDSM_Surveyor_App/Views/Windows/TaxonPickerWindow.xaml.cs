@@ -46,7 +46,10 @@ public partial class TaxonPickerWindow : Window, ITransientService
     private void OnRequestSessionBrowser(object? sender, EventArgs e)
     {
         var loaded = new SessionBrowserWindow { Owner = this }.ShowDialog();
-        if (loaded == true) OnRequestClose(this, true);
+        if (loaded != true) return;
+        // §27-7 ②(v0.5.2) : [야장 열기] 와 같이 고른 분류군 · 체크를 저장한다(종전에는 이 길로 들어가면 저장되지 않았다)
+        ((ViewModels.TaxonPickerViewModel)DataContext).CommitSelection();
+        OnRequestClose(this, true);
     }
 
     // 프로그램 정보(v0.5.0)

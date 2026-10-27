@@ -126,7 +126,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
 
     // 위 헤더 값 변경 시에도 FAI 재계산
     partial void OnRiverChasuChanged(double? value) { RaiseEnvironmentSummary(); Recalculate(); }
-    partial void OnSurveyUnavailableReasonChanged(string? value) => Recalculate();
+    partial void OnSurveyUnavailableReasonChanged(string? value) { RaiseEnvironmentSummary(); Recalculate(); }
     partial void OnDeCountChanged(string? value) { RaiseEnvironmentSummary(); Recalculate(); }
     partial void OnEfCountChanged(string? value) { RaiseEnvironmentSummary(); Recalculate(); }
     partial void OnLeCountChanged(string? value) { RaiseEnvironmentSummary(); Recalculate(); }
@@ -155,11 +155,13 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     partial void OnHabitatFlowStateChanged(string? value) => RaiseEnvironmentSummary();
     partial void OnCollectionFlowStateChanged(string? value) => RaiseEnvironmentSummary();
 
-    /// <summary>선택지 밖 값 경고(C-4). 채집도구는 직접 입력을 허용하므로 보지 않는다.</summary>
+    /// <summary>선택지 밖 값 경고(C-4). 채집도구는 직접 입력을 허용하므로 보지 않는다.
+    /// 조사불가 사유(§27-4)도 — 예전 세션의 '접근불가(홍수)' 같은 글은 지우지 않고 알린다(등급은 SDSM_Core 판정 그대로).</summary>
     public string ChoiceWarning => FormChoices.Describe(
         ("하천형태", FormChoices.OutOfForm(HabitatRiverType, FormChoices.FishRiverForm)),
         ("흐름상태(유속)", FormChoices.OutOfForm(HabitatFlowState, FormChoices.FishVelocity) is string v ? new[] { v } : Array.Empty<string>()),
-        ("흐름상태(채집)", FormChoices.OutOfForm(CollectionFlowState, FormChoices.FlowState)));
+        ("흐름상태(채집)", FormChoices.OutOfForm(CollectionFlowState, FormChoices.FlowState)),
+        ("조사불가 사유", FormChoices.OutOfForm(SurveyUnavailableReason, FormChoices.UnavailableReason) is string r ? new[] { r } : Array.Empty<string>()));
 
     // ── 초고속 입력 그리드(Center-Left) ──
     /// <summary>종 행. 기반 클래스의 <c>Rows</c> 를 화면 바인딩 이름으로 노출한다.</summary>
@@ -184,9 +186,7 @@ public partial class FishEntryViewModel : SpeciesEntryViewModelBase<FishSpeciesE
     /// <summary>조사불가 사유가 선언되어 등급이 "-"가 되는 상태인지.</summary>
     private bool IsUnavailable =>
         !string.IsNullOrWhiteSpace(SurveyUnavailableReason)
-        && UnavailableReasons.Contains(SurveyUnavailableReason.Replace(" ", ""));
-
-    private static readonly string[] UnavailableReasons = { "접근불가", "건천화", "준설", "공사중" };
+        && FormChoices.UnavailableReason.Any(o => o.Value == SurveyUnavailableReason.Replace(" ", ""));   // SDSM_Core 와 같은 판정
 
     /// <summary>출현종 없음(0종) 선언 — 조사는 수행했으나 한 종도 확인되지 않았다는 뜻.
     /// 종 목록이 비었다는 사실만으로는 "아직 미입력"과 구분할 수 없어 명시적으로 선언받는다(12_CALC_FIX §2-1).</summary>

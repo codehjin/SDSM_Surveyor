@@ -1113,6 +1113,34 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
+    <!--=========== 알림 띠 (§27-2 · v0.5.2 · 상태 바 바로 위 한 줄) ===========
+         성공 = 강조 표면 + 강조 글자, 주의 = 위험 표면(연) + 위험 글자. 색만으로 구분하지 않는다(§11) —
+         아이콘(체크 / 느낌표)이 함께 바뀐다. DataContext = NoticeBandViewModel. -->
+    <Style x:Key="NoticeBandBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource DangerSurfaceSoftBrush}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource CornerRadiusSm}"/>
+        <Setter Property="Padding" Value="12 4 4 4"/>
+        <Setter Property="Margin" Value="0 0 0 6"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsSuccess}" Value="True">
+                <Setter Property="Background" Value="{StaticResource AccentSurfaceBrush}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="NoticeBandTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource LinkFontSize}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource DangerOnSurfaceBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsSuccess}" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource AccentOnSurfaceBrush}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <!--=========== 압정 토글 (조사개황 값 고정 · 20px) ===========-->
     <!-- 라벨 오른쪽에 붙는 아이콘 전용 토글. 테두리를 두지 않는다 —
          라벨 줄에 사각형이 6개 생기면 폼이 산만해진다.

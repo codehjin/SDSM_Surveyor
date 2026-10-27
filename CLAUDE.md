@@ -31,7 +31,8 @@
 App.xaml(.cs)          진입점(Windows11 테마 + DI)
 InjectableServices/    DI 마커 인터페이스
 Helpers/               SpeciesNameRank(후보 순서 같음→앞부분→포함 · D1) · GridSpeciesCommit · GridRowPicker 등 (초성 검색은 SDSM_Core.Helpers.ChosungHelper)
-                       · SpeciesNameMap(옛 학명 → 지침 표기 · 관리자와 같은 표) · SpeciesLookup(국명 + 학명으로 종 찾기) · AppInfo(프로그램 정보 한 곳 · v0.5.0)
+                       · SpeciesNameMap(옛 학명 → 지침 표기 · 관리자와 같은 표) · SpeciesLookup(국명 + 학명으로 종 찾기) · AppInfo(프로그램 정보 · 지침 원본 · 사용설명서 경로 한 곳 · v0.5.0 · v0.5.2)
+                       · RenderModeSwitch(흰 화면 대비 software_render 스위치 · v0.5.2 · §25)
 Behaviors/             ChosungFilteringBehavior · ExactNameHighlightBehavior(그리드 국명 칸 Enter = 똑같은 이름만 · D1)
                        · IntegerInput · DecimalInput(소수 칸 · v0.5.1) · NestedWheelScroll(바깥 스크롤 휠 넘김)
                        · DropDownWheelGuard(목록 열린 채 휠 = 목록만 · 밖이면 닫기 · 닫힌 콤보 휠로 값 안 바뀜 · 앱 전체)
@@ -41,7 +42,7 @@ Data/                  ISpeciesListProvider · SpeciesListProvider(시드)
                        · ISiteListProvider · SiteListProvider(지점 마스터) · SiteOrdering(정렬·St.번호 · C-7) · RegionTable(권역 · C-6)
                        · ISessionStore · SessionStore(세션 파일) · SessionService(화면↔세션) · SessionArchive(자료함 zip · C-9)
                        · ITaxonSession(분류군별 저장/복원 규약)
-Messengers/            NotifyMessage (토스트)
+Messengers/            NotifyMessage (알림 — 받는 곳은 ViewModels\NoticeBandViewModel · 상태 바 위 알림 띠 · v0.5.2)
 ViewModels/            분류군별 EntryViewModel (+ Sessions/*.Session.cs 저장·복원)
 Export/                분류군별 exporter 14종 · ExcelStyle · SiteColumns(구분 4열) · BulkTemplate(일괄입력 내장본)
                        · BatchExporter · CombinedReport(여러 지점 일괄 출력 · C-8)
@@ -62,7 +63,9 @@ Views/UserControls/    분류군별 EntryControl · FillPanel(화면 전체 스�
   조사개황은 세션당 한 벌이기 때문이다. 그래서 어느 탭에서 지점을 적어도 나머지 6개 탭에 그대로 보인다.
 - `SessionService` 는 7개 VM을 **`IServiceProvider`로 늦게** 가져온다. 각 VM이 `ISessionService`를 주입받으므로
   생성자 주입은 순환 의존이 되어 앱이 아예 시작되지 않는다.
-- 컬렉션은 `RadObservableCollection<T>`. 토스트는 `WeakReferenceMessenger` + `NotifyMessage`.
+- 컬렉션은 `RadObservableCollection<T>`. 알림은 `WeakReferenceMessenger` + `NotifyMessage` → `NoticeBandViewModel`(싱글턴 · App.OnStartup 에서 먼저 만듦)이 받아
+  7개 화면 상태 바 위 `NoticeBand` 한 줄로 보인다(성공 4초 · 주의 8초 · [×] · 차례로 · 포커스 안 가져감 · v0.5.2 §27-2).
+  내보내기 완료처럼 '저장 완료' 창 · 상태 바가 이미 알리는 것은 띠로 또 보내지 않는다(확인할 것이 있을 때만 · `NotifyExported`).
 
 ---
 
@@ -118,6 +121,8 @@ Views/UserControls/    분류군별 EntryControl · FillPanel(화면 전체 스�
 - 관찰형은 종 선택·붙여넣기 시 학명·목·과가 자동으로 채워진다. **학명은 종목록대로(2026-10-18 결정 D2)** —
   종목록 국명이면 학명 칸이 잠기고, 붙여넣기·직접 수정·예전 세션 불러오기에서 다른 학명이 들어오면 종목록 학명으로 바꾸고
   "학명 N건을 종목록대로 바꿨습니다" 로 알린다(`ScientificNameRule`). **목록 밖 국명만 학명을 직접 입력**한다. 목·과는 덮어쓸 수 있다.
+- 어류 · 저서 그리드 학명 열은 **읽기 전용**(v0.5.2 · §27-7 ⑤) — 칸이 `SelectedSpecies.SpeciesEn`(공유 종목록 객체)에 묶여 있어
+  고치면 행이 아니라 메모리의 종목록이 바뀌었다(다른 행 · 다른 세션 · 종목록 창 · 세션 · 내보내기에 번짐). 목록 밖 어류 · 저서 행의 학명 칸은 없다.
   보호종(멸종위기·천연기념물)과 **생태계교란생물은 의미가 반대이므로 표기·색을 분리**한다.
 
 ---
@@ -170,6 +175,20 @@ Views/UserControls/    분류군별 EntryControl · FillPanel(화면 전체 스�
   VM·DTO 의 `Bedrock`·`Concrete` 는 세션 읽기 호환으로만 남는다. 예전 세션을 열 때 0 보다 큰 값은 특이사항 끝에
   '하상 암반 n% · 콘크리트 n%(지침 저서 하상 6칸 밖 · 옮김)'(글이 있으면 ' / ' 로 이음)로 옮기고 칸을 비운 뒤 한 번 알린다(`MoveRockConcreteToNote` · 저장은 조사자).
   옮겼으면 `ITaxonSession.RestoreAdjusted` = true → `SessionService.LoadAsync` 가 불러온 직후를 '저장 안 한 변경'으로 둔다(닫기·다른 세션 열기 때 저장 확인 · G2).
+- **v0.5.2(2026-10-27 · 지시서 §25~§27)** —
+  · **흰 화면 스위치(§25)** — 실행 폴더에 확장자를 뺀 이름이 `software_render`(대소문자 무관 · `software_render.txt.txt` 도)인 파일이 있으면
+    App 생성자 맨 앞에서 `RenderMode.SoftwareOnly`(`Helpers\RenderModeSwitch` 한 곳 · 폴더를 못 읽으면 그래픽카드). 정보 창 「화면 그리기」 줄.
+    시험 하네스가 화면을 봐야 하면 하네스 실행 폴더에 그 파일을 둔다(앱 코드에 시험용 분기 없음).
+  · **사용설명서(§26-3)** — 메인 창 캡션 바 [사용설명서] · 정보 창 [지침 원본 보기] 옆 [사용설명서] → 실행 폴더 `manual\surveyor_manual.pdf`
+    (`AppInfo.ManualPdfRelative` · 여는 방법은 지침 원본과 같은 `AppInfo.OpenPdf`). 없으면 「사용설명서 파일이 없습니다 — …」(메인 창은 알림 띠).
+    csproj 는 `manual\*.pdf` 를 출력으로 복사(파일 없으면 건너뜀). 원고는 `docs\manual\`.
+  · **조사불가 사유(§27-4)** — 어류 「조사불가 사유」 · 저서 「채집불가시(사유)」는 `FormChoices.UnavailableReason`(접근불가 · 건천화 · 준설 · 공사중) 고르기 칸.
+    SDSM_Core 판정 낱말과 글자까지 같다. 예전 세션의 다른 글은 지우지 않고 양식 외 값 경고(관리자 일괄등록이 막지 않으므로 [일괄입력용] 도 막지 않음).
+    서식수변은 그대로(글에 '접근불가' 가 들어 있으면 '-' · `HabitatEvaluator`) — 툴팁만 그 동작대로.
+  · **칸 검사 넓힘(§27-7 ④)** — 그리드 개체수 칸 직접 편집(어류 · 조류 = `IntegerInput` · 저서 = `DecimalInput`, `GridViewDataColumn.EditorStyle`) ·
+    포유류 흔적 12칸 · 양서파충류 관찰 6칸(`IntegerInput`). 종전에는 '-3' 이 그대로 들어갔다.
+  · 분류군 칩 팝오버 입력량(`OnIsTaxonPopupOpenChanged`) · [자료함에서 이어하기] 도 분류군 · 체크 저장(`TaxonPickerViewModel.CommitSelection`) ·
+    서식수변 점수 목록 아래 [비우기](Delete · Backspace 로도 비워짐).
 - **판 표시는 세 자리(G2 · 2026-10-21)** — 제목 `v0.4.1`(`Version.ToString(3)`) · 배포 압축 맨 위 폴더 `SDSM_Surveyor_v0.4.1\` · 압축 파일 `SDSM_Surveyor_[테스트_]v0.4.1_yyyyMMdd.zip`(`tools\publish.ps1`).
 - **저서 개체밀도(inds./㎡ · 2026-10-19 결정 H1) — 표시만.** 화면 건강성과 보고서 엑셀(조사개황 채집 면적·근거 · 출현종 종별 열 · 건강성평가 면적·총 개체밀도 · 각주)에만 낸다.
   면적표는 `Models\BenthosDensity.cs` 한 곳(Surber 30×30 0.09㎡ · 50×50 0.25㎡ · 에크만 0.0225㎡ × 횟수). 드렛지/D-Net 이 섞이면 '환산 불가', 횟수가 없으면 계산하지 않는다.

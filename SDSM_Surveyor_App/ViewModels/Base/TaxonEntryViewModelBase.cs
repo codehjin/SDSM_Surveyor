@@ -107,11 +107,15 @@ public abstract partial class TaxonEntryViewModelBase : ObservableObject
         return Compose("자료함에 저장되었습니다.", all, riverType: true, riverTypeWater: true);
     }
 
-    /// <summary>내보내기 알림 — 이 분류군의 빈 행·양식에 없는 값을 함께(경고만).</summary>
+    /// <summary>
+    /// 내보내기 알림 — 이 분류군의 빈 행·양식에 없는 값을 함께(경고만).
+    /// §27-2(v0.5.2) : 확인할 것이 없으면 띄우지 않는다 — '저장 완료' 창과 상태 바가 이미 알려 띠까지 세 번 같은 말이 된다.
+    /// </summary>
     protected void NotifyExported(string head)
     {
         var text = Compose(head, new[] { this }, UsesRiverType, UsesRiverTypeWater);
-        WeakReferenceMessenger.Default.Send(new NotifyMessage((text, text == head)));
+        if (text == head) return;
+        WeakReferenceMessenger.Default.Send(new NotifyMessage((text, false)));
     }
 
     /// <summary>공통 조사개황 : 모든 분류군 공유(SurveyOverviewControl에서 입력).</summary>

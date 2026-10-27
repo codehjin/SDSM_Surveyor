@@ -90,9 +90,15 @@ public partial class TaxonPickerViewModel : ObservableObject, ITransientService
     [RelayCommand]
     private void Open()
     {
+        CommitSelection();
+        RequestClose?.Invoke(this, true);
+    }
+
+    /// <summary>고른 분류군 · 「다음 실행에도 …」 를 설정에 저장한다 — [야장 열기] · [자료함에서 이어하기] 둘 다(§27-7 ②).</summary>
+    public void CommitSelection()
+    {
         _selection.RememberOnStartup = RememberOnStartup;
         _selection.Commit();
-        RequestClose?.Invoke(this, true);
     }
 
     [RelayCommand]

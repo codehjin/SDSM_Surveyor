@@ -193,7 +193,7 @@
                                                    VerticalAlignment="Top" Margin="0 2 6 0"
                                                    Foreground="{StaticResource DangerOnSurfaceBrush}"/>
                             <TextBlock Style="{StaticResource WarnBoxTextStyle}"
-                                       Text="조사불가(접근불가)로 등급 산정에서 빠집니다. 서식수변의 조사불가 사유는 '접근불가' 하나뿐입니다(어류 FAI 는 4종)."/>
+                                       Text="조사불가(접근불가)로 등급 산정에서 빠집니다. 조사불가시 글에 '접근불가' 가 들어 있으면 등급이 '-' 가 됩니다(건천화 · 준설 · 공사중 등 다른 사유는 등급에 영향이 없습니다)."/>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -225,7 +225,7 @@
                         <telerik:RadWatermarkTextBox BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}" MinHeight="{StaticResource InputHeight}" TextWrapping="Wrap" VerticalContentAlignment="Center"
                                                      WatermarkContent="접근불가"
                                                      Text="{Binding SurveyUnavailableReason, UpdateSourceTrigger=PropertyChanged}"
-                                                     ToolTipService.ToolTip="서식수변의 조사불가 사유는 '접근불가' 하나뿐이다(어류 FAI 는 4종)."/>
+                                                     ToolTipService.ToolTip="글에 '접근불가' 가 들어 있으면 조사불가로 보고 등급을 '-'(미평가)로 둡니다(점수는 계산해 보입니다). 건천화 · 준설 · 공사중 같은 다른 사유는 적어 두기만 하고 등급에는 영향이 없습니다."/>
                     </StackPanel>
                     <StackPanel Style="{StaticResource FormFieldXlStyle}">
                         <TextBlock Text="비고" Style="{StaticResource FormLabelStyle}"/>
@@ -293,6 +293,7 @@
                                    Style="{StaticResource CaptionTextStyle}"/>
                         <Border Grid.Row="1" Grid.ColumnSpan="8" Style="{StaticResource HorizontalDividerStyle}"/>
 
+                        <!-- §27-7 ③(v0.5.2) : 고른 점수는 Delete · Backspace 로도 비워지지만 찾기 어려워 목록 아래 [비우기] 를 둔다(SingleChoiceBox 와 같은 글자) -->
                         <!-- 1. 자연적 종횡사주 -->
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="1. 자연적 종횡사주" Style="{StaticResource HwItemLabel}"
                                    ToolTipService.ToolTip="{Binding Criteria[0].ContentLine}"/>
@@ -301,7 +302,8 @@
                         <telerik:RadComboBox Grid.Row="2" Grid.Column="3" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt1}" DisplayMemberPath="Display" SelectedItem="{Binding S1, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="1. 자연적 종횡사주"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="1. 자연적 종횡사주"
                             ToolTipService.ToolTip="{Binding Criteria[0].ScoringText}"/>
                         <TextBlock Grid.Row="2" Grid.Column="6" Text="{Binding Sc1}" Style="{StaticResource HwScore}"/>
 
@@ -314,13 +316,15 @@
                         <telerik:RadComboBox Grid.Row="3" Grid.Column="3" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt2}" DisplayMemberPath="Display" SelectedItem="{Binding B2L, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="2. 하도 자연성 (좌)"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="2. 하도 자연성 (좌)"
                             ToolTipService.ToolTip="{Binding Criteria[1].ScoringText}"/>
                         <TextBlock Grid.Row="3" Grid.Column="4" Text="우" Style="{StaticResource HwBankTag}" Margin="{StaticResource HwRightTagMargin}"/>
                         <telerik:RadComboBox Grid.Row="3" Grid.Column="5" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt2}" DisplayMemberPath="Display" SelectedItem="{Binding B2R, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="2. 하도 자연성 (우)"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="2. 하도 자연성 (우)"
                             ToolTipService.ToolTip="{Binding Criteria[1].ScoringText}"/>
                         <TextBlock Grid.Row="3" Grid.Column="6" Text="{Binding Sc2}" Style="{StaticResource HwScore}"/>
 
@@ -332,7 +336,8 @@
                         <telerik:RadComboBox Grid.Row="4" Grid.Column="3" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt3}" DisplayMemberPath="Display" SelectedItem="{Binding S3, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="3. 유속 다양성"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="3. 유속 다양성"
                             ToolTipService.ToolTip="{Binding Criteria[2].ScoringText}"/>
                         <TextBlock Grid.Row="4" Grid.Column="6" Text="{Binding Sc3}" Style="{StaticResource HwScore}"/>
 
@@ -344,7 +349,8 @@
                         <telerik:RadComboBox Grid.Row="5" Grid.Column="3" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt4}" DisplayMemberPath="Display" SelectedItem="{Binding S4, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="4. 하천변 폭"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="4. 하천변 폭"
                             ToolTipService.ToolTip="{Binding Criteria[3].ScoringText}"/>
                         <TextBlock Grid.Row="5" Grid.Column="6" Text="{Binding Sc4}" Style="{StaticResource HwScore}"/>
 
@@ -357,13 +363,15 @@
                         <telerik:RadComboBox Grid.Row="6" Grid.Column="3" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt5}" DisplayMemberPath="Display" SelectedItem="{Binding B5L, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="5. 저수로 하안공 (좌)"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="5. 저수로 하안공 (좌)"
                             ToolTipService.ToolTip="{Binding Criteria[4].ScoringText}"/>
                         <TextBlock Grid.Row="6" Grid.Column="4" Text="우" Style="{StaticResource HwBankTag}" Margin="{StaticResource HwRightTagMargin}"/>
                         <telerik:RadComboBox Grid.Row="6" Grid.Column="5" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt5}" DisplayMemberPath="Display" SelectedItem="{Binding B5R, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="5. 저수로 하안공 (우)"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="5. 저수로 하안공 (우)"
                             ToolTipService.ToolTip="{Binding Criteria[4].ScoringText}"/>
                         <TextBlock Grid.Row="6" Grid.Column="6" Text="{Binding Sc5}" Style="{StaticResource HwScore}"/>
 
@@ -376,13 +384,15 @@
                         <telerik:RadComboBox Grid.Row="7" Grid.Column="3" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt6}" DisplayMemberPath="Display" SelectedItem="{Binding B6L, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="6. 제방하안 재료 (좌)"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="6. 제방하안 재료 (좌)"
                             ToolTipService.ToolTip="{Binding Criteria[5].ScoringText}"/>
                         <TextBlock Grid.Row="7" Grid.Column="4" Text="우" Style="{StaticResource HwBankTag}" Margin="{StaticResource HwRightTagMargin}"/>
                         <telerik:RadComboBox Grid.Row="7" Grid.Column="5" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt6}" DisplayMemberPath="Display" SelectedItem="{Binding B6R, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="6. 제방하안 재료 (우)"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="6. 제방하안 재료 (우)"
                             ToolTipService.ToolTip="{Binding Criteria[5].ScoringText}"/>
                         <TextBlock Grid.Row="7" Grid.Column="6" Text="{Binding Sc6}" Style="{StaticResource HwScore}"/>
 
@@ -394,7 +404,8 @@
                         <telerik:RadComboBox Grid.Row="8" Grid.Column="3" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt7}" DisplayMemberPath="Display" SelectedItem="{Binding S7, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="7. 저질 상태"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="7. 저질 상태"
                             ToolTipService.ToolTip="{Binding Criteria[6].ScoringText}"/>
                         <TextBlock Grid.Row="8" Grid.Column="6" Text="{Binding Sc7}" Style="{StaticResource HwScore}"/>
 
@@ -406,7 +417,8 @@
                         <telerik:RadComboBox Grid.Row="9" Grid.Column="3" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt8}" DisplayMemberPath="Display" SelectedItem="{Binding S8, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="8. 횡구조물"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="8. 횡구조물"
                             ToolTipService.ToolTip="{Binding Criteria[7].ScoringText}"/>
                         <TextBlock Grid.Row="9" Grid.Column="6" Text="{Binding Sc8}" Style="{StaticResource HwScore}"/>
 
@@ -419,13 +431,15 @@
                         <telerik:RadComboBox Grid.Row="10" Grid.Column="3" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt9}" DisplayMemberPath="Display" SelectedItem="{Binding B9L, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="9. 제외지 토지 이용 (좌)"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="9. 제외지 토지 이용 (좌)"
                             ToolTipService.ToolTip="{Binding Criteria[8].ScoringText}"/>
                         <TextBlock Grid.Row="10" Grid.Column="4" Text="우" Style="{StaticResource HwBankTag}" Margin="{StaticResource HwRightTagMargin}"/>
                         <telerik:RadComboBox Grid.Row="10" Grid.Column="5" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt9}" DisplayMemberPath="Display" SelectedItem="{Binding B9R, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="9. 제외지 토지 이용 (우)"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="9. 제외지 토지 이용 (우)"
                             ToolTipService.ToolTip="{Binding Criteria[8].ScoringText}"/>
                         <TextBlock Grid.Row="10" Grid.Column="6" Text="{Binding Sc9}" Style="{StaticResource HwScore}"/>
 
@@ -438,13 +452,15 @@
                         <telerik:RadComboBox Grid.Row="11" Grid.Column="3" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt10}" DisplayMemberPath="Display" SelectedItem="{Binding B10L, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="10. 제내지 토지 이용 (좌)"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="10. 제내지 토지 이용 (좌)"
                             ToolTipService.ToolTip="{Binding Criteria[9].ScoringText}"/>
                         <TextBlock Grid.Row="11" Grid.Column="4" Text="우" Style="{StaticResource HwBankTag}" Margin="{StaticResource HwRightTagMargin}"/>
                         <telerik:RadComboBox Grid.Row="11" Grid.Column="5" Width="{StaticResource HwComboWidth}" Margin="0 4"
                             BorderBrush="{StaticResource InputBorderBrush}" BorderThickness="{StaticResource BorderThin}" Background="{StaticResource InputBackBrush}"
                             ItemsSource="{Binding Opt10}" DisplayMemberPath="Display" SelectedItem="{Binding B10R, Mode=TwoWay}"
-                            core:ScoreKeySelect.ScorePath="Score" AutomationProperties.Name="10. 제내지 토지 이용 (우)"
+                            core:ScoreKeySelect.ScorePath="Score"
+                            ClearSelectionButtonVisibility="Visible" ClearSelectionButtonContent="비우기" AutomationProperties.Name="10. 제내지 토지 이용 (우)"
                             ToolTipService.ToolTip="{Binding Criteria[9].ScoringText}"/>
                         <TextBlock Grid.Row="11" Grid.Column="6" Text="{Binding Sc10}" Style="{StaticResource HwScore}"/>
                     </Grid>

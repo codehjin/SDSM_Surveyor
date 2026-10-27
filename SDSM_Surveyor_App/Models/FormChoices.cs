@@ -122,6 +122,13 @@ public static class FormChoices
     /// <summary>흐름상태(유속)(28행) — 아주빠름 / 빠름 / 보통 / 느림 / 정체 · 단일 · 이름.</summary>
     public static IReadOnlyList<FormChoice> FishVelocity { get; } = Names("아주빠름", "빠름", "보통", "느림", "정체");
 
+    // ── 어류 · 저서 조사불가 사유 ──
+    /// <summary>
+    /// 조사불가 사유(어류 양식 29행 · 저서 44행) — 접근불가 / 건천화 / 준설 / 공사중 · 단일 · 이름(§27-4 · v0.5.2).
+    /// 관리자 SDSM_Core 판정 낱말과 글자까지 같다 — 고르면 등급이 '-'(미평가). 덧붙일 말은 비고 · 특이사항에.
+    /// </summary>
+    public static IReadOnlyList<FormChoice> UnavailableReason { get; } = Names("접근불가", "건천화", "준설", "공사중");
+
     // ── 저서동물 `입력` ──
     /// <summary>식생 수피도(20행) — 1 없음 / 2 부분적 / 3 짙음 · 단일 · <b>코드 숫자</b>.</summary>
     public static IReadOnlyList<FormChoice> CanopyCover { get; } = new[]

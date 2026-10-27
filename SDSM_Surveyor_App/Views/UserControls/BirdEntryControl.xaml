@@ -106,8 +106,15 @@
             </telerik:GridViewDataColumn>
 
             <!-- 개체수 : 국명 바로 옆 (엑셀 [국명,개체수] 2열 붙여넣기 정렬) -->
+            <!-- §27-7 ④(v0.5.2) : 칸을 직접 고칠 때도 빠른추가와 같은 정수 검사(음수 · 소수점 · 글자 거부) -->
             <telerik:GridViewDataColumn Header="개체수" Width="84" DataMemberBinding="{Binding IndividualCount}"
-                                        DataFormatString="{}{0:N0}" TextAlignment="Right"/>
+                                        DataFormatString="{}{0:N0}" TextAlignment="Right">
+                <telerik:GridViewDataColumn.EditorStyle>
+                    <Style TargetType="TextBox">
+                        <Setter Property="core:IntegerInput.IsEnabled" Value="True"/>
+                    </Style>
+                </telerik:GridViewDataColumn.EditorStyle>
+            </telerik:GridViewDataColumn>
             <telerik:GridViewDataColumn Header="학명" Width="150" DataMemberBinding="{Binding SpeciesEn}"
                                         IsReadOnlyBinding="{Binding IsScientificNameLocked}"
                                         ToolTipService.ToolTip="종목록에 있는 국명은 학명이 종목록대로 들어갑니다(고칠 수 없음) · 목록 밖 국명만 직접 입력(D2)"/>
